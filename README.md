@@ -34,7 +34,7 @@
 
 O aplicativo utiliza **Google Cloud Firestore** para armazenar dados dos usuários e receitas.
 
-**EM ANDAMENTO****
+**EM ANDAMENTO**
 
 
 ## 🚀 Como Rodar

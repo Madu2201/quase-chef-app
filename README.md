@@ -80,7 +80,6 @@ quase-chef/
 │   ├── components/          # Componentes reutilizáveis
 │   │   ├── Cabecalho.tsx
 │   │   ├── CartaoReceita.tsx
-│   │   ├── DicaSubstituicao.tsx
 │   │   ├── ItemIngrediente.tsx
 │   │   └── ItemLista.tsx
 │   ├── screens/             # Telas principais
@@ -90,6 +89,7 @@ quase-chef/
 │   │   ├── IAScreen.tsx
 │   │   ├── DetalheReceitaScreen.tsx
 │   │   ├── PreparoScreen.tsx
+│   │   ├── ReceitasScreen.tsx
 │   │   ├── FavoritosScreen.tsx
 │   │   ├── DispensaScreen.tsx
 │   │   ├── ListaComprasScreen.tsx

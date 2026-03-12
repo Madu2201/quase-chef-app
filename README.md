@@ -2,17 +2,6 @@
 
 **Quase Chef** é um aplicativo mobile inteligente de receitas sendo desenvolvido em React Native com Expo.
 
-### Principais Funcionalidades:
-
-- ✅ **Autenticação de Usuários**
-- ✅ **Feed de Receitas**
-- ✅ **IA Inteligente**
-- ✅ **Gerenciamento de Despensa**
-- ✅ **Lista de Compras**
-- ✅ **Receitas Favoritas**
-- ✅ **Preparo Passo a Passo**
-- ✅ **Perfil do Usuário**
-
 ## 🛠️ Tecnologias Utilizadas
 
 - **Framework** React Native + Expo
@@ -28,29 +17,25 @@
 
 ## 📱 Estrutura de Telas
 
-### Descrição das Telas:
-
 - **Login** - Autenticação de usuários existentes com email e senha
-- **Cadastro** - Criação de novas contas de usuário
-- **Início** - Feed principal com receitas pré-definidas e descoberta
-- **IA** - Interface para sugestões inteligentes de receitas e substituições
-- **Detalhe da Receita** - Visualização completa da receita (ingredientes, modo de preparo, dicas)
-- **Preparo** - Guia passo a passo interativo para preparar a receita
+- **Cadastro** - Criação de novas contas de usuários
+- **Esqueci minha senha** - Recuperação de senha para usuários existentes
+- **Perfil** - Informações do usuário
+- **Início** - Feed principal com filtros, gerar receita com IA e sugestões de rápidas
+- **IA** - Interface para sugestões inteligentes de receitas com os itens disponíveis em casa
+- **Receitas** - Tela principal de receitas pré-definidas, com filtros e busca, também podendo buscar pelos itens disponíveis na dispensa
+- **Detalhe da Receita** - Visualização completa da receita e suas informações
+- **Preparo** - Guia passo a passo para preparar a receita
 - **Favoritos** - Coleção de receitas salvas pelo usuário
 - **Dispensa** - Gerenciamento de ingredientes disponíveis em casa
-- **Lista de Compras** - Organização e checklist de itens a comprar
-- **Perfil** - Informações do usuário e configurações (logout, delete conta, etc.)
+- **Lista de Compras** - Organização e checklist de itens a comprar e comprados
 
 ## 🗄️ Banco de Dados (Firestore)
 
-O aplicativo utiliza **Google Cloud Firestore** para armazenar dados dos usuários e receitas:
+O aplicativo utiliza **Google Cloud Firestore** para armazenar dados dos usuários e receitas.
 
-- **Usuários**: Armazena informações sobre os usuários, como nome, email, senha, etc.
-- **Receitas**: Armazena informações sobre as receitas, como nome, ingredientes, modo de preparo, etc.
-- **Favoritos**: Armazena as receitas favoritas dos usuários.
-- **Dispensa**: Armazena os ingredientes disponíveis em casa dos usuários.
-- **Lista de Compras**: Armazena os itens a comprar dos usuários.
-- **Perfil**: Armazena informações sobre o perfil do usuário, como nome, foto de perfil, etc.
+**EM ANDAMENTO****
+
 
 ## 🚀 Como Rodar
 
@@ -88,7 +73,7 @@ npx expo start --web
 Ctrl + C
 ```
 
-## 📂 Estrutura do Projeto
+## 📂 Estrutura do Projeto EM ANDAMENTO PODENDO MUDAR
 
 ```
 quase-chef/

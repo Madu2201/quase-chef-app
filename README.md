@@ -13,7 +13,6 @@
 - **Autenticação & BD** Firebase Authentication + Firestore
 - **APIs Externas** TheMealDB (receitas), OpenAI/Gemini (IA)
 
-
 ## 📱 Estrutura de Telas
 
 - **Login** - Autenticação de usuários existentes com email e senha
@@ -34,7 +33,6 @@
 O aplicativo utiliza **Google Cloud Firestore** para armazenar dados dos usuários e receitas.
 
 **EM ANDAMENTO**
-
 
 ## 🚀 Como Rodar
 

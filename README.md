@@ -11,7 +11,7 @@
 - **Animações** React Native Reanimated 
 - **Navegação** React Navigation (Bottom Tabs + Stack Navigator)
 - **Autenticação & BD** Firebase Authentication + Firestore
-- **APIs Externas** TheMealDB (receitas), OpenAI/Gemini (IA)
+- **APIs Externas** TheMealDB (receitas), Gemini (IA)
 
 ## 📱 Estrutura de Telas
 
@@ -71,43 +71,3 @@ Ctrl + C
 ```
 
 ## 📂 Estrutura do Projeto EM ANDAMENTO PODENDO MUDAR
-
-```
-quase-chef/
-├── src/
-│   ├── components/          # Componentes reutilizáveis
-│   │   ├── Cabecalho.tsx
-│   │   ├── CartaoReceita.tsx
-│   │   ├── ItemIngrediente.tsx
-│   │   └── ItemLista.tsx
-│   ├── screens/             # Telas principais
-│   │   ├── LoginScreen.tsx
-│   │   ├── CadastroScreen.tsx
-│   │   ├── InicioScreen.tsx
-│   │   ├── IAScreen.tsx
-│   │   ├── DetalheReceitaScreen.tsx
-│   │   ├── PreparoScreen.tsx
-│   │   ├── ReceitasScreen.tsx
-│   │   ├── FavoritosScreen.tsx
-│   │   ├── DispensaScreen.tsx
-│   │   ├── ListaComprasScreen.tsx
-│   │   └── PerfilScreen.tsx
-│   ├── navigation/          # Configuração de navegação
-│   │   ├── NavegadorPilhas.tsx
-│   │   └── AbasInferiores.tsx
-│   ├── services/            # Serviços e integrações
-│   │   ├── api.ts           # TheMealDB
-│   │   ├── autenticacao.ts  # Firebase Auth
-│   │   ├── banco.ts         # Firestore
-│   │   └── ia.ts            # OpenAI/Gemini
-│   ├── utils/               # Utilitários
-│   │   ├── constantes.ts
-│   │   ├── estilos.ts
-│   │   └── hooks.ts
-│   └── assets/              # Imagens, fontes, etc.
-├── app.json                 # Configuração Expo
-├── tsconfig.json            # Configuração TypeScript
-├── tailwind.config.js       # Configuração Tailwind/NativeWind
-├── package.json             # Dependências do projeto
-└── README.md                # Descrição geral do projeto
-```

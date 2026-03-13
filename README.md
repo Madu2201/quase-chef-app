@@ -1,4 +1,4 @@
-# 📱 Quase Chef - App de Receitas EM ANDAMENTO E PODE SER MUDADO
+# 📱 Quase Chef - App de Receitas EM ANDAMENTO
 
 **Quase Chef** é um aplicativo mobile inteligente de receitas sendo desenvolvido em React Native com Expo.
 
@@ -28,11 +28,9 @@
 - **Dispensa** - Gerenciamento de ingredientes disponíveis em casa
 - **Lista de Compras** - Organização e checklist de itens a comprar e comprados
 
-## 🗄️ Banco de Dados (Firestore)
+## 🗄️ Banco de Dados (Firestore) EM ANDAMENTO
 
 O aplicativo utiliza **Google Cloud Firestore** para armazenar dados dos usuários e receitas.
-
-**EM ANDAMENTO**
 
 ## 🚀 Como Rodar
 
@@ -70,44 +68,4 @@ npx expo start --web
 Ctrl + C
 ```
 
-## 📂 Estrutura do Projeto EM ANDAMENTO PODENDO MUDAR
-
-```
-quase-chef/
-├── src/
-│   ├── components/          # Componentes reutilizáveis
-│   │   ├── Cabecalho.tsx
-│   │   ├── CartaoReceita.tsx
-│   │   ├── ItemIngrediente.tsx
-│   │   └── ItemLista.tsx
-│   ├── screens/             # Telas principais
-│   │   ├── LoginScreen.tsx
-│   │   ├── CadastroScreen.tsx
-│   │   ├── InicioScreen.tsx
-│   │   ├── IAScreen.tsx
-│   │   ├── DetalheReceitaScreen.tsx
-│   │   ├── PreparoScreen.tsx
-│   │   ├── ReceitasScreen.tsx
-│   │   ├── FavoritosScreen.tsx
-│   │   ├── DispensaScreen.tsx
-│   │   ├── ListaComprasScreen.tsx
-│   │   └── PerfilScreen.tsx
-│   ├── navigation/          # Configuração de navegação
-│   │   ├── NavegadorPilhas.tsx
-│   │   └── AbasInferiores.tsx
-│   ├── services/            # Serviços e integrações
-│   │   ├── api.ts           # TheMealDB
-│   │   ├── autenticacao.ts  # Firebase Auth
-│   │   ├── banco.ts         # Firestore
-│   │   └── ia.ts            # OpenAI/Gemini
-│   ├── utils/               # Utilitários
-│   │   ├── constantes.ts
-│   │   ├── estilos.ts
-│   │   └── hooks.ts
-│   └── assets/              # Imagens, fontes, etc.
-├── app.json                 # Configuração Expo
-├── tsconfig.json            # Configuração TypeScript
-├── tailwind.config.js       # Configuração Tailwind/NativeWind
-├── package.json             # Dependências do projeto
-└── README.md                # Descrição geral do projeto
-```
+## 📂 Estrutura do Projeto EM ANDAMENTO

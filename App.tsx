@@ -1,66 +1,45 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { View, Text, Button, StyleSheet } from "react-native";
+import { gerarReceita } from "./src/services/gemini";
 
 export default function App() {
-  const [resposta, setResposta] = useState("Carregando...");
+  const [receita, setReceita] = useState<string>("");
 
-  useEffect(() => {
-    async function chamarGemini() {
-      try {
-        // Aqui você coloca sua chave direto
-        const key = process.env.GEMINI_API_KEY;
-
-        if (!key) {
-          setResposta("❌ Chave não encontrada");
-          return;
-        }
-
-        const response = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { text: "Me dê uma receita simples com banana." }
-                  ]
-                }
-              ]
-            }),
-          }
-        );
-
-        const data = await response.json();
-        const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        setResposta(texto || "❌ Não veio resposta");
-      } catch (error) {
-        setResposta("Erro: " + error);
-      }
+  async function handleGerarReceita() {
+    try {
+      const texto = await gerarReceita();
+      setReceita(texto);
+    } catch (error) {
+      console.error("Erro ao gerar receita:", error);
+      setReceita("Não foi possível gerar a receita.");
     }
-
-    chamarGemini();
-  }, []);
+  }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#FF7F00",
-      }}
-    >
-      <h1 style={{ color: "white", fontSize: "2rem", fontWeight: "bold" }}>
-        Quase Chef!
-      </h1>
-      <p style={{ color: "white", fontSize: "1.2rem", maxWidth: "600px", textAlign: "center" }}>
-        {resposta}
-      </p>
-    </div>
+    <View style={styles.container}>
+      <Text style={styles.titulo}>🍳 Quase Chef</Text>
+      <Button title="Gerar Receita" onPress={handleGerarReceita} />
+      {receita ? <Text style={styles.receita}>{receita}</Text> : null}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#fff",
+  },
+  titulo: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  receita: {
+    marginTop: 20,
+    fontSize: 16,
+    textAlign: "center",
+  },
+});

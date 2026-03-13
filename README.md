@@ -11,7 +11,7 @@
 - **Animações** React Native Reanimated 
 - **Navegação** React Navigation (Bottom Tabs + Stack Navigator)
 - **Autenticação & BD** Firebase Authentication + Firestore
-- **APIs Externas** TheMealDB (receitas), OpenAI/Gemini (IA)
+- **APIs Externas** TheMealDB (receitas), Gemini (IA)
 
 ## 📱 Estrutura de Telas
 

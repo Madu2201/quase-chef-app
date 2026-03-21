@@ -1,18 +1,13 @@
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "src/*"
-      ]
+      "~/*": ["src/*"]
     },
     "jsx": "react-native",
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
+    "lib": ["DOM", "ESNext"],
     "moduleResolution": "node",
     "noEmit": true,
     "resolveJsonModule": true,
@@ -20,14 +15,7 @@
     "target": "ESNext",
     "allowJs": true,
     "esModuleInterop": true,
-    "types": [
-      "nativewind/types",
-      "react-native-reanimated"
-    ]
+    "types": ["nativewind", "react-native-reanimated"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"]
 }

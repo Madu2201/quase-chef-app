@@ -1,50 +1,94 @@
-# Welcome to your Expo app 👋
+# 🍳 Quase Chef App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Quase Chef** é um aplicativo mobile inteligente de receitas sendo desenvolvido em **React Native** com **Expo SDK 55** e **TypeScript**. 
+---
 
-## Get started
+## 🚀 Tecnologias
 
-1. Install dependencies
+- [Expo](https://expo.dev/) (SDK 55)
+- [React Native](https://reactnative.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Expo Router](https://expo.github.io/router/) (estrutura `app/`)
+- [Supabase](https://supabase.com/) (backend e autenticação)
+- [Lucide React Native](https://lucide.dev/) (ícones)
+- [Expo Font](https://docs.expo.dev/versions/latest/sdk/font/) + Google Fonts (Plus Jakarta Sans)
+- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) (animações)
+- AsyncStorage para persistência local
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 📂 Estrutura de pastas
 
 ```bash
-npm run reset-project
+app/
+ ├── (auth)/                # Fluxo sem navegação (pré-login)
+ │    ├── loading.tsx       # Tela de carregamento
+ │    ├── login.tsx         # Tela de login
+ │    ├── cadastro.tsx      # Tela de cadastro
+ │    ├── esqueci-senha.tsx # Tela de recuperação de senha
+ │    └── _layout.tsx       # Layout simples (sem tabs)
+ │
+ ├── (tabs)/                # Fluxo com navegação por abas (pós-login)
+ │    ├── home.tsx          # Tela principal
+ │    ├── perfil.tsx        # Tela de perfil
+ │    └── _layout.tsx       # Layout com Tab.Navigator
+ │
+ └── _layout.tsx            # Decide se mostra (auth) ou (tabs)
+
+assets/               # Imagens e ícones
+components/           # Componentes reutilizáveis
+hooks/                # Hooks customizados
+services/             # API, Supabase, Gemini
+utils/                # Tema, constantes, helpers
+styles/               # Estilos globais
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## ⚙️ Instalação
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# Instalar dependências
+npm install
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Rodar o projeto
+npx expo start
 
-## Join the community
+🛠️ Configuração extra
+Babel: adicionar plugin do Reanimated em babel.config.js
 
-Join our community of developers creating universal apps.
+js
+plugins: ['react-native-reanimated/plugin']
+TypeScript: já configurado com tsconfig.json e alias @/*.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+🎨 Tema
+O app usa uma paleta personalizada definida em utils/theme.ts:
+
+Cores principais: primary, secondary, background
+
+Fontes: Plus Jakarta Sans (Regular, Medium, Bold)
+
+Tokens: tamanhos de fonte, espaçamentos, bordas e sombras
+
+🧑‍💻 Comandos úteis
+bash
+# Limpar cache do Expo
+npx expo start --clear
+
+# Instalar nova dependência
+npm install <pacote>
+
+# Atualizar dependências
+npm update
+
+# Rodar no Android
+npm run android
+
+# Rodar no iOS (MacOS)
+npm run ios
+
+# Rodar no Web
+npm run web
+
+# Verificar tipos TypeScript
+npx tsc --noEmit

@@ -1,58 +1,136 @@
-import { View, Text, TextInput, Button, Pressable } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { router } from "expo-router";
+import { Eye, EyeOff } from "lucide-react-native";
+import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { authStyles as styles } from "../../styles/auth_styles";
+import { Colors } from "../../constants/theme";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function LoginScreen() {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        padding: 20,
-        backgroundColor: "#FFF3E8",
-      }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <Text
-        style={{
-          fontSize: 24,
-          fontWeight: "bold",
-          color: "#f88b3d",
-          marginBottom: 16,
-        }}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
       >
-        Bem-vindo de volta!
-      </Text>
+        {/* Header Compacto */}
+        <Animated.View
+          entering={FadeInUp.delay(100).duration(600)}
+          style={styles.header}
+        >
+          <Image
+            source={require("../../assets/images/icon.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.brandName}>Quase Chef!</Text>
+          <Text style={styles.welcomeTitle}>Bem-vindo de volta!</Text>
+          <Text style={styles.welcomeSubtitle}>
+            Sentimos sua falta. Entre para ver o que sobrou hoje!
+          </Text>
+        </Animated.View>
 
-      <TextInput
-        placeholder="Email"
-        style={{
-          borderWidth: 1,
-          borderColor: "#94A3B8",
-          padding: 10,
-          marginBottom: 12,
-        }}
-      />
-      <TextInput
-        placeholder="Senha"
-        secureTextEntry
-        style={{
-          borderWidth: 1,
-          borderColor: "#94A3B8",
-          padding: 10,
-          marginBottom: 12,
-        }}
-      />
+        {/* Formulário com Labels em Negrito */}
+        <Animated.View
+          entering={FadeInDown.delay(300).duration(600)}
+          style={styles.inputGroup}
+        >
+          <Text style={styles.label}>Email</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Digite seu email"
+              placeholderTextColor="#94A3B8"
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
 
-      <Button title="Entrar" onPress={() => router.replace("/(tabs)/home")} />
+          <Text style={styles.label}>Senha</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Digite sua senha"
+              placeholderTextColor="#94A3B8"
+              style={styles.input}
+              secureTextEntry={!showPassword}
+            />
+            <Pressable onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <EyeOff size={20} color="#94A3B8" />
+              ) : (
+                <Eye size={20} color="#94A3B8" />
+              )}
+            </Pressable>
+          </View>
 
-      <Pressable onPress={() => router.push("/(auth)/esqueci_senha")}>
-        <Text style={{ marginTop: 12, color: "#475569" }}>
-          Esqueceu a senha?
-        </Text>
-      </Pressable>
+          <Pressable onPress={() => router.push("/(auth)/esqueci_senha")}>
+            <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
+          </Pressable>
 
-      <Pressable onPress={() => router.push("/(auth)/cadastro")}>
-        <Text style={{ marginTop: 12, color: "#475569" }}>Cadastre-se</Text>
-      </Pressable>
-    </View>
+          <Pressable
+            style={styles.buttonPrimary}
+            onPress={() => router.replace("/(tabs)/home")}
+          >
+            <Text style={styles.buttonPrimaryText}>Entrar</Text>
+          </Pressable>
+        </Animated.View>
+
+        {/* Divisor e Redes Sociais */}
+        <Animated.View entering={FadeInDown.delay(500).duration(600)}>
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>ou entre com</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <View style={styles.socialContainer}>
+            <Pressable style={styles.socialButton}>
+              <FontAwesome5 name="google" size={16} color="#DB4437" />
+              <Text style={styles.socialButtonText}>Google</Text>
+            </Pressable>
+            <Pressable style={styles.socialButton}>
+              <FontAwesome5 name="facebook" size={16} color="#4267B2" />
+              <Text style={styles.socialButtonText}>Facebook</Text>
+            </Pressable>
+          </View>
+
+          {/* Cadastro */}
+          <Text style={styles.footerText}>
+            Não tem uma conta?{" "}
+            <Text
+              style={{
+                color: Colors.primary,
+                fontFamily: "PlusJakartaSans-Bold",
+              }}
+              onPress={() => router.push("/(auth)/cadastro")}
+            >
+              Cadastre-se
+            </Text>
+          </Text>
+
+          {/* Texto Legal (Termos e Privacidade) */}
+          <Text style={styles.legalText}>
+            Ao entrar, você concorda com nossos{" "}
+            <Text style={styles.linkUnderline}>Termos de Serviço</Text> e{" "}
+            <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
+          </Text>
+        </Animated.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

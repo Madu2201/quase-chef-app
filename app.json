@@ -29,7 +29,7 @@
         {
           "image": "./assets/images/splash.png",
           "resizeMode": "contain",
-          "backgroundColor": "#FFF3E8"
+          "backgroundColor": "#FF8B3D"
         }
       ],
       "expo-font",

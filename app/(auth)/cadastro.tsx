@@ -61,8 +61,6 @@ export default function CadastroScreen() {
         }}
       />
 
-      <Button title="Cadastrar" onPress={() => router.replace("/(tabs)")} />
-
       <Pressable onPress={() => router.push("/(auth)/login")}>
         <Text style={{ marginTop: 12, color: "#475569" }}>
           Já tem conta? Voltar para Login

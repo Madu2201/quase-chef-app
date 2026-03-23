@@ -12,6 +12,7 @@ import {
 // Segura a tela de Splash nativa
 SplashScreen.preventAutoHideAsync();
 
+// Se a fonte for carregada ou ocorrer um erro, esconda a tela de Splash
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     "PlusJakartaSans-Regular": PlusJakartaSans_400Regular,
@@ -29,6 +30,7 @@ export default function RootLayout() {
     return null;
   }
 
+  // Se a fonte for carregada, renderize o conteúdo do aplicativo
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Slot />

@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const homeStyles = StyleSheet.create({
@@ -9,10 +9,13 @@ export const homeStyles = StyleSheet.create({
     headerFixed: {
         backgroundColor: Colors.background,
         paddingHorizontal: Spacing.lg,
-        paddingTop: 60,
+        paddingTop: Spacing.xl + Spacing.lg,
         paddingBottom: Spacing.md,
         zIndex: 10,
-        ...Shadows.sm,
+        ...Platform.select({
+            ios: Shadows.sm,
+            android: Shadows.sm,
+        }),
     },
     scrollContent: {
         paddingHorizontal: Spacing.lg,
@@ -42,22 +45,23 @@ export const homeStyles = StyleSheet.create({
     userNameRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: Spacing.xs,
     },
     userName: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium + 2,
+        fontSize: FontSizes.medium,
         color: Colors.dark,
     },
     mainTitle: {
         fontFamily: Fonts.bold,
-        fontSize: 32,
+        fontSize: FontSizes.title, 
         color: Colors.dark,
-        lineHeight: 38,
+        lineHeight: FontSizes.title + 14,
+        marginTop: Spacing.md,
     },
     mainSubtitle: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small + 2,
         color: Colors.subtitle,
         marginTop: Spacing.xs,
         marginBottom: Spacing.xl,
@@ -70,7 +74,7 @@ export const homeStyles = StyleSheet.create({
     },
     sectionTitle: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium + 2,
+        fontSize: FontSizes.large,
         color: Colors.dark,
     },
     editText: {
@@ -78,44 +82,49 @@ export const homeStyles = StyleSheet.create({
         color: Colors.primary,
         fontSize: FontSizes.medium,
     },
-    // NOVO: Wrapper para os ingredientes quebrarem linha
     ingredientsWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: Spacing.sm,
         marginBottom: Spacing.xl,
     },
     ingredientTag: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFE5D1',
+        backgroundColor: Colors.light,
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.sm,
         borderRadius: Radius.lg,
-        gap: 6,
+        gap: Spacing.xs,
+        borderWidth: 1,
+        borderColor: Colors.primary,
     },
     ingredientText: {
         fontFamily: Fonts.medium,
-        fontSize: FontSizes.small + 1,
+        fontSize: FontSizes.small,
         color: Colors.dark,
     },
     generateButton: {
         backgroundColor: Colors.primary,
         flexDirection: 'row',
-        height: 90,
+        // Altura baseada em múltiplos de Spacing para manter proporção
+        height: Spacing.xl * 2.5,
         borderRadius: Radius.lg,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: Spacing.sm,
+        gap: Spacing.md,
         marginBottom: Spacing.xl,
-        ...Shadows.md,
+        ...Platform.select({
+            ios: Shadows.md,
+            android: Shadows.md,
+        }),
     },
     generateButtonText: {
         fontFamily: Fonts.bold,
         color: Colors.light,
-        fontSize: 18,
+        fontSize: FontSizes.medium,
         textAlign: 'center',
-        width: '70%',
+        width: '75%',
     },
     recipeCard: {
         flexDirection: 'row',
@@ -123,11 +132,14 @@ export const homeStyles = StyleSheet.create({
         borderRadius: Radius.lg,
         marginBottom: Spacing.md,
         overflow: 'hidden',
-        ...Shadows.sm,
+        ...Platform.select({
+            ios: Shadows.sm,
+            android: Shadows.sm,
+        }),
     },
     recipeImage: {
-        width: 110,
-        height: 110,
+        width: Spacing.xl * 3,
+        height: Spacing.xl * 3,
     },
     recipeInfo: {
         flex: 1,
@@ -136,10 +148,10 @@ export const homeStyles = StyleSheet.create({
     },
     recipeTime: {
         fontFamily: Fonts.bold,
-        fontSize: 10,
+        fontSize: FontSizes.small - 2,
         color: Colors.primary,
         textTransform: 'uppercase',
-        marginBottom: 4,
+        marginBottom: Spacing.xs,
     },
     recipeTitle: {
         fontFamily: Fonts.bold,
@@ -148,8 +160,8 @@ export const homeStyles = StyleSheet.create({
     },
     recipeDesc: {
         fontFamily: Fonts.regular,
-        fontSize: 12,
+        fontSize: FontSizes.small,
         color: Colors.subtitle,
-        marginTop: 2,
+        marginTop: Spacing.xs - 2,
     }
 });

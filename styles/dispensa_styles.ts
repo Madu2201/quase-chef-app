@@ -6,7 +6,7 @@ export const dispensaStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // HEADER FIXO COM TUDO DENTRO
+    // Header fixo com sombra e profundidade
     header: {
         backgroundColor: Colors.light,
         paddingTop: Platform.OS === 'ios' ? Spacing.xl * 2 : Spacing.xl,
@@ -15,6 +15,7 @@ export const dispensaStyles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.05)',
     },
+    // Divisor abaixo do título da página
     titleContainer: {
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.05)',
@@ -31,6 +32,7 @@ export const dispensaStyles = StyleSheet.create({
         paddingHorizontal: Spacing.lg,
         paddingBottom: Spacing.lg,
     },
+    // Barra de busca interna do header
     searchContainer: {
         backgroundColor: Colors.background,
         borderRadius: Radius.full,
@@ -56,7 +58,7 @@ export const dispensaStyles = StyleSheet.create({
         // @ts-ignore
         outlineStyle: 'none' as any,
     },
-    // SEÇÃO DE ADICIONAR DENTRO DO HEADER
+    // Card de inserção de novo ingrediente
     addSection: {
         backgroundColor: Colors.background,
         borderRadius: Radius.lg,
@@ -69,7 +71,9 @@ export const dispensaStyles = StyleSheet.create({
         fontSize: FontSizes.medium,
         color: Colors.dark,
         marginBottom: Spacing.sm,
+        marginTop: Spacing.md,
     },
+    // Input principal do cadastro (nome)
     inputFull: {
         backgroundColor: Colors.light,
         borderRadius: Radius.md,
@@ -89,6 +93,7 @@ export const dispensaStyles = StyleSheet.create({
         gap: Spacing.sm,
         alignItems: "center",
     },
+    // Inputs menores (quantidade e unidade)
     inputSmall: {
         flex: 1,
         height: 44,
@@ -114,6 +119,7 @@ export const dispensaStyles = StyleSheet.create({
         paddingHorizontal: Spacing.sm,
         backgroundColor: Colors.light,
     },
+    // Botão de confirmação de adição
     btnAdd: {
         backgroundColor: Colors.secondary,
         width: 50,
@@ -122,7 +128,7 @@ export const dispensaStyles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    // LISTA E ITENS
+    // Configuração da lista de itens
     scrollContent: {
         paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
@@ -135,6 +141,7 @@ export const dispensaStyles = StyleSheet.create({
         borderBottomColor: Colors.light,
         alignItems: "center",
     },
+    // Checkbox de seleção para receitas
     checkbox: {
         width: 26,
         height: 26,
@@ -157,6 +164,7 @@ export const dispensaStyles = StyleSheet.create({
         color: Colors.dark,
         marginBottom: Spacing.xs,
     },
+    // Controles de edição rápida na lista
     controlsRow: {
         flexDirection: "row",
         alignItems: "center",
@@ -189,17 +197,17 @@ export const dispensaStyles = StyleSheet.create({
         backgroundColor: Colors.light,
     },
     unitText: {
-        fontSize: 12,
+        fontSize: FontSizes.small,
         fontFamily: Fonts.regular,
         color: Colors.dark,
     },
     rightIcons: {
         marginLeft: Spacing.sm,
     },
-    // BOTÃO FLUTUANTE
+    // Botão flutuante de ação principal
     floatingBtn: {
         position: "absolute",
-        bottom: 20,
+        bottom: Spacing.md,
         left: Spacing.lg,
         right: Spacing.lg,
         backgroundColor: Colors.primary,
@@ -221,6 +229,7 @@ export const dispensaStyles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.medium,
     },
+    // Contador de itens selecionados no botão
     badgeContainer: {
         backgroundColor: "rgba(255,255,255,0.2)",
         paddingHorizontal: 10,

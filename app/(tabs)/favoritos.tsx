@@ -20,39 +20,41 @@ export default function FavoritosScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Header Fixo com Sombra e Linhas Divisórias */}
             <View style={styles.header}>
-                {/* Título com a primeira linha embaixo */}
+                {/* Título e Primeira Linha */}
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>Favoritos</Text>
                 </View>
 
                 <View style={styles.headerContent}>
+                    {/* Barra de Busca com Feedback de Foco */}
                     <View style={[styles.searchBar, isFocused && styles.searchBarFocused]}>
                         <Search size={20} color={Colors.primary} />
                         <TextInput
-                            placeholder="Buscar ingredientes..."
+                            placeholder="Buscar receitas salvas..."
                             style={styles.searchInput}
                             placeholderTextColor={Colors.primary + "80"}
-                            underlineColorAndroid="transparent"
                             onFocus={() => setIsFocused(true)}
                             onBlur={() => setIsFocused(false)}
                             selectionColor={Colors.primary}
                         />
                     </View>
 
+                    {/* Toggle de Filtro por Estoque */}
                     <View style={styles.stockToggle}>
                         <Package size={20} color={Colors.primary} />
                         <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
                         <Switch
-                            trackColor={{ false: "#D2B48C", true: Colors.secondary }}
-                            thumbColor="#FFFFFF"
-                            ios_backgroundColor="#D2B48C"
+                            trackColor={{ false: Colors.brown, true: Colors.secondary }}
+                            thumbColor={Colors.light}
                             onValueChange={setIsEnabled}
                             value={isEnabled}
                             style={styles.switchStyle}
                         />
                     </View>
 
+                    {/* Chips de Categorias Rápidas */}
                     <View style={styles.chipsContainer}>
                         <Pressable style={[styles.chip, styles.chipActive]}>
                             <Zap size={14} color={Colors.light} />
@@ -68,7 +70,7 @@ export default function FavoritosScreen() {
                         </Pressable>
                     </View>
 
-                    {/* Tabs com a segunda linha alinhada */}
+                    {/* Abas e Segunda Linha Alinhada */}
                     <View style={styles.tabContainer}>
                         <Pressable style={[styles.tabItem, styles.tabActive]}>
                             <Text style={[styles.tabText, styles.tabTextActive]}>Todas</Text>
@@ -83,10 +85,12 @@ export default function FavoritosScreen() {
                 </View>
             </View>
 
+            {/* Contador de Itens */}
             <View style={styles.infoBar}>
                 <Text style={styles.infoText}>12 receitas salvas</Text>
             </View>
 
+            {/* Listagem de Cards em 2 Colunas */}
             <FlatList
                 data={FAVORITOS_DATA}
                 renderItem={({ item, index }) => (

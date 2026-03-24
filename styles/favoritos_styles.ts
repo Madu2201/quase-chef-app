@@ -6,14 +6,14 @@ export const favStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // Header Unificado com Sombra
+    // Header unificado com elevação e profundidade
     header: {
         backgroundColor: Colors.light,
         paddingTop: Platform.OS === 'ios' ? Spacing.xl * 2 : Spacing.xl,
         ...Shadows.md,
         zIndex: 10,
     },
-    // Primeira linha: Embaixo do título Favoritos
+    // Divisor abaixo do título principal
     titleContainer: {
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.05)',
@@ -29,6 +29,7 @@ export const favStyles = StyleSheet.create({
     headerContent: {
         paddingHorizontal: Spacing.lg,
     },
+    // Barra de busca com estados de foco
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -54,6 +55,7 @@ export const favStyles = StyleSheet.create({
         // @ts-ignore
         outlineStyle: 'none' as any,
     },
+    // Container do switch de estoque
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -77,6 +79,7 @@ export const favStyles = StyleSheet.create({
         outlineStyle: 'none' as any,
         transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
+    // Chips de filtros rápidos (Rápidas, Veg, etc)
     chipsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -108,7 +111,7 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.light,
     },
-    // Segunda Linha: Alinhada embaixo das Tabs
+    // Navegação por abas com linha inferior alinhada
     tabContainer: {
         flexDirection: 'row',
         gap: Spacing.xl,
@@ -130,6 +133,7 @@ export const favStyles = StyleSheet.create({
     tabTextActive: {
         color: Colors.dark,
     },
+    // Barra de contagem de resultados
     infoBar: {
         paddingHorizontal: Spacing.lg,
         marginVertical: Spacing.md,
@@ -137,8 +141,10 @@ export const favStyles = StyleSheet.create({
     infoText: {
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
-        color: Colors.secondary,
+        fontWeight: '700',
+        color: Colors.brown,
     },
+    // Grid de receitas (2 colunas)
     listContent: {
         paddingTop: Spacing.md,
         paddingBottom: Spacing.xl,
@@ -151,6 +157,7 @@ export const favStyles = StyleSheet.create({
         width: '48%',
         marginBottom: Spacing.lg,
     },
+    // Container da imagem com proporção fixa
     imageContainer: {
         width: '100%',
         aspectRatio: 0.85,
@@ -164,6 +171,7 @@ export const favStyles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+    // Botão de favorito sobreposto à imagem
     heartIcon: {
         position: 'absolute',
         top: 10,

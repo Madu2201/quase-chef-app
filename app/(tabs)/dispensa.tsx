@@ -78,7 +78,7 @@ export default function DispensaScreen() {
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.sectionLabel}>Ingredientes Na Dispensa</Text>
+                <Text style={styles.sectionLabel}>Ingredientes comuns</Text>
 
                 {filteredIngredients.map((item) => (
                     <View key={item.id} style={styles.ingredientItem}>

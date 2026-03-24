@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { Home, Utensils, Heart, Refrigerator, ListTodo } from "lucide-react-native";
-import { Colors, Fonts } from "../../constants/theme";
+import { Colors, Fonts, Spacing } from "../../constants/theme";
 
 export default function TabsLayout() {
   return (
@@ -10,9 +10,13 @@ export default function TabsLayout() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.subtitle,
         tabBarStyle: {
-          height: 70,
-          paddingBottom: 10,
+          height: 80,
+          paddingBottom: Spacing.sm,
+          paddingTop: Spacing.xs,
           borderTopColor: '#F1F5F9',
+          backgroundColor: Colors.light,
+          elevation: 0, // Remove sombra no Android
+          shadowOpacity: 0, // Remove sombra no iOS
         },
         tabBarLabelStyle: {
           fontFamily: Fonts.medium,
@@ -24,35 +28,71 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Home
+              size={24}
+              color={color}
+              fill={focused ? color : "transparent"}
+              fillOpacity={0.5}
+            />
+          )
         }}
       />
       <Tabs.Screen
         name="receitas"
         options={{
           title: "Receitas",
-          tabBarIcon: ({ color }) => <Utensils size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Utensils
+              size={24}
+              color={color}
+              fill={focused ? color : "transparent"}
+              fillOpacity={0.5}
+            />
+          )
         }}
       />
       <Tabs.Screen
         name="favoritos"
         options={{
           title: "Favoritos",
-          tabBarIcon: ({ color }) => <Heart size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Heart
+              size={24}
+              color={color}
+              // O coração fica lindo todo preenchido, então nele deixamos opacidade total
+              fill={focused ? color : "transparent"}
+              fillOpacity={0.5}
+            />
+          )
         }}
       />
       <Tabs.Screen
         name="dispensa"
         options={{
           title: "Dispensa",
-          tabBarIcon: ({ color }) => <Refrigerator size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Refrigerator
+              size={24}
+              color={color}
+              fill={focused ? color : "transparent"}
+              fillOpacity={0.5}
+            />
+          )
         }}
       />
       <Tabs.Screen
         name="lista"
         options={{
           title: "Lista",
-          tabBarIcon: ({ color }) => <ListTodo size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <ListTodo
+              size={24}
+              color={color}
+              fill={focused ? color : "transparent"}
+              fillOpacity={0.5}
+            />
+          )
         }}
       />
     </Tabs>

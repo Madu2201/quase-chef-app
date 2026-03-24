@@ -47,11 +47,24 @@ export const Radius = {
   sm: 4,
   md: 8,
   lg: 12,
+  xl: 16,
   full: 9999, // para círculos ou cápsulas
 };
 
 // Sombras
 export const Shadows = {
+  none: {
+    elevation: 0,
+    shadowColor: "#000",
+    shadowOpacity: 0,
+    shadowRadius: 0,
+  },
+  xs: {
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 1,
+  },
   sm: {
     elevation: 2,
     shadowColor: "#000",

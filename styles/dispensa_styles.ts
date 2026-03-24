@@ -71,7 +71,7 @@ export const dispensaStyles = StyleSheet.create({
         fontSize: FontSizes.medium,
         color: Colors.dark,
         marginBottom: Spacing.sm,
-        marginTop: Spacing.md,
+        marginTop: Spacing.xs,
     },
     // Input principal do cadastro (nome)
     inputFull: {
@@ -92,10 +92,13 @@ export const dispensaStyles = StyleSheet.create({
         flexDirection: "row",
         gap: Spacing.sm,
         alignItems: "center",
+        // RESPONSIVIDADE: Permite quebrar se o espaço acabar
+        flexWrap: "wrap",
     },
     // Inputs menores (quantidade e unidade)
     inputSmall: {
-        flex: 1,
+        flexGrow: 1,
+        minWidth: 60, // Evita que fique muito espremido antes de quebrar
         height: 44,
         borderRadius: Radius.md,
         borderWidth: 1,
@@ -108,7 +111,8 @@ export const dispensaStyles = StyleSheet.create({
         outlineStyle: 'none' as any,
     },
     pickerContainer: {
-        flex: 1.5,
+        flexGrow: 1.5,
+        minWidth: 80,
         height: 44,
         borderRadius: Radius.md,
         borderWidth: 1,
@@ -123,10 +127,13 @@ export const dispensaStyles = StyleSheet.create({
     btnAdd: {
         backgroundColor: Colors.secondary,
         width: 50,
+        minWidth: 50, // Mantém o tamanho do botão
         height: 44,
         borderRadius: Radius.md,
         justifyContent: "center",
         alignItems: "center",
+        // Faz o botão ocupar a linha toda se quebrar em telas micro
+        flexGrow: Platform.OS === 'web' ? 0 : 0.2,
     },
     // Configuração da lista de itens
     scrollContent: {
@@ -169,9 +176,12 @@ export const dispensaStyles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 6,
+        // RESPONSIVIDADE: Quebra a Qtd/Un se o nome do ingrediente for muito grande
+        flexWrap: "wrap",
     },
     listInputQty: {
         width: 55,
+        minWidth: 45,
         height: 32,
         borderRadius: Radius.full,
         borderWidth: 1,
@@ -185,7 +195,7 @@ export const dispensaStyles = StyleSheet.create({
         outlineStyle: 'none' as any,
     },
     listPickerUnit: {
-        width: 70,
+        minWidth: 65,
         height: 32,
         borderRadius: Radius.full,
         borderWidth: 1,
@@ -194,6 +204,7 @@ export const dispensaStyles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         gap: 4,
+        paddingHorizontal: 8,
         backgroundColor: Colors.light,
     },
     unitText: {

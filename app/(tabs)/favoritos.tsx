@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // Adicionado useState
 import { View, Text, FlatList, Image, Pressable, TextInput, Switch } from 'react-native';
 import { Search, Heart, Zap, Leaf, TrendingUp, Package } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -18,17 +18,23 @@ export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
 
+    // 1. ESTADO PARA A BUSCA
+    const [searchText, setSearchText] = useState("");
+
+    // 2. FILTRAGEM EM TEMPO REAL
+    // Filtramos a lista original baseada no que o usuário digita
+    const filteredRecipes = FAVORITOS_DATA.filter((item) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
     return (
         <View style={styles.container}>
-            {/* Header Fixo com Sombra e Linhas Divisórias */}
             <View style={styles.header}>
-                {/* Título e Primeira Linha */}
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>Favoritos</Text>
                 </View>
 
                 <View style={styles.headerContent}>
-                    {/* Barra de Busca com Feedback de Foco */}
                     <View style={[styles.searchBar, isFocused && styles.searchBarFocused]}>
                         <Search size={20} color={Colors.primary} />
                         <TextInput
@@ -38,10 +44,13 @@ export default function FavoritosScreen() {
                             onFocus={() => setIsFocused(true)}
                             onBlur={() => setIsFocused(false)}
                             selectionColor={Colors.primary}
+
+                            // 3. ATUALIZAÇÃO DO TEXTO (MUITO IMPORTANTE)
+                            value={searchText}
+                            onChangeText={(text) => setSearchText(text)}
                         />
                     </View>
 
-                    {/* Toggle de Filtro por Estoque */}
                     <View style={styles.stockToggle}>
                         <Package size={20} color={Colors.primary} />
                         <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
@@ -54,7 +63,6 @@ export default function FavoritosScreen() {
                         />
                     </View>
 
-                    {/* Chips de Categorias Rápidas */}
                     <View style={styles.chipsContainer}>
                         <Pressable style={[styles.chip, styles.chipActive]}>
                             <Zap size={14} color={Colors.light} />
@@ -70,7 +78,6 @@ export default function FavoritosScreen() {
                         </Pressable>
                     </View>
 
-                    {/* Abas e Segunda Linha Alinhada */}
                     <View style={styles.tabContainer}>
                         <Pressable style={[styles.tabItem, styles.tabActive]}>
                             <Text style={[styles.tabText, styles.tabTextActive]}>Todas</Text>
@@ -85,17 +92,17 @@ export default function FavoritosScreen() {
                 </View>
             </View>
 
-            {/* Contador de Itens */}
             <View style={styles.infoBar}>
-                <Text style={styles.infoText}>12 receitas salvas</Text>
+                {/* 4. CONTADOR DINÂMICO */}
+                <Text style={styles.infoText}>{filteredRecipes.length} receitas encontradas</Text>
             </View>
 
-            {/* Listagem de Cards em 2 Colunas */}
             <FlatList
-                data={FAVORITOS_DATA}
+                // 5. USAR A LISTA FILTRADA AQUI (Não use FAVORITOS_DATA aqui)
+                data={filteredRecipes}
                 renderItem={({ item, index }) => (
                     <Animated.View
-                        entering={FadeInDown.delay(index * 80).duration(400)}
+                        entering={FadeInDown.delay(index * 50).duration(300)}
                         style={styles.card}
                     >
                         <Pressable>
@@ -115,6 +122,13 @@ export default function FavoritosScreen() {
                 columnWrapperStyle={styles.columnWrapper}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+
+                // 6. CASO NÃO ENCONTRE NADA
+                ListEmptyComponent={
+                    <Text style={{ textAlign: 'center', marginTop: 20, color: Colors.primary }}>
+                        Nenhuma receita encontrada.
+                    </Text>
+                }
             />
         </View>
     );

@@ -57,7 +57,7 @@ export default function DispensaScreen() {
 
                     {/* Formulário de Adição Rápida */}
                     <View style={styles.addSection}>
-                        <Text style={styles.sectionLabel}>Novo ingrediente</Text>
+                        <Text style={styles.sectionLabel}>Adicionar Ingrediente</Text>
                         <TextInput
                             placeholder="Ex: Arroz, Leite..."
                             style={styles.inputFull}
@@ -132,7 +132,7 @@ export default function DispensaScreen() {
                         <Text style={styles.floatingBtnText}>Gerar receitas</Text>
                     </View>
                     <View style={styles.badgeContainer}>
-                        <Text style={styles.badgeText}>{selectedCount} itens</Text>
+                        <Text style={styles.badgeText}>{selectedCount} selecionados</Text>
                     </View>
                 </TouchableOpacity>
             )}

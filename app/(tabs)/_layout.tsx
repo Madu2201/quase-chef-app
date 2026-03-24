@@ -33,7 +33,7 @@ export default function TabsLayout() {
               size={24}
               color={color}
               fill={focused ? color : "transparent"}
-              fillOpacity={0.5}
+              fillOpacity={0.4}
             />
           )
         }}
@@ -47,7 +47,7 @@ export default function TabsLayout() {
               size={24}
               color={color}
               fill={focused ? color : "transparent"}
-              fillOpacity={0.5}
+              fillOpacity={0.4}
             />
           )
         }}
@@ -60,9 +60,8 @@ export default function TabsLayout() {
             <Heart
               size={24}
               color={color}
-              // O coração fica lindo todo preenchido, então nele deixamos opacidade total
               fill={focused ? color : "transparent"}
-              fillOpacity={0.5}
+              fillOpacity={focused ? 1 : 0}
             />
           )
         }}
@@ -76,7 +75,7 @@ export default function TabsLayout() {
               size={24}
               color={color}
               fill={focused ? color : "transparent"}
-              fillOpacity={0.5}
+              fillOpacity={0.4}
             />
           )
         }}
@@ -90,7 +89,7 @@ export default function TabsLayout() {
               size={24}
               color={color}
               fill={focused ? color : "transparent"}
-              fillOpacity={0.5}
+              fillOpacity={focused ? 1 : 0}
             />
           )
         }}

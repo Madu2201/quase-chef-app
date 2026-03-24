@@ -47,6 +47,7 @@ export const Radius = {
   sm: 4,
   md: 8,
   lg: 12,
+  full: 9999, // para círculos ou cápsulas
 };
 
 // Sombras

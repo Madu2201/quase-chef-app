@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import {
   Colors,
   Fonts,
@@ -9,6 +9,7 @@ import {
 } from "../constants/theme";
 
 export const authStyles = StyleSheet.create({
+  // Layout principal com scroll
   container: {
     flexGrow: 1,
     backgroundColor: Colors.background,
@@ -16,6 +17,7 @@ export const authStyles = StyleSheet.create({
     paddingBottom: Spacing.xl,
     paddingTop: 55,
   },
+  // Seção da Logo e Identidade
   header: {
     alignItems: "center",
     marginBottom: Spacing.xs,
@@ -30,6 +32,7 @@ export const authStyles = StyleSheet.create({
     fontSize: FontSizes.medium + 2,
     color: Colors.dark,
   },
+  // Textos de boas-vindas
   welcomeTitle: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.large + 2,
@@ -44,9 +47,9 @@ export const authStyles = StyleSheet.create({
     textAlign: "center",
     marginTop: Spacing.xs,
     lineHeight: 20,
-    // Adicionado padding horizontal para as instruções da senha não colarem na borda
     paddingHorizontal: Spacing.sm,
   },
+  // Grupos de formulário
   inputGroup: {
     marginTop: Spacing.sm,
   },
@@ -57,23 +60,41 @@ export const authStyles = StyleSheet.create({
     marginBottom: 4,
     marginTop: Spacing.md,
   },
+  /** * CONTAINER DO INPUT (PADRÃO)
+   * Baseado no 'searchContainer' da Dispensa
+   */
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.subtext,
+    borderWidth: 1.5,
+    borderColor: 'transparent', // Começa invisível para não dar "pulo" no layout
     borderRadius: Radius.lg,
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
     height: 52,
-    opacity: 0.8,
+    // Sombra leve para destacar do fundo
+    ...Shadows.sm,
+  },
+  /**
+   * ESTADO FOCADO (IGUAL À DISPENSA)
+   * Aplica a cor primária e remove qualquer opacidade
+   */
+  inputContainerFocused: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.light,
+    borderWidth: 1.5,
   },
   input: {
     flex: 1,
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small + 2,
     color: Colors.dark,
+    marginLeft: Spacing.xs,
+    height: "100%",
+    // @ts-ignore (Remove o contorno padrão no Navegador/Web)
+    outlineStyle: 'none' as any,
   },
+  // Links e Botões de Ação
   forgotPasswordText: {
     fontFamily: Fonts.medium,
     color: Colors.primary,
@@ -95,6 +116,7 @@ export const authStyles = StyleSheet.create({
     color: Colors.light,
     fontSize: FontSizes.medium + 1,
   },
+  // Divisores ("ou entre com")
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -112,6 +134,7 @@ export const authStyles = StyleSheet.create({
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small,
   },
+  // Login Social
   socialContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -134,13 +157,13 @@ export const authStyles = StyleSheet.create({
     color: Colors.dark,
     fontSize: FontSizes.small + 2,
   },
+  // Rodapé e Links Legais
   footerText: {
     textAlign: "center",
     marginTop: Spacing.lg,
     fontFamily: Fonts.regular,
     color: Colors.subtitle,
   },
-  // Novo estilo específico para o link de "Voltar para Entrar"
   backToLoginText: {
     textAlign: "center",
     marginTop: Spacing.xl,
@@ -161,7 +184,6 @@ export const authStyles = StyleSheet.create({
     textDecorationLine: "underline",
     color: Colors.subtext,
   },
-  // Utilitário para o link em destaque dentro do footer ou backToLogin
   primaryLink: {
     fontFamily: Fonts.bold,
     color: Colors.primary,

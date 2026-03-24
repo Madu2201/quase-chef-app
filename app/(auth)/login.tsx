@@ -19,6 +19,10 @@ import { FontAwesome5 } from "@expo/vector-icons";
 export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
 
+  // Estados para controlar o foco de cada input individualmente
+  const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -45,35 +49,50 @@ export default function LoginScreen() {
           </Text>
         </Animated.View>
 
-        {/* Formulário com Labels em Negrito */}
+        {/* Formulário */}
         <Animated.View
           entering={FadeInDown.delay(300).duration(600)}
           style={styles.inputGroup}
         >
           <Text style={styles.label}>Email</Text>
-          <View style={styles.inputContainer}>
+          <View style={[
+            styles.inputContainer,
+            isFocusedEmail && styles.inputContainerFocused
+          ]}>
             <TextInput
               placeholder="Digite seu email"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               keyboardType="email-address"
               autoCapitalize="none"
+              onFocus={() => setIsFocusedEmail(true)}
+              onBlur={() => setIsFocusedEmail(false)}
+              selectionColor={Colors.primary}
             />
           </View>
 
           <Text style={styles.label}>Senha</Text>
-          <View style={styles.inputContainer}>
+          <View style={[
+            styles.inputContainer,
+            isFocusedPassword && styles.inputContainerFocused
+          ]}>
             <TextInput
               placeholder="Digite sua senha"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               secureTextEntry={!showPassword}
+              onFocus={() => setIsFocusedPassword(true)}
+              onBlur={() => setIsFocusedPassword(false)}
+              selectionColor={Colors.primary}
             />
-            <Pressable onPress={() => setShowPassword(!showPassword)}>
+            <Pressable
+              onPress={() => setShowPassword(!showPassword)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
               {showPassword ? (
-                <EyeOff size={20} color="#94A3B8" />
+                <EyeOff size={20} color={Colors.primary} />
               ) : (
-                <Eye size={20} color="#94A3B8" />
+                <Eye size={20} color={Colors.primary} />
               )}
             </Pressable>
           </View>
@@ -113,17 +132,14 @@ export default function LoginScreen() {
           <Text style={styles.footerText}>
             Não tem uma conta?{" "}
             <Text
-              style={{
-                color: Colors.primary,
-                fontFamily: "PlusJakartaSans-Bold",
-              }}
+              style={styles.primaryLink}
               onPress={() => router.push("/(auth)/cadastro")}
             >
               Cadastre-se
             </Text>
           </Text>
 
-          {/* Texto Legal (Termos e Privacidade) */}
+          {/* Texto Legal */}
           <Text style={styles.legalText}>
             Ao entrar, você concorda com nossos{" "}
             <Text style={styles.linkUnderline}>Termos de Serviço</Text> e{" "}

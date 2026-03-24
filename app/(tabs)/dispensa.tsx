@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, TouchableOpacity } from "react-native";
-import { Search, Plus, Trash2, ChevronDown, Check, Sparkles, UtensilsCrossed } from "lucide-react-native";
+import { Search, Plus, Trash2, ChevronDown, Check, Sparkles } from "lucide-react-native";
 import { Colors } from "../../constants/theme";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 
 export default function DispensaScreen() {
     const [searchText, setSearchText] = useState("");
+    const [isFocused, setIsFocused] = useState(false);
     const [ingredients, setIngredients] = useState([
         { id: "1", name: "Ovo", qty: "12", unit: "un", selected: true },
         { id: "2", name: "Tomate", qty: "4", unit: "un", selected: true },
@@ -28,48 +29,60 @@ export default function DispensaScreen() {
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.title}>O que você tem em casa?</Text>
-
-                <View style={styles.searchContainer}>
-                    <Search size={20} color={Colors.primary} />
-                    <TextInput
-                        placeholder="Buscar ingredientes..."
-                        style={styles.searchInput}
-                        placeholderTextColor={Colors.primary + "80"}
-                        value={searchText}
-                        onChangeText={setSearchText}
-                        underlineColorAndroid="transparent"
-                        selectionColor={Colors.primary}
-                    />
+            {/* HEADER FIXO: Título + Busca + Adicionar */}
+            <View style={styles.header}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>O que você tem em casa?</Text>
                 </View>
 
-                <View style={styles.addSection}>
-                    <Text style={styles.sectionLabel}>Adicionar ingrediente</Text>
-                    <TextInput
-                        placeholder="Nome do ingrediente"
-                        style={styles.inputFull}
-                        placeholderTextColor={Colors.subtext}
-                        underlineColorAndroid="transparent"
-                    />
-                    <View style={styles.row}>
+                <View style={styles.headerContent}>
+                    {/* Barra de Busca */}
+                    <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
+                        <Search size={20} color={Colors.primary} />
                         <TextInput
-                            placeholder="Qtd"
-                            style={styles.inputSmall}
-                            keyboardType="numeric"
+                            placeholder="Buscar na sua dispensa..."
+                            style={styles.searchInput}
+                            placeholderTextColor={Colors.primary + "80"}
+                            value={searchText}
+                            onChangeText={setSearchText}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
                             underlineColorAndroid="transparent"
+                            selectionColor={Colors.primary}
                         />
-                        <View style={styles.pickerContainer}>
-                            <Text style={styles.unitText}>un</Text>
-                            <ChevronDown size={16} color={Colors.dark} />
+                    </View>
+
+                    {/* Bloco de Adicionar Item */}
+                    <View style={styles.addSection}>
+                        <Text style={styles.sectionLabel}>Novo ingrediente</Text>
+                        <TextInput
+                            placeholder="Ex: Arroz, Leite..."
+                            style={styles.inputFull}
+                            placeholderTextColor={Colors.subtext}
+                            selectionColor={Colors.primary}
+                        />
+                        <View style={styles.row}>
+                            <TextInput
+                                placeholder="Qtd"
+                                style={styles.inputSmall}
+                                keyboardType="numeric"
+                                selectionColor={Colors.primary}
+                            />
+                            <View style={styles.pickerContainer}>
+                                <Text style={styles.unitText}>un</Text>
+                                <ChevronDown size={16} color={Colors.dark} />
+                            </View>
+                            <TouchableOpacity style={styles.btnAdd} activeOpacity={0.8}>
+                                <Plus size={24} color={Colors.light} />
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style={styles.btnAdd} activeOpacity={0.8}>
-                            <Plus size={24} color={Colors.light} />
-                        </TouchableOpacity>
                     </View>
                 </View>
+            </View>
 
-                <Text style={styles.sectionLabel}>Ingredientes comuns</Text>
+            {/* LISTAGEM SCROLLÁVEL */}
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                <Text style={styles.sectionLabel}>Ingredientes Comuns</Text>
 
                 {filteredIngredients.map((item) => (
                     <View key={item.id} style={styles.ingredientItem}>
@@ -87,7 +100,7 @@ export default function DispensaScreen() {
                                     value={item.qty}
                                     style={styles.listInputQty}
                                     keyboardType="numeric"
-                                    underlineColorAndroid="transparent"
+                                    selectionColor={Colors.primary}
                                 />
                                 <View style={styles.listPickerUnit}>
                                     <Text style={styles.unitText}>{item.unit}</Text>
@@ -97,7 +110,7 @@ export default function DispensaScreen() {
                         </View>
 
                         <View style={styles.rightIcons}>
-                            <TouchableOpacity>
+                            <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                                 <Trash2 size={20} color={Colors.subtext} />
                             </TouchableOpacity>
                         </View>
@@ -105,6 +118,7 @@ export default function DispensaScreen() {
                 ))}
             </ScrollView>
 
+            {/* BOTÃO FLUTUANTE DE AÇÃO */}
             {selectedCount > 0 && (
                 <TouchableOpacity style={styles.floatingBtn} activeOpacity={0.9}>
                     <View style={styles.floatingBtnLeft}>
@@ -112,7 +126,7 @@ export default function DispensaScreen() {
                         <Text style={styles.floatingBtnText}>Gerar receitas</Text>
                     </View>
                     <View style={styles.badgeContainer}>
-                        <Text style={styles.badgeText}>{selectedCount} selecionados</Text>
+                        <Text style={styles.badgeText}>{selectedCount} itens</Text>
                     </View>
                 </TouchableOpacity>
             )}

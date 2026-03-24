@@ -6,38 +6,121 @@ export const favStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
+    // Header Unificado com Sombra
     header: {
-        paddingTop: Spacing.xl + Spacing.lg,
-        paddingHorizontal: Spacing.lg,
-        backgroundColor: Colors.background,
-        alignItems: 'center', // Centraliza o conteúdo do header em telas largas
+        backgroundColor: Colors.light,
+        paddingTop: Platform.OS === 'ios' ? Spacing.xl * 2 : Spacing.xl,
+        ...Shadows.md,
+        zIndex: 10,
     },
-    headerTop: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+    // Primeira linha: Embaixo do título Favoritos
+    titleContainer: {
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+        paddingBottom: Spacing.md,
         marginBottom: Spacing.lg,
-        width: '100%',
-        maxWidth: 800, // Trava a largura em telas grandes
     },
     title: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.large,
+        fontSize: FontSizes.title,
         color: Colors.dark,
+        textAlign: 'center',
     },
+    headerContent: {
+        paddingHorizontal: Spacing.lg,
+    },
+    searchBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.background,
+        borderRadius: Radius.full,
+        paddingHorizontal: Spacing.md,
+        height: 52,
+        marginBottom: Spacing.sm,
+        borderWidth: 1.5,
+        borderColor: 'transparent',
+    },
+    searchBarFocused: {
+        borderColor: Colors.primary,
+        backgroundColor: Colors.light,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: Spacing.sm,
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.medium,
+        color: Colors.primary,
+        height: '100%',
+        // @ts-ignore
+        outlineStyle: 'none' as any,
+    },
+    stockToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.background,
+        borderRadius: Radius.full,
+        paddingHorizontal: Spacing.md,
+        height: 52,
+        marginBottom: Spacing.lg,
+        borderWidth: 1,
+        borderColor: Colors.background,
+    },
+    stockText: {
+        flex: 1,
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.medium,
+        color: Colors.primary,
+        marginLeft: Spacing.sm,
+    },
+    switchStyle: {
+        // @ts-ignore
+        outlineStyle: 'none' as any,
+        transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+    },
+    chipsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: Spacing.sm,
+        marginBottom: Spacing.xl,
+    },
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.sm,
+        borderRadius: Radius.full,
+        backgroundColor: Colors.background,
+        borderWidth: 1,
+        borderColor: Colors.background,
+    },
+    chipActive: {
+        backgroundColor: Colors.secondary,
+        borderColor: Colors.secondary,
+    },
+    chipText: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small,
+        color: Colors.primary,
+    },
+    chipTextActive: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small,
+        color: Colors.light,
+    },
+    // Segunda Linha: Alinhada embaixo das Tabs
     tabContainer: {
         flexDirection: 'row',
-        gap: Spacing.lg,
-        marginBottom: Spacing.md,
-        width: '100%',
-        maxWidth: 800,
+        gap: Spacing.xl,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
     },
     tabItem: {
-        paddingBottom: Spacing.xs,
+        paddingBottom: Spacing.sm,
     },
     tabActive: {
         borderBottomWidth: 3,
-        borderBottomColor: Colors.primary,
+        borderBottomColor: Colors.secondary,
     },
     tabText: {
         fontFamily: Fonts.bold,
@@ -48,48 +131,34 @@ export const favStyles = StyleSheet.create({
         color: Colors.dark,
     },
     infoBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         paddingHorizontal: Spacing.lg,
         marginVertical: Spacing.md,
-        width: '100%',
-        maxWidth: 800,
-        alignSelf: 'center',
     },
     infoText: {
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
-        color: Colors.subtitle,
-    },
-    filterBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Spacing.xs,
+        color: Colors.secondary,
     },
     listContent: {
-        paddingHorizontal: Spacing.lg,
+        paddingTop: Spacing.md,
         paddingBottom: Spacing.xl,
-        alignSelf: 'center', // Centraliza a lista na tela
-        width: '100%',
-        maxWidth: 800,
+        paddingHorizontal: Spacing.lg,
+    },
+    columnWrapper: {
+        justifyContent: 'space-between',
     },
     card: {
-        flex: 1, // Faz o card crescer conforme o espaço disponível
+        width: '48%',
         marginBottom: Spacing.lg,
-        maxWidth: '48%', // Garante que caibam 2 por linha com respiro
     },
     imageContainer: {
         width: '100%',
-        aspectRatio: 1, // Mantém quadrado perfeito
+        aspectRatio: 0.85,
         borderRadius: Radius.lg,
         overflow: 'hidden',
         marginBottom: Spacing.sm,
         backgroundColor: Colors.light,
-        ...Platform.select({
-            ios: Shadows.sm,
-            android: Shadows.sm,
-        }),
+        ...Shadows.sm,
     },
     image: {
         width: '100%',
@@ -97,11 +166,11 @@ export const favStyles = StyleSheet.create({
     },
     heartIcon: {
         position: 'absolute',
-        top: Spacing.md,
-        right: Spacing.md,
+        top: 10,
+        right: 10,
         backgroundColor: Colors.light,
-        borderRadius: Radius.md,
-        padding: Spacing.xs + 1,
+        borderRadius: Radius.full,
+        padding: 6,
         ...Shadows.sm,
     },
     recipeName: {

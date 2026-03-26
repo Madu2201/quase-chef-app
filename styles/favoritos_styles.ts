@@ -8,15 +8,14 @@ export const favStyles = StyleSheet.create({
         backgroundColor: Colors.background,
     },
 
-    // --- TOGGLE DE ESTOQUE ---
+    // --- ESTOQUE (DENTRO DO HEADER - FIXO) ---
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.background,
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.md,
-        height: 48,
-        marginBottom: Spacing.md,
+        height: 35,
         borderWidth: 1.5,
         borderColor: 'transparent',
     },
@@ -31,12 +30,13 @@ export const favStyles = StyleSheet.create({
         transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }],
     },
 
-    // --- FILTROS (CHIPS) ---
-    chipsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+    // --- FILTROS E CABEÇALHO (ROLAM COM A PÁGINA) ---
+    listHeaderContainer: {
+        marginTop: Spacing.md,
+    },
+    chipsScroll: {
         gap: Spacing.xs,
-        marginTop: Spacing.xs,
+        paddingBottom: Spacing.sm,
     },
     chip: {
         flexDirection: 'row',
@@ -46,8 +46,8 @@ export const favStyles = StyleSheet.create({
         paddingVertical: Spacing.xs,
         borderRadius: Radius.full,
         backgroundColor: Colors.background,
-        borderWidth: 1.5,
-        borderColor: 'transparent',
+        borderWidth: 1,
+        borderColor: Colors.primary,
     },
     chipActive: {
         backgroundColor: Colors.secondary,
@@ -64,21 +64,21 @@ export const favStyles = StyleSheet.create({
         color: Colors.light,
     },
 
-    // --- CABEÇALHO DA LISTA ---
+    // --- CONTADOR DE RECEITAS ---
     infoBar: {
-        paddingHorizontal: Spacing.lg,
-        marginVertical: Spacing.md,
+        marginTop: Spacing.md,
+        marginBottom: Spacing.sm,
     },
     infoText: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
-        color: Colors.brown || Colors.primary,
+        color: Colors.brown,
     },
 
     // --- GRID DE RECEITAS ---
     listContent: {
-        paddingBottom: Spacing.xl,
         paddingHorizontal: Spacing.lg,
+        paddingBottom: Spacing.xl,
     },
     columnWrapper: {
         justifyContent: 'space-between',
@@ -90,7 +90,7 @@ export const favStyles = StyleSheet.create({
     imageContainer: {
         width: '100%',
         aspectRatio: 0.85,
-        borderRadius: Radius.md,
+        borderRadius: Radius.lg,
         overflow: 'hidden',
         marginBottom: Spacing.xs,
         backgroundColor: Colors.light,

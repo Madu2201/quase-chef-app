@@ -8,14 +8,12 @@ import { Header } from "../../components/header";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 import { useDispensa } from "../../hooks/useDispensa";
 
-// Dados iniciais para a dispensa
 const INITIAL_INGREDIENTS = [
     { id: "1", name: "Ovo", qty: "12", unit: "un", selected: true },
     { id: "2", name: "Tomate", qty: "4", unit: "un", selected: true },
     { id: "3", name: "Cebola", qty: "2", unit: "un", selected: false },
 ];
 
-// Tela principal da dispensa
 export default function DispensaScreen() {
     const [activeInput, setActiveInput] = useState<string | null>(null);
 
@@ -30,16 +28,21 @@ export default function DispensaScreen() {
 
     return (
         <View style={styles.container}>
-            {/* O NOVO HEADER REUTILIZÁVEL */}
+            {/* Header Slim Fixo */}
             <Header
                 title="Minha Dispensa"
                 centerTitle={true}
                 searchText={searchText}
                 setSearchText={setSearchText}
                 searchPlaceholder="Buscar na sua dispensa..."
+            />
+
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
             >
-                {/* Formulário de Adição (Passado como Children) */}
-                <View style={styles.addSection}>
+                {/* CARD DE ADIÇÃO: Agora rola com a página */}
+                <View style={styles.addCard}>
                     <Text style={styles.sectionLabel}>Novo Ingrediente</Text>
 
                     <TextInput
@@ -63,7 +66,6 @@ export default function DispensaScreen() {
                                 onBlur={() => setActiveInput(null)}
                                 style={[
                                     styles.inputBase,
-                                    styles.inputSmall,
                                     activeInput === 'qtd' && styles.inputFocused
                                 ]}
                                 placeholderTextColor={Colors.subtext}
@@ -71,23 +73,18 @@ export default function DispensaScreen() {
                         </View>
 
                         <TouchableOpacity style={styles.pickerMock} activeOpacity={0.8}>
-                            <Text style={{ color: Colors.dark }}>un</Text>
+                            <Text style={styles.pickerText}>un</Text>
                             <ChevronDown size={16} color={Colors.dark} />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.btnAdd} activeOpacity={0.7}>
-                            <Plus size={24} color={Colors.light} />
+                            <Plus size={22} color={Colors.light} />
                         </TouchableOpacity>
                     </View>
                 </View>
-            </Header>
 
-            {/* Listagem de ingredientes */}
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                <Text style={[styles.sectionLabel, { marginBottom: 16 }]}>
+                {/* Listagem de ingredientes */}
+                <Text style={[styles.sectionLabel, { marginBottom: 16, marginTop: 8 }]}>
                     Ingredientes na dispensa
                 </Text>
 
@@ -97,7 +94,7 @@ export default function DispensaScreen() {
                             onPress={() => toggleIngredient(item.id)}
                             style={[styles.checkbox, item.selected && styles.checkboxActive]}
                         >
-                            {item.selected && <Check size={16} color={Colors.light} strokeWidth={4} />}
+                            {item.selected && <Check size={14} color={Colors.light} strokeWidth={4} />}
                         </Pressable>
 
                         <View style={styles.ingredientInfo}>
@@ -122,7 +119,7 @@ export default function DispensaScreen() {
                 ))}
             </ScrollView>
 
-            {/* Botão Flutuante da IA */}
+            {/* Botão Flutuante */}
             {selectedCount > 0 && (
                 <TouchableOpacity style={styles.floatingBtn} activeOpacity={0.9}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

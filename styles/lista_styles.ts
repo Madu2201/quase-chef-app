@@ -1,209 +1,185 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform, TextStyle } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const listaStyles = StyleSheet.create({
-    // --- ESTRUTURA PRINCIPAL ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
     scrollContent: {
+        paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
         paddingBottom: Spacing.xl * 2,
     },
 
-    // --- HEADER E EXPORTAÇÃO ---
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%',
-        paddingHorizontal: Spacing.lg,
-        marginBottom: Spacing.md,
-    },
-    title: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.large,
-        color: Colors.primary,
-        textAlign: 'left',
-    },
-    exportBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: Colors.secondary,
-        paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.xs,
-        borderRadius: Radius.full,
-        gap: Spacing.xs,
+    // --- CARD DE ADIÇÃO (ROLA COM A LISTA) ---
+    addCard: {
+        backgroundColor: Colors.light,
+        borderRadius: Radius.lg,
+        padding: Spacing.md,
+        marginBottom: Spacing.lg,
+        ...Shadows.sm,
         borderWidth: 1,
-        borderColor: Colors.secondary,
+        borderColor: Colors.subtext + '15',
     },
-    exportText: {
-        color: Colors.secondary,
+    sectionLabel: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
-    },
-
-    // --- FORMULÁRIO DE ADIÇÃO ---
-    addFormContainer: {
-        marginTop: Spacing.xs,
-        paddingHorizontal: Spacing.lg,
-    },
-    inputLabel: {
-        fontFamily: Fonts.medium,
-        fontSize: FontSizes.small,
-        color: Colors.subtext,
-        marginBottom: Spacing.xs / 2,
+        color: Colors.dark,
+        marginBottom: Spacing.sm,
     },
     inputBase: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
-        height: 48,
+        height: 38,
         paddingHorizontal: Spacing.md,
         fontFamily: Fonts.regular,
+        fontSize: FontSizes.small,
         color: Colors.dark,
         borderWidth: 1.5,
-        borderColor: 'transparent',
-        // @ts-ignore
-        outlineStyle: 'none' as any,
-    },
+        borderColor: Colors.subtext + '20',
+        ...Platform.select({
+            web: { outlineStyle: 'none' } as any,
+            default: {},
+        }),
+    } as TextStyle,
     inputFocused: {
         borderColor: Colors.secondary,
         backgroundColor: Colors.light,
     },
     inputFull: {
-        marginBottom: Spacing.md,
-    },
-    inputSmall: {
-        textAlign: 'center',
+        marginBottom: Spacing.xs,
     },
     row: {
-        flexDirection: 'row',
-        gap: Spacing.md,
-        alignItems: 'flex-end',
+        flexDirection: "row",
+        gap: Spacing.sm,
+        alignItems: "center",
     },
     inputField: {
-        flex: 1,
+        flex: 1.5,
     },
     pickerMock: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
-        height: 48,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        height: 38,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
         paddingHorizontal: Spacing.md,
+        flex: 1,
         borderWidth: 1.5,
-        borderColor: 'transparent',
+        borderColor: Colors.subtext + '20',
     },
-    plusBtn: {
+    pickerText: {
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.small,
+        color: Colors.dark,
+    },
+    btnAdd: {
         backgroundColor: Colors.secondary,
-        width: 48,
-        height: 48,
+        width: 38,
+        height: 38,
         borderRadius: Radius.md,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         ...Shadows.sm,
     },
 
-    // --- AÇÕES E SEÇÕES ---
-    actionRow: {
-        flexDirection: 'row',
-        paddingHorizontal: Spacing.lg,
-        marginBottom: Spacing.lg,
-    },
-    btnAction: {
-        flex: 1,
-        height: 40,
-        borderRadius: Radius.md,
+    // --- AÇÕES EM MASSA ---
+    btnActionBulk: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: Spacing.xs,
-    },
-    btnOutline: {
         backgroundColor: Colors.light,
         borderWidth: 1,
-        borderColor: Colors.secondary,
+        borderColor: Colors.secondary + '40',
+        height: 40,
+        borderRadius: Radius.md,
+        gap: 8,
+        marginBottom: Spacing.lg,
     },
-    btnTextOutline: {
-        color: Colors.secondary,
+    btnTextBulk: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
+        color: Colors.secondary,
     },
+
+    // --- SEÇÕES ---
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: Spacing.lg,
-        marginBottom: Spacing.sm,
-        alignItems: 'baseline',
+        alignItems: 'center',
+        marginBottom: Spacing.md,
     },
     sectionTitle: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.medium,
         color: Colors.dark,
     },
-    itemCount: {
-        fontFamily: Fonts.medium,
+    badgeCount: {
+        backgroundColor: Colors.primary + '15',
+        paddingHorizontal: Spacing.sm,
+        paddingVertical: Spacing.xs,
+        borderRadius: Radius.full,
+    },
+    badgeText: {
+        fontFamily: Fonts.bold,
         fontSize: FontSizes.small - 2,
-        color: Colors.subtext,
-        textTransform: 'uppercase',
+        color: Colors.primary,
     },
 
-    // --- CARDS DE ITENS ---
+    // --- ITENS DA LISTA ---
     itemCard: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.light,
-        marginHorizontal: Spacing.lg,
-        marginBottom: Spacing.sm,
         padding: Spacing.md,
         borderRadius: Radius.lg,
+        marginBottom: Spacing.sm,
         ...Shadows.xs,
     },
     checkbox: {
-        width: 24,
-        height: 24,
-        borderRadius: Radius.sm,
+        width: 22,
+        height: 22,
+        borderRadius: Radius.md,
         borderWidth: 2,
         borderColor: Colors.secondary,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: Spacing.sm,
     },
-    checkboxChecked: {
+    checkboxActive: {
         backgroundColor: Colors.secondary,
         borderColor: Colors.secondary,
     },
     itemInfo: {
         flex: 1,
-        marginLeft: Spacing.xs,
+        marginLeft: Spacing.md,
     },
     itemName: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small + 1,
         color: Colors.dark,
     },
     itemSub: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.subtext,
     },
 
-    // --- ESTADOS ESPECIAIS (CONCLUÍDO) ---
+    // --- ESTADOS ESPECIAIS ---
     itemCardComprado: {
         opacity: 0.6,
-        backgroundColor: Colors.dark + '05',
-        ...Shadows.none,
+        backgroundColor: Colors.background,
+        elevation: 0,
+        shadowOpacity: 0,
     },
     nameComprado: {
         textDecorationLine: 'line-through',
         color: Colors.subtext,
     },
-    removeCompradosText: {
-        color: Colors.primary,
+    clearText: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small - 2,
-        textTransform: 'uppercase',
+        color: Colors.primary,
     }
 });

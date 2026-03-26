@@ -2,37 +2,42 @@ import { StyleSheet, Platform, TextStyle } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const dispensaStyles = StyleSheet.create({
-    // --- ESTRUTURA ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
     scrollContent: {
         paddingHorizontal: Spacing.lg,
-        paddingTop: Spacing.xl,
-        paddingBottom: Spacing.lg,
+        paddingTop: Spacing.md,
+        paddingBottom: Spacing.xl * 3,
     },
 
-    // --- FORMULÁRIO DE ADIÇÃO (Header Children) ---
-    addSection: {
-        marginTop: Spacing.xs,
+    // --- CARD DE ADIÇÃO (ROLA COM A LISTA) ---
+    addCard: {
+        backgroundColor: Colors.light,
+        borderRadius: Radius.lg,
+        padding: Spacing.md,
+        marginBottom: Spacing.lg,
+        ...Shadows.sm,
+        borderWidth: 1,
+        borderColor: Colors.subtext + '15',
     },
     sectionLabel: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small + 1,
+        fontSize: FontSizes.small,
         color: Colors.dark,
         marginBottom: Spacing.xs,
     },
     inputBase: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
-        height: 40,
+        height: 38,
         paddingHorizontal: Spacing.md,
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
         color: Colors.dark,
         borderWidth: 1.5,
-        borderColor: 'transparent',
+        borderColor: Colors.subtext + '20',
         ...Platform.select({
             web: { outlineStyle: 'none' } as any,
             default: {},
@@ -43,13 +48,10 @@ export const dispensaStyles = StyleSheet.create({
         backgroundColor: Colors.light,
     },
     inputFull: {
-        marginBottom: Spacing.sm,
+        marginBottom: Spacing.xs,
     },
     inputField: {
-        flex: 1,
-    },
-    inputSmall: {
-        textAlign: "center",
+        flex: 1.5,
     },
     row: {
         flexDirection: "row",
@@ -59,17 +61,24 @@ export const dispensaStyles = StyleSheet.create({
     pickerMock: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
-        height: 40,
+        height: 38,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        paddingHorizontal: Spacing.sm,
-        flex: 1.2,
+        paddingHorizontal: Spacing.md,
+        flex: 1,
+        borderWidth: 1.5,
+        borderColor: Colors.subtext + '20',
+    },
+    pickerText: {
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.small,
+        color: Colors.dark,
     },
     btnAdd: {
         backgroundColor: Colors.secondary,
-        width: 40,
-        height: 40,
+        width: 38,
+        height: 38,
         borderRadius: Radius.md,
         justifyContent: "center",
         alignItems: "center",
@@ -79,7 +88,7 @@ export const dispensaStyles = StyleSheet.create({
     // --- ITENS DA LISTA ---
     ingredientItem: {
         flexDirection: "row",
-        paddingVertical: Spacing.md,
+        paddingVertical: Spacing.sm,
         borderBottomWidth: 1,
         borderBottomColor: Colors.light,
         alignItems: "center",
@@ -104,19 +113,17 @@ export const dispensaStyles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
         color: Colors.dark,
-        marginBottom: Spacing.xs,
+        marginBottom: Spacing.xs / 2,
     },
-
-    // --- CONTROLES DE QUANTIDADE NA LISTA ---
     controlsRow: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 6,
+        gap: 8,
     },
     listInputQty: {
         width: 50,
-        height: 28,
-        borderRadius: Radius.full,
+        height: 30,
+        borderRadius: Radius.md,
         borderWidth: 1,
         borderColor: Colors.primary + '30',
         textAlign: "center",
@@ -127,15 +134,15 @@ export const dispensaStyles = StyleSheet.create({
     },
     listPickerUnit: {
         minWidth: 60,
-        height: 28,
-        borderRadius: Radius.full,
+        height: 30,
+        borderRadius: Radius.md,
         borderWidth: 1,
         borderColor: Colors.primary + '30',
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         gap: 4,
-        paddingHorizontal: Spacing.sm,
+        paddingHorizontal: 8,
         backgroundColor: Colors.light,
     },
     unitText: {
@@ -147,11 +154,11 @@ export const dispensaStyles = StyleSheet.create({
     // --- BOTÃO FLUTUANTE ---
     floatingBtn: {
         position: "absolute",
-        bottom: 30,
+        bottom: 15,
         left: Spacing.lg,
         right: Spacing.lg,
         backgroundColor: Colors.primary,
-        height: 52,
+        height: 50,
         borderRadius: Radius.full,
         flexDirection: "row",
         justifyContent: "space-between",
@@ -167,12 +174,12 @@ export const dispensaStyles = StyleSheet.create({
     badgeContainer: {
         backgroundColor: "rgba(255,255,255,0.2)",
         paddingHorizontal: Spacing.sm,
-        paddingVertical: Spacing.xs,
+        paddingVertical: Spacing.xs / 2,
         borderRadius: Radius.full,
     },
     badgeText: {
         color: Colors.light,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         fontFamily: Fonts.bold,
     },
 });

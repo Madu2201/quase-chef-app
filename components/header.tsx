@@ -57,8 +57,7 @@ export const Header = ({
             >
               {/* Ícone de Documento (Branding PDF) */}
               <FileText size={14} color={Colors.secondary} />
-              <Text style={styles.exportText}>Exportar</Text>
-              <Share2 size={14} color={Colors.secondary} />
+            <Text style={styles.exportText}>Exportar PDF</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -74,7 +73,7 @@ export const Header = ({
             isSearchFocused && styles.searchContainerFocused,
             { marginBottom: children ? Spacing.sm : 0 } // Espaçamento dinâmico se houver children
           ]}>
-            <Search size={20} color={Colors.primary} />
+            <Search size={15} color={Colors.primary} />
             <TextInput
               placeholder={searchPlaceholder}
               style={styles.searchInput}

@@ -18,10 +18,8 @@ export const headerStyles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.lg,
-        paddingBottom: Spacing.md,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.dark + '08',
-        marginBottom: Spacing.md,
+        paddingBottom: Spacing.sm,
+        marginBottom: Spacing.sm,
     },
     title: {
         fontFamily: Fonts.bold,
@@ -51,10 +49,10 @@ export const headerStyles = StyleSheet.create({
         fontSize: FontSizes.small,
     },
 
-    // --- CONTEÚDO (BUSCA E FORMULÁRIO) ---
+    // --- CONTEÚDO (BUSCA E children) ---
     headerContent: {
         paddingHorizontal: Spacing.lg,
-        paddingBottom: Spacing.lg,
+        paddingBottom: Spacing.sm + 1,
     },
     searchContainer: {
         backgroundColor: Colors.background,
@@ -62,7 +60,7 @@ export const headerStyles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: Spacing.md,
-        height: 52,
+        height: 38,
         borderWidth: 1.5,
         borderColor: 'transparent',
     },
@@ -73,7 +71,7 @@ export const headerStyles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.primary,
         marginLeft: Spacing.sm,
         height: "100%",

@@ -6,7 +6,7 @@ export const favStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // Container do switch de estoque (dentro do Header)
+    // Switch de estoque
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -15,8 +15,8 @@ export const favStyles = StyleSheet.create({
         paddingHorizontal: Spacing.md,
         height: 52,
         marginBottom: Spacing.md,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.02)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(0,0,0,0.05)',
     },
     stockText: {
         flex: 1,
@@ -28,23 +28,23 @@ export const favStyles = StyleSheet.create({
     switchStyle: {
         transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
-    // Chips de filtros rápidos
+    // --- FILTROS QUE QUEBRAM LINHA ---
     chipsContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
+        flexWrap: 'wrap', // Permite quebrar linha
         gap: Spacing.sm,
         marginTop: Spacing.xs,
     },
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
         paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.sm,
+        paddingVertical: 10,
         borderRadius: Radius.full,
         backgroundColor: Colors.background,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.05)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(0,0,0,0.08)',
     },
     chipActive: {
         backgroundColor: Colors.secondary,
@@ -60,7 +60,7 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.light,
     },
-    // Barra de contagem de resultados
+    // --- LISTA DE RECEITAS ---
     infoBar: {
         paddingHorizontal: Spacing.lg,
         marginVertical: Spacing.md,
@@ -70,7 +70,6 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.brown,
     },
-    // Grid de receitas
     listContent: {
         paddingBottom: Spacing.xl,
         paddingHorizontal: Spacing.lg,
@@ -115,11 +114,5 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.subtitle,
         marginTop: 2,
-    },
-    emptyText: {
-        textAlign: 'center',
-        marginTop: 40,
-        color: Colors.subtext,
-        fontFamily: Fonts.regular
     }
 });

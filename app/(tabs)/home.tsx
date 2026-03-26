@@ -11,6 +11,7 @@ import { Colors } from "../../constants/theme";
 export default function HomeScreen() {
   const router = useRouter();
 
+  // Conteúdo da tela
   return (
     <View style={styles.container}>
       <Header title="" showSearch={false}>
@@ -28,6 +29,7 @@ export default function HomeScreen() {
         </Pressable>
       </Header>
 
+      {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.mainTitle}>O que vamos cozinhar hoje?</Text>
         <Text style={styles.mainSubtitle}>
@@ -39,17 +41,20 @@ export default function HomeScreen() {
           <Pressable><Text style={styles.editText}>Editar</Text></Pressable>
         </View>
 
+        {/* Tags de Ingredientes */}
         <View style={styles.ingredientsWrapper}>
           <Tag icon={<Flame size={16} color={Colors.primary} />} label="Ovos (4)" />
           <Tag icon={<UtensilsCrossed size={16} color={Colors.primary} />} label="Tomate (1)" />
           <Tag icon={<Leaf size={16} color={Colors.primary} />} label="Cebola (1)" />
         </View>
 
+        {/* Botão de Gerar Receitas */}
         <Pressable style={styles.generateButton}>
           <Sparkles size={20} color={Colors.light} fill={Colors.light} />
           <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
         </Pressable>
 
+        {/* Sugestões rápidas */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sugestões rápidas</Text>
           <Pressable><Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text></Pressable>

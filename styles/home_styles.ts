@@ -6,11 +6,13 @@ export const homeStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
+    // Espaçamento do conteúdo rolável abaixo do Header
     scrollContent: {
         paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
         paddingBottom: Spacing.xl,
     },
+    // Container do perfil (passado como children para o Header)
     userHeader: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -41,6 +43,7 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.medium,
         color: Colors.dark,
     },
+    // Títulos e Textos principais
     mainTitle: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.title,
@@ -53,6 +56,7 @@ export const homeStyles = StyleSheet.create({
         color: Colors.subtitle,
         marginBottom: Spacing.xl,
     },
+    // Cabeçalhos de seção (Ingredientes/Sugestões)
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -69,6 +73,7 @@ export const homeStyles = StyleSheet.create({
         color: Colors.primary,
         fontSize: FontSizes.medium,
     },
+    // Tags de ingredientes selecionados
     ingredientsWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -91,6 +96,7 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.dark,
     },
+    // Botão de ação principal
     generateButton: {
         backgroundColor: Colors.primary,
         flexDirection: 'row',
@@ -108,6 +114,7 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.medium,
         textAlign: 'center',
     },
+    // Cards de receitas sugeridas
     recipeCard: {
         flexDirection: 'row',
         backgroundColor: Colors.light,

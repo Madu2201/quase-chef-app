@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, Switch } from 'react-native';
-import { Heart, Zap, Leaf, TrendingUp, Package } from 'lucide-react-native';
+import { View, Text, FlatList, Image, Pressable, Switch, ScrollView } from 'react-native';
+import {
+    Heart, Sparkles, Timer, Utensils, IceCream, Leaf, Flame, Package
+} from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-// Importações do Projeto
 import { Header } from '../../components/header';
 import { favStyles as styles } from '../../styles/favoritos_styles';
 import { Colors } from '../../constants/theme';
-import { useFavoritos } from '../../hooks/useFavoritos';
 
-// Dados iniciais para as receitas favoritadas
+// Dados com as 6 receitas para preencher o scroll
 const FAVORITOS_DATA = [
     { id: '1', name: 'Bowl de Quinoa e Vegetais', info: '15 min • Fácil', img: require('../../assets/images/Bowl_Quinoa.png') },
     { id: '2', name: 'Pasta Pesto Mediterrânea', info: '20 min • Médio', img: require('../../assets/images/Pasta_Pesto.png') },
@@ -19,22 +19,19 @@ const FAVORITOS_DATA = [
     { id: '6', name: 'Pizza Integral Marguerita', info: '45 min • Médio', img: require('../../assets/images/Pizza_marguerita.png') },
 ];
 
-// Tela de Favoritos
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
-    const { searchText, setSearchText, filteredRecipes } = useFavoritos(FAVORITOS_DATA);
+    const [searchText, setSearchText] = useState('');
 
     return (
         <View style={styles.container}>
-            {/* Header Unificado com o padrão da tela de Favoritos */}
             <Header
                 title="Favoritos"
-                centerTitle={true} // Mantém o título centralizado como era antes
+                centerTitle={true}
                 searchText={searchText}
                 setSearchText={setSearchText}
                 searchPlaceholder="Buscar receitas salvas..."
             >
-                {/* Switch de Estoque - Passado como Children para manter o padrão único desta tela */}
                 <View style={styles.stockToggle}>
                     <Package size={20} color={Colors.primary} />
                     <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
@@ -47,31 +44,23 @@ export default function FavoritosScreen() {
                     />
                 </View>
 
-                {/* Filtros em Chips */}
+                {/* Filtros Diretos com Scroll Lateral e Ícones Únicos */}
                 <View style={styles.chipsContainer}>
-                    <Pressable style={[styles.chip, styles.chipActive]}>
-                        <Zap size={14} color={Colors.light} />
-                        <Text style={styles.chipTextActive}>Rápidas</Text>
-                    </Pressable>
-                    <Pressable style={styles.chip}>
-                        <Leaf size={14} color={Colors.primary} />
-                        <Text style={styles.chipText}>Vegetarianas</Text>
-                    </Pressable>
-                    <Pressable style={styles.chip}>
-                        <TrendingUp size={14} color={Colors.primary} />
-                        <Text style={styles.chipText}>Populares</Text>
-                    </Pressable>
+                    <Chip active icon={<Sparkles size={14} color={Colors.light} fill={Colors.light} />} label="Todos" />
+                    <Chip icon={<Utensils size={14} color={Colors.primary} />} label="Salgadas" />
+                    <Chip icon={<IceCream size={14} color={Colors.primary} />} label="Doces" />
+                    <Chip icon={<Timer size={14} color={Colors.primary} />} label="Rápidas" />
+                    <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Saudáveis" />
+                    <Chip icon={<Flame size={14} color={Colors.primary} />} label="Populares" />
                 </View>
             </Header>
 
-            {/* Barra de Contagem */}
             <View style={styles.infoBar}>
-                <Text style={styles.infoText}>{filteredRecipes.length} receitas encontradas</Text>
+                <Text style={styles.infoText}>{FAVORITOS_DATA.length} receitas encontradas</Text>
             </View>
 
-            {/* Listagem de Receitas */}
             <FlatList
-                data={filteredRecipes}
+                data={FAVORITOS_DATA}
                 keyExtractor={item => item.id}
                 numColumns={2}
                 columnWrapperStyle={styles.columnWrapper}
@@ -79,7 +68,7 @@ export default function FavoritosScreen() {
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }) => (
                     <Animated.View
-                        entering={FadeInDown.delay(index * 50).duration(300)}
+                        entering={FadeInDown.delay(index * 100).duration(400)}
                         style={styles.card}
                     >
                         <Pressable>
@@ -94,12 +83,14 @@ export default function FavoritosScreen() {
                         </Pressable>
                     </Animated.View>
                 )}
-                ListEmptyComponent={
-                    <Text style={styles.emptyText}>
-                        Nenhuma receita encontrada.
-                    </Text>
-                }
             />
         </View>
     );
 }
+
+const Chip = ({ active = false, icon, label }: any) => (
+    <Pressable style={[styles.chip, active && styles.chipActive]}>
+        {icon}
+        <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
+    </Pressable>
+);

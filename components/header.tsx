@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { Search, Upload, Share2 } from "lucide-react-native";
-import { Colors } from "../constants/theme";
+import { Colors, Spacing } from "../constants/theme";
 import { headerStyles as styles } from "../styles/header.styles";
 
 interface HeaderProps {
@@ -31,7 +31,7 @@ export const Header = ({
 
   return (
     <View style={styles.header}>
-      {/* Só renderiza a linha do título se houver texto ou botão de exportar */}
+      {/* 1. Linha do Título (Favoritos, Dispensa, etc) */}
       {(title !== "" || showExport) && (
         <View style={styles.titleContainer}>
           <Text
@@ -52,11 +52,13 @@ export const Header = ({
       )}
 
       <View style={styles.headerContent}>
-        {/* Aqui entra o layout do usuário (Home) ou forms (Dispensa/Lista) */}
-        {children}
-
+        {/* 2. Barra de Busca (Agora SEMPRE em cima do formulário/perfil) */}
         {showSearch && (
-          <View style={[styles.searchContainer, isSearchFocused && styles.searchContainerFocused]}>
+          <View style={[
+            styles.searchContainer,
+            isSearchFocused && styles.searchContainerFocused,
+            { marginBottom: children ? Spacing.sm : 0 }
+          ]}>
             <Search size={20} color={Colors.primary} />
             <TextInput
               placeholder={searchPlaceholder}
@@ -70,6 +72,9 @@ export const Header = ({
             />
           </View>
         )}
+
+        {/* 3. Conteúdo Adicional (Perfil na Home, Forms na Dispensa/Lista) */}
+        {children}
       </View>
     </View>
   );

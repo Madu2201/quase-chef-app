@@ -12,7 +12,7 @@ export const dispensaStyles = StyleSheet.create({
         paddingBottom: Spacing.xl * 3,
     },
 
-    // --- CARD DE ADIÇÃO (ROLA COM A LISTA) ---
+    // --- CARD DE ADIÇÃO ---
     addCard: {
         backgroundColor: Colors.light,
         borderRadius: Radius.lg,
@@ -50,13 +50,13 @@ export const dispensaStyles = StyleSheet.create({
     inputFull: {
         marginBottom: Spacing.xs,
     },
-    inputField: {
-        flex: 1.5,
-    },
     row: {
         flexDirection: "row",
         gap: Spacing.sm,
         alignItems: "center",
+    },
+    inputField: {
+        flex: 1.5,
     },
     pickerMock: {
         backgroundColor: Colors.background,
@@ -85,70 +85,78 @@ export const dispensaStyles = StyleSheet.create({
         ...Shadows.sm,
     },
 
-    // --- ITENS DA LISTA ---
+    // --- ITENS DA DISPENSA (ESTILO CARD) ---
     ingredientItem: {
-        flexDirection: "row",
-        paddingVertical: Spacing.sm,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.light,
-        alignItems: "center",
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.light,
+        padding: Spacing.md,
+        borderRadius: Radius.lg,
+        marginBottom: Spacing.sm,
+        ...Shadows.xs,
     },
     checkbox: {
         width: 22,
         height: 22,
-        borderRadius: Radius.full,
+        borderRadius: Radius.md,
         borderWidth: 2,
-        borderColor: Colors.primary,
+        borderColor: Colors.secondary,
         justifyContent: "center",
         alignItems: "center",
-        marginRight: Spacing.sm,
     },
     checkboxActive: {
-        backgroundColor: Colors.primary,
+        backgroundColor: Colors.secondary,
+        borderColor: Colors.secondary,
     },
     ingredientInfo: {
         flex: 1,
+        marginLeft: Spacing.md,
     },
     ingredientName: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small + 1,
         color: Colors.dark,
-        marginBottom: Spacing.xs / 2,
     },
     controlsRow: {
         flexDirection: "row",
         alignItems: "center",
         gap: 8,
+        marginTop: Spacing.xs,
     },
+    // Estilo base para o input de Qtd na lista
     listInputQty: {
         width: 50,
         height: 30,
-        borderRadius: Radius.md,
-        borderWidth: 1,
-        borderColor: Colors.primary + '30',
+        borderRadius: Radius.sm,
+        borderWidth: 1.5,
+        borderColor: Colors.subtext + '30',
         textAlign: "center",
-        fontFamily: Fonts.regular,
+        fontFamily: Fonts.medium,
         fontSize: FontSizes.small,
         color: Colors.dark,
-        backgroundColor: Colors.light,
-    },
+        backgroundColor: Colors.background,
+        ...Platform.select({
+            web: { outlineStyle: 'none' } as any,
+            default: {},
+        }),
+    } as TextStyle,
     listPickerUnit: {
-        minWidth: 60,
+        minWidth: 55,
         height: 30,
-        borderRadius: Radius.md,
-        borderWidth: 1,
-        borderColor: Colors.primary + '30',
+        borderRadius: Radius.sm,
+        borderWidth: 1.5,
+        borderColor: Colors.subtext + '30',
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         gap: 4,
-        paddingHorizontal: 8,
-        backgroundColor: Colors.light,
+        paddingHorizontal: Spacing.sm,
+        backgroundColor: Colors.background,
     },
     unitText: {
-        fontSize: FontSizes.small,
-        fontFamily: Fonts.regular,
-        color: Colors.dark,
+        fontSize: FontSizes.small - 1,
+        fontFamily: Fonts.bold,
+        color: Colors.brown,
     },
 
     // --- BOTÃO FLUTUANTE ---
@@ -158,23 +166,23 @@ export const dispensaStyles = StyleSheet.create({
         left: Spacing.lg,
         right: Spacing.lg,
         backgroundColor: Colors.primary,
-        height: 50,
+        height: 52,
         borderRadius: Radius.full,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: Spacing.lg,
-        ...Shadows.md,
+        ...Shadows.lg,
     },
     floatingBtnText: {
         color: Colors.light,
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small + 1,
     },
     badgeContainer: {
         backgroundColor: "rgba(255,255,255,0.2)",
         paddingHorizontal: Spacing.sm,
-        paddingVertical: Spacing.xs / 2,
+        paddingVertical: Spacing.xs,
         borderRadius: Radius.full,
     },
     badgeText: {

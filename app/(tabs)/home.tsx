@@ -50,7 +50,7 @@ export default function HomeScreen() {
 
         {/* Botão de Gerar Receitas */}
         <Pressable style={styles.generateButton}>
-          <Sparkles size={20} color={Colors.light} fill={Colors.light} />
+          <Sparkles size={15} color={Colors.light} fill={Colors.light} />
           <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
         </Pressable>
 
@@ -76,6 +76,22 @@ export default function HomeScreen() {
           title="Shakshuka"
           desc="Ovos cozidos em uma salsa de tomate e especiarias."
         />
+
+        <RecipeCard
+          delay={600}
+          image={require("../../assets/images/Pizza_marguerita.png")}
+          time="20 MIN"
+          title="Pizza de Marguerita"
+          desc="Deliciosa pizza com ingredientes frescos."
+        />
+
+        <RecipeCard
+        delay={800}
+        image={require("../../assets/images/Panquecas_fit.png")}
+        time="20 MIN"
+        title="Panquecas Fit"
+        desc="Deliciosas panquecas saudáveis para o café da manhã."
+      />
       </ScrollView>
     </View>
   );

@@ -12,7 +12,7 @@ export const listaStyles = StyleSheet.create({
         paddingBottom: Spacing.xl * 2,
     },
 
-    // --- CARD DE ADIÇÃO (ROLA COM A LISTA) ---
+    // --- CARD DE ADIÇÃO ---
     addCard: {
         backgroundColor: Colors.light,
         borderRadius: Radius.lg,
@@ -166,12 +166,20 @@ export const listaStyles = StyleSheet.create({
         color: Colors.subtext,
     },
 
+    // --- BOTÃO DELETAR (LIXEIRA VERMELHA) ---
+    btnDelete: {
+        padding: Spacing.xs,
+        marginLeft: Spacing.xs,
+    },
+
     // --- ESTADOS ESPECIAIS ---
     itemCardComprado: {
         opacity: 0.6,
         backgroundColor: Colors.background,
         elevation: 0,
         shadowOpacity: 0,
+        borderWidth: 1,
+        borderColor: Colors.subtext + '10',
     },
     nameComprado: {
         textDecorationLine: 'line-through',

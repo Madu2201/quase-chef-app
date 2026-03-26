@@ -2,20 +2,25 @@ import React, { useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, TouchableOpacity } from "react-native";
 import { Plus, Trash2, ChevronDown, Check, Sparkles } from "lucide-react-native";
 
-// Importações do Projeto
+// Importações de Estilo e Componentes
 import { Colors } from "../../constants/theme";
 import { Header } from "../../components/header";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 import { useDispensa } from "../../hooks/useDispensa";
 
+// Dados Iniciais
 const INITIAL_INGREDIENTS = [
     { id: "1", name: "Ovo", qty: "12", unit: "un", selected: true },
     { id: "2", name: "Tomate", qty: "4", unit: "un", selected: true },
     { id: "3", name: "Cebola", qty: "2", unit: "un", selected: false },
+    { id: "4", name: "Alface", qty: "1", unit: "un", selected: false },
+    { id: "5", name: "Queijo", qty: "1", unit: "un", selected: false },
 ];
 
+// Tela de Dispensa
 export default function DispensaScreen() {
     const [activeInput, setActiveInput] = useState<string | null>(null);
+    const [activeListInput, setActiveListInput] = useState<string | null>(null);
 
     const {
         searchText,
@@ -28,7 +33,6 @@ export default function DispensaScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header Slim Fixo */}
             <Header
                 title="Minha Dispensa"
                 centerTitle={true}
@@ -41,10 +45,9 @@ export default function DispensaScreen() {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* CARD DE ADIÇÃO: Agora rola com a página */}
+                {/* CARD DE ADIÇÃO */}
                 <View style={styles.addCard}>
                     <Text style={styles.sectionLabel}>Novo Ingrediente</Text>
-
                     <TextInput
                         placeholder="Ex: Arroz, Feijão..."
                         onFocus={() => setActiveInput('nome')}
@@ -56,7 +59,6 @@ export default function DispensaScreen() {
                         ]}
                         placeholderTextColor={Colors.subtext}
                     />
-
                     <View style={styles.row}>
                         <View style={styles.inputField}>
                             <TextInput
@@ -71,20 +73,18 @@ export default function DispensaScreen() {
                                 placeholderTextColor={Colors.subtext}
                             />
                         </View>
-
                         <TouchableOpacity style={styles.pickerMock} activeOpacity={0.8}>
                             <Text style={styles.pickerText}>un</Text>
                             <ChevronDown size={16} color={Colors.dark} />
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.btnAdd} activeOpacity={0.7}>
                             <Plus size={22} color={Colors.light} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* Listagem de ingredientes */}
-                <Text style={[styles.sectionLabel, { marginBottom: 16, marginTop: 8 }]}>
+                {/* SEÇÃO DE INGREDIENTES */}
+                <Text style={[styles.sectionLabel]}>
                     Ingredientes na dispensa
                 </Text>
 
@@ -102,24 +102,32 @@ export default function DispensaScreen() {
                             <View style={styles.controlsRow}>
                                 <TextInput
                                     defaultValue={item.qty}
-                                    style={styles.listInputQty}
                                     keyboardType="numeric"
+                                    onFocus={() => setActiveListInput(item.id)}
+                                    onBlur={() => setActiveListInput(null)}
+                                    style={[
+                                        styles.listInputQty,
+                                        activeListInput === item.id && styles.inputFocused
+                                    ]}
                                 />
                                 <View style={styles.listPickerUnit}>
                                     <Text style={styles.unitText}>{item.unit}</Text>
-                                    <ChevronDown size={14} color={Colors.dark} />
+                                    <ChevronDown size={14} color={Colors.brown} />
                                 </View>
                             </View>
                         </View>
 
-                        <TouchableOpacity onPress={() => removeIngredient(item.id)}>
-                            <Trash2 size={20} color={Colors.subtext} opacity={0.5} />
+                        {/* BOTÃO DE EXCLUSÃO */}
+                        <TouchableOpacity
+                            onPress={() => removeIngredient(item.id)}
+                            activeOpacity={0.5}
+                        >
+                            <Trash2 size={18} color={Colors.errorDark} />
                         </TouchableOpacity>
                     </View>
                 ))}
             </ScrollView>
 
-            {/* Botão Flutuante */}
             {selectedCount > 0 && (
                 <TouchableOpacity style={styles.floatingBtn} activeOpacity={0.9}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

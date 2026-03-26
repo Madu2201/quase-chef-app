@@ -106,7 +106,7 @@ export const homeStyles = StyleSheet.create({
         backgroundColor: Colors.primary,
         flexDirection: 'row',
         height: 52,
-        borderRadius: Radius.md,
+        borderRadius: Radius.full,
         justifyContent: 'center',
         alignItems: 'center',
         gap: Spacing.sm,

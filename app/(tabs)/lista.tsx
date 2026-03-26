@@ -6,17 +6,19 @@ import { Plus, Check, Trash2, ChevronDown, CheckSquare } from 'lucide-react-nati
 import { Header } from '../../components/header';
 import { listaStyles as styles } from '../../styles/lista_styles';
 import { Colors, Spacing } from '../../constants/theme';
-
-// Hooks e Utilitários
 import { useListaCompras } from '../../hooks/useListaCompras';
 import { exportarListaPendentes } from '../../utils/exportPdf';
 
+// Dados Iniciais
 const DATA_INICIAL = [
     { id: '1', name: 'Leite Integral', info: '2 Litros', comprado: false },
     { id: '2', name: 'Ovos Brancos', info: '12 unidades', comprado: false },
-    { id: '3', name: 'Pão de Forma', info: '1 pacote', comprado: false },
+    { id: '3', name: 'Tomate', info: '4 unidades', comprado: false },
+    { id: '4', name: 'Cebola', info: '2 unidades', comprado: false },
+    { id: '5', name: 'Alface', info: '1 unidade', comprado: false },
 ];
 
+// Componente Principal
 export default function ListaScreen() {
     const {
         pendentes,
@@ -31,6 +33,7 @@ export default function ListaScreen() {
     const [nomeItem, setNomeItem] = useState('');
     const [quantidade, setQuantidade] = useState('');
 
+    // Funções
     const handleExportPDF = async () => {
         if (pendentes.length === 0) {
             const msg = "A lista está vazia!";
@@ -50,14 +53,10 @@ export default function ListaScreen() {
                 showSearch={false}
             />
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {/* CARD DE ADIÇÃO (ROLA COM A LISTA) */}
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                {/* CARD DE ADIÇÃO */}
                 <View style={styles.addCard}>
                     <Text style={styles.sectionLabel}>Novo Item</Text>
-
                     <TextInput
                         placeholder="Ex: Arroz, Feijão..."
                         placeholderTextColor={Colors.subtext + '80'}
@@ -65,11 +64,7 @@ export default function ListaScreen() {
                         onChangeText={setNomeItem}
                         onFocus={() => setActiveInput('nome')}
                         onBlur={() => setActiveInput(null)}
-                        style={[
-                            styles.inputBase,
-                            styles.inputFull,
-                            activeInput === 'nome' && styles.inputFocused
-                        ]}
+                        style={[styles.inputBase, styles.inputFull, activeInput === 'nome' && styles.inputFocused]}
                     />
 
                     <View style={styles.row}>
@@ -81,10 +76,7 @@ export default function ListaScreen() {
                                 keyboardType="numeric"
                                 onFocus={() => setActiveInput('qtd')}
                                 onBlur={() => setActiveInput(null)}
-                                style={[
-                                    styles.inputBase,
-                                    activeInput === 'qtd' && styles.inputFocused
-                                ]}
+                                style={[styles.inputBase, activeInput === 'qtd' && styles.inputFocused]}
                             />
                         </View>
 
@@ -96,22 +88,19 @@ export default function ListaScreen() {
                         <TouchableOpacity
                             style={styles.btnAdd}
                             activeOpacity={0.7}
-                            onPress={() => {
-                                setNomeItem(''); setQuantidade('');
-                            }}
+                            onPress={() => { setNomeItem(''); setQuantidade(''); }}
                         >
                             <Plus size={22} color={Colors.light} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                {/* AÇÕES EM MASSA */}
+                {/* SEÇÃO DE ITENS PENDENTES */}
                 <TouchableOpacity style={styles.btnActionBulk} onPress={marcarTodos}>
                     <CheckSquare size={18} color={Colors.secondary} />
                     <Text style={styles.btnTextBulk}>Marcar todos como comprados</Text>
                 </TouchableOpacity>
 
-                {/* SEÇÃO: PENDENTES */}
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Itens pendentes</Text>
                     <View style={styles.badgeCount}>
@@ -121,10 +110,7 @@ export default function ListaScreen() {
 
                 {pendentes.map(item => (
                     <View key={item.id} style={styles.itemCard}>
-                        <Pressable
-                            onPress={() => toggleItem(item.id)}
-                            style={[styles.checkbox, item.comprado && styles.checkboxActive]}
-                        >
+                        <Pressable onPress={() => toggleItem(item.id)} style={[styles.checkbox, item.comprado && styles.checkboxActive]}>
                             {item.comprado && <Check size={14} color={Colors.light} strokeWidth={4} />}
                         </Pressable>
 
@@ -133,13 +119,13 @@ export default function ListaScreen() {
                             <Text style={styles.itemSub}>{item.info}</Text>
                         </View>
 
-                        <TouchableOpacity onPress={() => removerItem(item.id)}>
-                            <Trash2 size={18} color={Colors.subtext} opacity={0.5} />
+                        <TouchableOpacity onPress={() => removerItem(item.id)} style={styles.btnDelete}>
+                            <Trash2 size={18} color={Colors.errorDark} />
                         </TouchableOpacity>
                     </View>
                 ))}
 
-                {/* SEÇÃO: COMPRADOS */}
+                {/* SEÇÃO DE ITENS COMPRADOS */}
                 {comprados.length > 0 && (
                     <View style={{ marginTop: Spacing.lg }}>
                         <View style={styles.sectionHeader}>
@@ -151,13 +137,9 @@ export default function ListaScreen() {
 
                         {comprados.map(item => (
                             <View key={item.id} style={[styles.itemCard, styles.itemCardComprado]}>
-                                <TouchableOpacity
-                                    onPress={() => toggleItem(item.id)}
-                                    style={[styles.checkbox, styles.checkboxActive, { opacity: 0.5 }]}
-                                >
+                                <TouchableOpacity onPress={() => toggleItem(item.id)} style={[styles.checkbox, styles.checkboxActive, { opacity: 0.5 }]}>
                                     <Check size={14} color={Colors.light} strokeWidth={4} />
                                 </TouchableOpacity>
-
                                 <View style={styles.itemInfo}>
                                     <Text style={[styles.itemName, styles.nameComprado]}>{item.name}</Text>
                                     <Text style={styles.itemSub}>{item.info}</Text>

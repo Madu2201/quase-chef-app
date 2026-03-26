@@ -41,8 +41,7 @@ export default function EsqueciSenhaScreen() {
 
           <Text style={styles.welcomeTitle}>Qual o e-mail da conta?</Text>
           <Text style={styles.welcomeSubtitle}>
-            Enviaremos instruções para o seu e-mail, assim garantimos que apenas
-            você pode redefinir a senha.
+            Insira seu e-mail para recuperar sua conta com segurança
           </Text>
         </Animated.View>
 
@@ -51,7 +50,6 @@ export default function EsqueciSenhaScreen() {
           entering={FadeInDown.delay(300).duration(600)}
           style={styles.inputGroup}
         >
-          <Text style={styles.label}>Email</Text>
           <View style={[
             styles.inputContainer,
             isFocusedEmail && styles.inputContainerFocused

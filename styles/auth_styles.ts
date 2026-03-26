@@ -51,18 +51,10 @@ export const authStyles = StyleSheet.create({
   },
   // Grupos de formulário
   inputGroup: {
-    marginTop: Spacing.sm,
+    marginTop: Spacing.lg,
   },
-  label: {
-    fontFamily: Fonts.bold,
-    fontSize: FontSizes.small + 1,
-    color: Colors.subtitle,
-    marginBottom: 4,
-    marginTop: Spacing.md,
-  },
-  /** * CONTAINER DO INPUT (PADRÃO)
-   * Baseado no 'searchContainer' da Dispensa
-   */
+
+  /* CONTAINER DO INPUT (PADRÃO) */
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -71,14 +63,11 @@ export const authStyles = StyleSheet.create({
     borderRadius: Radius.lg,
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.xs,
     height: 52,
-    // Sombra leve para destacar do fundo
     ...Shadows.sm,
   },
-  /**
-   * ESTADO FOCADO (IGUAL À DISPENSA)
-   * Aplica a cor primária e remove qualquer opacidade
-   */
+  /*ESTADO FOCADO DO INPUT (PADRÃO) */
   inputContainerFocused: {
     borderColor: Colors.primary,
     backgroundColor: Colors.light,

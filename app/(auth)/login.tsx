@@ -54,7 +54,6 @@ export default function LoginScreen() {
           entering={FadeInDown.delay(300).duration(600)}
           style={styles.inputGroup}
         >
-          <Text style={styles.label}>Email</Text>
           <View style={[
             styles.inputContainer,
             isFocusedEmail && styles.inputContainerFocused
@@ -71,7 +70,6 @@ export default function LoginScreen() {
             />
           </View>
 
-          <Text style={styles.label}>Senha</Text>
           <View style={[
             styles.inputContainer,
             isFocusedPassword && styles.inputContainerFocused

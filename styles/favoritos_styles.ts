@@ -2,39 +2,40 @@ import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const favStyles = StyleSheet.create({
-    // --- ESTRUTURA ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
 
-    // --- ESTOQUE (DENTRO DO HEADER - FIXO) ---
+    // --- ESTOQUE (HEADER) ---
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.background,
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.md,
-        height: 35,
-        borderWidth: 1.5,
-        borderColor: 'transparent',
+        height: 38,
+        borderWidth: 1,
+        borderColor: Colors.subtext + '20',
     },
     stockText: {
         flex: 1,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.primary,
         marginLeft: Spacing.sm,
     },
     switchStyle: {
-        transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }],
+        transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
 
-    // --- FILTROS E CABEÇALHO (ROLAM COM A PÁGINA) ---
+    // --- FILTROS (CHIPS COM QUEBRA) ---
     listHeaderContainer: {
         marginTop: Spacing.md,
     },
-    chipsScroll: {
+    chipsWrapper: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: Spacing.xs,
         paddingBottom: Spacing.sm,
     },
@@ -43,10 +44,10 @@ export const favStyles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.xs,
+        paddingVertical: 8,
         borderRadius: Radius.full,
-        backgroundColor: Colors.background,
-        borderWidth: 1,
+        backgroundColor: Colors.light,
+        borderWidth: 1.5,
         borderColor: Colors.primary,
     },
     chipActive: {
@@ -55,16 +56,16 @@ export const favStyles = StyleSheet.create({
     },
     chipText: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.primary,
     },
     chipTextActive: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.light,
     },
 
-    // --- CONTADOR DE RECEITAS ---
+    // --- CONTADOR ---
     infoBar: {
         marginTop: Spacing.md,
         marginBottom: Spacing.sm,
@@ -75,7 +76,7 @@ export const favStyles = StyleSheet.create({
         color: Colors.brown,
     },
 
-    // --- GRID DE RECEITAS ---
+    // --- GRID E IMAGEM QUADRADA ---
     listContent: {
         paddingHorizontal: Spacing.lg,
         paddingBottom: Spacing.xl,
@@ -89,7 +90,7 @@ export const favStyles = StyleSheet.create({
     },
     imageContainer: {
         width: '100%',
-        aspectRatio: 0.85,
+        aspectRatio: 1, // IMAGEM QUADRADA PERFEITA
         borderRadius: Radius.lg,
         overflow: 'hidden',
         marginBottom: Spacing.xs,
@@ -106,7 +107,7 @@ export const favStyles = StyleSheet.create({
         right: 8,
         backgroundColor: Colors.light,
         borderRadius: Radius.full,
-        padding: Spacing.xs,
+        padding: 6,
         ...Shadows.sm,
     },
     recipeName: {
@@ -114,11 +115,13 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.dark,
         lineHeight: 18,
+        marginHorizontal: Spacing.sm,
     },
     recipeDetail: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.subtitle,
-        marginTop: Spacing.xs,
+        marginTop: 2,
+        marginHorizontal: Spacing.sm,
     }
 });

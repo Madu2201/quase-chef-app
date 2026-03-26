@@ -11,7 +11,6 @@ import { Colors } from "../../constants/theme";
 export default function HomeScreen() {
   const router = useRouter();
 
-  // Conteúdo da tela
   return (
     <View style={styles.container}>
       <Header title="" showSearch={false}>
@@ -29,7 +28,6 @@ export default function HomeScreen() {
         </Pressable>
       </Header>
 
-      {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.mainTitle}>O que vamos cozinhar hoje?</Text>
         <Text style={styles.mainSubtitle}>
@@ -38,29 +36,28 @@ export default function HomeScreen() {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Ingredientes selecionados</Text>
-          <Pressable><Text style={styles.editText}>Editar</Text></Pressable>
+          <Pressable onPress={() => router.push("/dispensa")}>
+            <Text style={styles.editText}>Editar</Text>
+          </Pressable>
         </View>
 
-        {/* Tags de Ingredientes */}
+        {/* Chips de Ingredientes com Quebra de Linha Automática */}
         <View style={styles.ingredientsWrapper}>
-          <Tag icon={<Flame size={16} color={Colors.primary} />} label="Ovos (4)" />
-          <Tag icon={<UtensilsCrossed size={16} color={Colors.primary} />} label="Tomate (1)" />
-          <Tag icon={<Leaf size={16} color={Colors.primary} />} label="Cebola (1)" />
+          <Chip active icon={<Flame size={14} color={Colors.light} />} label="Ovos (4)" />
+          <Chip icon={<UtensilsCrossed size={14} color={Colors.primary} />} label="Tomate (1)" />
+          <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Cebola (1)" />
         </View>
 
-        {/* Botão de Gerar Receitas */}
-        <Pressable style={styles.generateButton}>
+        <Pressable style={styles.generateButton} onPress={() => console.log("Gerar Receitas")}>
           <Sparkles size={15} color={Colors.light} fill={Colors.light} />
           <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
         </Pressable>
 
-        {/* Sugestões rápidas */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sugestões rápidas</Text>
           <Pressable><Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text></Pressable>
         </View>
 
-        {/* Cards de Exemplo */}
         <RecipeCard
           delay={200}
           image={require("../../assets/images/omelete.png")}
@@ -74,7 +71,7 @@ export default function HomeScreen() {
           image={require("../../assets/images/shakshuka.png")}
           time="15 MIN"
           title="Shakshuka"
-          desc="Ovos cozidos em uma salsa de tomate e especiarias."
+          desc="Ovos cozidos em salsa de tomate."
         />
 
         <RecipeCard
@@ -82,26 +79,18 @@ export default function HomeScreen() {
           image={require("../../assets/images/Pizza_marguerita.png")}
           time="20 MIN"
           title="Pizza de Marguerita"
-          desc="Deliciosa pizza com ingredientes frescos."
+          desc="Ingredientes frescos e massa leve."
         />
-
-        <RecipeCard
-        delay={800}
-        image={require("../../assets/images/Panquecas_fit.png")}
-        time="20 MIN"
-        title="Panquecas Fit"
-        desc="Deliciosas panquecas saudáveis para o café da manhã."
-      />
       </ScrollView>
     </View>
   );
 }
 
-// Sub-componentes para limpar o código principal
-const Tag = ({ icon, label }: { icon: any, label: string }) => (
-  <View style={styles.ingredientTag}>
+// Sub-componentes internos para manter o código limpo
+const Chip = ({ active = false, icon, label }: any) => (
+  <View style={[styles.chip, active && styles.chipActive]}>
     {icon}
-    <Text style={styles.ingredientText}>{label}</Text>
+    <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
   </View>
 );
 

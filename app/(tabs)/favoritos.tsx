@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, Switch, ScrollView } from 'react-native';
+import { View, Text, FlatList, Image, Pressable, Switch } from 'react-native';
 import { Heart, Sparkles, Utensils, IceCream, Package } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -22,18 +22,13 @@ export default function FavoritosScreen() {
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
-            {/* Filtros lado a lado com Scroll horizontal */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chipsScroll}
-            >
+            {/* Chips que quebram linha automaticamente */}
+            <View style={styles.chipsWrapper}>
                 <Chip active icon={<Sparkles size={14} color={Colors.light} fill={Colors.light} />} label="Todos" />
                 <Chip icon={<Utensils size={14} color={Colors.primary} />} label="Salgadas" />
                 <Chip icon={<IceCream size={14} color={Colors.primary} />} label="Doces" />
-            </ScrollView>
+            </View>
 
-            {/* Contador alinhado com a borda da imagem */}
             <View style={styles.infoBar}>
                 <Text style={styles.infoText}>{FAVORITOS_DATA.length} receitas encontradas</Text>
             </View>
@@ -53,7 +48,7 @@ export default function FavoritosScreen() {
                     <Package size={18} color={Colors.primary} />
                     <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
                     <Switch
-                        trackColor={{ false: Colors.brown, true: Colors.secondary }}
+                        trackColor={{ false: Colors.subtext + '30', true: Colors.secondary }}
                         thumbColor={Colors.light}
                         onValueChange={setIsEnabled}
                         value={isEnabled}

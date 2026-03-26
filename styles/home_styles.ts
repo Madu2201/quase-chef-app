@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const homeStyles = StyleSheet.create({
-    // --- ESTRUTURA ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
@@ -13,7 +12,7 @@ export const homeStyles = StyleSheet.create({
         paddingBottom: Spacing.xl,
     },
 
-    // --- PERFIL (Header Children) ---
+    // --- PERFIL ---
     userHeader: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -22,7 +21,7 @@ export const homeStyles = StyleSheet.create({
     avatarContainer: {
         width: 42,
         height: 42,
-        borderRadius: 21,
+        borderRadius: Radius.full,
         backgroundColor: Colors.light,
         alignItems: 'center',
         justifyContent: 'center',
@@ -45,12 +44,13 @@ export const homeStyles = StyleSheet.create({
         color: Colors.subtitle,
     },
 
-    // --- TÍTULOS E TEXTOS ---
+    // --- TEXTOS ---
     mainTitle: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.large,
         color: Colors.dark,
         marginTop: Spacing.sm,
+        marginBottom: Spacing.sm,
     },
     mainSubtitle: {
         fontFamily: Fonts.regular,
@@ -59,7 +59,7 @@ export const homeStyles = StyleSheet.create({
         marginBottom: Spacing.lg,
     },
 
-    // --- CABEÇALHOS DE SEÇÃO ---
+    // --- SEÇÕES ---
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -77,31 +77,40 @@ export const homeStyles = StyleSheet.create({
         color: Colors.primary,
     },
 
-    // --- TAGS DE INGREDIENTES ---
+    // --- CHIPS (ESTILO UNIFICADO COM FAVORITOS) ---
     ingredientsWrapper: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
+        flexWrap: 'wrap', // Permite que os chips quebrem para a próxima linha
         gap: Spacing.xs,
         marginBottom: Spacing.lg,
     },
-    ingredientTag: {
+    chip: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: Colors.light,
-        paddingHorizontal: Spacing.sm,
-        paddingVertical: 6,
+        gap: 6,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: 8,
         borderRadius: Radius.full,
-        gap: 4,
-        borderWidth: 1.2,
+        backgroundColor: Colors.light,
+        borderWidth: 1.5,
         borderColor: Colors.primary,
     },
-    ingredientText: {
+    chipActive: {
+        backgroundColor: Colors.secondary,
+        borderColor: Colors.secondary,
+    },
+    chipText: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small - 1,
-        color: Colors.dark,
+        color: Colors.primary,
+    },
+    chipTextActive: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small - 1,
+        color: Colors.light,
     },
 
-    // --- BOTÃO PRINCIPAL ---
+    // --- BOTÃO GERAR ---
     generateButton: {
         backgroundColor: Colors.primary,
         flexDirection: 'row',
@@ -129,8 +138,8 @@ export const homeStyles = StyleSheet.create({
         ...Shadows.xs,
     },
     recipeImage: {
-        width: 85,
-        height: 85,
+        width: 90,
+        height: 90,
     },
     recipeInfo: {
         flex: 1,

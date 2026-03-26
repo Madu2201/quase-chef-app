@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { Share2, Upload, Plus, Check, Trash2, ChevronDown, CheckSquare } from 'lucide-react-native';
+import { Plus, Check, Trash2, ChevronDown, CheckSquare } from 'lucide-react-native';
+
+// Importações do Projeto
+import { Header } from '../../components/header';
 import { listaStyles as styles } from '../../styles/lista_styles';
 import { Colors, Spacing } from '../../constants/theme';
 import { useListaCompras } from '../../hooks/useListaCompras';
 
+// Dados iniciais para a lista
 const DATA_INICIAL = [
     { id: '1', name: 'Leite Integral', info: '2 Litros', comprado: false },
     { id: '2', name: 'Ovos Brancos', info: '12 unidades', comprado: false },
     { id: '3', name: 'Pão de Forma', info: '1 pacote (Integral)', comprado: false },
 ];
 
+// Tela principal da Lista de Compras
 export default function ListaScreen() {
     const {
         pendentes,
@@ -21,24 +26,22 @@ export default function ListaScreen() {
         marcarTodos
     } = useListaCompras(DATA_INICIAL);
 
-    // Controle de Foco dos Inputs
     const [activeInput, setActiveInput] = useState<string | null>(null);
+
+    // Função para exportar a lista
+    const handleExport = () => {
+        console.log("Exportando lista...");
+    };
 
     return (
         <View style={styles.container}>
-
-            {/* Header com Formulário Integrado */}
-            <View style={styles.header}>
-                <View style={styles.headerTop}>
-                    <Text style={styles.title}>Lista de Compras</Text>
-                    <TouchableOpacity style={styles.exportBtn} activeOpacity={0.7}>
-                        <Upload size={16} color={Colors.secondary} />
-                        <Text style={styles.exportText}>Exportar</Text>
-                        <Share2 size={16} color={Colors.secondary} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Formulário de Adição */}
+            <Header
+                title="Lista de Compras"
+                showExport={true}
+                onExport={handleExport}
+                showSearch={false}
+            >
+                {/* Formulário de Adição de Itens (Children) */}
                 <View style={styles.addFormContainer}>
                     <Text style={styles.inputLabel}>Adicionar Novo Item</Text>
                     <TextInput
@@ -54,7 +57,6 @@ export default function ListaScreen() {
                     />
 
                     <View style={styles.row}>
-                        {/* Campo Quantidade */}
                         <View style={styles.inputField}>
                             <Text style={styles.inputLabel}>Qtd</Text>
                             <TextInput
@@ -71,7 +73,6 @@ export default function ListaScreen() {
                             />
                         </View>
 
-                        {/* Campo Unidade */}
                         <View style={[styles.inputField, { flex: 1.5 }]}>
                             <Text style={styles.inputLabel}>Unidade</Text>
                             <TouchableOpacity style={styles.pickerMock} activeOpacity={0.8}>
@@ -80,18 +81,16 @@ export default function ListaScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        {/* Botão Plus */}
                         <TouchableOpacity style={styles.plusBtn} activeOpacity={0.7}>
                             <Plus size={28} color={Colors.light} />
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+            </Header>
 
-            {/* Listagem principal */}
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: 100 }}
+                contentContainerStyle={styles.scrollContent}
             >
                 {/* Ações Rápidas */}
                 <View style={styles.actionRow}>

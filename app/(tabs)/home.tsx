@@ -1,15 +1,10 @@
 import React from "react";
 import { View, Text, Image, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
-import {
-  ChevronDown,
-  Sparkles,
-  Flame,
-  UtensilsCrossed,
-  Leaf,
-  User2
-} from "lucide-react-native";
+import { ChevronDown, Sparkles, Flame, UtensilsCrossed, Leaf, User2 } from "lucide-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+
+import { Header } from "../../components/header";
 import { homeStyles as styles } from "../../styles/home_styles";
 import { Colors } from "../../constants/theme";
 
@@ -18,17 +13,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-
-      {/* Header Fixo com Sombra */}
-      <View style={styles.headerFixed}>
-        <Pressable
-          style={styles.userHeader}
-          onPress={() => router.push("/perfil")}
-        >
+      <Header title="" showSearch={false}>
+        <Pressable style={styles.userHeader} onPress={() => router.push("/perfil")}>
           <View style={styles.avatarContainer}>
             <User2 size={28} color={Colors.primary} />
           </View>
-
           <View>
             <Text style={styles.greetingText}>Bom dia,</Text>
             <View style={styles.userNameRow}>
@@ -37,82 +26,71 @@ export default function HomeScreen() {
             </View>
           </View>
         </Pressable>
-      </View>
+      </Header>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.mainTitle}>O que vamos cozinhar hoje?</Text>
         <Text style={styles.mainSubtitle}>
           Transforme o que você tem na geladeira em pratos incríveis.
         </Text>
 
-        {/* Ingredientes com quebra de linha (Responsivo) */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Ingredientes selecionados</Text>
-          <Pressable>
-            <Text style={styles.editText}>Editar</Text>
-          </Pressable>
+          <Pressable><Text style={styles.editText}>Editar</Text></Pressable>
         </View>
 
         <View style={styles.ingredientsWrapper}>
-          <View style={styles.ingredientTag}>
-            <Flame size={16} color={Colors.primary} />
-            <Text style={styles.ingredientText}>Ovos (4)</Text>
-          </View>
-          <View style={styles.ingredientTag}>
-            <UtensilsCrossed size={16} color={Colors.primary} />
-            <Text style={styles.ingredientText}>Tomate (1)</Text>
-          </View>
-          <View style={styles.ingredientTag}>
-            <Leaf size={16} color={Colors.primary} />
-            <Text style={styles.ingredientText}>Cebola (1)</Text>
-          </View>
+          <Tag icon={<Flame size={16} color={Colors.primary} />} label="Ovos (4)" />
+          <Tag icon={<UtensilsCrossed size={16} color={Colors.primary} />} label="Tomate (1)" />
+          <Tag icon={<Leaf size={16} color={Colors.primary} />} label="Cebola (1)" />
         </View>
 
-        {/* Botão Gerar Receitas */}
         <Pressable style={styles.generateButton}>
           <Sparkles size={20} color={Colors.light} fill={Colors.light} />
-          <Text style={styles.generateButtonText}>
-            Gerar receitas com meus ingredientes
-          </Text>
+          <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
         </Pressable>
 
-        {/* Sugestões */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sugestões rápidas</Text>
-          <Pressable>
-            <Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text>
-          </Pressable>
+          <Pressable><Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text></Pressable>
         </View>
 
-        <Animated.View entering={FadeInDown.delay(200)} style={styles.recipeCard}>
-          <Image
-            source={require("../../assets/images/omelete.png")}
-            style={styles.recipeImage}
-          />
-          <View style={styles.recipeInfo}>
-            <Text style={styles.recipeTime}>⏱ 10 MIN</Text>
-            <Text style={styles.recipeTitle}>Omelete de Ervas e Queijo</Text>
-            <Text style={styles.recipeDesc}>Perfeito com seus 4 ovos e queijo.</Text>
-          </View>
-        </Animated.View>
+        {/* Cards de Exemplo */}
+        <RecipeCard
+          delay={200}
+          image={require("../../assets/images/omelete.png")}
+          time="10 MIN"
+          title="Omelete de Ervas"
+          desc="Perfeito com seus 4 ovos."
+        />
 
-        <Animated.View entering={FadeInDown.delay(400)} style={styles.recipeCard}>
-          <Image
-            source={require("../../assets/images/shakshuka.png")}
-            style={styles.recipeImage}
-          />
-          <View style={styles.recipeInfo}>
-            <Text style={styles.recipeTime}>⏱ 20 MIN</Text>
-            <Text style={styles.recipeTitle}>Shakshuka Express</Text>
-            <Text style={styles.recipeDesc}>Usa seus tomates e cebola frescos.</Text>
-          </View>
-        </Animated.View>
-
-        <View style={{ height: 40 }} />
+        <RecipeCard
+          delay={400}
+          image={require("../../assets/images/shakshuka.png")}
+          time="15 MIN"
+          title="Shakshuka"
+          desc="Ovos cozidos em uma salsa de tomate e especiarias."
+        />
       </ScrollView>
     </View>
   );
 }
+
+// Sub-componentes para limpar o código principal
+const Tag = ({ icon, label }: { icon: any, label: string }) => (
+  <View style={styles.ingredientTag}>
+    {icon}
+    <Text style={styles.ingredientText}>{label}</Text>
+  </View>
+);
+
+const RecipeCard = ({ delay, image, time, title, desc }: any) => (
+  <Animated.View entering={FadeInDown.delay(delay)} style={styles.recipeCard}>
+    <Image source={image} style={styles.recipeImage} />
+    <View style={styles.recipeInfo}>
+      <Text style={styles.recipeTime}>⏱ {time}</Text>
+      <Text style={styles.recipeTitle}>{title}</Text>
+      <Text style={styles.recipeDesc}>{desc}</Text>
+    </View>
+  </Animated.View>
+);

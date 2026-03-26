@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const listaStyles = StyleSheet.create({
@@ -6,27 +6,7 @@ export const listaStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // --- CABEÇALHO ---
-    header: {
-        backgroundColor: Colors.light,
-        paddingTop: Platform.OS === 'ios' ? 60 : 40,
-        ...Shadows.md,
-        zIndex: 10,
-        borderBottomLeftRadius: Radius.xl,
-        borderBottomRightRadius: Radius.xl,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: Spacing.lg,
-        marginBottom: Spacing.lg,
-    },
-    title: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.large,
-        color: Colors.dark,
-    },
+    // --- BOTÃO DE EXPORTAR (Vai no Header) ---
     exportBtn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -41,10 +21,9 @@ export const listaStyles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
     },
-    // --- FORMULÁRIO DE ADIÇÃO ---
+    // --- FORMULÁRIO DE ADIÇÃO (Children do Header) ---
     addFormContainer: {
-        paddingHorizontal: Spacing.lg,
-        paddingBottom: Spacing.lg,
+        marginTop: Spacing.xs,
     },
     inputLabel: {
         fontFamily: Fonts.medium,
@@ -52,7 +31,6 @@ export const listaStyles = StyleSheet.create({
         color: Colors.subtext,
         marginBottom: 4,
     },
-    // Estilo base do input (Focus fix)
     inputBase: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
@@ -62,10 +40,9 @@ export const listaStyles = StyleSheet.create({
         color: Colors.dark,
         borderWidth: 1.5,
         borderColor: Colors.primary + '30',
-        // @ts-ignore (Remove o contorno padrão no Navegador/Web)
+        // @ts-ignore
         outlineStyle: 'none' as any,
     },
-    // Estilo quando ganha foco
     inputFocused: {
         borderColor: Colors.secondary,
         backgroundColor: Colors.light,
@@ -102,7 +79,11 @@ export const listaStyles = StyleSheet.create({
         alignItems: 'center',
         ...Shadows.sm,
     },
-    // --- LISTAGEM E ITENS ---
+    // --- LISTAGEM ---
+    scrollContent: {
+        paddingTop: Spacing.md,
+        paddingBottom: 100,
+    },
     actionRow: {
         flexDirection: 'row',
         paddingHorizontal: Spacing.lg,

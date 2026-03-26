@@ -1,21 +1,10 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const homeStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.background,
-    },
-    headerFixed: {
-        backgroundColor: Colors.background,
-        paddingHorizontal: Spacing.lg,
-        paddingTop: Spacing.xl + Spacing.lg,
-        paddingBottom: Spacing.md,
-        zIndex: 10,
-        ...Platform.select({
-            ios: Shadows.sm,
-            android: Shadows.sm,
-        }),
     },
     scrollContent: {
         paddingHorizontal: Spacing.lg,
@@ -54,16 +43,14 @@ export const homeStyles = StyleSheet.create({
     },
     mainTitle: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.title, 
+        fontSize: FontSizes.title,
         color: Colors.dark,
-        lineHeight: FontSizes.title + 14,
         marginTop: Spacing.md,
     },
     mainSubtitle: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small + 2,
+        fontSize: FontSizes.medium,
         color: Colors.subtitle,
-        marginTop: Spacing.xs,
         marginBottom: Spacing.xl,
     },
     sectionHeader: {
@@ -78,7 +65,7 @@ export const homeStyles = StyleSheet.create({
         color: Colors.dark,
     },
     editText: {
-        fontFamily: Fonts.medium,
+        fontFamily: Fonts.bold,
         color: Colors.primary,
         fontSize: FontSizes.medium,
     },
@@ -94,37 +81,32 @@ export const homeStyles = StyleSheet.create({
         backgroundColor: Colors.light,
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.sm,
-        borderRadius: Radius.lg,
+        borderRadius: Radius.full,
         gap: Spacing.xs,
-        borderWidth: 1,
+        borderWidth: 1.5,
         borderColor: Colors.primary,
     },
     ingredientText: {
-        fontFamily: Fonts.medium,
+        fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
         color: Colors.dark,
     },
     generateButton: {
         backgroundColor: Colors.primary,
         flexDirection: 'row',
-        // Altura baseada em múltiplos de Spacing para manter proporção
-        height: Spacing.xl * 2.5,
+        height: 60,
         borderRadius: Radius.lg,
         justifyContent: 'center',
         alignItems: 'center',
         gap: Spacing.md,
         marginBottom: Spacing.xl,
-        ...Platform.select({
-            ios: Shadows.md,
-            android: Shadows.md,
-        }),
+        ...Shadows.md,
     },
     generateButtonText: {
         fontFamily: Fonts.bold,
         color: Colors.light,
         fontSize: FontSizes.medium,
         textAlign: 'center',
-        width: '75%',
     },
     recipeCard: {
         flexDirection: 'row',
@@ -132,14 +114,11 @@ export const homeStyles = StyleSheet.create({
         borderRadius: Radius.lg,
         marginBottom: Spacing.md,
         overflow: 'hidden',
-        ...Platform.select({
-            ios: Shadows.sm,
-            android: Shadows.sm,
-        }),
+        ...Shadows.sm,
     },
     recipeImage: {
-        width: Spacing.xl * 3,
-        height: Spacing.xl * 3,
+        width: 100,
+        height: 100,
     },
     recipeInfo: {
         flex: 1,
@@ -148,10 +127,9 @@ export const homeStyles = StyleSheet.create({
     },
     recipeTime: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small - 2,
+        fontSize: 10,
         color: Colors.primary,
-        textTransform: 'uppercase',
-        marginBottom: Spacing.xs,
+        marginBottom: 4,
     },
     recipeTitle: {
         fontFamily: Fonts.bold,
@@ -162,6 +140,5 @@ export const homeStyles = StyleSheet.create({
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
         color: Colors.subtitle,
-        marginTop: Spacing.xs - 2,
     }
 });

@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const favStyles = StyleSheet.create({
@@ -6,56 +6,7 @@ export const favStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // Header unificado com elevação e profundidade
-    header: {
-        backgroundColor: Colors.light,
-        paddingTop: Platform.OS === 'ios' ? Spacing.xl * 2 : Spacing.xl,
-        ...Shadows.md,
-        zIndex: 10,
-    },
-    // Divisor abaixo do título principal
-    titleContainer: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.05)',
-        paddingBottom: Spacing.md,
-        marginBottom: Spacing.lg,
-    },
-    title: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.title,
-        color: Colors.dark,
-        textAlign: 'center',
-    },
-    headerContent: {
-        paddingHorizontal: Spacing.lg,
-    },
-    // Barra de busca com estados de foco
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: Colors.background,
-        borderRadius: Radius.full,
-        paddingHorizontal: Spacing.md,
-        height: 52,
-        marginBottom: Spacing.sm,
-        borderWidth: 1.5,
-        borderColor: 'transparent',
-    },
-    searchBarFocused: {
-        borderColor: Colors.primary,
-        backgroundColor: Colors.light,
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: Spacing.sm,
-        fontFamily: Fonts.regular,
-        fontSize: FontSizes.medium,
-        color: Colors.primary,
-        height: '100%',
-        // @ts-ignore
-        outlineStyle: 'none' as any,
-    },
-    // Container do switch de estoque
+    // Container do switch de estoque (dentro do Header)
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -63,9 +14,9 @@ export const favStyles = StyleSheet.create({
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.md,
         height: 52,
-        marginBottom: Spacing.lg,
+        marginBottom: Spacing.md,
         borderWidth: 1,
-        borderColor: Colors.background,
+        borderColor: 'rgba(0,0,0,0.02)',
     },
     stockText: {
         flex: 1,
@@ -75,16 +26,14 @@ export const favStyles = StyleSheet.create({
         marginLeft: Spacing.sm,
     },
     switchStyle: {
-        // @ts-ignore
-        outlineStyle: 'none' as any,
         transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
-    // Chips de filtros rápidos (Rápidas, Veg, etc)
+    // Chips de filtros rápidos
     chipsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: Spacing.sm,
-        marginBottom: Spacing.xl,
+        marginTop: Spacing.xs,
     },
     chip: {
         flexDirection: 'row',
@@ -95,7 +44,7 @@ export const favStyles = StyleSheet.create({
         borderRadius: Radius.full,
         backgroundColor: Colors.background,
         borderWidth: 1,
-        borderColor: Colors.background,
+        borderColor: 'rgba(0,0,0,0.05)',
     },
     chipActive: {
         backgroundColor: Colors.secondary,
@@ -111,42 +60,18 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.light,
     },
-    // Navegação por abas com linha inferior alinhada
-    tabContainer: {
-        flexDirection: 'row',
-        gap: Spacing.xl,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.05)',
-    },
-    tabItem: {
-        paddingBottom: Spacing.sm,
-    },
-    tabActive: {
-        borderBottomWidth: 3,
-        borderBottomColor: Colors.secondary,
-    },
-    tabText: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium,
-        color: Colors.subtitle,
-    },
-    tabTextActive: {
-        color: Colors.dark,
-    },
     // Barra de contagem de resultados
     infoBar: {
         paddingHorizontal: Spacing.lg,
         marginVertical: Spacing.md,
     },
     infoText: {
-        fontFamily: Fonts.regular,
+        fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
-        fontWeight: '700',
         color: Colors.brown,
     },
-    // Grid de receitas (2 colunas)
+    // Grid de receitas
     listContent: {
-        paddingTop: Spacing.md,
         paddingBottom: Spacing.xl,
         paddingHorizontal: Spacing.lg,
     },
@@ -157,7 +82,6 @@ export const favStyles = StyleSheet.create({
         width: '48%',
         marginBottom: Spacing.lg,
     },
-    // Container da imagem com proporção fixa
     imageContainer: {
         width: '100%',
         aspectRatio: 0.85,
@@ -171,7 +95,6 @@ export const favStyles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    // Botão de favorito sobreposto à imagem
     heartIcon: {
         position: 'absolute',
         top: 10,
@@ -192,5 +115,11 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.subtitle,
         marginTop: 2,
+    },
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 40,
+        color: Colors.subtext,
+        fontFamily: Fonts.regular
     }
 });

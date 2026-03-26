@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, TextInput, Switch } from 'react-native';
-import { Search, Heart, Zap, Leaf, TrendingUp, Package } from 'lucide-react-native';
+import { View, Text, FlatList, Image, Pressable, Switch } from 'react-native';
+import { Heart, Zap, Leaf, TrendingUp, Package } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 // Importações do Projeto
+import { Header } from '../../components/header';
 import { favStyles as styles } from '../../styles/favoritos_styles';
 import { Colors } from '../../constants/theme';
 import { useFavoritos } from '../../hooks/useFavoritos';
 
+// Dados iniciais para as receitas favoritadas
 const FAVORITOS_DATA = [
     { id: '1', name: 'Bowl de Quinoa e Vegetais', info: '15 min • Fácil', img: require('../../assets/images/Bowl_Quinoa.png') },
     { id: '2', name: 'Pasta Pesto Mediterrânea', info: '20 min • Médio', img: require('../../assets/images/Pasta_Pesto.png') },
@@ -17,67 +19,57 @@ const FAVORITOS_DATA = [
     { id: '6', name: 'Pizza Integral Marguerita', info: '45 min • Médio', img: require('../../assets/images/Pizza_marguerita.png') },
 ];
 
+// Tela de Favoritos
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
-    const [isFocused, setIsFocused] = useState(false);
-
-    // Hook de Lógica
     const { searchText, setSearchText, filteredRecipes } = useFavoritos(FAVORITOS_DATA);
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Favoritos</Text>
+            {/* Header Unificado com o padrão da tela de Favoritos */}
+            <Header
+                title="Favoritos"
+                centerTitle={true} // Mantém o título centralizado como era antes
+                searchText={searchText}
+                setSearchText={setSearchText}
+                searchPlaceholder="Buscar receitas salvas..."
+            >
+                {/* Switch de Estoque - Passado como Children para manter o padrão único desta tela */}
+                <View style={styles.stockToggle}>
+                    <Package size={20} color={Colors.primary} />
+                    <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
+                    <Switch
+                        trackColor={{ false: Colors.brown, true: Colors.secondary }}
+                        thumbColor={Colors.light}
+                        onValueChange={setIsEnabled}
+                        value={isEnabled}
+                        style={styles.switchStyle}
+                    />
                 </View>
 
-                <View style={styles.headerContent}>
-                    <View style={[styles.searchBar, isFocused && styles.searchBarFocused]}>
-                        <Search size={20} color={Colors.primary} />
-                        <TextInput
-                            placeholder="Buscar receitas salvas..."
-                            style={styles.searchInput}
-                            placeholderTextColor={Colors.primary + "80"}
-                            onFocus={() => setIsFocused(true)}
-                            onBlur={() => setIsFocused(false)}
-                            value={searchText}
-                            onChangeText={setSearchText}
-                            selectionColor={Colors.primary}
-                        />
-                    </View>
-
-                    <View style={styles.stockToggle}>
-                        <Package size={20} color={Colors.primary} />
-                        <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
-                        <Switch
-                            trackColor={{ false: Colors.brown, true: Colors.secondary }}
-                            thumbColor={Colors.light}
-                            onValueChange={setIsEnabled}
-                            value={isEnabled}
-                        />
-                    </View>
-
-                    <View style={styles.chipsContainer}>
-                        <Pressable style={[styles.chip, styles.chipActive]}>
-                            <Zap size={14} color={Colors.light} />
-                            <Text style={styles.chipTextActive}>Rápidas</Text>
-                        </Pressable>
-                        <Pressable style={styles.chip}>
-                            <Leaf size={14} color={Colors.primary} />
-                            <Text style={styles.chipText}>Vegetarianas</Text>
-                        </Pressable>
-                        <Pressable style={styles.chip}>
-                            <TrendingUp size={14} color={Colors.primary} />
-                            <Text style={styles.chipText}>Populares</Text>
-                        </Pressable>
-                    </View>
+                {/* Filtros em Chips */}
+                <View style={styles.chipsContainer}>
+                    <Pressable style={[styles.chip, styles.chipActive]}>
+                        <Zap size={14} color={Colors.light} />
+                        <Text style={styles.chipTextActive}>Rápidas</Text>
+                    </Pressable>
+                    <Pressable style={styles.chip}>
+                        <Leaf size={14} color={Colors.primary} />
+                        <Text style={styles.chipText}>Vegetarianas</Text>
+                    </Pressable>
+                    <Pressable style={styles.chip}>
+                        <TrendingUp size={14} color={Colors.primary} />
+                        <Text style={styles.chipText}>Populares</Text>
+                    </Pressable>
                 </View>
-            </View>
+            </Header>
 
+            {/* Barra de Contagem */}
             <View style={styles.infoBar}>
                 <Text style={styles.infoText}>{filteredRecipes.length} receitas encontradas</Text>
             </View>
 
+            {/* Listagem de Receitas */}
             <FlatList
                 data={filteredRecipes}
                 keyExtractor={item => item.id}
@@ -103,7 +95,7 @@ export default function FavoritosScreen() {
                     </Animated.View>
                 )}
                 ListEmptyComponent={
-                    <Text style={{ textAlign: 'center', marginTop: 40, color: Colors.subtext, fontFamily: 'PlusJakartaSans-Regular' }}>
+                    <Text style={styles.emptyText}>
                         Nenhuma receita encontrada.
                     </Text>
                 }

@@ -1,24 +1,24 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, TouchableOpacity } from "react-native";
-import { Search, Plus, Trash2, ChevronDown, Check, Sparkles } from "lucide-react-native";
+import { Plus, Trash2, ChevronDown, Check, Sparkles } from "lucide-react-native";
 
 // Importações do Projeto
 import { Colors } from "../../constants/theme";
+import { Header } from "../../components/header";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 import { useDispensa } from "../../hooks/useDispensa";
 
+// Dados iniciais para a dispensa
 const INITIAL_INGREDIENTS = [
     { id: "1", name: "Ovo", qty: "12", unit: "un", selected: true },
     { id: "2", name: "Tomate", qty: "4", unit: "un", selected: true },
     { id: "3", name: "Cebola", qty: "2", unit: "un", selected: false },
-    { id: "4", name: "Alface", qty: "1", unit: "un", selected: false },
-    { id: "5", name: "Frango", qty: "500", unit: "g", selected: true },
 ];
 
+// Tela principal da dispensa
 export default function DispensaScreen() {
-    const [isFocused, setIsFocused] = useState(false);
+    const [activeInput, setActiveInput] = useState<string | null>(null);
 
-    // Hook de Lógica
     const {
         searchText,
         setSearchText,
@@ -30,55 +30,66 @@ export default function DispensaScreen() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>O que você tem em casa?</Text>
-                </View>
+            {/* O NOVO HEADER REUTILIZÁVEL */}
+            <Header
+                title="Minha Dispensa"
+                centerTitle={true}
+                searchText={searchText}
+                setSearchText={setSearchText}
+                searchPlaceholder="Buscar na sua dispensa..."
+            >
+                {/* Formulário de Adição (Passado como Children) */}
+                <View style={styles.addSection}>
+                    <Text style={styles.sectionLabel}>Novo Ingrediente</Text>
 
-                <View style={styles.headerContent}>
-                    <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
-                        <Search size={20} color={Colors.primary} />
-                        <TextInput
-                            placeholder="Buscar na sua dispensa..."
-                            style={styles.searchInput}
-                            placeholderTextColor={Colors.primary + "80"}
-                            value={searchText}
-                            onChangeText={setSearchText}
-                            onFocus={() => setIsFocused(true)}
-                            onBlur={() => setIsFocused(false)}
-                            selectionColor={Colors.primary}
-                        />
-                    </View>
+                    <TextInput
+                        placeholder="Ex: Arroz, Feijão..."
+                        onFocus={() => setActiveInput('nome')}
+                        onBlur={() => setActiveInput(null)}
+                        style={[
+                            styles.inputBase,
+                            styles.inputFull,
+                            activeInput === 'nome' && styles.inputFocused
+                        ]}
+                        placeholderTextColor={Colors.subtext}
+                    />
 
-                    <View style={styles.addSection}>
-                        <Text style={styles.sectionLabel}>Adicionar Ingrediente</Text>
-                        <TextInput
-                            placeholder="Ex: Arroz, Leite..."
-                            style={styles.inputFull}
-                            placeholderTextColor={Colors.subtext}
-                            selectionColor={Colors.primary}
-                        />
-                        <View style={styles.row}>
+                    <View style={styles.row}>
+                        <View style={styles.inputField}>
                             <TextInput
                                 placeholder="Qtd"
-                                style={styles.inputSmall}
                                 keyboardType="numeric"
-                                selectionColor={Colors.primary}
+                                onFocus={() => setActiveInput('qtd')}
+                                onBlur={() => setActiveInput(null)}
+                                style={[
+                                    styles.inputBase,
+                                    styles.inputSmall,
+                                    activeInput === 'qtd' && styles.inputFocused
+                                ]}
+                                placeholderTextColor={Colors.subtext}
                             />
-                            <View style={styles.pickerContainer}>
-                                <Text style={styles.unitText}>un</Text>
-                                <ChevronDown size={16} color={Colors.dark} />
-                            </View>
-                            <TouchableOpacity style={styles.btnAdd} activeOpacity={0.8}>
-                                <Plus size={24} color={Colors.light} />
-                            </TouchableOpacity>
                         </View>
+
+                        <TouchableOpacity style={styles.pickerMock} activeOpacity={0.8}>
+                            <Text style={{ color: Colors.dark }}>un</Text>
+                            <ChevronDown size={16} color={Colors.dark} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.btnAdd} activeOpacity={0.7}>
+                            <Plus size={24} color={Colors.light} />
+                        </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+            </Header>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                <Text style={styles.sectionLabel}>Ingredientes comuns</Text>
+            {/* Listagem de ingredientes */}
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <Text style={[styles.sectionLabel, { marginBottom: 16 }]}>
+                    Ingredientes na dispensa
+                </Text>
 
                 {filteredIngredients.map((item) => (
                     <View key={item.id} style={styles.ingredientItem}>
@@ -93,10 +104,9 @@ export default function DispensaScreen() {
                             <Text style={styles.ingredientName}>{item.name}</Text>
                             <View style={styles.controlsRow}>
                                 <TextInput
-                                    value={item.qty}
+                                    defaultValue={item.qty}
                                     style={styles.listInputQty}
                                     keyboardType="numeric"
-                                    selectionColor={Colors.primary}
                                 />
                                 <View style={styles.listPickerUnit}>
                                     <Text style={styles.unitText}>{item.unit}</Text>
@@ -105,21 +115,17 @@ export default function DispensaScreen() {
                             </View>
                         </View>
 
-                        <View style={styles.rightIcons}>
-                            <TouchableOpacity
-                                onPress={() => removeIngredient(item.id)}
-                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                            >
-                                <Trash2 size={20} color={Colors.subtext} />
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity onPress={() => removeIngredient(item.id)}>
+                            <Trash2 size={20} color={Colors.subtext} opacity={0.5} />
+                        </TouchableOpacity>
                     </View>
                 ))}
             </ScrollView>
 
+            {/* Botão Flutuante da IA */}
             {selectedCount > 0 && (
                 <TouchableOpacity style={styles.floatingBtn} activeOpacity={0.9}>
-                    <View style={styles.floatingBtnLeft}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Sparkles size={22} color={Colors.light} fill={Colors.light} />
                         <Text style={styles.floatingBtnText}>Gerar receitas</Text>
                     </View>

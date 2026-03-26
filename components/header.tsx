@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import { Search, FileText, Share2 } from "lucide-react-native";
+import { View, Text, TextInput, TouchableOpacity, Platform } from "react-native";
+import { Search, FileText } from "lucide-react-native";
 
 // Importações de Estilo e Branding
 import { Colors, Spacing } from "../constants/theme";
@@ -18,11 +18,6 @@ interface HeaderProps {
   children?: React.ReactNode;
 }
 
-/**
- * Componente de Cabeçalho Adaptável
- * Suporta título, botão de exportação branding "Quase Chef", 
- * barra de busca e injeção de formulários (children).
- */
 export const Header = ({
   title = "",
   centerTitle = false,
@@ -44,7 +39,7 @@ export const Header = ({
         <View style={styles.titleContainer}>
           <Text
             style={[styles.title, centerTitle && styles.titleCenter]}
-            numberOfLines={1}
+            numberOfLines={2} // Permite até 2 linhas para o título
           >
             {title}
           </Text>
@@ -55,9 +50,8 @@ export const Header = ({
               onPress={onExport}
               activeOpacity={0.7}
             >
-              {/* Ícone de Documento (Branding PDF) */}
               <FileText size={14} color={Colors.secondary} />
-            <Text style={styles.exportText}>Exportar PDF</Text>
+              <Text style={styles.exportText}>Exportar PDF</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -65,13 +59,11 @@ export const Header = ({
 
       {/* SEÇÃO DE CONTEÚDO: Busca e Formulários Dinâmicos */}
       <View style={styles.headerContent}>
-
-        {/* Barra de Pesquisa Opcional */}
         {showSearch && (
           <View style={[
             styles.searchContainer,
             isSearchFocused && styles.searchContainerFocused,
-            { marginBottom: children ? Spacing.sm : 0 } // Espaçamento dinâmico se houver children
+            { marginBottom: children ? Spacing.sm : 0 }
           ]}>
             <Search size={15} color={Colors.primary} />
             <TextInput
@@ -87,7 +79,7 @@ export const Header = ({
           </View>
         )}
 
-        {/* Espaço para o Formulário de Adição (AddFormContainer) */}
+        {/* Espaço para children (AddFormContainer, etc) */}
         {children}
       </View>
     </View>

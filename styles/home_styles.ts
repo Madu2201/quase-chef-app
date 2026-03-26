@@ -77,10 +77,10 @@ export const homeStyles = StyleSheet.create({
         color: Colors.primary,
     },
 
-    // --- CHIPS (ESTILO UNIFICADO COM FAVORITOS) ---
+    // --- CHIPS ---
     ingredientsWrapper: {
         flexDirection: 'row',
-        flexWrap: 'wrap', // Permite que os chips quebrem para a próxima linha
+        flexWrap: 'wrap',
         gap: Spacing.xs,
         marginBottom: Spacing.lg,
     },
@@ -89,7 +89,7 @@ export const homeStyles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: Spacing.md,
-        paddingVertical: 8,
+        paddingVertical: Spacing.sm,
         borderRadius: Radius.full,
         backgroundColor: Colors.light,
         borderWidth: 1.5,
@@ -150,7 +150,7 @@ export const homeStyles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small - 2,
         color: Colors.primary,
-        marginBottom: 2,
+        marginBottom: Spacing.xs,
     },
     recipeTitle: {
         fontFamily: Fonts.bold,

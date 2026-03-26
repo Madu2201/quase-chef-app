@@ -44,7 +44,7 @@ export const favStyles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: Spacing.md,
-        paddingVertical: 8,
+        paddingVertical: Spacing.sm,
         borderRadius: Radius.full,
         backgroundColor: Colors.light,
         borderWidth: 1.5,
@@ -107,7 +107,7 @@ export const favStyles = StyleSheet.create({
         right: 8,
         backgroundColor: Colors.light,
         borderRadius: Radius.full,
-        padding: 6,
+        padding: Spacing.xs,
         ...Shadows.sm,
     },
     recipeName: {
@@ -121,7 +121,7 @@ export const favStyles = StyleSheet.create({
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small - 1,
         color: Colors.subtitle,
-        marginTop: 2,
+        marginTop: Spacing.xs,
         marginHorizontal: Spacing.sm,
     }
 });

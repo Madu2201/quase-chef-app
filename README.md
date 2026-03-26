@@ -12,6 +12,8 @@ Quase Chef é um aplicativo mobile inteligente de receitas desenvolvido em **Rea
 - [Lucide React Native](https://lucide.dev/) (ícones)
 - [Expo Font](https://docs.expo.dev/versions/latest/sdk/font/) + Google Fonts (Plus Jakarta Sans)
 - [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) (animações)
+- Expo Sharing para compartilhar arquivos (exportar e importar)
+- Expo Print para imprimir lista de compras
 - AsyncStorage para persistência local
 
 ## 📂 Estrutura de Pastas
@@ -28,6 +30,9 @@ app/
 ├── (tabs)/                 # Fluxo principal com navegação por abas (pós-login)
 │   ├── home.tsx            # Tela inicial (Home)
 │   ├── receitas.tsx        # Tela de receitas
+│   ├── favoritos.tsx       # Tela de favoritos
+│   ├── dispensa.tsx        # Tela de dispensa
+│   ├── lista.tsx          # Tela de listas
 │   └── _layout.tsx         # Layout com Tab.Navigator (somente Home e Receitas)
 │
 ├── perfil/                 # Tela secundária fora das tabs
@@ -39,9 +44,9 @@ app/
 assets/ # Imagens e ícones
 components/ # Componentes reutilizáveis (ex: header.tsx)
 constants/ # Temas e constantes
-hooks/ # Hooks customizados
+hooks/ # Hooks customizados (ex: useDispensa.ts, useFavoritos.ts etc )
 services/ # API, Supabase, Gemini
-styles/ # Estilos globais
+styles/ # Estilos
 ```
 
 ## 📖 Explicação dos fluxos

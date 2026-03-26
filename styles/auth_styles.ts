@@ -1,15 +1,8 @@
-import { StyleSheet, Platform } from "react-native";
-import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Spacing,
-  Radius,
-  Shadows,
-} from "../constants/theme";
+import { StyleSheet, Platform, TextStyle } from "react-native";
+import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const authStyles = StyleSheet.create({
-  // Layout principal com scroll
+  // --- ESTRUTURA PRINCIPAL ---
   container: {
     flexGrow: 1,
     backgroundColor: Colors.background,
@@ -17,83 +10,85 @@ export const authStyles = StyleSheet.create({
     paddingBottom: Spacing.xl,
     paddingTop: 55,
   },
-  // Seção da Logo e Identidade
+
+  // --- LOGO E IDENTIDADE ---
   header: {
     alignItems: "center",
     marginBottom: Spacing.xs,
   },
   logo: {
-    width: 95,
-    height: 95,
+    width: 80,
+    height: 80,
     marginBottom: Spacing.xs,
   },
   brandName: {
     fontFamily: Fonts.bold,
-    fontSize: FontSizes.medium + 2,
+    fontSize: FontSizes.medium,
     color: Colors.dark,
   },
-  // Textos de boas-vindas
+
+  // --- MENSAGENS DE BOAS-VINDAS ---
   welcomeTitle: {
     fontFamily: Fonts.bold,
-    fontSize: FontSizes.large + 2,
+    fontSize: FontSizes.large,
     color: Colors.dark,
     textAlign: "center",
-    marginTop: Spacing.sm + 2,
+    marginTop: Spacing.sm,
   },
   welcomeSubtitle: {
     fontFamily: Fonts.regular,
-    fontSize: FontSizes.small + 1,
+    fontSize: FontSizes.small,
     color: Colors.subtitle,
     textAlign: "center",
     marginTop: Spacing.xs,
-    lineHeight: 20,
+    lineHeight: Spacing.lg,
     paddingHorizontal: Spacing.sm,
   },
-  // Grupos de formulário
+
+  // --- FORMULÁRIOS E INPUTS ---
   inputGroup: {
     marginTop: Spacing.lg,
   },
-
-  /* CONTAINER DO INPUT (PADRÃO) */
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: 'transparent', // Começa invisível para não dar "pulo" no layout
+    borderColor: 'transparent',
     borderRadius: Radius.lg,
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
     marginBottom: Spacing.xs,
-    height: 52,
+    height: 48,
     ...Shadows.sm,
   },
-  /*ESTADO FOCADO DO INPUT (PADRÃO) */
   inputContainerFocused: {
     borderColor: Colors.primary,
     backgroundColor: Colors.light,
-    borderWidth: 1.5,
   },
   input: {
     flex: 1,
     fontFamily: Fonts.regular,
-    fontSize: FontSizes.small + 2,
+    fontSize: FontSizes.small,
     color: Colors.dark,
     marginLeft: Spacing.xs,
     height: "100%",
-    // @ts-ignore (Remove o contorno padrão no Navegador/Web)
-    outlineStyle: 'none' as any,
-  },
-  // Links e Botões de Ação
+    ...Platform.select({
+      web: { outlineStyle: 'none' } as any,
+      default: {},
+    }),
+  } as TextStyle,
+
+  // --- BOTÕES E LINKS DE AÇÃO ---
   forgotPasswordText: {
     fontFamily: Fonts.medium,
     color: Colors.primary,
-    fontSize: FontSizes.small + 2,
+    fontSize: FontSizes.small,
     textAlign: "right",
     marginTop: Spacing.sm,
   },
   buttonPrimary: {
     backgroundColor: Colors.primary,
-    height: 52,
+    height: 50,
     borderRadius: Radius.lg,
     justifyContent: "center",
     alignItems: "center",
@@ -103,19 +98,20 @@ export const authStyles = StyleSheet.create({
   buttonPrimaryText: {
     fontFamily: Fonts.bold,
     color: Colors.light,
-    fontSize: FontSizes.medium + 1,
+    fontSize: FontSizes.medium,
   },
-  // Divisores ("ou entre com")
+
+  // --- DIVISORES (OU) ---
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: Spacing.md + 4,
+    marginVertical: Spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
     backgroundColor: Colors.subtext,
-    opacity: 0.3,
+    opacity: 0.2,
   },
   dividerText: {
     marginHorizontal: Spacing.md,
@@ -123,7 +119,8 @@ export const authStyles = StyleSheet.create({
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small,
   },
-  // Login Social
+
+  // --- LOGIN SOCIAL ---
   socialContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -134,7 +131,7 @@ export const authStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 52,
+    height: 48,
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: Colors.subtext,
@@ -144,20 +141,22 @@ export const authStyles = StyleSheet.create({
   socialButtonText: {
     fontFamily: Fonts.bold,
     color: Colors.dark,
-    fontSize: FontSizes.small + 2,
+    fontSize: FontSizes.small,
   },
-  // Rodapé e Links Legais
+
+  // --- RODAPÉ E LINKS LEGAIS ---
   footerText: {
     textAlign: "center",
     marginTop: Spacing.lg,
     fontFamily: Fonts.regular,
+    fontSize: FontSizes.small,
     color: Colors.subtitle,
   },
   backToLoginText: {
     textAlign: "center",
     marginTop: Spacing.xl,
     fontFamily: Fonts.regular,
-    fontSize: FontSizes.small + 1,
+    fontSize: FontSizes.small,
     color: Colors.subtitle,
   },
   legalText: {
@@ -166,8 +165,8 @@ export const authStyles = StyleSheet.create({
     fontSize: FontSizes.small,
     fontFamily: Fonts.regular,
     color: Colors.subtext,
-    lineHeight: 16,
-    paddingHorizontal: 10,
+    lineHeight: Spacing.lg,
+    paddingHorizontal: Spacing.sm,
   },
   linkUnderline: {
     textDecorationLine: "underline",

@@ -1,35 +1,43 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform, TextStyle } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const dispensaStyles = StyleSheet.create({
+    // --- ESTRUTURA ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // Seção de formulário (vai dentro do header como children)
+    scrollContent: {
+        paddingHorizontal: Spacing.lg,
+        paddingTop: Spacing.xl,
+        paddingBottom: Spacing.lg,
+    },
+
+    // --- FORMULÁRIO DE ADIÇÃO (Header Children) ---
     addSection: {
         marginTop: Spacing.xs,
     },
     sectionLabel: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
-        color: Colors.subtext,
-        marginBottom: 8,
+        fontSize: FontSizes.small + 1,
+        color: Colors.dark,
+        marginBottom: Spacing.xs,
     },
-    // Inputs do formulário de adição
     inputBase: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
-        height: 45,
+        height: 40,
         paddingHorizontal: Spacing.md,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.dark,
         borderWidth: 1.5,
         borderColor: 'transparent',
-        // @ts-ignore
-        outlineStyle: 'none' as any,
-    },
+        ...Platform.select({
+            web: { outlineStyle: 'none' } as any,
+            default: {},
+        }),
+    } as TextStyle,
     inputFocused: {
         borderColor: Colors.secondary,
         backgroundColor: Colors.light,
@@ -37,21 +45,21 @@ export const dispensaStyles = StyleSheet.create({
     inputFull: {
         marginBottom: Spacing.sm,
     },
-    row: {
-        flexDirection: "row",
-        gap: Spacing.sm,
-        alignItems: "center",
-    },
     inputField: {
         flex: 1,
     },
     inputSmall: {
         textAlign: "center",
     },
+    row: {
+        flexDirection: "row",
+        gap: Spacing.sm,
+        alignItems: "center",
+    },
     pickerMock: {
         backgroundColor: Colors.background,
         borderRadius: Radius.md,
-        height: 45,
+        height: 40,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -60,19 +68,15 @@ export const dispensaStyles = StyleSheet.create({
     },
     btnAdd: {
         backgroundColor: Colors.secondary,
-        width: 45,
-        height: 45,
+        width: 40,
+        height: 40,
         borderRadius: Radius.md,
         justifyContent: "center",
         alignItems: "center",
         ...Shadows.sm,
     },
-    // Listagem
-    scrollContent: {
-        paddingHorizontal: Spacing.lg,
-        paddingTop: Spacing.xl,
-        paddingBottom: 120,
-    },
+
+    // --- ITENS DA LISTA ---
     ingredientItem: {
         flexDirection: "row",
         paddingVertical: Spacing.md,
@@ -81,8 +85,8 @@ export const dispensaStyles = StyleSheet.create({
         alignItems: "center",
     },
     checkbox: {
-        width: 26,
-        height: 26,
+        width: 22,
+        height: 22,
         borderRadius: Radius.full,
         borderWidth: 2,
         borderColor: Colors.primary,
@@ -98,18 +102,20 @@ export const dispensaStyles = StyleSheet.create({
     },
     ingredientName: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.dark,
         marginBottom: Spacing.xs,
     },
+
+    // --- CONTROLES DE QUANTIDADE NA LISTA ---
     controlsRow: {
         flexDirection: "row",
         alignItems: "center",
         gap: 6,
     },
     listInputQty: {
-        width: 55,
-        height: 32,
+        width: 50,
+        height: 28,
         borderRadius: Radius.full,
         borderWidth: 1,
         borderColor: Colors.primary + '30',
@@ -120,8 +126,8 @@ export const dispensaStyles = StyleSheet.create({
         backgroundColor: Colors.light,
     },
     listPickerUnit: {
-        minWidth: 65,
-        height: 32,
+        minWidth: 60,
+        height: 28,
         borderRadius: Radius.full,
         borderWidth: 1,
         borderColor: Colors.primary + '30',
@@ -129,7 +135,7 @@ export const dispensaStyles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         gap: 4,
-        paddingHorizontal: 8,
+        paddingHorizontal: Spacing.sm,
         backgroundColor: Colors.light,
     },
     unitText: {
@@ -137,14 +143,15 @@ export const dispensaStyles = StyleSheet.create({
         fontFamily: Fonts.regular,
         color: Colors.dark,
     },
-    // Floating Button
+
+    // --- BOTÃO FLUTUANTE ---
     floatingBtn: {
         position: "absolute",
         bottom: 30,
         left: Spacing.lg,
         right: Spacing.lg,
         backgroundColor: Colors.primary,
-        height: 60,
+        height: 52,
         borderRadius: Radius.full,
         flexDirection: "row",
         justifyContent: "space-between",
@@ -155,12 +162,12 @@ export const dispensaStyles = StyleSheet.create({
     floatingBtnText: {
         color: Colors.light,
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
     },
     badgeContainer: {
         backgroundColor: "rgba(255,255,255,0.2)",
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: Spacing.sm,
+        paddingVertical: Spacing.xs,
         borderRadius: Radius.full,
     },
     badgeText: {

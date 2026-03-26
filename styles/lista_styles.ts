@@ -2,34 +2,58 @@ import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const listaStyles = StyleSheet.create({
+    // --- ESTRUTURA PRINCIPAL ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // --- BOTÃO DE EXPORTAR (Vai no Header) ---
+    scrollContent: {
+        paddingTop: Spacing.md,
+        paddingBottom: Spacing.xl * 2,
+    },
+
+    // --- HEADER E EXPORTAÇÃO ---
+    titleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        paddingHorizontal: Spacing.lg,
+        marginBottom: Spacing.md,
+    },
+    title: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.large,
+        color: Colors.primary,
+        textAlign: 'left',
+    },
     exportBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF2ED',
+        backgroundColor: Colors.secondary,
         paddingHorizontal: Spacing.md,
-        paddingVertical: 6,
+        paddingVertical: Spacing.xs,
         borderRadius: Radius.full,
-        gap: 6,
+        gap: Spacing.xs,
+        borderWidth: 1,
+        borderColor: Colors.secondary,
     },
     exportText: {
         color: Colors.secondary,
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
     },
-    // --- FORMULÁRIO DE ADIÇÃO (Children do Header) ---
+
+    // --- FORMULÁRIO DE ADIÇÃO ---
     addFormContainer: {
         marginTop: Spacing.xs,
+        paddingHorizontal: Spacing.lg,
     },
     inputLabel: {
         fontFamily: Fonts.medium,
         fontSize: FontSizes.small,
         color: Colors.subtext,
-        marginBottom: 4,
+        marginBottom: Spacing.xs / 2,
     },
     inputBase: {
         backgroundColor: Colors.background,
@@ -39,7 +63,7 @@ export const listaStyles = StyleSheet.create({
         fontFamily: Fonts.regular,
         color: Colors.dark,
         borderWidth: 1.5,
-        borderColor: Colors.primary + '30',
+        borderColor: 'transparent',
         // @ts-ignore
         outlineStyle: 'none' as any,
     },
@@ -69,6 +93,8 @@ export const listaStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: Spacing.md,
+        borderWidth: 1.5,
+        borderColor: 'transparent',
     },
     plusBtn: {
         backgroundColor: Colors.secondary,
@@ -79,15 +105,12 @@ export const listaStyles = StyleSheet.create({
         alignItems: 'center',
         ...Shadows.sm,
     },
-    // --- LISTAGEM ---
-    scrollContent: {
-        paddingTop: Spacing.md,
-        paddingBottom: 100,
-    },
+
+    // --- AÇÕES E SEÇÕES ---
     actionRow: {
         flexDirection: 'row',
         paddingHorizontal: Spacing.lg,
-        marginVertical: Spacing.lg,
+        marginBottom: Spacing.lg,
     },
     btnAction: {
         flex: 1,
@@ -96,17 +119,17 @@ export const listaStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
+        gap: Spacing.xs,
     },
     btnOutline: {
         backgroundColor: Colors.light,
         borderWidth: 1,
-        borderColor: Colors.secondary + '30',
+        borderColor: Colors.secondary,
     },
     btnTextOutline: {
         color: Colors.secondary,
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small
+        fontSize: FontSizes.small,
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -122,10 +145,12 @@ export const listaStyles = StyleSheet.create({
     },
     itemCount: {
         fontFamily: Fonts.medium,
-        fontSize: 10,
+        fontSize: FontSizes.small - 2,
         color: Colors.subtext,
         textTransform: 'uppercase',
     },
+
+    // --- CARDS DE ITENS ---
     itemCard: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -139,7 +164,7 @@ export const listaStyles = StyleSheet.create({
     checkbox: {
         width: 24,
         height: 24,
-        borderRadius: 6,
+        borderRadius: Radius.sm,
         borderWidth: 2,
         borderColor: Colors.secondary,
         justifyContent: 'center',
@@ -152,7 +177,7 @@ export const listaStyles = StyleSheet.create({
     },
     itemInfo: {
         flex: 1,
-        marginLeft: Spacing.sm,
+        marginLeft: Spacing.xs,
     },
     itemName: {
         fontFamily: Fonts.bold,
@@ -164,9 +189,11 @@ export const listaStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.subtext,
     },
+
+    // --- ESTADOS ESPECIAIS (CONCLUÍDO) ---
     itemCardComprado: {
         opacity: 0.6,
-        backgroundColor: Colors.background,
+        backgroundColor: Colors.dark + '05',
         ...Shadows.none,
     },
     nameComprado: {
@@ -176,7 +203,7 @@ export const listaStyles = StyleSheet.create({
     removeCompradosText: {
         color: Colors.primary,
         fontFamily: Fonts.bold,
-        fontSize: 10,
+        fontSize: FontSizes.small - 2,
         textTransform: 'uppercase',
     }
 });

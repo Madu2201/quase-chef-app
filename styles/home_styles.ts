@@ -2,36 +2,32 @@ import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const homeStyles = StyleSheet.create({
+    // --- ESTRUTURA ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // Espaçamento do conteúdo rolável abaixo do Header
     scrollContent: {
         paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
         paddingBottom: Spacing.xl,
     },
-    // Container do perfil (passado como children para o Header)
+
+    // --- PERFIL (Header Children) ---
     userHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: Spacing.sm,
     },
     avatarContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 42,
+        height: 42,
+        borderRadius: 21,
         backgroundColor: Colors.light,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
         borderColor: Colors.primary,
-    },
-    greetingText: {
-        fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
-        color: Colors.subtitle,
     },
     userNameRow: {
         flexDirection: 'row',
@@ -40,112 +36,121 @@ export const homeStyles = StyleSheet.create({
     },
     userName: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.dark,
     },
-    // Títulos e Textos principais
+    greetingText: {
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.small - 1,
+        color: Colors.subtitle,
+    },
+
+    // --- TÍTULOS E TEXTOS ---
     mainTitle: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.title,
+        fontSize: FontSizes.large,
         color: Colors.dark,
-        marginTop: Spacing.md,
+        marginTop: Spacing.sm,
     },
     mainSubtitle: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.subtitle,
-        marginBottom: Spacing.xl,
+        marginBottom: Spacing.lg,
     },
-    // Cabeçalhos de seção (Ingredientes/Sugestões)
+
+    // --- CABEÇALHOS DE SEÇÃO ---
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: Spacing.md,
+        marginBottom: Spacing.sm,
     },
     sectionTitle: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.large,
+        fontSize: FontSizes.medium,
         color: Colors.dark,
     },
     editText: {
         fontFamily: Fonts.bold,
+        fontSize: FontSizes.small,
         color: Colors.primary,
-        fontSize: FontSizes.medium,
     },
-    // Tags de ingredientes selecionados
+
+    // --- TAGS DE INGREDIENTES ---
     ingredientsWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: Spacing.sm,
-        marginBottom: Spacing.xl,
+        gap: Spacing.xs,
+        marginBottom: Spacing.lg,
     },
     ingredientTag: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.light,
-        paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.sm,
+        paddingHorizontal: Spacing.sm,
+        paddingVertical: 6,
         borderRadius: Radius.full,
-        gap: Spacing.xs,
-        borderWidth: 1.5,
+        gap: 4,
+        borderWidth: 1.2,
         borderColor: Colors.primary,
     },
     ingredientText: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.dark,
     },
-    // Botão de ação principal
+
+    // --- BOTÃO PRINCIPAL ---
     generateButton: {
         backgroundColor: Colors.primary,
         flexDirection: 'row',
-        height: 60,
-        borderRadius: Radius.lg,
+        height: 52,
+        borderRadius: Radius.md,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: Spacing.md,
-        marginBottom: Spacing.xl,
-        ...Shadows.md,
+        gap: Spacing.sm,
+        marginBottom: Spacing.lg,
+        ...Shadows.sm,
     },
     generateButtonText: {
         fontFamily: Fonts.bold,
         color: Colors.light,
-        fontSize: FontSizes.medium,
-        textAlign: 'center',
+        fontSize: FontSizes.small,
     },
-    // Cards de receitas sugeridas
+
+    // --- CARDS DE RECEITA ---
     recipeCard: {
         flexDirection: 'row',
         backgroundColor: Colors.light,
-        borderRadius: Radius.lg,
-        marginBottom: Spacing.md,
+        borderRadius: Radius.md,
+        marginBottom: Spacing.sm,
         overflow: 'hidden',
-        ...Shadows.sm,
+        ...Shadows.xs,
     },
     recipeImage: {
-        width: 100,
-        height: 100,
+        width: 85,
+        height: 85,
     },
     recipeInfo: {
         flex: 1,
-        padding: Spacing.md,
+        padding: Spacing.sm,
         justifyContent: 'center',
     },
     recipeTime: {
         fontFamily: Fonts.bold,
-        fontSize: 10,
+        fontSize: FontSizes.small - 2,
         color: Colors.primary,
-        marginBottom: 4,
+        marginBottom: 2,
     },
     recipeTitle: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.dark,
     },
     recipeDesc: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
+        fontSize: FontSizes.small - 1,
         color: Colors.subtitle,
     }
 });

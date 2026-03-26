@@ -2,49 +2,52 @@ import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const favStyles = StyleSheet.create({
+    // --- ESTRUTURA ---
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // Switch de estoque
+
+    // --- TOGGLE DE ESTOQUE ---
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.background,
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.md,
-        height: 52,
+        height: 48,
         marginBottom: Spacing.md,
         borderWidth: 1.5,
-        borderColor: 'rgba(0,0,0,0.05)',
+        borderColor: 'transparent',
     },
     stockText: {
         flex: 1,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.medium,
+        fontSize: FontSizes.small,
         color: Colors.primary,
         marginLeft: Spacing.sm,
     },
     switchStyle: {
-        transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+        transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }],
     },
-    // --- FILTROS QUE QUEBRAM LINHA ---
+
+    // --- FILTROS (CHIPS) ---
     chipsContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap', // Permite quebrar linha
-        gap: Spacing.sm,
+        flexWrap: 'wrap',
+        gap: Spacing.xs,
         marginTop: Spacing.xs,
     },
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 6,
         paddingHorizontal: Spacing.md,
-        paddingVertical: 10,
+        paddingVertical: Spacing.xs,
         borderRadius: Radius.full,
         backgroundColor: Colors.background,
         borderWidth: 1.5,
-        borderColor: 'rgba(0,0,0,0.08)',
+        borderColor: 'transparent',
     },
     chipActive: {
         backgroundColor: Colors.secondary,
@@ -60,7 +63,8 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.light,
     },
-    // --- LISTA DE RECEITAS ---
+
+    // --- CABEÇALHO DA LISTA ---
     infoBar: {
         paddingHorizontal: Spacing.lg,
         marginVertical: Spacing.md,
@@ -68,8 +72,10 @@ export const favStyles = StyleSheet.create({
     infoText: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
-        color: Colors.brown,
+        color: Colors.brown || Colors.primary,
     },
+
+    // --- GRID DE RECEITAS ---
     listContent: {
         paddingBottom: Spacing.xl,
         paddingHorizontal: Spacing.lg,
@@ -84,11 +90,11 @@ export const favStyles = StyleSheet.create({
     imageContainer: {
         width: '100%',
         aspectRatio: 0.85,
-        borderRadius: Radius.lg,
+        borderRadius: Radius.md,
         overflow: 'hidden',
-        marginBottom: Spacing.sm,
+        marginBottom: Spacing.xs,
         backgroundColor: Colors.light,
-        ...Shadows.sm,
+        ...Shadows.xs,
     },
     image: {
         width: '100%',
@@ -96,23 +102,23 @@ export const favStyles = StyleSheet.create({
     },
     heartIcon: {
         position: 'absolute',
-        top: 10,
-        right: 10,
+        top: 8,
+        right: 8,
         backgroundColor: Colors.light,
         borderRadius: Radius.full,
-        padding: 6,
+        padding: Spacing.xs,
         ...Shadows.sm,
     },
     recipeName: {
         fontFamily: Fonts.bold,
-        fontSize: FontSizes.medium - 2,
+        fontSize: FontSizes.small,
         color: Colors.dark,
-        lineHeight: 20,
+        lineHeight: 18,
     },
     recipeDetail: {
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
         color: Colors.subtitle,
-        marginTop: 2,
+        marginTop: Spacing.xs,
     }
 });

@@ -1,12 +1,12 @@
-import React from "react";
-import { View, Text, Image, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
-import { ChevronDown, Sparkles, Flame, UtensilsCrossed, Leaf, User2 } from "lucide-react-native";
+import { ChevronDown, Flame, Leaf, Sparkles, User2, UtensilsCrossed } from "lucide-react-native";
+import React from "react";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { Header } from "../../components/header";
-import { homeStyles as styles } from "../../styles/home_styles";
 import { Colors } from "../../constants/theme";
+import { homeStyles as styles } from "../../styles/home_styles";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -47,8 +47,8 @@ export default function HomeScreen() {
           <Chip icon={<UtensilsCrossed size={14} color={Colors.primary} />} label="Tomate (1)" />
           <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Cebola (1)" />
         </View>
-
-        <Pressable style={styles.generateButton} onPress={() => console.log("Gerar Receitas")}>
+        {/* Duda R.: onPress alterado para navegar até a Seleção IA */}
+        <Pressable style={styles.generateButton} onPress={() => router.push("/selecao_ia")}>
           <Sparkles size={15} color={Colors.light} fill={Colors.light} />
           <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
         </Pressable>

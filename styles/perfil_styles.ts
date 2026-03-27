@@ -1,71 +1,38 @@
-import { Platform, StyleSheet } from 'react-native';
-import { Colors, Fonts, Radius, Shadows, Spacing } from '../constants/theme';
+import { StyleSheet } from 'react-native';
+import { Colors, Fonts, Radius, Shadows, Spacing, FontSizes } from '../constants/theme';
 
 export const perfilStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-
+  // --- ESTRUTURA GERAL ---
   keyboardContainer: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-
-  topHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: Spacing.md,
-    backgroundColor: Colors.background,
-  },
-
-  backButton: {
-    padding: 5,
-  },
-
-  topHeaderTitle: {
-    fontSize: 20,
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-  },
-
-  saveText: {
-    color: Colors.primary,
-    fontFamily: Fonts.bold,
-    fontSize: 14,
-  },
-
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: Spacing.xl,
   },
 
+  // --- AVATAR ---
   avatarSection: {
     alignItems: 'center',
-    marginVertical: 25,
+    marginVertical: Spacing.xl,
   },
-
   avatarCircle: {
     width: 110,
     height: 110,
-    borderRadius: 55,
+    borderRadius: Radius.full,
     backgroundColor: Colors.light,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.sm,
     borderWidth: 2,
     borderColor: Colors.light,
     position: 'relative',
+    ...Shadows.sm,
   },
-
   avatarImage: {
     width: 110,
     height: 110,
-    borderRadius: 55,
+    borderRadius: Radius.full,
   },
-
   cameraBadge: {
     position: 'absolute',
     bottom: 2,
@@ -73,128 +40,154 @@ export const perfilStyles = StyleSheet.create({
     backgroundColor: Colors.secondary,
     width: 32,
     height: 32,
-    borderRadius: 16,
+    borderRadius: Radius.full,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
     borderColor: Colors.background,
   },
-
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 55,
+    borderRadius: Radius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   userNameDisplay: {
-    marginTop: 15,
-    fontSize: 22,
+    marginTop: Spacing.md,
+    fontSize: FontSizes.large,
     fontFamily: Fonts.bold,
     color: Colors.primary,
   },
-
   memberSince: {
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: Fonts.regular,
     color: Colors.subtitle,
-    marginTop: 4,
+    marginTop: Spacing.xs,
   },
 
+  // --- CARDS E INPUTS ---
   sectionCard: {
     backgroundColor: Colors.light,
     marginHorizontal: Spacing.lg,
-    marginVertical: 12,
-    padding: 20,
+    marginVertical: Spacing.sm,
+    padding: Spacing.lg,
     borderRadius: Radius.lg,
     ...Shadows.sm,
   },
-
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    gap: 10,
+    marginBottom: Spacing.lg,
+    gap: Spacing.sm,
   },
-
   sectionTitle: {
-    fontSize: 16,
+    fontSize: FontSizes.medium,
     fontFamily: Fonts.bold,
     color: Colors.primary,
   },
-
   inputBlock: {
-    marginBottom: 18,
+    marginBottom: Spacing.md,
   },
-
   inputLabel: {
     fontSize: 12,
     color: Colors.subtitle,
     marginBottom: 6,
     fontFamily: Fonts.medium,
   },
-
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.subtitle + '20',
-    paddingBottom: 8,
+    borderBottomColor: Colors.subtext + '30',
+    paddingBottom: Spacing.sm,
   },
-
   textInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: FontSizes.small,
     color: Colors.primary,
     fontFamily: Fonts.regular,
   },
 
+  // --- PREFERÊNCIAS (RESPONSIVO) ---
   prefRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 15,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#F9F9F9',
+    borderBottomColor: Colors.background,
+    gap: Spacing.sm,
   },
-
   prefLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.sm,
+    flex: 1, // Permite que o texto cresça e quebre
   },
-
   prefRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    minWidth: 80, // Mantém o "Configurar" visível
   },
-
   prefText: {
-    marginLeft: 12,
-    fontSize: 14,
+    fontSize: FontSizes.small,
     color: Colors.primary,
     fontFamily: Fonts.medium,
+    flexShrink: 1,
   },
-
   prefHintText: {
-    color: '#999',
+    color: Colors.subtext,
     fontSize: 12,
-    marginRight: 5,
+    marginRight: Spacing.xs,
     fontFamily: Fonts.regular,
   },
 
-  logoutButton: {
+  // --- BOTÕES INFERIORES ---
+  footerActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Quebra linha se necessário
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.xl * 2,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoutButtonInline: {
+    flex: 1,
+    minWidth: 90,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
-    marginBottom: 50,
-    gap: 10,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.errorDark + '40',
+    backgroundColor: Colors.errorLight,
+    gap: Spacing.xs,
   },
-
-  logoutText: {
-    color: Colors.secondary,
+  logoutTextInline: {
+    color: Colors.errorDark,
     fontFamily: Fonts.bold,
-    fontSize: 16,
+    fontSize: FontSizes.small,
+  },
+  mainSaveButton: {
+    flex: 2,
+    minWidth: 140,
+    backgroundColor: Colors.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.lg,
+    gap: Spacing.sm,
+    ...Shadows.md,
+  },
+  mainSaveText: {
+    color: Colors.light,
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.medium,
   },
 });

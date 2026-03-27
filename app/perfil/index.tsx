@@ -1,52 +1,64 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Switch,
+  View,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  ScrollView,
+  Image,
+  Switch,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 
+// Ícones
+import {
+  Leaf,
+  User as UserIcon,
+  Settings,
+  LogOut,
+  Camera,
+  ChevronRight,
+  AlertCircle,
+  Pencil,
+  CheckCircle
+} from 'lucide-react-native';
+
+// Tema e Estilos
 import { Colors } from '../../constants/theme';
 import { perfilStyles as styles } from '../../styles/perfil_styles';
+import { Header } from '../../components/header';
 
 export default function PerfilScreen() {
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
-  const [telefone, setTelefone] = useState('');
+  // --- ESTADOS ---
+  const [email, setEmail] = useState('maria.silva@email.com');
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [isVegetariano, setIsVegetariano] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
 
-  const formatarTelefone = (valor: string) => {
-    const numeros = valor.replace(/\D/g, '');
-    let resultado = '';
-
-    if (numeros.length > 0) resultado = '(' + numeros.substring(0, 2);
-    if (numeros.length > 2) resultado += ') ' + numeros.substring(2, 7);
-    if (numeros.length > 7) resultado += '-' + numeros.substring(7, 11);
-
-    setTelefone(resultado);
+  // --- FUNÇÕES ---
+  const handleBack = () => {
+    // Correção para o erro "GO_BACK not handled":
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/home'); // Caminho padrão caso abra o app direto no perfil
+    }
   };
 
   const pickImage = async () => {
     try {
       setLoadingImage(true);
-
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (status !== 'granted') {
-        Alert.alert('Permissão Negada', 'Precisamos de acesso às suas fotos.');
+        Alert.alert('Permissão Negada', 'Acesso às fotos é necessário.');
         return;
       }
 
@@ -57,151 +69,123 @@ export default function PerfilScreen() {
         quality: 0.7,
       });
 
-      if (!result.canceled) {
-        setFotoUrl(result.assets[0].uri);
-      }
+      if (!result.canceled) setFotoUrl(result.assets[0].uri);
     } catch (error) {
-      console.error('Erro ao selecionar imagem:', error);
+      console.error(error);
     } finally {
       setLoadingImage(false);
     }
   };
 
-  const handleSaveProfile = () => {
-    Alert.alert('Sucesso', 'Perfil salvo!');
-  };
+  const handleSave = () => Alert.alert('Sucesso', 'Perfil atualizado!');
 
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.topHeader}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-        </TouchableOpacity>
+      <Header
+        title="Meu Perfil"
+        showSearch={false}
+        onBack={handleBack}
+      />
 
-        <Text style={styles.topHeaderTitle}>Meu Perfil</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
-        <TouchableOpacity activeOpacity={0.7} onPress={handleSaveProfile}>
-          <Text style={styles.saveText}>Salvar</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+        {/* Avatar Section */}
         <View style={styles.avatarSection}>
-          <TouchableOpacity
-            style={styles.avatarCircle}
-            onPress={pickImage}
-            activeOpacity={0.8}
-          >
+          <TouchableOpacity style={styles.avatarCircle} onPress={pickImage} activeOpacity={0.8}>
             {fotoUrl ? (
               <Image source={{ uri: fotoUrl }} style={styles.avatarImage} />
             ) : (
-              <Ionicons name="person" size={50} color="#CCC" />
+              <UserIcon size={50} color={Colors.subtitle} />
             )}
-
             <View style={styles.cameraBadge}>
-              <Ionicons name="camera" size={16} color="#FFF" />
+              <Camera size={16} color={Colors.light} />
             </View>
-
             {loadingImage && (
               <View style={styles.loadingOverlay}>
-                <ActivityIndicator color="#FFF" />
+                <ActivityIndicator color={Colors.light} />
               </View>
             )}
           </TouchableOpacity>
-
           <Text style={styles.userNameDisplay}>Maria Silva</Text>
-          <Text style={styles.memberSince}>Membro desde Janeiro 2024</Text>
+          <Text style={styles.memberSince}>Membro desde Março 2026</Text>
         </View>
 
+        {/* Card: Meus Dados */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="person-outline" size={20} color={Colors.primary} />
+            <UserIcon size={20} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Meus Dados</Text>
           </View>
 
           <View style={styles.inputBlock}>
-            <Text style={styles.inputLabel}>Email</Text>
+            <Text style={styles.inputLabel}>E-mail</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.textInput}
-                placeholder="maria.silva@email.com"
-                placeholderTextColor="#999"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
-              <Ionicons name="pencil" size={16} color="#CCC" />
-            </View>
-          </View>
-
-          <View style={styles.inputBlock}>
-            <Text style={styles.inputLabel}>Telefone</Text>
-            <View style={styles.inputRow}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="(11) 98765-4321"
-                placeholderTextColor="#999"
-                value={telefone}
-                onChangeText={formatarTelefone}
-                keyboardType="phone-pad"
-                maxLength={15}
-              />
-              <Ionicons name="pencil" size={16} color="#CCC" />
+              <Pencil size={14} color={Colors.subtext} />
             </View>
           </View>
         </View>
 
+        {/* Card: Preferências */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="options-outline" size={20} color={Colors.primary} />
+            <Settings size={20} color={Colors.primary} />
             <Text style={styles.sectionTitle}>Preferências</Text>
           </View>
 
           <View style={styles.prefRow}>
             <View style={styles.prefLeft}>
-              <Ionicons name="leaf-outline" size={22} color="#48BB78" />
+              <Leaf size={20} color={Colors.success} />
               <Text style={styles.prefText}>Vegetariano</Text>
             </View>
-
             <Switch
               value={isVegetariano}
               onValueChange={setIsVegetariano}
-              trackColor={{ false: '#E2E8F0', true: '#48BB78' }}
-              thumbColor="#FFF"
+              trackColor={{ false: Colors.subtitle + '30', true: Colors.success }}
+              thumbColor={Colors.light}
             />
           </View>
 
-          <TouchableOpacity style={[styles.prefRow, { borderBottomWidth: 0 }]}>
+          <TouchableOpacity
+            style={[styles.prefRow, { borderBottomWidth: 0 }]}
+            activeOpacity={0.6}
+          >
             <View style={styles.prefLeft}>
-              <Ionicons
-                name="alert-circle-outline"
-                size={22}
-                color={Colors.secondary}
-              />
-              <Text style={styles.prefText}>Alergias Alimentares</Text>
+              <AlertCircle size={20} color={Colors.secondary} />
+              <Text style={styles.prefText} numberOfLines={2}>Alergias Alimentares</Text>
             </View>
-
             <View style={styles.prefRight}>
               <Text style={styles.prefHintText}>Configurar</Text>
-              <Ionicons name="chevron-forward" size={18} color="#CCC" />
+              <ChevronRight size={18} color={Colors.subtitle} />
             </View>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => router.replace('/(auth)/login')}
-        >
-          <Ionicons name="log-out-outline" size={20} color={Colors.secondary} />
-          <Text style={styles.logoutText}>Sair da Conta</Text>
-        </TouchableOpacity>
+        {/* Ações Inferiores */}
+        <View style={styles.footerActions}>
+          <TouchableOpacity
+            style={styles.logoutButtonInline}
+            onPress={() => router.replace('/(auth)/login')}
+          >
+            <LogOut size={18} color={Colors.errorDark} />
+            <Text style={styles.logoutTextInline}>Sair</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.mainSaveButton} onPress={handleSave}>
+            <CheckCircle size={20} color={Colors.light} />
+            <Text style={styles.mainSaveText}>Salvar</Text>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );

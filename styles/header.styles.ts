@@ -15,24 +15,23 @@ export const headerStyles = StyleSheet.create({
     // --- LINHA SUPERIOR (TÍTULO E EXPORTAR) ---
     titleContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',          // PERMITE QUEBRA DE LINHA
+        flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.lg,
         paddingBottom: Spacing.sm,
         marginBottom: Spacing.sm,
-        gap: 10,                   // ESPAÇO ENTRE TÍTULO E BOTÃO NA QUEBRA
+        gap: 10,
     },
     title: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.large,
         color: Colors.dark,
-        // Removido flex: 1 fixo para permitir a quebra baseada no conteúdo
         minWidth: '50%',
     },
     titleCenter: {
         textAlign: 'center',
-        flex: 1, // Se for centralizado, ele tenta ocupar a linha toda
+        flex: 1,
     },
 
     // --- BOTÃO DE EXPORTAÇÃO ---
@@ -46,7 +45,6 @@ export const headerStyles = StyleSheet.create({
         gap: 6,
         borderWidth: 1,
         borderColor: Colors.secondary + '20',
-        // Garante que o botão não encolha, ele desce inteiro
         flexShrink: 0,
     },
     exportText: {

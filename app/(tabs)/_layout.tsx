@@ -10,17 +10,20 @@ export default function TabsLayout() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.subtitle,
         tabBarStyle: {
-          height: 80,
-          paddingBottom: Spacing.sm,
+          height: 80,                // Aumentado para dar mais corpo à barra
+          paddingBottom: 25,         // Empurra os ícones e labels para cima
           paddingTop: Spacing.xs,
           borderTopColor: '#F1F5F9',
           backgroundColor: Colors.light,
-          elevation: 0, // Remove sombra no Android
-          shadowOpacity: 0, // Remove sombra no iOS
+          elevation: 0,              // Remove sombra no Android
+          shadowOpacity: 0,          // Remove sombra no iOS
+          borderTopLeftRadius: 20,   // Opcional: leve arredondamento no topo
+          borderTopRightRadius: 20,
         },
         tabBarLabelStyle: {
           fontFamily: Fonts.medium,
           fontSize: 12,
+          marginTop: -5,             // Ajuste fino para aproximar o texto do ícone
         }
       }}
     >

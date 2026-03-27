@@ -23,7 +23,7 @@ export default function FavoritosScreen() {
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
-            {/* Scroll horizontal de filtros igual à tela de receitas */}
+            {/* Scroll horizontal de filtros com espaçamento corrigido via contentContainerStyle */}
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -114,6 +114,7 @@ export default function FavoritosScreen() {
     );
 }
 
+// Componente de Chip unificado
 const Chip = ({ active = false, icon, label, onPress }: any) => (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
         {icon}

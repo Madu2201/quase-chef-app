@@ -4,22 +4,19 @@ import {
   ScrollView, StatusBar, TouchableOpacity,
   ListRenderItemInfo, NativeSyntheticEvent, NativeScrollEvent
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  Heart, Zap, Leaf, TrendingUp, Activity,
+  Banknote, Clock, BarChart, Package
+} from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
-// Componentes e Estilos
 import { Header } from '../../components/header';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
 import { Colors } from '../../constants/theme';
 
-// Tipagens
 interface Recipe {
   id: string; title: string; time: string; difficulty: string;
   descStart: string; ingredients: string; descEnd: string; image: string;
-}
-
-interface ChipItem {
-  label: string; icon: keyof typeof Ionicons.glyphMap;
 }
 
 const DATA: Recipe[] = [
@@ -30,12 +27,12 @@ const DATA: Recipe[] = [
   { id: '5', title: 'Sopa de Legumes', time: '40 min', difficulty: 'Fácil', descStart: 'Aqueça-se com seus', ingredients: 'legumes e caldos', descEnd: 'caseiros.', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=600' },
 ];
 
-const CHIPS: ChipItem[] = [
-  { label: 'Rápidas', icon: 'flash-outline' },
-  { label: 'Vegetarianas', icon: 'leaf-outline' },
-  { label: 'Populares', icon: 'trending-up-outline' },
-  { label: 'Saudáveis', icon: 'fitness-outline' },
-  { label: 'Econômicas', icon: 'cash-outline' },
+const CHIPS = [
+  { label: 'Rápidas', icon: Zap },
+  { label: 'Vegetarianas', icon: Leaf },
+  { label: 'Populares', icon: TrendingUp },
+  { label: 'Saudáveis', icon: Activity },
+  { label: 'Econômicas', icon: Banknote },
 ];
 
 export default function ReceitasScreen() {
@@ -48,7 +45,7 @@ export default function ReceitasScreen() {
   const [favoritos, setFavoritos] = useState<Record<string, boolean>>({});
   const [scrollY, setScrollY] = useState(0);
 
-  // Lógica de restauração de scroll original
+  // Restauração de scroll para UX fluída ao voltar da detalhe
   useEffect(() => {
     const restoreScroll = Number(params.restoreScroll ?? 0);
     if (restoreScroll > 0) {
@@ -63,7 +60,6 @@ export default function ReceitasScreen() {
     setScrollY(event.nativeEvent.contentOffset.y);
   };
 
-  // --- CABEÇALHO DA LISTA (FILTROS + CONTADOR) ---
   const ListHeader = () => (
     <View style={styles.filtersContainer}>
       <ScrollView
@@ -72,22 +68,22 @@ export default function ReceitasScreen() {
         style={styles.chipsScroll}
         contentContainerStyle={styles.chipsScrollContent}
       >
-        {CHIPS.map((chip) => (
-          <Pressable
-            key={chip.label}
-            onPress={() => setFiltro(chip.label)}
-            style={[styles.chip, filtro === chip.label && styles.chipActive]}
-          >
-            <Ionicons
-              name={chip.icon}
-              size={14}
-              color={filtro === chip.label ? Colors.light : Colors.primary}
-            />
-            <Text style={[styles.chipText, filtro === chip.label && styles.chipTextActive]}>
-              {chip.label}
-            </Text>
-          </Pressable>
-        ))}
+        {CHIPS.map((chip) => {
+          const Icon = chip.icon;
+          const isActive = filtro === chip.label;
+          return (
+            <Pressable
+              key={chip.label}
+              onPress={() => setFiltro(chip.label)}
+              style={[styles.chip, isActive && styles.chipActive]}
+            >
+              <Icon size={14} color={isActive ? Colors.light : Colors.primary} />
+              <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                {chip.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
 
       <View style={styles.infoBar}>
@@ -96,50 +92,43 @@ export default function ReceitasScreen() {
     </View>
   );
 
-  // --- RENDER DO CARD ---
   function renderRecipeCard({ item }: ListRenderItemInfo<Recipe>) {
     const isFav = favoritos[item.id] || false;
-
     return (
       <View style={styles.card}>
         <View style={styles.cardImageContainer}>
           <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
         </View>
-
         <View style={styles.cardBody}>
           <View style={styles.titleRow}>
             <Text style={styles.recipeTitle}>{item.title}</Text>
-            <Pressable onPress={() => setFavoritos(p => ({ ...p, [item.id]: !p[item.id] }))} style={styles.heartButton}>
-              <Ionicons name={isFav ? 'heart' : 'heart-outline'} size={22} color={Colors.secondary} />
+            <Pressable onPress={() => setFavoritos(p => ({ ...p, [item.id]: !p[item.id] }))}>
+              <Heart
+                size={22}
+                color={Colors.secondary}
+                fill={isFav ? Colors.secondary : 'transparent'}
+              />
             </Pressable>
           </View>
-
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={14} color={Colors.primary} />
+              <Clock size={14} color={Colors.primary} />
               <Text style={styles.metaText}>{item.time}</Text>
             </View>
             <View style={styles.metaItem}>
-              <Ionicons name="stats-chart-outline" size={14} color={Colors.primary} />
+              <BarChart size={14} color={Colors.primary} />
               <Text style={styles.metaText}>{item.difficulty}</Text>
             </View>
           </View>
-
           <Text style={styles.recipeDescription}>
             {item.descStart} <Text style={styles.highlightText}>{item.ingredients}</Text> {item.descEnd}
           </Text>
-
           <TouchableOpacity
             style={styles.viewButton}
             activeOpacity={0.8}
             onPress={() => router.push({
               pathname: '/detalhe_receita',
-              params: {
-                id: item.id, title: item.title, time: item.time,
-                difficulty: item.difficulty, image: item.image,
-                description: `${item.descStart} ${item.ingredients} ${item.descEnd}`,
-                scrollY: String(scrollY),
-              },
+              params: { id: item.id, title: item.title, time: item.time, difficulty: item.difficulty, image: item.image, scrollY: String(scrollY) }
             })}
           >
             <Text style={styles.viewButtonText}>Ver receita</Text>
@@ -152,16 +141,9 @@ export default function ReceitasScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-
-      <Header
-        title="Receitas Encontradas"
-        centerTitle={true}
-        searchText={busca}
-        setSearchText={setBusca}
-        searchPlaceholder="Buscar ingredientes..."
-      >
+      <Header title="Receitas Encontradas" centerTitle searchText={busca} setSearchText={setBusca} searchPlaceholder="Buscar ingredientes...">
         <View style={styles.stockToggle}>
-          <Ionicons name="cube-outline" size={18} color={Colors.primary} />
+          <Package size={18} color={Colors.primary} />
           <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
           <Switch
             trackColor={{ false: Colors.subtext + '30', true: Colors.secondary }}
@@ -172,7 +154,6 @@ export default function ReceitasScreen() {
           />
         </View>
       </Header>
-
       <FlatList
         ref={flatListRef}
         data={DATA}

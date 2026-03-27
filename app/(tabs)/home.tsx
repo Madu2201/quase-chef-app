@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { ChevronDown, Flame, Leaf, Sparkles, User2, UtensilsCrossed } from "lucide-react-native";
+import { ChevronDown, Flame, Leaf, Sparkles, User2, UtensilsCrossed, ChevronRight } from "lucide-react-native";
 import React from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -20,9 +20,9 @@ export default function HomeScreen() {
           </View>
           <View>
             <Text style={styles.greetingText}>Bom dia,</Text>
-            <View style={styles.userNameRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               <Text style={styles.userName}>Olá, Maria!</Text>
-              <ChevronDown size={18} color={Colors.primary} />
+              <ChevronDown size={16} color={Colors.primary} />
             </View>
           </View>
         </Pressable>
@@ -30,9 +30,7 @@ export default function HomeScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.mainTitle}>O que vamos cozinhar hoje?</Text>
-        <Text style={styles.mainSubtitle}>
-          Transforme o que você tem na geladeira em pratos incríveis.
-        </Text>
+        <Text style={styles.mainSubtitle}>Transforme o que você tem na geladeira em pratos incríveis.</Text>
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Ingredientes selecionados</Text>
@@ -41,20 +39,21 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* Chips de Ingredientes agora com Scroll Horizontal */}
+        {/* Scroll Horizontal de Ingredientes */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.ingredientsScroll}
-          contentContainerStyle={styles.ingredientsScrollContent}
+          contentContainerStyle={styles.ingredientsScrollContent} // Padding aqui resolve o corte no final
         >
           <Chip active icon={<Flame size={14} color={Colors.light} />} label="Ovos (4)" />
           <Chip icon={<UtensilsCrossed size={14} color={Colors.primary} />} label="Tomate (1)" />
           <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Cebola (1)" />
           <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Pimentão (1)" />
+          <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Queijo (200g)" />
         </ScrollView>
 
-        <View style={styles.generateButtonContainer}>
+        <View style={styles.btnContainer}>
           <Pressable style={styles.generateButton} onPress={() => router.push("/selecao_ia")}>
             <Sparkles size={15} color={Colors.light} fill={Colors.light} />
             <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
@@ -63,37 +62,21 @@ export default function HomeScreen() {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sugestões rápidas</Text>
-          <Pressable><Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text></Pressable>
+          <Pressable style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text>
+            <ChevronRight size={16} color={Colors.primary} />
+          </Pressable>
         </View>
 
-        <RecipeCard
-          delay={200}
-          image={require("../../assets/images/omelete.png")}
-          time="10 MIN"
-          title="Omelete de Ervas"
-          desc="Perfeito com seus 4 ovos."
-        />
-
-        <RecipeCard
-          delay={400}
-          image={require("../../assets/images/shakshuka.png")}
-          time="15 MIN"
-          title="Shakshuka"
-          desc="Ovos cozidos em salsa de tomate."
-        />
-
-        <RecipeCard
-          delay={600}
-          image={require("../../assets/images/Pizza_marguerita.png")}
-          time="20 MIN"
-          title="Pizza de Marguerita"
-          desc="Ingredientes frescos e massa leve."
-        />
+        <RecipeCard delay={200} image={require("../../assets/images/omelete.png")} time="10 MIN" title="Omelete de Ervas" desc="Perfeito com seus 4 ovos." />
+        <RecipeCard delay={400} image={require("../../assets/images/shakshuka.png")} time="15 MIN" title="Shakshuka" desc="Ovos cozidos em salsa de tomate." />
+        <RecipeCard delay={600} image={require("../../assets/images/Pizza_marguerita.png")} time="20 MIN" title="Pizza de Marguerita" desc="Ingredientes frescos e massa leve." />
       </ScrollView>
     </View>
   );
 }
 
+// Sub-componentes
 const Chip = ({ active = false, icon, label }: any) => (
   <View style={[styles.chip, active && styles.chipActive]}>
     {icon}

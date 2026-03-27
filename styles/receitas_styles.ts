@@ -7,7 +7,7 @@ export const receitasStyles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 
-  // --- ESTOQUE (ESTILO FAVORITOS NO HEADER) ---
+  // --- ESTOQUE (HEADER) ---
   stockToggle: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -29,7 +29,7 @@ export const receitasStyles = StyleSheet.create({
     transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
   },
 
-  // --- FILTROS (CHIPS HORIZONTAIS COM VISUAL DE FAVORITOS) ---
+  // --- FILTROS (SCROLL HORIZONTAL CORRIGIDO) ---
   filtersContainer: {
     paddingTop: Spacing.md,
     width: '100%',
@@ -38,13 +38,14 @@ export const receitasStyles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   chipsScrollContent: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.lg, // Espaçamento nas duas pontas do scroll
     gap: Spacing.sm,
+    flexDirection: 'row',
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 36,
+    height: 38,
     paddingHorizontal: Spacing.md,
     borderRadius: Radius.full,
     backgroundColor: Colors.light,
@@ -65,7 +66,7 @@ export const receitasStyles = StyleSheet.create({
     color: Colors.light,
   },
 
-  // --- CONTADOR DE RECEITAS (IGUAL FAVORITOS) ---
+  // --- CONTADOR ---
   infoBar: {
     paddingHorizontal: Spacing.lg,
     marginTop: Spacing.sm,
@@ -77,7 +78,7 @@ export const receitasStyles = StyleSheet.create({
     color: Colors.brown,
   },
 
-  // --- CORPO DO CARD (RECEITAS) ---
+  // --- LISTA E CARDS ---
   listContent: {
     paddingBottom: Spacing.xl,
   },

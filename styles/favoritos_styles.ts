@@ -6,7 +6,6 @@ export const favStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-
     // --- ESTOQUE (HEADER) ---
     stockToggle: {
         flexDirection: 'row',
@@ -28,8 +27,7 @@ export const favStyles = StyleSheet.create({
     switchStyle: {
         transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
-
-    // --- FILTROS (SCROLL HORIZONTAL) ---
+    // --- FILTROS (SCROLL HORIZONTAL CORRIGIDO) ---
     listHeaderContainer: {
         paddingTop: Spacing.md,
     },
@@ -37,7 +35,7 @@ export const favStyles = StyleSheet.create({
         width: '100%',
     },
     chipsScrollContent: {
-        paddingHorizontal: Spacing.lg, // Alinhado com as margens do app
+        paddingHorizontal: Spacing.lg, // Espaço nas duas extremidades do scroll
         gap: Spacing.sm,
         flexDirection: 'row',
         paddingBottom: Spacing.xs,
@@ -46,7 +44,7 @@ export const favStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        height: 38, // Altura fixa para consistência
+        height: 38,
         paddingHorizontal: Spacing.md,
         borderRadius: Radius.full,
         backgroundColor: Colors.light,
@@ -62,12 +60,7 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small - 1,
         color: Colors.primary,
     },
-    chipTextActive: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small - 1,
-        color: Colors.light,
-    },
-
+    chipTextActive: { color: Colors.light },
     // --- CONTADOR ---
     infoBar: {
         paddingHorizontal: Spacing.lg,
@@ -79,32 +72,23 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.brown,
     },
-
-    // --- GRID E IMAGEM QUADRADA ---
-    listContent: {
-        paddingBottom: Spacing.xl,
-    },
+    // --- GRID ---
+    listContent: { paddingBottom: Spacing.xl },
     columnWrapper: {
         paddingHorizontal: Spacing.lg,
         justifyContent: 'space-between',
     },
-    card: {
-        width: '48%',
-        marginBottom: Spacing.lg,
-    },
+    card: { width: '48%', marginBottom: Spacing.lg },
     imageContainer: {
         width: '100%',
-        aspectRatio: 1,
+        aspectRatio: 1, // Quadrado perfeito
         borderRadius: Radius.lg,
         overflow: 'hidden',
         marginBottom: Spacing.xs,
         backgroundColor: Colors.light,
         ...Shadows.xs,
     },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
+    image: { width: '100%', height: '100%' },
     heartIcon: {
         position: 'absolute',
         top: 8,

@@ -7,11 +7,9 @@ export const homeStyles = StyleSheet.create({
         backgroundColor: Colors.background,
     },
     scrollContent: {
-        paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
         paddingBottom: Spacing.xl,
     },
-
     // --- PERFIL ---
     userHeader: {
         flexDirection: 'row',
@@ -43,7 +41,6 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.small - 1,
         color: Colors.subtitle,
     },
-
     // --- TEXTOS ---
     mainTitle: {
         fontFamily: Fonts.bold,
@@ -51,20 +48,22 @@ export const homeStyles = StyleSheet.create({
         color: Colors.dark,
         marginTop: Spacing.sm,
         marginBottom: Spacing.sm,
+        paddingHorizontal: Spacing.lg,
     },
     mainSubtitle: {
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
         color: Colors.subtitle,
         marginBottom: Spacing.lg,
+        paddingHorizontal: Spacing.lg,
     },
-
     // --- SEÇÕES ---
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: Spacing.sm,
+        paddingHorizontal: Spacing.lg,
     },
     sectionTitle: {
         fontFamily: Fonts.bold,
@@ -76,20 +75,22 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.primary,
     },
-
-    // --- CHIPS ---
-    ingredientsWrapper: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: Spacing.xs,
+    // --- CHIPS (AGORA COM SCROLL) ---
+    ingredientsScroll: {
+        width: '100%',
         marginBottom: Spacing.lg,
+    },
+    ingredientsScrollContent: {
+        paddingHorizontal: Spacing.lg,
+        gap: Spacing.xs,
+        flexDirection: 'row',
     },
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
         paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.sm,
+        height: 38, // Altura fixa para alinhar com os outros
         borderRadius: Radius.full,
         backgroundColor: Colors.light,
         borderWidth: 1.5,
@@ -109,8 +110,11 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.small - 1,
         color: Colors.light,
     },
-
     // --- BOTÃO GERAR ---
+    generateButtonContainer: {
+        paddingHorizontal: Spacing.lg,
+        marginBottom: Spacing.lg,
+    },
     generateButton: {
         backgroundColor: Colors.primary,
         flexDirection: 'row',
@@ -119,7 +123,6 @@ export const homeStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: Spacing.sm,
-        marginBottom: Spacing.lg,
         ...Shadows.sm,
     },
     generateButtonText: {
@@ -127,13 +130,13 @@ export const homeStyles = StyleSheet.create({
         color: Colors.light,
         fontSize: FontSizes.small,
     },
-
     // --- CARDS DE RECEITA ---
     recipeCard: {
         flexDirection: 'row',
         backgroundColor: Colors.light,
         borderRadius: Radius.md,
         marginBottom: Spacing.sm,
+        marginHorizontal: Spacing.lg,
         overflow: 'hidden',
         ...Shadows.xs,
     },

@@ -41,17 +41,25 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* Chips de Ingredientes com Quebra de Linha Automática */}
-        <View style={styles.ingredientsWrapper}>
+        {/* Chips de Ingredientes agora com Scroll Horizontal */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.ingredientsScroll}
+          contentContainerStyle={styles.ingredientsScrollContent}
+        >
           <Chip active icon={<Flame size={14} color={Colors.light} />} label="Ovos (4)" />
           <Chip icon={<UtensilsCrossed size={14} color={Colors.primary} />} label="Tomate (1)" />
           <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Cebola (1)" />
+          <Chip icon={<Leaf size={14} color={Colors.primary} />} label="Pimentão (1)" />
+        </ScrollView>
+
+        <View style={styles.generateButtonContainer}>
+          <Pressable style={styles.generateButton} onPress={() => router.push("/selecao_ia")}>
+            <Sparkles size={15} color={Colors.light} fill={Colors.light} />
+            <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
+          </Pressable>
         </View>
-        {/* Duda R.: onPress alterado para navegar até a Seleção IA */}
-        <Pressable style={styles.generateButton} onPress={() => router.push("/selecao_ia")}>
-          <Sparkles size={15} color={Colors.light} fill={Colors.light} />
-          <Text style={styles.generateButtonText}>Gerar receitas com meus ingredientes</Text>
-        </Pressable>
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sugestões rápidas</Text>
@@ -86,7 +94,6 @@ export default function HomeScreen() {
   );
 }
 
-// Sub-componentes internos para manter o código limpo
 const Chip = ({ active = false, icon, label }: any) => (
   <View style={[styles.chip, active && styles.chipActive]}>
     {icon}

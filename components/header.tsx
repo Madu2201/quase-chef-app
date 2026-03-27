@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { Search, FileText, ArrowLeft } from "lucide-react-native";
+import { router } from "expo-router";
 
-// Estilos Próprios
 import { Colors, Spacing } from "../constants/theme";
 import { headerStyles as styles } from "../styles/header.styles";
 
@@ -15,9 +15,10 @@ interface HeaderProps {
   searchPlaceholder?: string;
   showExport?: boolean;
   onExport?: () => void;
-  onBack?: () => void;        // Função para o botão voltar
-  rightElement?: React.ReactNode; // Elemento extra (ex: botão Salvar)
-  children?: React.ReactNode; // Inputs ou filtros extras
+  onBack?: () => void;
+  rightElement?: React.ReactNode;
+  children?: React.ReactNode;
+  showBackButton?: boolean;
 }
 
 export const Header = ({
@@ -31,43 +32,58 @@ export const Header = ({
   onExport,
   onBack,
   rightElement,
-  children
+  children,
+  showBackButton = false,
 }: HeaderProps) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
+  const handleBack = () => {
+    if (onBack) onBack();
+    else if (router.canGoBack()) router.back();
+  };
+
   return (
     <View style={styles.header}>
-
-      {/* --- LINHA SUPERIOR: Voltar, Título e Ações --- */}
       <View style={styles.titleContainer}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: Spacing.sm }}>
-          {onBack && (
-            <TouchableOpacity onPress={onBack} style={{ padding: 4 }} activeOpacity={0.6}>
-              <ArrowLeft size={22} color={Colors.primary} />
-            </TouchableOpacity>
-          )}
 
-          <Text
-            style={[styles.title, centerTitle && styles.titleCenter]}
-            numberOfLines={1}
+        {/* Botão Voltar */}
+        {(showBackButton || onBack) && (
+          <TouchableOpacity
+            onPress={handleBack}
+            style={{
+              position: centerTitle ? 'absolute' : 'relative',
+              left: centerTitle ? Spacing.lg : 0,
+              zIndex: 20,
+              padding: 4
+            }}
+            activeOpacity={0.6}
           >
-            {title}
-          </Text>
-        </View>
-
-        {/* Botão Exportar (PDF) */}
-        {showExport && (
-          <TouchableOpacity style={styles.exportBtn} onPress={onExport} activeOpacity={0.7}>
-            <FileText size={14} color={Colors.secondary} />
-            <Text style={styles.exportText}>Exportar PDF</Text>
+            <ArrowLeft size={24} color={Colors.primary} />
           </TouchableOpacity>
         )}
 
-        {/* Slot para outros elementos (ex: "Salvar" no Perfil) */}
-        {rightElement && rightElement}
+        <Text
+          style={[
+            styles.title,
+            centerTitle && styles.titleCenter,
+            (showBackButton || onBack) && centerTitle && { paddingHorizontal: 40 }
+          ]}
+          numberOfLines={1}
+        >
+          {title}
+        </Text>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {showExport && (
+            <TouchableOpacity style={styles.exportBtn} onPress={onExport} activeOpacity={0.7}>
+              <FileText size={14} color={Colors.secondary} />
+              <Text style={styles.exportText}>PDF</Text>
+            </TouchableOpacity>
+          )}
+          {rightElement}
+        </View>
       </View>
 
-      {/* --- SEÇÃO INFERIOR: Busca e Conteúdo Dinâmico --- */}
       {(showSearch || children) && (
         <View style={styles.headerContent}>
           {showSearch && (
@@ -76,7 +92,7 @@ export const Header = ({
               isSearchFocused && styles.searchContainerFocused,
               { marginBottom: children ? Spacing.sm : 0 }
             ]}>
-              <Search size={15} color={Colors.primary} />
+              <Search size={18} color={Colors.primary} />
               <TextInput
                 placeholder={searchPlaceholder}
                 style={styles.searchInput}
@@ -90,8 +106,6 @@ export const Header = ({
               />
             </View>
           )}
-
-          {/* Renderiza componentes extras como formulários ou filtros */}
           {children}
         </View>
       )}

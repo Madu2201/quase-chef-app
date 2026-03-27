@@ -2,7 +2,6 @@ import { StyleSheet, Platform, TextStyle } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const headerStyles = StyleSheet.create({
-    // --- CONTAINER PRINCIPAL ---
     header: {
         backgroundColor: Colors.light,
         paddingTop: Platform.OS === 'ios' ? 60 : 40,
@@ -11,30 +10,25 @@ export const headerStyles = StyleSheet.create({
         borderBottomRightRadius: Radius.xl,
         ...Shadows.md,
     },
-
-    // --- LINHA SUPERIOR (TÍTULO E EXPORTAR) ---
     titleContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.lg,
         paddingBottom: Spacing.sm,
         marginBottom: Spacing.sm,
-        gap: 10,
+        minHeight: 40,
+        position: 'relative', // Importante para o botão voltar absoluto
     },
     title: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.large,
         color: Colors.dark,
-        minWidth: '50%',
     },
     titleCenter: {
         textAlign: 'center',
         flex: 1,
     },
-
-    // --- BOTÃO DE EXPORTAÇÃO ---
     exportBtn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -45,18 +39,15 @@ export const headerStyles = StyleSheet.create({
         gap: 6,
         borderWidth: 1,
         borderColor: Colors.secondary + '20',
-        flexShrink: 0,
     },
     exportText: {
         color: Colors.secondary,
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
     },
-
-    // --- CONTEÚDO (BUSCA E children) ---
     headerContent: {
         paddingHorizontal: Spacing.lg,
-        paddingBottom: Spacing.sm + 1,
+        paddingBottom: Spacing.md,
     },
     searchContainer: {
         backgroundColor: Colors.background,
@@ -64,7 +55,7 @@ export const headerStyles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: Spacing.md,
-        height: 38,
+        height: 44,
         borderWidth: 1.5,
         borderColor: 'transparent',
     },
@@ -75,13 +66,9 @@ export const headerStyles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
-        color: Colors.primary,
+        fontSize: FontSizes.small + 2,
+        color: Colors.dark,
         marginLeft: Spacing.sm,
         height: "100%",
-        ...Platform.select({
-            web: { outlineStyle: 'none' } as any,
-            default: {},
-        }),
     } as TextStyle,
 });

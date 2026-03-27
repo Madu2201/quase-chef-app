@@ -1,290 +1,165 @@
 import { Platform, StyleSheet } from 'react-native';
-import { Colors, Fonts, Shadows, Spacing } from '../constants/theme';
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-
   scrollContent: {
-    paddingBottom: 28,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.xl * 3,
   },
 
-  topBar: {
+  /* --- CABEÇALHO DE AÇÕES --- */
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: Spacing.lg,
-    paddingTop: Platform.OS === 'android' ? 42 : 10,
-    marginBottom: 10,
+    marginBottom: Spacing.md,
   },
-
-  backButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#FEE7D6',
-    padding: 11,
-    borderRadius: 18,
+  countText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.small,
+    color: Colors.brown,
   },
-
-  heroCard: {
-    marginHorizontal: Spacing.lg,
-    backgroundColor: Colors.light,
-    borderRadius: 28,
-    overflow: 'hidden',
-    marginBottom: 20,
-    ...Shadows.md,
+  clearButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.primary + '10',
+    borderRadius: Radius.md,
   },
-
-  heroTextArea: {
-    paddingHorizontal: 22,
-    paddingTop: 22,
-    paddingBottom: 18,
-  },
-
-  heroTag: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#FFF3E8',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
-    marginBottom: 16,
-  },
-
-  heroTagText: {
-    fontSize: 11,
+  clearButtonText: {
     fontFamily: Fonts.bold,
     color: Colors.primary,
-    letterSpacing: 0.8,
+    fontSize: FontSizes.small,
   },
 
+  /* --- BANNER PRINCIPAL (HERO) --- */
+  heroCard: {
+    backgroundColor: Colors.light,
+    overflow: 'hidden',
+    marginHorizontal: Spacing.sm,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.primary + '10',
+    borderEndEndRadius: Radius.xl * 2,
+    borderStartStartRadius: Radius.xl * 2,
+    ...Shadows.sm,
+  },
+  heroTextArea: {
+    padding: Spacing.md,
+  },
+  heroTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.background,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.full,
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.sm
+  },
+  heroTagText: {
+    fontSize: FontSizes.small - 1,
+    fontFamily: Fonts.bold,
+    color: Colors.primary
+  },
   heroTitle: {
-    fontSize: 22,
-    lineHeight: 30,
+    fontSize: FontSizes.large,
     fontFamily: Fonts.bold,
     color: Colors.dark,
-    marginBottom: 8,
-    maxWidth: '85%',
+    marginBottom: Spacing.xs
   },
-
   heroSubtitle: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: FontSizes.small,
     fontFamily: Fonts.regular,
-    color: Colors.subtitle,
-    marginBottom: 4,
-    maxWidth: '88%',
+    color: Colors.subtitle
   },
-
   heroImage: {
     width: '100%',
-    height: 220,
+    height: 120
   },
 
-  searchWrapper: {
-    paddingHorizontal: Spacing.lg,
-    marginBottom: 18,
-  },
-
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light,
-    borderRadius: 18,
-    paddingHorizontal: 15,
-    height: 54,
-    borderWidth: 1,
-    borderColor: '#F1E5D9',
-    ...Shadows.sm,
-  },
-
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    fontFamily: Fonts.regular,
-    color: Colors.primary,
-    marginLeft: 10,
-  },
-
-  quickFiltersScroll: {
-    paddingHorizontal: Spacing.lg,
-    marginBottom: 24,
-  },
-
-  quickFiltersScrollContent: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingRight: 20,
-  },
-
-  quickFilterItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: Colors.light,
-    borderWidth: 1,
-    borderColor: '#E8DCCF',
-    paddingVertical: 11,
-    paddingHorizontal: 18,
-    borderRadius: 20,
-    ...Shadows.sm,
-  },
-
-  quickFilterItemActive: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
-    shadowColor: Colors.secondary,
-    shadowOpacity: 0.24,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
-  },
-
-  quickFilterPressed: {
-    transform: [{ scale: 0.97 }],
-  },
-
-  quickFilterText: {
-    fontSize: 14,
-    fontFamily: Fonts.medium,
-    color: Colors.dark,
-  },
-
-  quickFilterTextActive: {
-    color: '#FFF',
-    fontFamily: Fonts.bold,
-  },
-
+  /* --- SEÇÕES E CATEGORIAS --- */
   categoryContainer: {
-    marginBottom: 24,
     paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.xl
   },
-
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
-    gap: 12,
+    gap: 10,
+    marginBottom: Spacing.sm
   },
-
   categoryTitle: {
-    fontSize: 13,
     fontFamily: Fonts.bold,
-    color: Colors.subtitle,
-    letterSpacing: 1.5,
+    fontSize: FontSizes.small,
+    color: Colors.dark,
+    letterSpacing: 2
   },
 
-  sectionLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E8DCCF',
-    opacity: 0.8,
-  },
-
+  /* --- CHIPS DE INGREDIENTES --- */
   chipsWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 8
   },
-
   chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 22,
-    borderWidth: 1.2,
-    borderColor: '#E8DCCF',
-    backgroundColor: '#FFF',
-    ...Shadows.sm,
+    backgroundColor: Colors.light,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.full,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
   },
-
   chipSelected: {
     backgroundColor: Colors.secondary,
     borderColor: Colors.secondary,
-    shadowColor: Colors.secondary,
-    shadowOpacity: 0.26,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
   },
-
-  chipPressed: {
-    transform: [{ scale: 0.96 }],
-  },
-
-  chipPressedUnselected: {
-    backgroundColor: '#FFF8F3',
-  },
-
   chipText: {
-    fontSize: 14,
     fontFamily: Fonts.medium,
-    color: Colors.dark,
+    fontSize: FontSizes.small,
+    color: Colors.primary
   },
-
   chipTextSelected: {
-    color: '#FFF',
+    color: Colors.light,
     fontFamily: Fonts.bold,
   },
 
+  /* --- RODAPÉ FIXO --- */
   footer: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 24 : 18,
-    left: 20,
-    right: 20,
-    zIndex: 10,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingTop: Spacing.xs,
+    backgroundColor: Colors.background,
   },
-
   generateButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.primary,
+    height: 58,
+    borderRadius: Radius.full,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 62,
-    borderRadius: 24,
-    gap: 10,
-    ...Shadows.lg,
+    gap: 12,
+    ...Shadows.md,
   },
-
-  generateButtonPressed: {
-    transform: [{ scale: 0.985 }],
-  },
-
-  generateButtonDisabled: {
-    backgroundColor: '#F4B27E',
-    shadowOpacity: 0.08,
-    elevation: 1,
-  },
-
   generateButtonText: {
-    color: '#FFF',
-    fontSize: 17,
     fontFamily: Fonts.bold,
+    fontSize: 16,
+    color: Colors.light
   },
-
-  generateButtonTextDisabled: {
-    color: 'rgba(255,255,255,0.78)',
-  },
-
-  badge: {
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    paddingHorizontal: 11,
-    paddingVertical: 4,
-    borderRadius: 11,
-    marginLeft: 6,
-    minWidth: 70,
-    alignItems: 'center',
-  },
-
-  badgeDisabled: {
-    backgroundColor: 'rgba(255,255,255,0.16)',
-  },
-
-  badgeText: {
-    color: '#FFF',
-    fontFamily: Fonts.bold,
-    fontSize: 14,
-  },
-
-  badgeTextDisabled: {
-    color: 'rgba(255,255,255,0.78)',
+  btnDisabled: {
+    backgroundColor: Colors.subtitle,
+    opacity: 0.5
   },
 });

@@ -1,286 +1,204 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { View, Text, TextInput, Pressable, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { router } from 'expo-router';
+import { Eye, EyeOff, User, Mail, Lock, CheckCircle } from 'lucide-react-native';
+import { FontAwesome5 } from "@expo/vector-icons";
+import Animated, { FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
 
-import { Colors } from '../../constants/theme';
-import { cadastroStyles as styles } from '../../styles/cadastro_styles';
+// Estilos e utilitários
+import { authStyles as styles } from '../../styles/auth_styles';
+import { Colors, Fonts, Spacing, Radius, FontSizes } from '../../constants/theme';
+import { validateEmail, getPasswordRequirements, isPasswordStrong, validateName } from '../../utils/validation';
 
 export default function CadastroScreen() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
-
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
+  const [errors, setErrors] = useState<any>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false); // Estado para controle de sucesso
 
-  const formatarTelefone = (valor: string) => {
-    const numeros = valor.replace(/\D/g, '');
-    let resultado = '';
+  // Regras de validação em tempo real para a senha
+  const reqs = getPasswordRequirements(senha);
 
-    if (numeros.length > 0) {
-      resultado = '(' + numeros.substring(0, 2);
-    }
-    if (numeros.length > 2) {
-      resultado += ') ' + numeros.substring(2, 7);
-    }
-    if (numeros.length > 7) {
-      resultado += '-' + numeros.substring(7, 11);
-    }
-
-    setTelefone(resultado);
-  };
-
-  const validarEmail = (valor: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(valor);
-  };
-
+  // Validação ao tentar cadastrar
   const handleRegister = () => {
-    if (!nome || !email || !telefone || !senha || !confirmarSenha) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
-      return;
+    let newErrors: any = {};
+    if (!validateName(nome)) newErrors.nome = "Nome deve ter 3-50 caracteres.";
+    if (!validateEmail(email)) newErrors.email = "E-mail inválido.";
+    if (!isPasswordStrong(senha)) newErrors.senha = "Senha fora do padrão exigido.";
+    if (senha !== confirmarSenha) newErrors.confirmarSenha = "As senhas não coincidem.";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      setIsSuccess(true); // Ativa o banner de sucesso
+      // Delay para feedback visual antes de ir para o login
+      setTimeout(() => {
+        router.push('/(auth)/login');
+      }, 2000);
     }
-
-    if (!validarEmail(email)) {
-      Alert.alert('E-mail inválido', 'Por favor, insira um endereço de e-mail válido.');
-      return;
-    }
-
-    if (senha.length < 6) {
-      Alert.alert('Senha curta', 'A senha precisa ter pelo menos 6 caracteres.');
-      return;
-    }
-
-    if (senha !== confirmarSenha) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
-      return;
-    }
-
-    console.log('Dados do Cadastro:', { nome, email, telefone, senha });
-
-    Alert.alert('Sucesso', 'Sua conta foi criada com sucesso!', [
-      { text: 'OK', onPress: () => router.push('/(auth)/login') },
-    ]);
   };
+
+  // Item do Checklist de senha
+  const renderReqItem = (label: string, met: boolean) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+      {met ? <CheckCircle size={14} color={Colors.success} /> :
+        <View style={{ width: 14, height: 14, borderRadius: 7, borderWidth: 1, borderColor: Colors.subtext, opacity: 0.5 }} />}
+      <Text style={{ fontSize: 13, color: met ? Colors.success : Colors.subtext, fontFamily: Fonts.medium }}>{label}</Text>
+    </View>
+  );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.header}>
-          <View style={styles.logoBadge}>
-            <Image
-              source={require('../../assets/images/icon.png')}
-              style={styles.logo}
-              resizeMode="contain"
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+
+        {/* Header com Animação */}
+        <Animated.View entering={FadeInUp.delay(100).duration(600)} style={styles.header}>
+          <Image source={require('../../assets/images/icon.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.brandName}>Quase Chef!</Text>
+          <Text style={styles.welcomeTitle}>Criar Conta</Text>
+          <Text style={styles.welcomeSubtitle}>Sua jornada para evitar o desperdício começa aqui.</Text>
+        </Animated.View>
+
+        {/* Alerta de Sucesso: Posicionado entre o subtítulo e o input */}
+        {isSuccess && (
+          <Animated.View
+            entering={FadeInDown}
+            exiting={FadeOut}
+            style={{
+              backgroundColor: Colors.success,
+              padding: Spacing.sm,
+              borderRadius: Radius.lg,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: Spacing.md,
+              marginTop: Spacing.xs,
+              marginBottom: Spacing.xs // Ajuste para não empurrar demais o form
+            }}
+          >
+            <CheckCircle size={15} color="white" />
+            <Text style={{ fontSize: FontSizes.small, color: Colors.light, fontWeight: 'bold' }}>
+              Conta criada! Redirecionando para o login...
+            </Text>
+          </Animated.View>
+        )}
+
+        {/* Formulário de Cadastro */}
+        <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.inputGroup}>
+
+          {/* Nome Completo */}
+          <Text style={styles.label}>Nome Completo</Text>
+          <View style={[styles.inputContainer, focusedInput === 'nome' && styles.inputContainerFocused, errors.nome && { borderColor: Colors.errorDark, backgroundColor: Colors.errorLight }]}>
+            <User size={18} color={errors.nome ? Colors.errorDark : (focusedInput === 'nome' ? Colors.primary : Colors.subtitle)} />
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu nome completo"
+              placeholderTextColor={Colors.subtitle + "99"}
+              onFocus={() => setFocusedInput('nome')}
+              onBlur={() => setFocusedInput(null)}
+              onChangeText={(t) => { setNome(t); setErrors({ ...errors, nome: null }) }}
+              value={nome}
             />
           </View>
+          {errors.nome && <Text style={{ color: Colors.errorDark, fontSize: 12, marginTop: 4, marginLeft: 4, marginBottom: 8 }}>{errors.nome}</Text>}
 
-          <Text style={styles.brandName}>Quase-Chef</Text>
-          <Text style={styles.welcomeTitle}>Criar Conta</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Junte-se a nós e transforme os ingredientes da sua geladeira em pratos incríveis.
-          </Text>
-        </View>
+          {/* E-mail */}
+          <Text style={styles.label}>E-mail</Text>
+          <View style={[styles.inputContainer, focusedInput === 'email' && styles.inputContainerFocused, errors.email && { borderColor: Colors.errorDark, backgroundColor: Colors.errorLight }]}>
+            <Mail size={18} color={errors.email ? Colors.errorDark : (focusedInput === 'email' ? Colors.primary : Colors.subtitle)} />
+            <TextInput
+              style={styles.input}
+              placeholder="seu@email.com"
+              placeholderTextColor={Colors.subtitle + "99"}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              onFocus={() => setFocusedInput('email')}
+              onBlur={() => setFocusedInput(null)}
+              onChangeText={(t) => { setEmail(t); setErrors({ ...errors, email: null }) }}
+              value={email}
+            />
+          </View>
+          {errors.email && <Text style={{ color: Colors.errorDark, fontSize: 12, marginTop: 4, marginLeft: 4, marginBottom: 8 }}>{errors.email}</Text>}
 
-        <View style={styles.formCard}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nome Completo</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                focusedInput === 'nome' && styles.inputContainerFocused,
-              ]}
-            >
-              <Ionicons
-                name="person-outline"
-                size={20}
-                color={focusedInput === 'nome' ? Colors.primary : Colors.subtitle}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Digite seu nome completo"
-                placeholderTextColor={Colors.subtext}
-                value={nome}
-                onChangeText={setNome}
-                onFocus={() => setFocusedInput('nome')}
-                onBlur={() => setFocusedInput(null)}
-                autoCapitalize="words"
-                maxLength={60}
-              />
-            </View>
-
-            <Text style={styles.label}>E-mail</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                focusedInput === 'email' && styles.inputContainerFocused,
-              ]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={focusedInput === 'email' ? Colors.primary : Colors.subtitle}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="seuemail@exemplo.com"
-                placeholderTextColor={Colors.subtext}
-                value={email}
-                onChangeText={setEmail}
-                onFocus={() => setFocusedInput('email')}
-                onBlur={() => setFocusedInput(null)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-
-            <Text style={styles.label}>Telefone</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                focusedInput === 'telefone' && styles.inputContainerFocused,
-              ]}
-            >
-              <Ionicons
-                name="call-outline"
-                size={20}
-                color={focusedInput === 'telefone' ? Colors.primary : Colors.subtitle}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="(00) 00000-0000"
-                placeholderTextColor={Colors.subtext}
-                value={telefone}
-                onChangeText={formatarTelefone}
-                onFocus={() => setFocusedInput('telefone')}
-                onBlur={() => setFocusedInput(null)}
-                keyboardType="phone-pad"
-                maxLength={15}
-              />
-            </View>
-
-            <Text style={styles.label}>Senha</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                focusedInput === 'senha' && styles.inputContainerFocused,
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={focusedInput === 'senha' ? Colors.primary : Colors.subtitle}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Crie uma senha forte"
-                placeholderTextColor={Colors.subtext}
-                value={senha}
-                onChangeText={setSenha}
-                onFocus={() => setFocusedInput('senha')}
-                onBlur={() => setFocusedInput(null)}
-                secureTextEntry={!mostrarSenha}
-                maxLength={10}
-              />
-              <Pressable onPress={() => setMostrarSenha(!mostrarSenha)} hitSlop={10}>
-                <Ionicons
-                  name={mostrarSenha ? 'eye-off-outline' : 'eye-outline'}
-                  size={20}
-                  color={Colors.subtitle}
-                />
-              </Pressable>
-            </View>
-
-            <Text style={styles.label}>Confirmar senha</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                focusedInput === 'confirmarSenha' && styles.inputContainerFocused,
-              ]}
-            >
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={20}
-                color={focusedInput === 'confirmarSenha' ? Colors.primary : Colors.subtitle}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Digite novamente sua senha"
-                placeholderTextColor={Colors.subtext}
-                value={confirmarSenha}
-                onChangeText={setConfirmarSenha}
-                onFocus={() => setFocusedInput('confirmarSenha')}
-                onBlur={() => setFocusedInput(null)}
-                secureTextEntry={!mostrarConfirmarSenha}
-                maxLength={10}
-              />
-              <Pressable
-                onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
-                hitSlop={10}
-              >
-                <Ionicons
-                  name={mostrarConfirmarSenha ? 'eye-off-outline' : 'eye-outline'}
-                  size={20}
-                  color={Colors.subtitle}
-                />
-              </Pressable>
-            </View>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.buttonPrimary,
-                { opacity: pressed ? 0.9 : 1 },
-              ]}
-              onPress={handleRegister}
-            >
-              <Text style={styles.buttonPrimaryText}>Cadastrar</Text>
+          {/* Senha */}
+          <Text style={styles.label}>Senha</Text>
+          <View style={[styles.inputContainer, focusedInput === 'senha' && styles.inputContainerFocused, errors.senha && { borderColor: Colors.errorDark, backgroundColor: Colors.errorLight }]}>
+            <Lock size={18} color={errors.senha ? Colors.errorDark : (focusedInput === 'senha' ? Colors.primary : Colors.subtitle)} />
+            <TextInput
+              style={styles.input}
+              placeholder="Digite sua senha"
+              placeholderTextColor={Colors.subtitle + "99"}
+              secureTextEntry={!showPassword}
+              maxLength={8}
+              onFocus={() => setFocusedInput('senha')}
+              onBlur={() => setFocusedInput(null)}
+              onChangeText={(t) => { setSenha(t); setErrors({ ...errors, senha: null }) }}
+              value={senha}
+            />
+            <Pressable onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff size={20} color={Colors.primary} /> : <Eye size={20} color={Colors.primary} />}
             </Pressable>
           </View>
-        </View>
 
-        <View style={styles.footerBlock}>
+          {/* Checklist Vertical */}
+          <View style={{ marginTop: 10, marginLeft: 4, marginBottom: 10 }}>
+            {renderReqItem("Ter exatamente 8 caracteres", reqs.exactLength)}
+            {renderReqItem("Pelo menos uma letra", reqs.hasLetter)}
+            {renderReqItem("Pelo menos um símbolo", reqs.hasSymbol)}
+          </View>
+
+          {/* Confirmar Senha */}
+          <Text style={styles.label}>Confirmar Senha</Text>
+          <View style={[styles.inputContainer, focusedInput === 'conf' && styles.inputContainerFocused, errors.confirmarSenha && { borderColor: Colors.errorDark, backgroundColor: Colors.errorLight }]}>
+            <CheckCircle size={18} color={errors.confirmarSenha ? Colors.errorDark : (focusedInput === 'conf' ? Colors.primary : Colors.subtitle)} />
+            <TextInput
+              style={styles.input}
+              placeholder="Repita a senha"
+              placeholderTextColor={Colors.subtitle + "99"}
+              secureTextEntry={!showConfirmPassword}
+              maxLength={8}
+              onFocus={() => setFocusedInput('conf')}
+              onBlur={() => setFocusedInput(null)}
+              onChangeText={(t) => { setConfirmarSenha(t); setErrors({ ...errors, confirmarSenha: null }) }}
+              value={confirmarSenha}
+            />
+            <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+              {showConfirmPassword ? <EyeOff size={20} color={Colors.primary} /> : <Eye size={20} color={Colors.primary} />}
+            </Pressable>
+          </View>
+          {errors.confirmarSenha && <Text style={{ color: Colors.errorDark, fontSize: 12, marginTop: 4, marginLeft: 4 }}>{errors.confirmarSenha}</Text>}
+
+          {/* Botão de Cadastro */}
+          <Pressable
+            style={[styles.buttonPrimary, isSuccess && { opacity: 0.8 }, { marginTop: 20 }]}
+            onPress={handleRegister}
+            disabled={isSuccess}
+          >
+            <Text style={styles.buttonPrimaryText}>{isSuccess ? "Cadastrado!" : "Criar minha conta"}</Text>
+          </Pressable>
+        </Animated.View>
+
+        {/* Divisor e Redes Sociais */}
+        <Animated.View entering={FadeInDown.delay(500).duration(600)}>
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={styles.dividerText}>ou cadastrar-se com</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          <Link href="/(auth)/login" asChild>
-            <Pressable>
-              <Text style={styles.backToLoginText}>
-                Já tem conta? <Text style={styles.primaryLink}>Voltar para Login</Text>
-              </Text>
-            </Pressable>
-          </Link>
+          <View style={styles.socialContainer}>
+            <Pressable style={styles.socialButton}><FontAwesome5 name="google" size={16} color="#DB4437" /><Text style={styles.socialButtonText}>Google</Text></Pressable>
+            <Pressable style={styles.socialButton}><FontAwesome5 name="facebook" size={16} color="#4267B2" /><Text style={styles.socialButtonText}>Facebook</Text></Pressable>
+          </View>
 
-          <Text style={styles.legalText}>
-            Ao se cadastrar, você concorda com nossos{' '}
-            <Text style={styles.primaryLink}>Termos de Serviço</Text> e{' '}
-            <Text style={styles.primaryLink}>Política de Privacidade</Text>.
-          </Text>
-        </View>
+          <Text style={styles.footerText}>Já tem uma conta? <Text style={styles.primaryLink} onPress={() => router.push("/(auth)/login")}>Entre aqui</Text></Text>
+
+          <Text style={styles.legalText}>Ao se cadastrar, você aceita nossos <Text style={styles.linkUnderline}>Termos</Text> e <Text style={styles.linkUnderline}>Privacidade</Text>.</Text>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -10,6 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
+import { Mail } from "lucide-react-native"; // Adicionado o ícone
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { authStyles as styles } from "../../styles/auth_styles";
 import { Colors } from "../../constants/theme";
@@ -39,13 +40,13 @@ export default function EsqueciSenhaScreen() {
           />
           <Text style={styles.brandName}>Quase Chef!</Text>
 
-          <Text style={styles.welcomeTitle}>Qual o e-mail da conta?</Text>
+          <Text style={styles.welcomeTitle}>Recuperar Conta</Text>
           <Text style={styles.welcomeSubtitle}>
             Insira seu e-mail para recuperar sua conta com segurança
           </Text>
         </Animated.View>
 
-        {/* Campo de E-mail com Feedback de Foco */}
+        {/* Campo de E-mail com Feedback de Foco e Ícone */}
         <Animated.View
           entering={FadeInDown.delay(300).duration(600)}
           style={styles.inputGroup}
@@ -54,6 +55,11 @@ export default function EsqueciSenhaScreen() {
             styles.inputContainer,
             isFocusedEmail && styles.inputContainerFocused
           ]}>
+            {/* Ícone adicionado aqui */}
+            <Mail
+              size={20}
+              color={isFocusedEmail ? Colors.primary : Colors.subtitle}
+            />
             <TextInput
               placeholder="Digite seu email"
               placeholderTextColor={Colors.subtitle + "99"}

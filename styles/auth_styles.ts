@@ -8,7 +8,25 @@ export const authStyles = StyleSheet.create({
     backgroundColor: Colors.background,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xl,
-    paddingTop: 55,
+    paddingTop: 55, // Padronizado para todas as telas de auth
+  },
+
+  // -- VALIDAÇÕES ERROS --
+  inputContainerError: {
+    borderColor: Colors.errorDark,
+    backgroundColor: Colors.errorLight,
+  },
+  errorText: {
+    color: Colors.errorDark,
+    fontSize: FontSizes.small,
+    fontFamily: Fonts.medium,
+    marginTop: Spacing.xs,
+    marginLeft: Spacing.xs,
+  },
+  passwordCriteriaText: {
+    fontSize: FontSizes.small,
+    fontFamily: Fonts.regular,
+    marginBottom: Spacing.xs - 2,
   },
 
   // --- LOGO E IDENTIDADE ---
@@ -27,7 +45,7 @@ export const authStyles = StyleSheet.create({
     color: Colors.dark,
   },
 
-  // --- MENSAGENS DE BOAS-VINDAS ---
+  // --- MENSAGENS DE TEXTO ---
   welcomeTitle: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.large,
@@ -49,6 +67,14 @@ export const authStyles = StyleSheet.create({
   inputGroup: {
     marginTop: Spacing.lg,
   },
+  label: { // Adicionado para o Cadastro
+    fontFamily: Fonts.medium,
+    fontSize: FontSizes.small,
+    color: Colors.dark,
+    marginBottom: 6,
+    marginTop: 10,
+    marginLeft: Spacing.xs,
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -58,7 +84,7 @@ export const authStyles = StyleSheet.create({
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
     marginBottom: Spacing.xs,
-    height: 48,
+    height: 48, // Altura padronizada
     ...Shadows.sm,
   },
   inputContainerFocused: {
@@ -78,14 +104,7 @@ export const authStyles = StyleSheet.create({
     }),
   } as TextStyle,
 
-  // --- BOTÕES E LINKS DE AÇÃO ---
-  forgotPasswordText: {
-    fontFamily: Fonts.medium,
-    color: Colors.primary,
-    fontSize: FontSizes.small,
-    textAlign: "right",
-    marginTop: Spacing.sm,
-  },
+  // --- BOTÕES E AÇÕES ---
   buttonPrimary: {
     backgroundColor: Colors.primary,
     height: 50,
@@ -100,8 +119,15 @@ export const authStyles = StyleSheet.create({
     color: Colors.light,
     fontSize: FontSizes.medium,
   },
+  forgotPasswordText: {
+    fontFamily: Fonts.medium,
+    color: Colors.primary,
+    fontSize: FontSizes.small,
+    textAlign: "right",
+    marginTop: Spacing.sm,
+  },
 
-  // --- DIVISORES (OU) ---
+  // --- DIVISORES E SOCIAL ---
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -119,8 +145,6 @@ export const authStyles = StyleSheet.create({
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small,
   },
-
-  // --- LOGIN SOCIAL ---
   socialContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -144,7 +168,7 @@ export const authStyles = StyleSheet.create({
     fontSize: FontSizes.small,
   },
 
-  // --- RODAPÉ E LINKS LEGAIS ---
+  // --- RODAPÉ E LINKS ---
   footerText: {
     textAlign: "center",
     marginTop: Spacing.lg,
@@ -152,28 +176,21 @@ export const authStyles = StyleSheet.create({
     fontSize: FontSizes.small,
     color: Colors.subtitle,
   },
-  backToLoginText: {
-    textAlign: "center",
-    marginTop: Spacing.xl,
-    fontFamily: Fonts.regular,
-    fontSize: FontSizes.small,
-    color: Colors.subtitle,
-  },
   legalText: {
     textAlign: "center",
     marginTop: Spacing.xl,
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small - 1,
     fontFamily: Fonts.regular,
     color: Colors.subtext,
-    lineHeight: Spacing.lg,
+    lineHeight: 18,
     paddingHorizontal: Spacing.sm,
-  },
-  linkUnderline: {
-    textDecorationLine: "underline",
-    color: Colors.subtext,
   },
   primaryLink: {
     fontFamily: Fonts.bold,
+    color: Colors.primary,
+  },
+  linkUnderline: {
+    textDecorationLine: "underline",
     color: Colors.primary,
   },
 });

@@ -83,7 +83,7 @@ export const receitasStyles = StyleSheet.create({
   infoText: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small,
-    color: Colors.subtitle,
+    color: Colors.brown,
     opacity: 0.8,
   },
 

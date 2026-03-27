@@ -1,189 +1,144 @@
-import { Platform, StyleSheet } from "react-native";
-import { Colors, Fonts, Radius, Shadows } from "../constants/theme";
+import { StyleSheet } from "react-native";
+import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 export const receitasStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDF5ED',
+    backgroundColor: Colors.background,
   },
 
-  // 🔹 HEADER (TOPO BRANCO COM CURVA)
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 10,
-    backgroundColor: '#FFF',
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-
-  backButton: {
-    padding: 4,
-  },
-
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontFamily: Fonts.bold,
-    fontSize: 18,
-    color: Colors.dark,
-    marginRight: 32,
-  },
-
-  // 🔹 AREA DOS FILTROS (SEM FUNDO BRANCO!)
-  filtersContainer: {
-    paddingTop: 10,
-    width: '100%',
-    marginBottom: 12,
-  },
-
-  // 🔹 SEARCH
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5EBE1',
-    borderRadius: Radius.full,
-    paddingHorizontal: 16,
-    height: 48,
-    marginBottom: 10,
-  },
-
-  searchInput: {
-    flex: 1,
-    marginLeft: 10,
-    fontFamily: Fonts.regular,
-    fontSize: 14,
-    color: Colors.dark,
-  },
-
-  // 🔹 TOGGLE ESTOQUE
+  // --- ESTOQUE (ESTILO FAVORITOS NO HEADER) ---
   stockToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F5EBE1',
+    backgroundColor: Colors.background,
     borderRadius: Radius.full,
-    paddingLeft: 16,
-    paddingRight: 10,
-    height: 48,
-    marginBottom: 15,
+    paddingHorizontal: Spacing.md,
+    height: 38,
+    borderWidth: 1,
+    borderColor: Colors.subtext + '20',
   },
-
-  stockLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
   stockText: {
-    fontFamily: Fonts.medium,
-    fontSize: 14,
-    color: Colors.subtitle,
-    marginLeft: 10,
+    flex: 1,
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.small - 1,
+    color: Colors.primary,
+    marginLeft: Spacing.sm,
+  },
+  switchStyle: {
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
   },
 
-  switchWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  // --- FILTROS (CHIPS HORIZONTAIS COM VISUAL DE FAVORITOS) ---
+  filtersContainer: {
+    paddingTop: Spacing.md,
+    width: '100%',
   },
-
-  // 🔥 CHIPS (RESOLVIDO O CORTE DO POPULARES)
   chipsScroll: {
-    marginBottom: 20,
-    marginRight: -20,
+    marginBottom: Spacing.sm,
   },
-
   chipsScrollContent: {
-    paddingLeft: 20,
-    paddingRight: 90,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
   },
-
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 36,
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.md,
     borderRadius: Radius.full,
-    backgroundColor: '#F5EBE1',
-    marginRight: 10,
+    backgroundColor: Colors.light,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
     gap: 6,
-    flexShrink: 0,
   },
-
   chipActive: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.secondary,
   },
-
   chipText: {
     fontFamily: Fonts.bold,
-    fontSize: 13,
+    fontSize: FontSizes.small - 1,
     color: Colors.primary,
   },
-
   chipTextActive: {
-    color: '#FFF',
+    color: Colors.light,
   },
 
-  // 🔹 LISTA DE RECEITAS
+  // --- CONTADOR DE RECEITAS (IGUAL FAVORITOS) ---
+  infoBar: {
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  infoText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.small,
+    color: Colors.brown,
+  },
+
+  // --- CORPO DO CARD (RECEITAS) ---
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: Spacing.xl,
   },
-
   card: {
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-    marginBottom: 16,
+    backgroundColor: Colors.light,
+    borderRadius: Radius.xl,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
     overflow: 'hidden',
     ...Shadows.sm,
   },
-
   cardImageContainer: {
     width: '100%',
     height: 140,
   },
-
   cardImage: {
     width: '100%',
     height: '100%',
   },
-
   cardBody: {
-    padding: 12,
+    padding: Spacing.md,
   },
-
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
   },
-
   recipeTitle: {
     fontFamily: Fonts.bold,
-    fontSize: 16,
+    fontSize: FontSizes.medium,
     color: Colors.dark,
   },
-
+  heartButton: {
+    padding: 2,
+  },
   metaRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 6,
+    gap: Spacing.md,
+    marginBottom: Spacing.sm,
   },
-
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
   metaText: {
     fontFamily: Fonts.regular,
-    fontSize: 11,
+    fontSize: FontSizes.small - 1,
     color: Colors.primary,
   },
-
   recipeDescription: {
     fontFamily: Fonts.regular,
-    fontSize: 12,
+    fontSize: FontSizes.small,
     color: Colors.subtitle,
-    marginBottom: 12,
+    marginBottom: Spacing.md,
+    lineHeight: 18,
   },
-
+  highlightText: {
+    fontFamily: Fonts.bold,
+    color: Colors.secondary,
+  },
   viewButton: {
     backgroundColor: Colors.primary,
     height: 40,
@@ -191,10 +146,9 @@ export const receitasStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   viewButtonText: {
     fontFamily: Fonts.bold,
-    fontSize: 14,
-    color: '#FFF',
+    fontSize: FontSizes.medium - 2,
+    color: Colors.light,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, Switch } from 'react-native';
+import { View, Text, FlatList, Image, Pressable, Switch, ScrollView } from 'react-native';
 import { Heart, Sparkles, Utensils, IceCream, Package } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -19,15 +19,42 @@ const FAVORITOS_DATA = [
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [searchText, setSearchText] = useState('');
+    const [filtro, setFiltro] = useState('Todos');
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
-            {/* Chips que quebram linha automaticamente */}
-            <View style={styles.chipsWrapper}>
-                <Chip active icon={<Sparkles size={14} color={Colors.light} fill={Colors.light} />} label="Todos" />
-                <Chip icon={<Utensils size={14} color={Colors.primary} />} label="Salgadas" />
-                <Chip icon={<IceCream size={14} color={Colors.primary} />} label="Doces" />
-            </View>
+            {/* Scroll horizontal de filtros igual à tela de receitas */}
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.chipsScroll}
+                contentContainerStyle={styles.chipsScrollContent}
+            >
+                <Chip
+                    active={filtro === 'Todos'}
+                    onPress={() => setFiltro('Todos')}
+                    icon={<Sparkles size={14} color={filtro === 'Todos' ? Colors.light : Colors.primary} fill={filtro === 'Todos' ? Colors.light : 'transparent'} />}
+                    label="Todos"
+                />
+                <Chip
+                    active={filtro === 'Salgadas'}
+                    onPress={() => setFiltro('Salgadas')}
+                    icon={<Utensils size={14} color={filtro === 'Salgadas' ? Colors.light : Colors.primary} />}
+                    label="Salgadas"
+                />
+                <Chip
+                    active={filtro === 'Doces'}
+                    onPress={() => setFiltro('Doces')}
+                    icon={<IceCream size={14} color={filtro === 'Doces' ? Colors.light : Colors.primary} />}
+                    label="Doces"
+                />
+                <Chip
+                    active={filtro === 'Lanches'}
+                    onPress={() => setFiltro('Lanches')}
+                    icon={<Package size={14} color={filtro === 'Lanches' ? Colors.light : Colors.primary} />}
+                    label="Lanches"
+                />
+            </ScrollView>
 
             <View style={styles.infoBar}>
                 <Text style={styles.infoText}>{FAVORITOS_DATA.length} receitas encontradas</Text>
@@ -87,8 +114,8 @@ export default function FavoritosScreen() {
     );
 }
 
-const Chip = ({ active = false, icon, label }: any) => (
-    <Pressable style={[styles.chip, active && styles.chipActive]}>
+const Chip = ({ active = false, icon, label, onPress }: any) => (
+    <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
         {icon}
         <Text style={active ? styles.chipTextActive : styles.chipText}>{label}</Text>
     </Pressable>

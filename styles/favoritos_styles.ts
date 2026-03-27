@@ -29,22 +29,25 @@ export const favStyles = StyleSheet.create({
         transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
 
-    // --- FILTROS (CHIPS COM QUEBRA) ---
+    // --- FILTROS (SCROLL HORIZONTAL) ---
     listHeaderContainer: {
-        marginTop: Spacing.md,
+        paddingTop: Spacing.md,
     },
-    chipsWrapper: {
+    chipsScroll: {
+        width: '100%',
+    },
+    chipsScrollContent: {
+        paddingHorizontal: Spacing.lg, // Alinhado com as margens do app
+        gap: Spacing.sm,
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: Spacing.xs,
-        paddingBottom: Spacing.sm,
+        paddingBottom: Spacing.xs,
     },
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
+        height: 38, // Altura fixa para consistência
         paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.sm,
         borderRadius: Radius.full,
         backgroundColor: Colors.light,
         borderWidth: 1.5,
@@ -67,6 +70,7 @@ export const favStyles = StyleSheet.create({
 
     // --- CONTADOR ---
     infoBar: {
+        paddingHorizontal: Spacing.lg,
         marginTop: Spacing.md,
         marginBottom: Spacing.sm,
     },
@@ -78,10 +82,10 @@ export const favStyles = StyleSheet.create({
 
     // --- GRID E IMAGEM QUADRADA ---
     listContent: {
-        paddingHorizontal: Spacing.lg,
         paddingBottom: Spacing.xl,
     },
     columnWrapper: {
+        paddingHorizontal: Spacing.lg,
         justifyContent: 'space-between',
     },
     card: {
@@ -90,7 +94,7 @@ export const favStyles = StyleSheet.create({
     },
     imageContainer: {
         width: '100%',
-        aspectRatio: 1, // IMAGEM QUADRADA PERFEITA
+        aspectRatio: 1,
         borderRadius: Radius.lg,
         overflow: 'hidden',
         marginBottom: Spacing.xs,
@@ -115,13 +119,13 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.dark,
         lineHeight: 18,
-        marginHorizontal: Spacing.sm,
+        paddingHorizontal: Spacing.xs,
     },
     recipeDetail: {
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small - 1,
         color: Colors.subtitle,
         marginTop: Spacing.xs,
-        marginHorizontal: Spacing.sm,
+        paddingHorizontal: Spacing.xs,
     }
 });

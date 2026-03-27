@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, Image, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { Eye, EyeOff, User, Mail, Lock, CheckCircle } from 'lucide-react-native';
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -10,7 +10,12 @@ import { authStyles as styles } from '../../styles/auth_styles';
 import { Colors, Fonts, Spacing, Radius, FontSizes } from '../../constants/theme';
 import { validateEmail, getPasswordRequirements, isPasswordStrong, validateName } from '../../utils/validation';
 
+// Import do Backend
+import { useAuth } from '../../hooks/useAuth';
+
 export default function CadastroScreen() {
+  const { signUp, isLoading } = useAuth(); // <-- Hook do backend adicionado
+
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -19,13 +24,13 @@ export default function CadastroScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false); // Estado para controle de sucesso
+  const [isSuccess, setIsSuccess] = useState(false); 
 
   // Regras de validação em tempo real para a senha
   const reqs = getPasswordRequirements(senha);
 
-  // Validação ao tentar cadastrar
-  const handleRegister = () => {
+  // Validação ao tentar cadastrar (Agora Async!)
+  const handleRegister = async () => {
     let newErrors: any = {};
     if (!validateName(nome)) newErrors.nome = "Nome deve ter 3-50 caracteres.";
     if (!validateEmail(email)) newErrors.email = "E-mail inválido.";
@@ -34,12 +39,25 @@ export default function CadastroScreen() {
 
     setErrors(newErrors);
 
+    // Se não houver erros no front-end, chama o back-end
     if (Object.keys(newErrors).length === 0) {
-      setIsSuccess(true); // Ativa o banner de sucesso
-      // Delay para feedback visual antes de ir para o login
-      setTimeout(() => {
-        router.push('/(auth)/login');
-      }, 2000);
+      try {
+        // Passamos uma string vazia '' no lugar do telefone que foi removido
+        const result = await signUp(nome, email, '', senha);
+
+        if (result.success) {
+          setIsSuccess(true); // Ativa o banner de sucesso animado
+          
+          setTimeout(() => {
+            router.push('/(auth)/login');
+          }, 2000);
+        } else {
+          // Erro retornado pelo Supabase (ex: Email já existe)
+          setErrors({ geral: result.error || 'Erro ao criar conta.' });
+        }
+      } catch (error) {
+        setErrors({ geral: 'Erro de conexão com o servidor.' });
+      }
     }
   };
 
@@ -77,7 +95,7 @@ export default function CadastroScreen() {
               alignItems: 'center',
               gap: Spacing.md,
               marginTop: Spacing.xs,
-              marginBottom: Spacing.xs // Ajuste para não empurrar demais o form
+              marginBottom: Spacing.xs 
             }}
           >
             <CheckCircle size={15} color="white" />
@@ -85,6 +103,13 @@ export default function CadastroScreen() {
               Conta criada! Redirecionando para o login...
             </Text>
           </Animated.View>
+        )}
+
+        {/* Exibição de Erro Geral do Backend */}
+        {errors.geral && !isSuccess && (
+           <Animated.View entering={FadeInDown} style={{ marginBottom: 10, backgroundColor: Colors.errorLight, padding: 10, borderRadius: 8 }}>
+             <Text style={{ color: Colors.errorDark, textAlign: 'center', fontSize: 14 }}>{errors.geral}</Text>
+           </Animated.View>
         )}
 
         {/* Formulário de Cadastro */}
@@ -100,7 +125,7 @@ export default function CadastroScreen() {
               placeholderTextColor={Colors.subtitle + "99"}
               onFocus={() => setFocusedInput('nome')}
               onBlur={() => setFocusedInput(null)}
-              onChangeText={(t) => { setNome(t); setErrors({ ...errors, nome: null }) }}
+              onChangeText={(t) => { setNome(t); setErrors({ ...errors, nome: null, geral: null }) }}
               value={nome}
             />
           </View>
@@ -118,7 +143,7 @@ export default function CadastroScreen() {
               autoCapitalize="none"
               onFocus={() => setFocusedInput('email')}
               onBlur={() => setFocusedInput(null)}
-              onChangeText={(t) => { setEmail(t); setErrors({ ...errors, email: null }) }}
+              onChangeText={(t) => { setEmail(t); setErrors({ ...errors, email: null, geral: null }) }}
               value={email}
             />
           </View>
@@ -136,7 +161,7 @@ export default function CadastroScreen() {
               maxLength={8}
               onFocus={() => setFocusedInput('senha')}
               onBlur={() => setFocusedInput(null)}
-              onChangeText={(t) => { setSenha(t); setErrors({ ...errors, senha: null }) }}
+              onChangeText={(t) => { setSenha(t); setErrors({ ...errors, senha: null, geral: null }) }}
               value={senha}
             />
             <Pressable onPress={() => setShowPassword(!showPassword)}>
@@ -163,7 +188,7 @@ export default function CadastroScreen() {
               maxLength={8}
               onFocus={() => setFocusedInput('conf')}
               onBlur={() => setFocusedInput(null)}
-              onChangeText={(t) => { setConfirmarSenha(t); setErrors({ ...errors, confirmarSenha: null }) }}
+              onChangeText={(t) => { setConfirmarSenha(t); setErrors({ ...errors, confirmarSenha: null, geral: null }) }}
               value={confirmarSenha}
             />
             <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
@@ -174,11 +199,15 @@ export default function CadastroScreen() {
 
           {/* Botão de Cadastro */}
           <Pressable
-            style={[styles.buttonPrimary, isSuccess && { opacity: 0.8 }, { marginTop: 20 }]}
+            style={[styles.buttonPrimary, (isSuccess || isLoading) && { opacity: 0.8 }, { marginTop: 20 }]}
             onPress={handleRegister}
-            disabled={isSuccess}
+            disabled={isSuccess || isLoading}
           >
-            <Text style={styles.buttonPrimaryText}>{isSuccess ? "Cadastrado!" : "Criar minha conta"}</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.buttonPrimaryText}>{isSuccess ? "Cadastrado!" : "Criar minha conta"}</Text>
+            )}
           </Pressable>
         </Animated.View>
 

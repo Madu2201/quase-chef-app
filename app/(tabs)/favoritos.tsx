@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, Switch, ScrollView } from 'react-native';
+import { View, Text, FlatList, Image, Pressable, Switch, ScrollView, StatusBar } from 'react-native';
 import { Heart, Sparkles, Utensils, IceCream, Package } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+/* Adicionada a animação FadeInRight para os filtros */
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 import { Header } from '../../components/header';
 import { favStyles as styles } from '../../styles/favoritos_styles';
@@ -16,6 +17,13 @@ const FAVORITOS_DATA = [
     { id: '6', name: 'Pizza Integral Marguerita', info: '45 min • Médio', img: require('../../assets/images/Pizza_marguerita.png') },
 ];
 
+const FILTROS = [
+    { id: 'Todos', label: 'Todos', icon: Sparkles },
+    { id: 'Salgadas', label: 'Salgadas', icon: Utensils },
+    { id: 'Doces', label: 'Doces', icon: IceCream },
+    { id: 'Lanches', label: 'Lanches', icon: Package },
+];
+
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -23,37 +31,29 @@ export default function FavoritosScreen() {
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
-            {/* Scroll horizontal de filtros com espaçamento corrigido via contentContainerStyle */}
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 style={styles.chipsScroll}
                 contentContainerStyle={styles.chipsScrollContent}
             >
-                <Chip
-                    active={filtro === 'Todos'}
-                    onPress={() => setFiltro('Todos')}
-                    icon={<Sparkles size={14} color={filtro === 'Todos' ? Colors.light : Colors.primary} fill={filtro === 'Todos' ? Colors.light : 'transparent'} />}
-                    label="Todos"
-                />
-                <Chip
-                    active={filtro === 'Salgadas'}
-                    onPress={() => setFiltro('Salgadas')}
-                    icon={<Utensils size={14} color={filtro === 'Salgadas' ? Colors.light : Colors.primary} />}
-                    label="Salgadas"
-                />
-                <Chip
-                    active={filtro === 'Doces'}
-                    onPress={() => setFiltro('Doces')}
-                    icon={<IceCream size={14} color={filtro === 'Doces' ? Colors.light : Colors.primary} />}
-                    label="Doces"
-                />
-                <Chip
-                    active={filtro === 'Lanches'}
-                    onPress={() => setFiltro('Lanches')}
-                    icon={<Package size={14} color={filtro === 'Lanches' ? Colors.light : Colors.primary} />}
-                    label="Lanches"
-                />
+                {FILTROS.map((item, index) => {
+                    const Icon = item.icon;
+                    const isActive = filtro === item.id;
+                    return (
+                        <Animated.View
+                            key={item.id}
+                            entering={FadeInRight.delay(index * 100).duration(500)}
+                        >
+                            <Chip
+                                active={isActive}
+                                onPress={() => setFiltro(item.id)}
+                                icon={<Icon size={14} color={isActive ? Colors.light : Colors.primary} fill={isActive && item.id === 'Todos' ? Colors.light : 'transparent'} />}
+                                label={item.label}
+                            />
+                        </Animated.View>
+                    );
+                })}
             </ScrollView>
 
             <View style={styles.infoBar}>
@@ -64,6 +64,7 @@ export default function FavoritosScreen() {
 
     return (
         <View style={styles.container}>
+            <StatusBar barStyle="dark-content" />
             <Header
                 title="Favoritos"
                 centerTitle={true}
@@ -94,7 +95,7 @@ export default function FavoritosScreen() {
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item, index }) => (
                     <Animated.View
-                        entering={FadeInDown.delay(index * 100).duration(400)}
+                        entering={FadeInDown.delay(index * 150).duration(600).springify()}
                         style={styles.card}
                     >
                         <Pressable>
@@ -104,8 +105,10 @@ export default function FavoritosScreen() {
                                     <Heart size={16} color={Colors.secondary} fill={Colors.secondary} />
                                 </View>
                             </View>
-                            <Text style={styles.recipeName} numberOfLines={2}>{item.name}</Text>
-                            <Text style={styles.recipeDetail}>{item.info}</Text>
+                            <View style={styles.cardInfo}>
+                                <Text style={styles.recipeName} numberOfLines={2}>{item.name}</Text>
+                                <Text style={styles.recipeDetail}>{item.info}</Text>
+                            </View>
                         </Pressable>
                     </Animated.View>
                 )}
@@ -114,7 +117,6 @@ export default function FavoritosScreen() {
     );
 }
 
-// Componente de Chip unificado
 const Chip = ({ active = false, icon, label, onPress }: any) => (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
         {icon}

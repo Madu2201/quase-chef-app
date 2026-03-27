@@ -1,22 +1,45 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, FlatList, Image, Pressable, Switch,
-  ScrollView, StatusBar, TouchableOpacity,
-  ListRenderItemInfo, NativeSyntheticEvent, NativeScrollEvent
+  View,
+  Text,
+  FlatList,
+  Image,
+  Pressable,
+  Switch,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+  ListRenderItemInfo,
+  NativeSyntheticEvent,
+  NativeScrollEvent
 } from 'react-native';
 import {
-  Heart, Zap, Leaf, TrendingUp, Activity,
-  Banknote, Clock, BarChart, Package
+  Heart,
+  Zap,
+  Leaf,
+  TrendingUp,
+  Activity,
+  Banknote,
+  Clock,
+  BarChart,
+  Package
 } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 import { Header } from '../../components/header';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
 import { Colors } from '../../constants/theme';
 
 interface Recipe {
-  id: string; title: string; time: string; difficulty: string;
-  descStart: string; ingredients: string; descEnd: string; image: string;
+  id: string;
+  title: string;
+  time: string;
+  difficulty: string;
+  descStart: string;
+  ingredients: string;
+  descEnd: string;
+  image: string;
 }
 
 const DATA: Recipe[] = [
@@ -45,7 +68,7 @@ export default function ReceitasScreen() {
   const [favoritos, setFavoritos] = useState<Record<string, boolean>>({});
   const [scrollY, setScrollY] = useState(0);
 
-  // Restauração de scroll para UX fluída ao voltar da detalhe
+  // Efeito para restaurar o scroll ao voltar da tela de detalhes
   useEffect(() => {
     const restoreScroll = Number(params.restoreScroll ?? 0);
     if (restoreScroll > 0) {
@@ -68,20 +91,24 @@ export default function ReceitasScreen() {
         style={styles.chipsScroll}
         contentContainerStyle={styles.chipsScrollContent}
       >
-        {CHIPS.map((chip) => {
+        {CHIPS.map((chip, index) => {
           const Icon = chip.icon;
           const isActive = filtro === chip.label;
           return (
-            <Pressable
+            <Animated.View
               key={chip.label}
-              onPress={() => setFiltro(chip.label)}
-              style={[styles.chip, isActive && styles.chipActive]}
+              entering={FadeInRight.delay(index * 100).duration(400)}
             >
-              <Icon size={14} color={isActive ? Colors.light : Colors.primary} />
-              <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                {chip.label}
-              </Text>
-            </Pressable>
+              <Pressable
+                onPress={() => setFiltro(chip.label)}
+                style={[styles.chip, isActive && styles.chipActive]}
+              >
+                <Icon size={14} color={isActive ? Colors.light : Colors.primary} />
+                <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                  {chip.label}
+                </Text>
+              </Pressable>
+            </Animated.View>
           );
         })}
       </ScrollView>
@@ -92,24 +119,32 @@ export default function ReceitasScreen() {
     </View>
   );
 
-  function renderRecipeCard({ item }: ListRenderItemInfo<Recipe>) {
+  function renderRecipeCard({ item, index }: ListRenderItemInfo<Recipe>) {
     const isFav = favoritos[item.id] || false;
+
     return (
-      <View style={styles.card}>
+      <Animated.View
+        entering={FadeInDown.delay(index * 150).duration(600).springify()}
+        style={styles.card}
+      >
         <View style={styles.cardImageContainer}>
           <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
         </View>
         <View style={styles.cardBody}>
           <View style={styles.titleRow}>
             <Text style={styles.recipeTitle}>{item.title}</Text>
-            <Pressable onPress={() => setFavoritos(p => ({ ...p, [item.id]: !p[item.id] }))}>
+            <TouchableOpacity
+              onPress={() => setFavoritos(p => ({ ...p, [item.id]: !p[item.id] }))}
+              style={styles.heartButton}
+            >
               <Heart
                 size={22}
                 color={Colors.secondary}
                 fill={isFav ? Colors.secondary : 'transparent'}
               />
-            </Pressable>
+            </TouchableOpacity>
           </View>
+
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <Clock size={14} color={Colors.primary} />
@@ -120,28 +155,44 @@ export default function ReceitasScreen() {
               <Text style={styles.metaText}>{item.difficulty}</Text>
             </View>
           </View>
+
           <Text style={styles.recipeDescription}>
             {item.descStart} <Text style={styles.highlightText}>{item.ingredients}</Text> {item.descEnd}
           </Text>
+
           <TouchableOpacity
             style={styles.viewButton}
             activeOpacity={0.8}
             onPress={() => router.push({
               pathname: '/detalhe_receita',
-              params: { id: item.id, title: item.title, time: item.time, difficulty: item.difficulty, image: item.image, scrollY: String(scrollY) }
+              params: {
+                id: item.id,
+                title: item.title,
+                time: item.time,
+                difficulty: item.difficulty,
+                image: item.image,
+                restoreScroll: String(scrollY)
+              }
             })}
           >
             <Text style={styles.viewButtonText}>Ver receita</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <Header title="Receitas Encontradas" centerTitle searchText={busca} setSearchText={setBusca} searchPlaceholder="Buscar ingredientes...">
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+
+      <Header
+        title="Receitas Encontradas"
+        centerTitle
+        searchText={busca}
+        setSearchText={setBusca}
+        searchPlaceholder="Buscar ingredientes..."
+      >
         <View style={styles.stockToggle}>
           <Package size={18} color={Colors.primary} />
           <Text style={styles.stockText}>Cozinhar com meu estoque</Text>
@@ -154,6 +205,7 @@ export default function ReceitasScreen() {
           />
         </View>
       </Header>
+
       <FlatList
         ref={flatListRef}
         data={DATA}

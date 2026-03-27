@@ -4,20 +4,20 @@ import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants
 const { width } = Dimensions.get('window');
 
 export const detalheReceitaStyles = StyleSheet.create({
-  /* --- CONTAINERS PRINCIPAIS --- */
+  /* --- ESTRUTURA PRINCIPAL --- */
   container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
   mainContentWrapper: {
     flex: 1,
-    position: 'relative', // Necessário para o gradiente absoluto
+    position: 'relative',
   },
   scrollContent: {
     paddingBottom: Spacing.lg,
   },
 
-  /* --- HEADER E IMAGEM --- */
+  /* --- HEADER E BADGE --- */
   imageHeader: {
     width: '100%',
     height: width * 0.7,
@@ -32,14 +32,15 @@ export const detalheReceitaStyles = StyleSheet.create({
     left: Spacing.lg,
     backgroundColor: Colors.secondary,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs + 2,
+    paddingVertical: Spacing.xs +2,
     borderRadius: Radius.full,
     ...Shadows.sm,
   },
   badgeText: {
     color: Colors.light,
     fontFamily: Fonts.bold,
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small - 1,
+    textTransform: 'uppercase',
   },
 
   /* --- CARD DE CONTEÚDO --- */
@@ -66,17 +67,17 @@ export const detalheReceitaStyles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
 
-  /* --- SEÇÃO DE INFO (PILLS) --- */
+  /* --- SEÇÃO DE INFO (ESTILO PILL) --- */
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: Spacing.xl,
-    gap: Spacing.xs,
+    gap: Spacing.sm,
   },
   infoCard: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: Colors.secondary + '0A',
+    backgroundColor: Colors.secondary + '15',
     paddingVertical: Spacing.sm,
     borderRadius: Radius.xl,
     alignItems: 'center',
@@ -88,13 +89,13 @@ export const detalheReceitaStyles = StyleSheet.create({
   },
   infoLabel: {
     fontFamily: Fonts.bold,
-    fontSize: 8,
-    color: Colors.primary + '99',
+    fontSize: FontSizes.small - 1,
+    color: Colors.primary,
     textTransform: 'uppercase',
   },
   infoValue: {
     fontFamily: Fonts.bold,
-    fontSize: 11,
+    fontSize: FontSizes.small,
     color: Colors.dark,
   },
 
@@ -116,7 +117,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     borderRadius: Radius.sm,
     color: Colors.secondary,
     fontFamily: Fonts.bold,
-    fontSize: 10,
+    fontSize: FontSizes.small - 1,
   },
   ingredientItem: {
     flexDirection: 'row',
@@ -128,7 +129,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     ...Shadows.sm,
   },
   ingredientMissing: {
-    backgroundColor: Colors.errorDark + '20',
+    backgroundColor: Colors.errorLight + '90',
     borderColor: Colors.errorDark,
     borderWidth: 1,
   },
@@ -140,7 +141,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     color: Colors.dark,
   },
 
-  /* --- MODO DE PREPARO (ALINHADO) --- */
+  /* --- MODO DE PREPARO (ALINHADO AO TOPO) --- */
   preparoTitle: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.medium,
@@ -152,21 +153,21 @@ export const detalheReceitaStyles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: Spacing.md,
     gap: Spacing.md,
-    alignItems: 'flex-start', // Garante alinhamento com a primeira linha do texto
+    alignItems: 'flex-start',
   },
   stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: Radius.full,
     backgroundColor: Colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 2, // Ajuste fino para alinhar visualmente com o texto
+    marginTop: 2,
   },
   stepNumberText: {
     color: Colors.light,
     fontFamily: Fonts.bold,
-    fontSize: 12,
+    fontSize: FontSizes.small - 1,
   },
   stepText: {
     flex: 1,
@@ -176,30 +177,31 @@ export const detalheReceitaStyles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  /* --- EFEITO FADE E FOOTER --- */
+  /* --- FADE E FOOTER --- */
   fadeGradient: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60, // Tamanho do desvanecimento
+    height: 55,
     zIndex: 1,
   },
   footer: {
     flexDirection: 'row',
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
-    paddingBottom: Platform.OS === 'ios' ? 34 : Spacing.md,
+    paddingBottom: Spacing.md,
     backgroundColor: Colors.light,
     borderTopWidth: 1,
     borderTopColor: Colors.subtext + '10',
     gap: Spacing.md,
-    zIndex: 2, // Fica acima do gradiente
+    zIndex: 2,
   },
   favButton: {
     width: 56,
     height: 56,
     borderRadius: Radius.full,
+    borderColor: Colors.secondary,
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',

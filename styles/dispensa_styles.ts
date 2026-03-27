@@ -123,10 +123,10 @@ export const dispensaStyles = StyleSheet.create({
         gap: 8,
         marginTop: Spacing.xs,
     },
-    // Estilo base para o input de Qtd na lista
+    // Estilo base para o input de Qtd
     listInputQty: {
         width: 50,
-        height: 30,
+        height: 40,
         borderRadius: Radius.sm,
         borderWidth: 1.5,
         borderColor: Colors.subtext + '30',
@@ -141,8 +141,8 @@ export const dispensaStyles = StyleSheet.create({
         }),
     } as TextStyle,
     listPickerUnit: {
-        minWidth: 55,
-        height: 30,
+        minWidth: 50,
+        height: 40,
         borderRadius: Radius.sm,
         borderWidth: 1.5,
         borderColor: Colors.subtext + '30',

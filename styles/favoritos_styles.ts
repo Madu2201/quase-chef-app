@@ -1,55 +1,57 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+
+const { width } = Dimensions.get('window');
+const cardWidth = (width - (Spacing.lg * 2) - Spacing.md) / 2;
 
 export const favStyles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: Colors.background,
     },
-    // --- ESTOQUE (HEADER) ---
+    // --- HEADER / TOGGLE ---
     stockToggle: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: Colors.background,
         borderRadius: Radius.full,
         paddingHorizontal: Spacing.md,
-        height: 38,
+        height: 40,
         borderWidth: 1,
         borderColor: Colors.subtext + '20',
+        marginTop: Spacing.xs,
     },
     stockText: {
         flex: 1,
-        fontFamily: Fonts.regular,
+        fontFamily: Fonts.medium,
         fontSize: FontSizes.small - 1,
         color: Colors.primary,
         marginLeft: Spacing.sm,
     },
     switchStyle: {
-        transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
+        transform: [{ scaleX: 0.75 }, { scaleY: 0.75 }],
     },
-    // --- FILTROS (SCROLL HORIZONTAL CORRIGIDO) ---
+    // --- FILTROS ---
     listHeaderContainer: {
         paddingTop: Spacing.md,
     },
     chipsScroll: {
-        width: '100%',
+        marginBottom: Spacing.sm,
     },
     chipsScrollContent: {
-        paddingHorizontal: Spacing.lg, // Espaço nas duas extremidades do scroll
+        paddingHorizontal: Spacing.lg,
         gap: Spacing.sm,
-        flexDirection: 'row',
-        paddingBottom: Spacing.xs,
     },
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        height: 38,
+        height: 36,
         paddingHorizontal: Spacing.md,
         borderRadius: Radius.full,
         backgroundColor: Colors.light,
         borderWidth: 1.5,
-        borderColor: Colors.primary,
+        borderColor: Colors.primary + '30',
+        gap: 6,
     },
     chipActive: {
         backgroundColor: Colors.secondary,
@@ -60,56 +62,63 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small - 1,
         color: Colors.primary,
     },
-    chipTextActive: { color: Colors.light },
-    // --- CONTADOR ---
+    chipTextActive: {
+        color: Colors.light,
+    },
     infoBar: {
         paddingHorizontal: Spacing.lg,
-        marginTop: Spacing.md,
-        marginBottom: Spacing.sm,
+        marginVertical: Spacing.sm,
     },
     infoText: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
         color: Colors.brown,
     },
-    // --- GRID ---
-    listContent: { paddingBottom: Spacing.xl },
-    columnWrapper: {
-        paddingHorizontal: Spacing.lg,
-        justifyContent: 'space-between',
+    // --- GRID E CARDS ---
+    listContent: {
+        paddingBottom: Spacing.xl,
     },
-    card: { width: '48%', marginBottom: Spacing.lg },
+    columnWrapper: {
+        justifyContent: 'space-between',
+        paddingHorizontal: Spacing.lg,
+    },
+    card: {
+        width: cardWidth,
+        backgroundColor: Colors.light,
+        borderRadius: Radius.lg,
+        marginBottom: Spacing.md,
+        overflow: 'hidden',
+        ...Shadows.sm,
+    },
     imageContainer: {
         width: '100%',
-        aspectRatio: 1, // Quadrado perfeito
-        borderRadius: Radius.lg,
-        overflow: 'hidden',
-        marginBottom: Spacing.xs,
-        backgroundColor: Colors.light,
-        ...Shadows.xs,
+        height: 120,
+        position: 'relative',
     },
-    image: { width: '100%', height: '100%' },
+    image: {
+        width: '100%',
+        height: '100%',
+    },
     heartIcon: {
         position: 'absolute',
         top: 8,
         right: 8,
-        backgroundColor: Colors.light,
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        padding: 4,
         borderRadius: Radius.full,
-        padding: Spacing.xs,
-        ...Shadows.sm,
+    },
+    cardInfo: {
+        padding: Spacing.sm,
     },
     recipeName: {
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
         color: Colors.dark,
-        lineHeight: 18,
-        paddingHorizontal: Spacing.xs,
+        marginBottom: 2,
     },
     recipeDetail: {
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small - 1,
-        color: Colors.subtitle,
-        marginTop: Spacing.xs,
-        paddingHorizontal: Spacing.xs,
-    }
+        fontSize: FontSizes.small - 2,
+        color: Colors.primary,
+    },
 });

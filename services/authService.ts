@@ -1,17 +1,46 @@
-import { supabase } from '@/services/supabase';
+import { supabase } from "@/services/supabase";
 
-export const registerUser = async (fullName: string, email: string, phone: string, password: string) => {
-    const { data: newUserId, error } = await supabase.rpc('register_user', {
-        p_full_name: fullName,
-        p_email: email,
-        p_phone: phone,
-        p_raw_password: password
-    });
+// 1. Cadastro Simples
+export const registerUser = async (
+  fullName: string,
+  email: string,
+  phone: string,
+  password: string,
+) => {
+  // Inserimos direto na tabela sem passar pela RPC que hasha
+  const { data, error } = await supabase
+    .from("users")
+    .insert([
+      {
+        full_name: fullName,
+        email: email,
+        phone: phone,
+        password_hash: password, // salvando o texto puro aqui
+      },
+    ])
+    .select("id")
+    .single();
 
-    if (error) {
-        console.error('Erro ao Cadastrar Usuário:', error.message);
-        throw new Error('Falha a criar conta. Verifique os dados.');
-    }
+  if (error) {
+    console.error("Erro ao Cadastrar:", error.message);
+    throw new Error("Falha ao criar conta.");
+  }
 
-    return newUserId;
+  return data.id;
+};
+
+// 2. Login Simples
+export const loginUser = async (email: string, senha: string) => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .eq("password_hash", senha) // Comparação direta de texto
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new Error("E-mail ou senha incorretos.");
+  }
+
+  return data;
 };

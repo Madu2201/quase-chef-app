@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, Image, Pressable, Switch, ScrollView, StatusBar } from 'react-native';
 import { Heart, Sparkles, Utensils, IceCream, Package } from 'lucide-react-native';
-/* Adicionada a animação FadeInRight para os filtros */
-import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import Animated, {
+    FadeInDown,
+    FadeInRight,
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    withSequence
+} from 'react-native-reanimated';
 
 import { Header } from '../../components/header';
 import { favStyles as styles } from '../../styles/favoritos_styles';
@@ -23,6 +29,45 @@ const FILTROS = [
     { id: 'Doces', label: 'Doces', icon: IceCream },
     { id: 'Lanches', label: 'Lanches', icon: Package },
 ];
+
+// Componente do Card isolado para gerenciar o estado da animação individual de cada coração
+const RecipeCard = ({ item, index }: any) => {
+    const [isLiked, setIsLiked] = useState(true);
+    const scale = useSharedValue(1);
+
+    const animatedHeartStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+    }));
+
+    const handleLike = () => {
+        scale.value = withSequence(withSpring(1.3), withSpring(1));
+        setIsLiked(!isLiked);
+    };
+
+    return (
+        <Animated.View
+            entering={FadeInDown.delay(index * 150).duration(600).springify()}
+            style={styles.card}
+        >
+            <Pressable onPress={handleLike}>
+                <View style={styles.imageContainer}>
+                    <Image source={item.img} style={styles.image} resizeMode="cover" />
+                    <Animated.View style={[styles.heartIcon, animatedHeartStyle]}>
+                        <Heart
+                            size={16}
+                            color={isLiked ? Colors.secondary : Colors.subtext}
+                            fill={isLiked ? Colors.secondary : 'transparent'}
+                        />
+                    </Animated.View>
+                </View>
+                <View style={styles.cardInfo}>
+                    <Text style={styles.recipeName} numberOfLines={2}>{item.name}</Text>
+                    <Text style={styles.recipeDetail}>{item.info}</Text>
+                </View>
+            </Pressable>
+        </Animated.View>
+    );
+};
 
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -93,25 +138,7 @@ export default function FavoritosScreen() {
                 columnWrapperStyle={styles.columnWrapper}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
-                renderItem={({ item, index }) => (
-                    <Animated.View
-                        entering={FadeInDown.delay(index * 150).duration(600).springify()}
-                        style={styles.card}
-                    >
-                        <Pressable>
-                            <View style={styles.imageContainer}>
-                                <Image source={item.img} style={styles.image} resizeMode="cover" />
-                                <View style={styles.heartIcon}>
-                                    <Heart size={16} color={Colors.secondary} fill={Colors.secondary} />
-                                </View>
-                            </View>
-                            <View style={styles.cardInfo}>
-                                <Text style={styles.recipeName} numberOfLines={2}>{item.name}</Text>
-                                <Text style={styles.recipeDetail}>{item.info}</Text>
-                            </View>
-                        </Pressable>
-                    </Animated.View>
-                )}
+                renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
             />
         </View>
     );

@@ -86,6 +86,7 @@ export default function PerfilScreen() {
     >
       <Header
         title="Meu Perfil"
+        centerTitle
         showSearch={false}
         onBack={handleBack}
       />
@@ -177,7 +178,7 @@ export default function PerfilScreen() {
             onPress={() => router.replace('/(auth)/login')}
           >
             <LogOut size={18} color={Colors.errorDark} />
-            <Text style={styles.logoutTextInline}>Sair da Conta</Text>
+            <Text style={styles.logoutTextInline}>Sair</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.mainSaveButton} onPress={handleSave}>

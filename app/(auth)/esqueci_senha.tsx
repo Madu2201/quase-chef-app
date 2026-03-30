@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
-import { Mail } from "lucide-react-native"; // Adicionado o ícone
+import { Mail } from "lucide-react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { authStyles as styles } from "../../styles/auth_styles";
 import { Colors } from "../../constants/theme";

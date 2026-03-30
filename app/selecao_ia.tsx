@@ -4,11 +4,13 @@ import { Sparkles, RotateCcw, Leaf, Flame, Utensils, Zap } from "lucide-react-na
 import Animated, { FadeInDown, Layout } from "react-native-reanimated";
 import { router } from "expo-router";
 
+// Meus importes
 import { Header } from "../components/header";
 import { GenerateButton } from "../components/generate_button";
 import { Colors } from "../constants/theme";
 import { styles } from "../styles/selecao_ia_styles";
 
+// Dados mockados para categorias e itens
 const CATEGORIAS = [
   {
     titulo: "PROTEÍNAS",
@@ -37,6 +39,7 @@ const CATEGORIAS = [
   }
 ];
 
+// Tela de Seleção de Ingredientes para IA
 export default function SelecaoIAScreen() {
   const [busca, setBusca] = useState("");
   const [selecionados, setSelecionados] = useState<string[]>([]);

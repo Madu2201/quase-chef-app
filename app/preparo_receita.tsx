@@ -10,9 +10,12 @@ import Animated, {
     useAnimatedStyle,
     withSpring
 } from 'react-native-reanimated';
+
+// Meus imports
 import { preparoStyles as styles } from '../styles/preparo_styles';
 import { Colors } from '../constants/theme';
 
+// Tela de preparo da receita, com passos dinâmicos e timer integrado
 export default function PreparoReceitaScreen() {
     const params = useLocalSearchParams();
 
@@ -29,6 +32,7 @@ export default function PreparoReceitaScreen() {
 
     const step = passosDinamicos[passoAtual];
 
+    // Sincroniza o timer com o passo atual, reiniciando quando necessário
     useEffect(() => {
         if (step?.hasTimer) {
             setTempo(step.tempoTimer || 300);
@@ -36,6 +40,7 @@ export default function PreparoReceitaScreen() {
         }
     }, [passoAtual]);
 
+    // Lógica do timer, decrementando a cada segundo quando ativo
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (timerAtivo && tempo > 0) {
@@ -52,11 +57,13 @@ export default function PreparoReceitaScreen() {
         return `${mins}:${secs}`;
     };
 
+    // Função para resetar o timer para o valor original do passo
     const resetarTimer = () => {
         setTimerAtivo(false);
         setTempo(step?.tempoTimer || 300);
     };
 
+    // Função para compartilhar a receita concluída, utilizando a API de compartilhamento nativa
     const handleShare = async () => {
         try {
             await Share.share({
@@ -67,6 +74,7 @@ export default function PreparoReceitaScreen() {
         }
     };
 
+    // Função para alternar o estado de favorito, com animação de escala no ícone de coração
     const toggleFavorito = () => {
         setIsFavorito(!isFavorito);
         heartScale.value = withSpring(1.5, {}, () => {
@@ -78,6 +86,7 @@ export default function PreparoReceitaScreen() {
         transform: [{ scale: heartScale.value }]
     }));
 
+    // Dados de exemplo para a receita, incluindo passos com e sem timer
     if (isConcluido) {
         return (
             <ScrollView contentContainerStyle={styles.containerSucesso} showsVerticalScrollIndicator={false}>
@@ -94,7 +103,7 @@ export default function PreparoReceitaScreen() {
                     <Text style={styles.congratsSub}>Você concluiu sua receita com sucesso.</Text>
                 </Animated.View>
 
-                {/* Card de sucesso com largura corrigida */}
+                {/* Card de sucesso */}
                 <Animated.View
                     entering={FadeInLeft.duration(600).delay(400)}
                     style={[styles.successCard, { width: '100%' }]}
@@ -106,6 +115,7 @@ export default function PreparoReceitaScreen() {
                     </View>
                 </Animated.View>
 
+                {/* Ações de compartilhamento e favorito */}
                 <Animated.View
                     entering={FadeInUp.duration(600).delay(600)}
                     style={[styles.successActions, { width: '100%' }]}
@@ -132,6 +142,7 @@ export default function PreparoReceitaScreen() {
                     </Pressable>
                 </Animated.View>
 
+                {/* Botão para voltar ao início */}
                 <Animated.View
                     entering={FadeInUp.duration(600).delay(800)}
                     style={{ width: '100%' }}
@@ -146,6 +157,7 @@ export default function PreparoReceitaScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Cabeçalho */}
             <StatusBar barStyle="dark-content" />
             <View style={styles.header}>
                 <Pressable onPress={() => router.back()} style={styles.closeButton}>
@@ -159,7 +171,7 @@ export default function PreparoReceitaScreen() {
                     <View key={i} style={[styles.progressStep, i <= passoAtual ? styles.progressActive : styles.progressInactive]} />
                 ))}
             </View>
-
+            
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Animated.View key={passoAtual} entering={FadeIn.duration(400)}>
                     <View style={styles.stepCard}>

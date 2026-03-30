@@ -5,10 +5,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp, FadeInDown, FadeInLeft } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
 
+// Meus imports
 import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
 
+// Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
@@ -58,7 +60,7 @@ export default function DetalheReceitaScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-
+      {/* HEADER */}
       <Header
         title={isIA ? "Receita gerada por IA" : "Detalhes da Receita"}
         centerTitle
@@ -70,7 +72,7 @@ export default function DetalheReceitaScreen() {
           </TouchableOpacity>
         }
       />
-
+      {/* CONTEÚDO PRINCIPAL */}
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
@@ -132,7 +134,8 @@ export default function DetalheReceitaScreen() {
 
         <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
       </View>
-
+      
+      {/* FOOTER FIXO COM BOTÕES DE AÇÃO */}
       <View style={styles.footer}>
         <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
           <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />
@@ -157,7 +160,7 @@ export default function DetalheReceitaScreen() {
     </View>
   );
 }
-
+// Componente para exibir as informações da receita (tempo, dificuldade, calorias)
 const InfoCard = ({ icon: Icon, label, value }: any) => (
   <View style={styles.infoCard}>
     <View style={styles.infoIconContainer}><Icon size={18} color={Colors.primary} /></View>

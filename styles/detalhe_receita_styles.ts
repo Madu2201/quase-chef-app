@@ -50,7 +50,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     marginTop: -Radius.xl,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
     paddingTop: Spacing.lg,
   },
   title: {
@@ -85,7 +85,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     borderColor: Colors.secondary,
   },
   infoIconContainer: {
-    paddingHorizontal: Spacing.xs
+    paddingHorizontal: Spacing.xs,
   },
   infoLabel: {
     fontFamily: Fonts.bold,

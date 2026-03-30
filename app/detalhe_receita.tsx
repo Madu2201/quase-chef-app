@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Image, Text, Pressable, StatusBar, Share, TouchableOpacity } from 'react-native';
-import { Heart, Clock, BarChart3, Flame, PlayCircle, CheckCircle2, AlertCircle, Share2 } from 'lucide-react-native';
+import { Heart, Clock, BarChart3, Flame, PlayCircle, CheckCircle2, AlertCircle, Share2, Sparkles, Lightbulb } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp, FadeInDown, FadeInLeft } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -13,6 +13,9 @@ export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
 
+  // Identifica se a receita foi gerada pela IA
+  const isIA = params.tipo === 'ia';
+
   // Mock de dados baseado nos parâmetros
   const receita = {
     titulo: (params.title as string) || 'Bowl Mediterrâneo',
@@ -22,6 +25,7 @@ export default function DetalheReceitaScreen() {
     calorias: '320 kcal',
     imagem: (params.image as string) || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1000',
     itensCount: 4,
+    dicaIA: "Você pode substituir o arroz por quinoa para um prato mais leve e proteico. Se quiser um toque extra de sabor, adicione raspas de limão siciliano no final.",
     ingredientes: [
       { id: '1', nome: '2 Ovos grandes', status: 'ok' },
       { id: '2', nome: 'Queijo Mussarela', status: 'ok' },
@@ -41,7 +45,7 @@ export default function DetalheReceitaScreen() {
       <StatusBar barStyle="dark-content" />
 
       <Header
-        title="Detalhes da Receita"
+        title={isIA ? "Receita gerada por IA" : "Detalhes da Receita"}
         centerTitle
         onBack={() => router.back()}
         showSearch={false}
@@ -58,8 +62,14 @@ export default function DetalheReceitaScreen() {
           {/* Imagem com Badge Animado */}
           <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
             <Image source={{ uri: receita.imagem }} style={styles.image} />
-            <Animated.View entering={FadeInLeft.delay(500)} style={styles.badgePopular}>
-              <Text style={styles.badgeText}>Sugestão Quase Chef</Text>
+            <Animated.View
+              entering={FadeInLeft.delay(500)}
+              style={[styles.badgePopular, isIA && { backgroundColor: Colors.secondary }]}
+            >
+              {isIA && <Sparkles size={12} color={Colors.light} style={{ marginRight: 4 }} />}
+              <Text style={styles.badgeText}>
+                {isIA ? "Gerado por IA" : "Sugestão Quase Chef"}
+              </Text>
             </Animated.View>
           </Animated.View>
 
@@ -74,9 +84,11 @@ export default function DetalheReceitaScreen() {
               <InfoCard icon={Flame} label="Calorias" value={receita.calorias} />
             </View>
 
-            {/* Ingredientes */}
+            {/* Ingredientes - Título muda se for IA */}
             <View style={styles.sectionTitleRow}>
-              <Text style={styles.sectionTitle}>Ingredientes</Text>
+              <Text style={styles.sectionTitle}>
+                {isIA ? "Ingredientes da sua dispensa" : "Ingredientes"}
+              </Text>
               <Text style={styles.itemsCount}>{receita.itensCount} itens</Text>
             </View>
 
@@ -87,6 +99,20 @@ export default function DetalheReceitaScreen() {
                 <Text style={styles.ingredientText}>{item.nome}</Text>
               </Animated.View>
             ))}
+
+            {/* Dica da IA - Só renderiza se isIA for true */}
+            {isIA && (
+              <Animated.View
+                entering={FadeInDown.delay(300)}
+                style={styles.aiTipContainer}
+              >
+                <View style={styles.aiTipHeader}>
+                  <Lightbulb size={18} color={Colors.secondary} />
+                  <Text style={styles.aiTipTitle}>Dica da IA!</Text>
+                </View>
+                <Text style={styles.aiTipText}>{receita.dicaIA}</Text>
+              </Animated.View>
+            )}
 
             {/* Preparo */}
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
@@ -99,7 +125,6 @@ export default function DetalheReceitaScreen() {
           </View>
         </ScrollView>
 
-        {/* Efeito de Fade no final da lista */}
         <LinearGradient
           colors={['transparent', Colors.background]}
           style={styles.fadeGradient}
@@ -107,7 +132,6 @@ export default function DetalheReceitaScreen() {
         />
       </View>
 
-      {/* Footer Fixo */}
       <View style={styles.footer}>
         <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
           <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />

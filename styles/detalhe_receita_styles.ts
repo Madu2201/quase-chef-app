@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions, Platform } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
 
 const { width } = Dimensions.get('window');
@@ -32,8 +32,10 @@ export const detalheReceitaStyles = StyleSheet.create({
     left: Spacing.lg,
     backgroundColor: Colors.secondary,
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs +2,
+    paddingVertical: Spacing.xs + 2,
     borderRadius: Radius.full,
+    flexDirection: 'row', // Adicionado para ícone + texto
+    alignItems: 'center',
     ...Shadows.sm,
   },
   badgeText: {
@@ -139,6 +141,34 @@ export const detalheReceitaStyles = StyleSheet.create({
     fontFamily: Fonts.medium,
     fontSize: FontSizes.small,
     color: Colors.dark,
+  },
+
+  /* --- DICA DA IA (NOVO) --- */
+  aiTipContainer: {
+    backgroundColor: Colors.primary + '20',
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.primary + '70',
+    marginVertical: Spacing.md,
+    ...Shadows.md,
+  },
+  aiTipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.sm,
+  },
+  aiTipTitle: {
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    fontSize: FontSizes.medium - 1,
+  },
+  aiTipText: {
+    fontFamily: Fonts.regular,
+    color: Colors.subtitle,
+    fontSize: FontSizes.small,
+    lineHeight: Spacing.md,
   },
 
   /* --- MODO DE PREPARO (ALINHADO AO TOPO) --- */

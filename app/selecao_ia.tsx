@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Pressable, Image } from "react-native";
 import { Sparkles, RotateCcw, Leaf, Flame, Utensils, Zap } from "lucide-react-native";
 import Animated, { FadeInDown, Layout } from "react-native-reanimated";
+import { router } from "expo-router"; // Importado para permitir a navegação
 
 import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
@@ -57,6 +58,17 @@ export default function SelecaoIAScreen() {
       )
     })).filter(cat => cat.itens.length > 0);
   }, [busca]);
+
+  // Função para navegar enviando a flag de IA
+  const handleGerarReceita = () => {
+    router.push({
+      pathname: "/detalhe_receita",
+      params: {
+        tipo: 'ia',
+        title: 'Risoto de Sobras Criativo' // Exemplo de título que a IA geraria
+      }
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -139,6 +151,7 @@ export default function SelecaoIAScreen() {
           style={[styles.generateButton, selecionados.length === 0 && styles.btnDisabled]}
           disabled={selecionados.length === 0}
           activeOpacity={0.8}
+          onPress={handleGerarReceita} // Adicionada a função de navegação aqui
         >
           <Sparkles size={20} color={Colors.light} fill={Colors.light} />
           <Text style={styles.generateButtonText}>Gerar Receita Mágica</Text>

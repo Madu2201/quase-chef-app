@@ -13,30 +13,45 @@ export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
 
-  // Identifica se a receita foi gerada pela IA
   const isIA = params.tipo === 'ia';
 
-  // Mock de dados baseado nos parâmetros
+  // Sincronizado com os passos da tela de preparo
   const receita = {
-    titulo: (params.title as string) || 'Bowl Mediterrâneo',
-    descricao: (params.description as string) || 'Uma refeição leve e nutritiva com ingredientes frescos.',
-    tempo: (params.time as string) || '25 min',
+    titulo: (params.title as string) || 'Omelete de Ervas',
+    descricao: (params.description as string) || 'Uma omelete fofinha e aromática, perfeita para um café da manhã nutritivo.',
+    tempo: (params.time as string) || '10 min',
     dificuldade: (params.difficulty as string) || 'Fácil',
-    calorias: '320 kcal',
-    imagem: (params.image as string) || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1000',
+    calorias: '210 kcal',
+    imagem: (params.image as string) || 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000',
     itensCount: 4,
-    dicaIA: "Você pode substituir o arroz por quinoa para um prato mais leve e proteico. Se quiser um toque extra de sabor, adicione raspas de limão siciliano no final.",
+    dicaIA: "Você pode adicionar queijo feta ou cubinhos de tomate para uma versão mediterrânea ainda mais saborosa.",
     ingredientes: [
       { id: '1', nome: '2 Ovos grandes', status: 'ok' },
-      { id: '2', nome: 'Queijo Mussarela', status: 'ok' },
+      { id: '2', nome: 'Salsinha e Cebolinha', status: 'ok' },
       { id: '3', nome: 'Sal e Pimenta', status: 'ok' },
-      { id: '4', nome: 'Manteiga', status: 'faltando' },
+      { id: '4', nome: 'Manteiga', status: 'ok' },
     ],
+    // Array de objetos para facilitar o transporte de dados extras como timer e dicas
     preparo: [
-      'Em uma tigela pequena, bata os ovos levemente até ficarem homogêneos.',
-      'Aqueça a frigideira com manteiga em fogo médio.',
-      'Despeje os ovos e adicione o queijo uniformemente.',
-      'Sirva imediatamente enquanto quente.',
+      {
+        titulo: "Quebre os ovos em uma tigela",
+        descricao: "Certifique-se de não deixar cair cascas. Adicione uma pitada de sal e as ervas picadas agora.",
+        dica: "Dica: Use ervas frescas para um sabor mais intenso e aromático.",
+        hasTimer: false
+      },
+      {
+        titulo: "Aqueça a frigideira",
+        descricao: "Coloque uma colher de manteiga e espere derreter levemente em fogo baixo.",
+        dica: "Não deixe a manteiga queimar, isso altera o sabor final.",
+        hasTimer: false
+      },
+      {
+        titulo: "Cozinhe e finalize",
+        descricao: "Despeje a mistura e cozinhe em fogo baixo até que o fundo esteja dourado. Dobre ao meio com cuidado.",
+        dica: "Use uma espátula de silicone para não quebrar a massa.",
+        hasTimer: true,
+        tempoTimer: 300 // 5 minutos
+      }
     ],
   };
 
@@ -59,7 +74,6 @@ export default function DetalheReceitaScreen() {
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
-          {/* Imagem com Badge Animado */}
           <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
             <Image source={{ uri: receita.imagem }} style={styles.image} />
             <Animated.View
@@ -77,18 +91,14 @@ export default function DetalheReceitaScreen() {
             <Animated.Text entering={FadeInDown.delay(200)} style={styles.title}>{receita.titulo}</Animated.Text>
             <Text style={styles.description}>{receita.descricao}</Text>
 
-            {/* Seção de Info Estilo Pill */}
             <View style={styles.infoContainer}>
               <InfoCard icon={Clock} label="Tempo" value={receita.tempo} />
               <InfoCard icon={BarChart3} label="Nível" value={receita.dificuldade} />
               <InfoCard icon={Flame} label="Calorias" value={receita.calorias} />
             </View>
 
-            {/* Ingredientes - Título muda se for IA */}
             <View style={styles.sectionTitleRow}>
-              <Text style={styles.sectionTitle}>
-                {isIA ? "Ingredientes da sua dispensa" : "Ingredientes"}
-              </Text>
+              <Text style={styles.sectionTitle}>Ingredientes</Text>
               <Text style={styles.itemsCount}>{receita.itensCount} itens</Text>
             </View>
 
@@ -100,12 +110,8 @@ export default function DetalheReceitaScreen() {
               </Animated.View>
             ))}
 
-            {/* Dica da IA - Só renderiza se isIA for true */}
             {isIA && (
-              <Animated.View
-                entering={FadeInDown.delay(300)}
-                style={styles.aiTipContainer}
-              >
+              <Animated.View entering={FadeInDown.delay(300)} style={styles.aiTipContainer}>
                 <View style={styles.aiTipHeader}>
                   <Lightbulb size={18} color={Colors.secondary} />
                   <Text style={styles.aiTipTitle}>Dica da IA!</Text>
@@ -114,29 +120,36 @@ export default function DetalheReceitaScreen() {
               </Animated.View>
             )}
 
-            {/* Preparo */}
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
             {receita.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
                 <View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View>
-                <Text style={styles.stepText}>{passo}</Text>
+                <Text style={styles.stepText}>{passo.titulo}</Text>
               </View>
             ))}
           </View>
         </ScrollView>
 
-        <LinearGradient
-          colors={['transparent', Colors.background]}
-          style={styles.fadeGradient}
-          pointerEvents="none"
-        />
+        <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
       </View>
 
       <View style={styles.footer}>
         <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
           <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />
         </Pressable>
-        <Pressable style={styles.mainButton}>
+
+        {/* BOTÃO CONECTADO: Envia os dados para a tela de preparo */}
+        <Pressable
+          style={styles.mainButton}
+          onPress={() => router.push({
+            pathname: '/preparo_receita',
+            params: {
+              titulo: receita.titulo,
+              imagem: receita.imagem,
+              passosJson: JSON.stringify(receita.preparo) // Passa os passos reais
+            }
+          })}
+        >
           <PlayCircle size={22} color={Colors.light} />
           <Text style={styles.mainButtonText}>Iniciar preparo</Text>
         </Pressable>

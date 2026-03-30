@@ -43,13 +43,14 @@ export const homeStyles = StyleSheet.create({
         color: Colors.dark,
         paddingHorizontal: Spacing.lg,
         marginTop: Spacing.sm,
+        marginBottom: Spacing.xs,
     },
     mainSubtitle: {
         fontFamily: Fonts.regular,
         fontSize: FontSizes.small,
         color: Colors.subtitle,
         paddingHorizontal: Spacing.lg,
-        marginBottom: Spacing.lg,
+        marginBottom: Spacing.xl,
     },
     // --- SEÇÕES ---
     sectionHeader: {

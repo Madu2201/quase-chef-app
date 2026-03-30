@@ -3,7 +3,6 @@ import {
   ChevronDown,
   Flame,
   Leaf,
-  Sparkles,
   User2,
   UtensilsCrossed,
   ChevronRight,
@@ -21,7 +20,8 @@ import {
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
 import { Header } from "../../components/header";
-import { Colors } from "../../constants/theme";
+import { GenerateButton } from "../../components/generate_button";
+import { Colors, Spacing, Radius, FontSizes } from "../../constants/theme";
 import { homeStyles as styles } from "../../styles/home_styles";
 
 // import de dados
@@ -62,20 +62,21 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
 
-  // Crie um estado local para o nome
-  const [nomeExibido, setNomeExibido] = useState("Usuário");
+  const [nomeExibido, setNomeExibido] = useState<any>(["Usuário"]);
 
   useEffect(() => {
     const carregarNome = async () => {
       if (user?.full_name) {
-        // O (user.full_name || "") garante ao TypeScript que sempre será um texto
         setNomeExibido((user.full_name || "").split(" "));
       } else {
         const salvo = await AsyncStorage.getItem("@user_name");
+        if (salvo) setNomeExibido(salvo.split(" "));
       }
     };
     carregarNome();
   }, [user]);
+
+  const ativosCount = INGREDIENTES.filter(i => i.active).length;
 
   return (
     <View style={styles.container}>
@@ -86,7 +87,6 @@ export default function HomeScreen() {
           onPress={() => router.push("/perfil")}
         >
           <View style={styles.avatarContainer}>
-            {/* Se tiver foto, exibe a foto. Se não, exibe o ícone de User2 */}
             {user?.avatar_url ? (
               <Image
                 source={{ uri: user.avatar_url }}
@@ -102,7 +102,6 @@ export default function HomeScreen() {
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
             >
-              {/* Aqui entra o nome real do banco! */}
               <Text style={styles.userName}>Olá, {nomeExibido[0]}!</Text>
               <ChevronDown size={16} color={Colors.primary} />
             </View>
@@ -134,7 +133,6 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* Scroll Horizontal de Ingredientes com Animação Cascata */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -155,20 +153,29 @@ export default function HomeScreen() {
           entering={FadeInDown.delay(600)}
           style={styles.btnContainer}
         >
-          <Pressable
-            style={styles.generateButton}
+          {/* Botão com estilo customizado para a Home */}
+          <GenerateButton
+            label="Gerar receitas mágicas"
+            selectedCount={ativosCount}
             onPress={() => router.push("/selecao_ia")}
-          >
-            <Sparkles size={15} color={Colors.light} fill={Colors.light} />
-            <Text style={styles.generateButtonText}>
-              Gerar receitas com meus ingredientes
-            </Text>
-          </Pressable>
+            alwaysVisible={true}
+            showBadge={false}
+            style={{
+              borderRadius: Radius.lg,
+              paddingVertical: Spacing.md,
+
+            }}
+          />
         </Animated.View>
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Sugestões rápidas</Text>
-          <Pressable style={{ flexDirection: "row", alignItems: "center" }}>
+
+          {/* Adicionado o onPress para navegar para a aba de receitas */}
+          <Pressable
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => router.push("/receitas")}
+          >
             <Text style={[styles.editText, { fontSize: 14 }]}>Ver todas</Text>
             <ChevronRight size={16} color={Colors.primary} />
           </Pressable>
@@ -200,7 +207,7 @@ export default function HomeScreen() {
   );
 }
 
-// Sub-componentes
+// Sub-componentes mantidos
 const Chip = ({ active = false, icon, label }: any) => (
   <View style={[styles.chip, active && styles.chipActive]}>
     {icon}

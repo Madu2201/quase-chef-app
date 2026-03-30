@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, TouchableOpacity } from "react-native";
-import { Plus, Trash2, ChevronDown, Check, Sparkles } from "lucide-react-native";
+import { Plus, Trash2, ChevronDown, Check } from "lucide-react-native";
+import { router } from "expo-router";
 
 // Importações de Estilo e Componentes
 import { Colors } from "../../constants/theme";
 import { Header } from "../../components/header";
+import { GenerateButton } from "../../components/generate_button";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 import { useDispensa } from "../../hooks/useDispensa";
 
@@ -30,6 +32,14 @@ export default function DispensaScreen() {
         removeIngredient,
         selectedCount
     } = useDispensa(INITIAL_INGREDIENTS);
+
+    // Função de navegação para a IA
+    const handleGerarReceitas = () => {
+        router.push({
+            pathname: "/detalhe_receita",
+            params: { tipo: 'ia' }
+        });
+    };
 
     return (
         <View style={styles.container}>
@@ -128,17 +138,12 @@ export default function DispensaScreen() {
                 ))}
             </ScrollView>
 
-            {selectedCount > 0 && (
-                <TouchableOpacity style={styles.floatingBtn} activeOpacity={0.9}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Sparkles size={22} color={Colors.light} fill={Colors.light} />
-                        <Text style={styles.floatingBtnText}>Gerar receitas</Text>
-                    </View>
-                    <View style={styles.badgeContainer}>
-                        <Text style={styles.badgeText}>{selectedCount} selecionados</Text>
-                    </View>
-                </TouchableOpacity>
-            )}
+            {/* BOTÃO GERAR RECEITAS (Componente Reutilizável) */}
+            <GenerateButton
+                selectedCount={selectedCount}
+                onPress={handleGerarReceitas}
+                style={styles.floatingBtn}
+            />
         </View>
     );
 }

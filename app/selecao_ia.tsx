@@ -2,9 +2,10 @@ import React, { useState, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Pressable, Image } from "react-native";
 import { Sparkles, RotateCcw, Leaf, Flame, Utensils, Zap } from "lucide-react-native";
 import Animated, { FadeInDown, Layout } from "react-native-reanimated";
-import { router } from "expo-router"; // Importado para permitir a navegação
+import { router } from "expo-router";
 
 import { Header } from "../components/header";
+import { GenerateButton } from "../components/generate_button";
 import { Colors } from "../constants/theme";
 import { styles } from "../styles/selecao_ia_styles";
 
@@ -59,13 +60,14 @@ export default function SelecaoIAScreen() {
     })).filter(cat => cat.itens.length > 0);
   }, [busca]);
 
-  // Função para navegar enviando a flag de IA
+  // Função para navegar enviando a flag de IA e dados mockados
   const handleGerarReceita = () => {
     router.push({
       pathname: "/detalhe_receita",
       params: {
         tipo: 'ia',
-        title: 'Risoto de Sobras Criativo' // Exemplo de título que a IA geraria
+        title: 'Risoto de Sobras Criativo',
+        description: 'Uma combinação inteligente baseada nos itens selecionados da sua dispensa.'
       }
     });
   };
@@ -145,17 +147,16 @@ export default function SelecaoIAScreen() {
         ))}
       </ScrollView>
 
-      {/* Footer */}
+      {/* Footer com Botão Gerador Reutilizável */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.generateButton, selecionados.length === 0 && styles.btnDisabled]}
-          disabled={selecionados.length === 0}
-          activeOpacity={0.8}
-          onPress={handleGerarReceita} // Adicionada a função de navegação aqui
-        >
-          <Sparkles size={20} color={Colors.light} fill={Colors.light} />
-          <Text style={styles.generateButtonText}>Gerar Receita Mágica</Text>
-        </TouchableOpacity>
+        <GenerateButton
+          label="Gerar Receita Mágica"
+          selectedCount={selecionados.length}
+          onPress={handleGerarReceita}
+          style={styles.generateButton}
+          alwaysVisible={true} // O botão não some mais
+          showBadge={false}    // Remove o badge interno
+        />
       </View>
     </View>
   );

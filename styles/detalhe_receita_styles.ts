@@ -147,7 +147,9 @@ export const detalheReceitaStyles = StyleSheet.create({
   aiTipContainer: {
     backgroundColor: Colors.primary + '20',
     padding: Spacing.md,
-    borderRadius: Radius.md,
+    borderEndEndRadius: Radius.xl * 2,
+    borderTopEndRadius: Radius.xl * 2,
+    borderTopStartRadius: Radius.xl * 2,
     borderWidth: 1,
     borderColor: Colors.primary + '70',
     marginVertical: Spacing.md,

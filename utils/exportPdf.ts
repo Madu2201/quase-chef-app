@@ -10,7 +10,15 @@ export const exportarListaPendentes = async (itens: any[]) => {
     const rows = itens.map(item => `
         <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0F0F0; align-items: center;">
             <div style="display: flex; align-items: center;">
-                <span style="color: ${Colors.secondary}; margin-right: 10px; font-size: 20px;">•</span>
+                <div style="
+                    width: 16px; 
+                    height: 16px; 
+                    border: 2px solid ${Colors.secondary}; 
+                    border-radius: 4px; 
+                    margin-right: 12px;
+                    background-color: white;
+                "></div>
+                
                 <span style="font-size: 16px; font-weight: 500; color: ${Colors.dark};">${item.name}</span>
             </div>
             <span style="font-size: 13px; color: ${Colors.subtext}; font-style: italic;">${item.info || ''}</span>
@@ -59,11 +67,9 @@ const handleWebExport = (html: string) => {
     const doc = iframe.contentWindow?.document;
     if (doc) {
         doc.open();
-        // O segredo está em escrever o HTML completo e garantir que o foco seja apenas no iframe
         doc.write(html);
         doc.close();
 
-        // Aguarda carregar os estilos e dispara
         iframe.onload = () => {
             iframe.contentWindow?.focus();
             iframe.contentWindow?.print();
@@ -74,10 +80,8 @@ const handleWebExport = (html: string) => {
 
 const handleMobileExport = async (html: string) => {
     try {
-        // Gera o arquivo PDF temporário
         const { uri } = await Print.printToFileAsync({ html });
 
-        // Abre o menu "Compartilhar / Enviar / Salvar em Arquivos" nativo
         await Sharing.shareAsync(uri, {
             mimeType: 'application/pdf',
             dialogTitle: 'Exportar Lista',

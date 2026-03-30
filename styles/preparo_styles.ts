@@ -228,7 +228,7 @@ export const preparoStyles = StyleSheet.create({
         backgroundColor: Colors.background,
         alignItems: 'center',
         paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.xl + 20,
+        paddingVertical: Spacing.xl + 10,
     },
     badgeWrapper: {
         position: 'relative',
@@ -240,7 +240,7 @@ export const preparoStyles = StyleSheet.create({
         borderRadius: Radius.full,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: Spacing.md,
+        marginBottom: Spacing.sm,
     },
     congratsTitle: {
         fontSize: FontSizes.title + 5,

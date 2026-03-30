@@ -15,6 +15,7 @@ import {
   Text,
   View,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 /* Adicionada a animação FadeInRight */
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
@@ -76,7 +77,7 @@ export default function HomeScreen() {
     carregarNome();
   }, [user]);
 
-  const ativosCount = INGREDIENTES.filter(i => i.active).length;
+  const ativosCount = INGREDIENTES.filter((i) => i.active).length;
 
   return (
     <View style={styles.container}>
@@ -163,7 +164,6 @@ export default function HomeScreen() {
             style={{
               borderRadius: Radius.lg,
               paddingVertical: Spacing.md,
-
             }}
           />
         </Animated.View>
@@ -187,6 +187,7 @@ export default function HomeScreen() {
           time="10 MIN"
           title="Omelete de Ervas"
           desc="Perfeito com seus 4 ovos."
+          onPress={() => router.push("/detalhe_receita")}
         />
         <RecipeCard
           delay={800}
@@ -194,6 +195,7 @@ export default function HomeScreen() {
           time="15 MIN"
           title="Shakshuka"
           desc="Ovos cozidos em salsa de tomate."
+          onPress={() => router.push("/detalhe_receita")}
         />
         <RecipeCard
           delay={900}
@@ -201,6 +203,7 @@ export default function HomeScreen() {
           time="20 MIN"
           title="Pizza de Marguerita"
           desc="Ingredientes frescos e massa leve."
+          onPress={() => router.push("/detalhe_receita")}
         />
       </ScrollView>
     </View>
@@ -217,16 +220,40 @@ const Chip = ({ active = false, icon, label }: any) => (
   </View>
 );
 
-const RecipeCard = ({ delay, image, time, title, desc }: any) => (
+const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (
   <Animated.View
     entering={FadeInDown.delay(delay).springify()}
     style={styles.recipeCard}
   >
-    <Image source={image} style={styles.recipeImage} />
-    <View style={styles.recipeInfo}>
-      <Text style={styles.recipeTime}>⏱ {time}</Text>
-      <Text style={styles.recipeTitle}>{title}</Text>
-      <Text style={styles.recipeDesc}>{desc}</Text>
-    </View>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={onPress}
+      style={{ flexDirection: "row", alignItems: "center" }}
+    >
+      <Image source={image} style={styles.recipeImage} />
+      <View style={styles.recipeInfo}>
+        <Text style={styles.recipeTime}>⏱ {time}</Text>
+        <Text style={styles.recipeTitle}>{title}</Text>
+        <Text style={styles.recipeDesc} numberOfLines={1}>
+          {desc}
+        </Text>
+
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: 4 }}
+        >
+          <Text
+            style={{
+              color: Colors.primary,
+              fontSize: FontSizes.small,
+              fontWeight: "600",
+              marginRight: 2,
+            }}
+          >
+            Ver receita
+          </Text>
+          <ChevronRight size={14} color={Colors.primary} />
+        </View>
+      </View>
+    </TouchableOpacity>
   </Animated.View>
 );

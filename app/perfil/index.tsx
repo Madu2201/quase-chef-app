@@ -177,7 +177,7 @@ export default function PerfilScreen() {
             onPress={() => router.replace('/(auth)/login')}
           >
             <LogOut size={18} color={Colors.errorDark} />
-            <Text style={styles.logoutTextInline}>Sair</Text>
+            <Text style={styles.logoutTextInline}>Sair da Conta</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.mainSaveButton} onPress={handleSave}>

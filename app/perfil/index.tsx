@@ -33,15 +33,43 @@ import { Colors } from '../../constants/theme';
 import { perfilStyles as styles } from '../../styles/perfil_styles';
 import { Header } from '../../components/header';
 
+//Backend
+import { useAuth } from '@/hooks/useAuth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
+import { uploadAvatar } from '@/services/authService';
 export default function PerfilScreen() {
   const router = useRouter();
+  const { user } = useAuth(); // Puxando o usuário do banco
 
   // --- ESTADOS ---
-  const [email, setEmail] = useState('maria.silva@email.com');
-  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null); // <- Novo estado para o ID
+  const [nome, setNome] = useState('Carregando...');
+  const [email, setEmail] = useState('');
+  const [fotoUrl, setFotoUrl] = useState('');
   const [isVegetariano, setIsVegetariano] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
 
+  // --- PREENCHER OS DADOS ---
+  useEffect(() => {
+    const carregarDados = async () => {
+      // 1. Resgata os dados da memória do celular (AsyncStorage)
+      const idSalvo = await AsyncStorage.getItem('@user_id');
+      const nomeSalvo = await AsyncStorage.getItem('@user_full_name');
+      const emailSalvo = await AsyncStorage.getItem('@user_email');
+      const fotoSalva = await AsyncStorage.getItem('@user_foto');
+
+      // 2. Define o ID (prioriza o do Hook, se falhar, usa o do celular)
+      setUserId(user?.id || idSalvo);
+
+      // 3. Atualiza os textos da tela
+      setNome(user?.full_name || nomeSalvo || 'Usuário');
+      setEmail(user?.email || emailSalvo || '');
+      setFotoUrl(user?.avatar_url || fotoSalva || '');
+    };
+
+    carregarDados();
+  }, [user]);
   // --- FUNÇÕES ---
   const handleBack = () => {
     // Correção para o erro "GO_BACK not handled":
@@ -77,7 +105,31 @@ export default function PerfilScreen() {
     }
   };
 
-  const handleSave = () => Alert.alert('Sucesso', 'Perfil atualizado!');
+  const handleSave = async () => {
+    // Agora ele verifica o estado userId que acabamos de criar
+    if (!userId) {
+      Alert.alert('Sessão Expirada', 'Por favor, faça logout e login novamente para salvar a foto.');
+      return;
+    }
+
+    try {
+      setLoadingImage(true);
+
+      if (fotoUrl && !fotoUrl.startsWith('http')) {
+        // Usa o userId garantido
+        const novaUrl = await uploadAvatar(userId, fotoUrl);
+        setFotoUrl(novaUrl);
+        await AsyncStorage.setItem('@user_foto', novaUrl);
+      }
+
+      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a foto no momento.');
+    } finally {
+      setLoadingImage(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -110,7 +162,7 @@ export default function PerfilScreen() {
               </View>
             )}
           </TouchableOpacity>
-          <Text style={styles.userNameDisplay}>Maria Silva</Text>
+          <Text style={styles.userNameDisplay}>{nome}</Text>
           <Text style={styles.memberSince}>Membro desde Março 2026</Text>
         </View>
 
@@ -175,7 +227,17 @@ export default function PerfilScreen() {
         <View style={styles.footerActions}>
           <TouchableOpacity
             style={styles.logoutButtonInline}
-            onPress={() => router.replace('/(auth)/login')}
+            onPress={async () => {
+              try {
+                // Limpa TODA a sessão do AsyncStorage de uma vez só
+                await AsyncStorage.clear();
+
+                // Volta para a tela de login
+                router.replace('/(auth)/login');
+              } catch (error) {
+                console.error("Erro ao limpar a sessão:", error);
+              }
+            }}
           >
             <LogOut size={18} color={Colors.errorDark} />
             <Text style={styles.logoutTextInline}>Sair</Text>

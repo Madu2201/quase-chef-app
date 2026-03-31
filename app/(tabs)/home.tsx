@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import {
   ChevronDown,
   Flame,
@@ -7,7 +7,7 @@ import {
   UtensilsCrossed,
   ChevronRight,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Image,
   Pressable,
@@ -28,6 +28,7 @@ import { homeStyles as styles } from "../../styles/home_styles";
 // import de dados
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User as UserIcon } from 'lucide-react-native';
 
 // Dados mockados para os chips animados
 const INGREDIENTES = [
@@ -62,6 +63,7 @@ const INGREDIENTES = [
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const [fotoUrl, setFotoUrl] = useState('');
 
   const [nomeExibido, setNomeExibido] = useState<any>(["Usuário"]);
 
@@ -70,12 +72,29 @@ export default function HomeScreen() {
       if (user?.full_name) {
         setNomeExibido((user.full_name || "").split(" "));
       } else {
-        const salvo = await AsyncStorage.getItem("@user_name");
+        const salvo = await AsyncStorage.getItem("@user_full_name");
         if (salvo) setNomeExibido(salvo.split(" "));
       }
     };
     carregarNome();
   }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      const carregarFoto = async () => {
+        // Primeiro tenta pegar do hook de auth, se não tiver, pega da memória
+        if (user?.avatar_url) {
+          setFotoUrl(user.avatar_url);
+        } else {
+          const fotoSalva = await AsyncStorage.getItem("@user_foto");
+          if (fotoSalva) {
+            setFotoUrl(fotoSalva);
+          }
+        }
+      };
+
+      carregarFoto();
+    }, [user]) // Colocamos o user na dependência caso ele atualize
+  );
 
   const ativosCount = INGREDIENTES.filter((i) => i.active).length;
 
@@ -88,16 +107,15 @@ export default function HomeScreen() {
           onPress={() => router.push("/perfil")}
         >
           <View style={styles.avatarContainer}>
-            {user?.avatar_url ? (
+            {fotoUrl ? (
               <Image
-                source={{ uri: user.avatar_url }}
+                source={{ uri: fotoUrl }}
                 style={{ width: 40, height: 40, borderRadius: 20 }}
               />
             ) : (
               <User2 size={28} color={Colors.primary} />
             )}
           </View>
-
           <View>
             <Text style={styles.greetingText}>Bom dia,</Text>
             <View

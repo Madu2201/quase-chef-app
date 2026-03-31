@@ -1,12 +1,12 @@
-import React, { useState, useMemo } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Pressable, Image } from "react-native";
-import { Sparkles, RotateCcw, Leaf, Flame, Utensils, Zap } from "lucide-react-native";
-import Animated, { FadeInDown, Layout } from "react-native-reanimated";
 import { router } from "expo-router";
+import { Flame, Leaf, RotateCcw, Sparkles, Utensils, Zap } from "lucide-react-native";
+import React, { useMemo, useState } from "react";
+import { Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeInDown, Layout } from "react-native-reanimated";
 
 // Meus importes
-import { Header } from "../components/header";
 import { GenerateButton } from "../components/generate_button";
+import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
 import { styles } from "../styles/selecao_ia_styles";
 
@@ -102,6 +102,11 @@ export default function SelecaoIAScreen() {
             source={{ uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80' }}
             style={styles.heroImage}
           />
+        </Animated.View>
+
+        {/* Título da Seção */}
+        <Animated.View entering={FadeInDown.delay(150)} style={styles.sectionTitleContainer}>
+          <Text style={styles.sectionTitleText}>Ingredientes da minha dispensa:</Text>
         </Animated.View>
 
         {/* Linha de Ação */}

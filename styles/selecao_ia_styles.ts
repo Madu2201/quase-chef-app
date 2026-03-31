@@ -86,6 +86,18 @@ export const styles = StyleSheet.create({
     height: 120
   },
 
+  /* --- TÍTULO DA SEÇÃO --- */
+  sectionTitleContainer: {
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  sectionTitleText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.medium,
+    color: Colors.dark,
+  },
+
   /* --- SEÇÕES E CATEGORIAS --- */
   categoryContainer: {
     paddingHorizontal: Spacing.lg,

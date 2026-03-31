@@ -117,7 +117,7 @@ export default function PerfilScreen() {
 
       if (fotoUrl && !fotoUrl.startsWith('http')) {
         // Usa o userId garantido
-        const novaUrl = await uploadAvatar(userId, fotoUrl);
+        const novaUrl = await uploadAvatar(userId, nome, fotoUrl);
         setFotoUrl(novaUrl);
         await AsyncStorage.setItem('@user_foto', novaUrl);
       }

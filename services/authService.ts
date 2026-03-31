@@ -13,7 +13,7 @@ export const registerUser = async (
       {
         full_name: fullName,
         email: email,
-        password_hash: password, // salvando o texto puro aqui
+        password_hash: password,
       },
     ])
     .select("id")
@@ -43,42 +43,51 @@ export const loginUser = async (email: string, senha: string) => {
   return data;
 };
 //upload de fotos
-export const uploadAvatar = async (userId: string, imageUri: string) => {
+// Adicione o parâmetro 'nome' na função
+export const uploadAvatar = async (
+  userId: string,
+  nome: string,
+  imageUri: string,
+) => {
   try {
-    // 1. Transformar a imagem em um formato que o Supabase entende (Blob)
+    // 1. Pega a imagem real
     const response = await fetch(imageUri);
     const blob = await response.blob();
 
-    // 2. Definir o nome do arquivo (usamos o ID do usuário para ser único)
-    const fileExt = imageUri.split('.').pop(); // Pega a extensão (jpg, png, etc)
-    const fileName = `${userId}.${fileExt}`;
-    const filePath = `${fileName}`;
+    // 2. Descobre a extensão real do arquivo (ex: 'image/jpeg' vira 'jpeg')
+    const mimeType = blob.type || "image/jpeg";
+    const fileExt = mimeType.split("/") || "jpg";
 
-    // 3. Fazer o Upload para o bucket 'avatars'
-    // O 'upsert: true' faz com que a foto antiga seja substituída se o nome for igual
+    // 3. Formata o nome para evitar bugs (tira barras caso o usuário digite no nome)
+    const nomeLimpo = nome.trim().replace(/\//g, "");
+
+    // 4. Monta o caminho exato que você pediu:
+    // Pasta: userId
+    // Arquivo: Nome - perfil.extensao
+    const filePath = `${userId}/${nomeLimpo} - perfil.${fileExt}`;
+
+    // 5. Upload com upsert (se ele já tiver uma foto com esse nome, substitui)
     const { error: uploadError } = await supabase.storage
-      .from('avatars')
+      .from("avatars")
       .upload(filePath, blob, { upsert: true });
 
     if (uploadError) throw uploadError;
 
-    // 4. Pegar a URL pública da foto recém enviada
-    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-    
-    // Adicionado um timestamp para quebrar o cache do celular
+    // 6. Pega a URL pública e quebra o cache do celular
+    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
     const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
 
-    // 5. Atualizar a coluna avatar_url na tabela 'users'
+    // 7. Atualiza o banco
     const { error: updateError } = await supabase
-      .from('users')
+      .from("users")
       .update({ avatar_url: publicUrl })
-      .eq('id', userId);
+      .eq("id", userId);
 
     if (updateError) throw updateError;
 
     return publicUrl;
   } catch (error: any) {
-    console.error('Erro no uploadAvatar:', error.message);
+    console.error("Erro no uploadAvatar:", error.message);
     throw error;
   }
 };

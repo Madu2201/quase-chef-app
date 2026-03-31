@@ -29,7 +29,7 @@ export const useAuth = () => {
       setUser(user); // Armazena o usuário logado no estado
       await AsyncStorage.setItem('@user_id', user.id);
       await AsyncStorage.setItem('@user_full_name', user.full_name);
-      await AsyncStorage.setItem('@user_foto', user.foto || '');
+      await AsyncStorage.setItem('@user_foto', user.avatar_url || '');
       await AsyncStorage.setItem('@user_email', user.email);
       return { success: true, user };
     } catch (error: any) {

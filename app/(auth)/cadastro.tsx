@@ -43,7 +43,7 @@ export default function CadastroScreen() {
     if (Object.keys(newErrors).length === 0) {
       try {
         // Passamos uma string vazia '' no lugar do telefone que foi removido
-        const result = await signUp(nome, email, '', senha);
+        const result = await signUp(nome, email, senha);
 
         if (result.success) {
           setIsSuccess(true); // Ativa o banner de sucesso animado

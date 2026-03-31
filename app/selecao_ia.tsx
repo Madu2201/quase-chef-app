@@ -104,6 +104,11 @@ export default function SelecaoIAScreen() {
           />
         </Animated.View>
 
+        {/* Título da Seção */}
+        <Animated.View entering={FadeInDown.delay(150)} style={styles.sectionTitleContainer}>
+          <Text style={styles.sectionTitleText}>Ingredientes da minha dispensa:</Text>
+        </Animated.View>
+
         {/* Linha de Ação */}
         <View style={styles.actionRow}>
           <Text style={styles.countText}>

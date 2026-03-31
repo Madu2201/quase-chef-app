@@ -1,66 +1,80 @@
-import React, { useState } from 'react';
-import { View, ScrollView, Image, Text, Pressable, StatusBar, Share, TouchableOpacity } from 'react-native';
-import { Heart, Clock, BarChart3, Flame, PlayCircle, CheckCircle2, AlertCircle, Share2, Sparkles, Lightbulb } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInUp, FadeInDown, FadeInLeft } from 'react-native-reanimated';
 import { router, useLocalSearchParams } from 'expo-router';
+import { AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart, Lightbulb, PlayCircle, Share2, Sparkles } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Image, Pressable, ScrollView, Share, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanimated';
 
-// Meus imports
 import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
 
-// Tela de detalhes da receita
+interface Ingrediente {
+  id: string;
+  nome: string;
+  status: 'ok' | 'faltando';
+}
+
+interface PassoPreparo {
+  titulo: string;
+  descricao: string;
+  dica: string;
+  hasTimer: boolean;
+  tempoTimer: number;
+}
+
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
 
   const isIA = params.tipo === 'ia';
 
-  // Sincronizado com os passos da tela de preparo
+  let ingredientesTraduzidos: Ingrediente[] = [];
+  try {
+    if (typeof params.ingredients === 'string') {
+      const rawIng = JSON.parse(params.ingredients);
+      ingredientesTraduzidos = rawIng.map((ing: any, idx: number) => ({
+        id: String(idx),
+        nome: ing.texto_original || ing, 
+        status: 'ok' as const 
+      }));
+    }
+  } catch (e) {
+    console.log("Erro ao processar ingredientes:", e);
+  }
+
+  let passosTraduzidos: PassoPreparo[] = [];
+  try {
+    if (typeof params.steps === 'string') {
+      const rawSteps = JSON.parse(params.steps);
+      passosTraduzidos = rawSteps.map((passo: any) => ({
+        titulo: passo.descricao, 
+        descricao: passo.descricao, 
+        dica: passo.dica_do_chef || "Siga o passo a passo com atenção.",
+        hasTimer: passo.tempo_timer_minutos > 0,
+        tempoTimer: (passo.tempo_timer_minutos || 0) * 60 
+      }));
+    }
+  } catch (e) {
+    console.log("Erro ao processar passos:", e);
+  }
+
   const receita = {
-    titulo: (params.title as string) || 'Omelete de Ervas',
-    descricao: (params.description as string) || 'Uma omelete fofinha e aromática, perfeita para um café da manhã nutritivo.',
-    tempo: (params.time as string) || '10 min',
-    dificuldade: (params.difficulty as string) || 'Fácil',
-    calorias: '210 kcal',
+    titulo: (params.title as string) || 'Receita Desconhecida',
+    descricao: (params.description as string) || 'Descrição indisponível.',
+    tempo: (params.time as string) || '-- min',
+    dificuldade: (params.difficulty as string) || '--',
+    calorias: (params.calories as string) || '-- kcal',
     imagem: (params.image as string) || 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000',
-    itensCount: 4,
-    dicaIA: "Você pode adicionar queijo feta ou cubinhos de tomate para uma versão mediterrânea ainda mais saborosa.",
-    ingredientes: [
-      { id: '1', nome: '2 Ovos grandes', status: 'ok' },
-      { id: '2', nome: 'Salsinha e Cebolinha', status: 'ok' },
-      { id: '3', nome: 'Sal e Pimenta', status: 'ok' },
-      { id: '4', nome: 'Manteiga', status: 'ok' },
-    ],
-    // Array de objetos para facilitar o transporte de dados extras como timer e dicas
-    preparo: [
-      {
-        titulo: "Quebre os ovos em uma tigela",
-        descricao: "Certifique-se de não deixar cair cascas. Adicione uma pitada de sal e as ervas picadas agora.",
-        dica: "Dica: Use ervas frescas para um sabor mais intenso e aromático.",
-        hasTimer: false
-      },
-      {
-        titulo: "Aqueça a frigideira",
-        descricao: "Coloque uma colher de manteiga e espere derreter levemente em fogo baixo.",
-        dica: "Não deixe a manteiga queimar, isso altera o sabor final.",
-        hasTimer: false
-      },
-      {
-        titulo: "Cozinhe e finalize",
-        descricao: "Despeje a mistura e cozinhe em fogo baixo até que o fundo esteja dourado. Dobre ao meio com cuidado.",
-        dica: "Use uma espátula de silicone para não quebrar a massa.",
-        hasTimer: true,
-        tempoTimer: 300 // 5 minutos
-      }
-    ],
+    itensCount: ingredientesTraduzidos.length,
+    dicaIA: "Que tal adicionar seu toque especial a essa receita para deixá-la ainda mais saborosa?",
+    ingredientes: ingredientesTraduzidos.length > 0 ? ingredientesTraduzidos : [{ id: '1', nome: 'Sem ingredientes cadastrados.', status: 'faltando' as const }],
+    preparo: passosTraduzidos.length > 0 ? passosTraduzidos : [{ titulo: "Siga sua intuição", descricao: "Sem passos cadastrados", dica: "", hasTimer: false, tempoTimer: 0 }]
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      {/* HEADER */}
       <Header
         title={isIA ? "Receita gerada por IA" : "Detalhes da Receita"}
         centerTitle
@@ -72,20 +86,15 @@ export default function DetalheReceitaScreen() {
           </TouchableOpacity>
         }
       />
-      {/* CONTEÚDO PRINCIPAL */}
+      
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
           <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
             <Image source={{ uri: receita.imagem }} style={styles.image} />
-            <Animated.View
-              entering={FadeInLeft.delay(500)}
-              style={[styles.badgePopular, isIA && { backgroundColor: Colors.secondary }]}
-            >
+            <Animated.View entering={FadeInLeft.delay(500)} style={[styles.badgePopular, isIA && { backgroundColor: Colors.secondary }]}>
               {isIA && <Sparkles size={12} color={Colors.light} style={{ marginRight: 4 }} />}
-              <Text style={styles.badgeText}>
-                {isIA ? "Gerado por IA" : "Sugestão Quase Chef"}
-              </Text>
+              <Text style={styles.badgeText}>{isIA ? "Gerado por IA" : "Sugestão Quase Chef"}</Text>
             </Animated.View>
           </Animated.View>
 
@@ -105,8 +114,7 @@ export default function DetalheReceitaScreen() {
             </View>
 
             {receita.ingredientes.map((item, index) => (
-              <Animated.View key={item.id} entering={FadeInLeft.delay(400 + index * 50)}
-                style={[styles.ingredientItem, item.status === 'faltando' && styles.ingredientMissing]}>
+              <Animated.View key={item.id} entering={FadeInLeft.delay(400 + index * 50)} style={[styles.ingredientItem, item.status === 'faltando' && styles.ingredientMissing]}>
                 {item.status === 'faltando' ? <AlertCircle size={20} color={Colors.errorDark} /> : <CheckCircle2 size={20} color={Colors.success} />}
                 <Text style={styles.ingredientText}>{item.nome}</Text>
               </Animated.View>
@@ -131,17 +139,13 @@ export default function DetalheReceitaScreen() {
             ))}
           </View>
         </ScrollView>
-
         <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
       </View>
       
-      {/* FOOTER FIXO COM BOTÕES DE AÇÃO */}
       <View style={styles.footer}>
         <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
           <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />
         </Pressable>
-
-        {/* BOTÃO CONECTADO: Envia os dados para a tela de preparo */}
         <Pressable
           style={styles.mainButton}
           onPress={() => router.push({
@@ -149,7 +153,7 @@ export default function DetalheReceitaScreen() {
             params: {
               titulo: receita.titulo,
               imagem: receita.imagem,
-              passosJson: JSON.stringify(receita.preparo) // Passa os passos reais
+              passosJson: JSON.stringify(receita.preparo) 
             }
           })}
         >
@@ -160,7 +164,7 @@ export default function DetalheReceitaScreen() {
     </View>
   );
 }
-// Componente para exibir as informações da receita (tempo, dificuldade, calorias)
+
 const InfoCard = ({ icon: Icon, label, value }: any) => (
   <View style={styles.infoCard}>
     <View style={styles.infoIconContainer}><Icon size={18} color={Colors.primary} /></View>

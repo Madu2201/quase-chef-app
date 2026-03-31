@@ -27,6 +27,9 @@ export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
 
+  // CORREÇÃO 1: Formata o tempo para não estourar a caixinha
+  const formatarTempo = (t: string) => t.toLowerCase().replace('minutos', 'min').replace('minuto', 'min').replace('horas', 'h').replace('hora', 'h');
+
   const isIA = params.tipo === 'ia';
 
   let ingredientesTraduzidos: Ingrediente[] = [];
@@ -48,9 +51,11 @@ export default function DetalheReceitaScreen() {
     if (typeof params.steps === 'string') {
       const rawSteps = JSON.parse(params.steps);
       passosTraduzidos = rawSteps.map((passo: any) => ({
-        titulo: passo.descricao, 
+        // CORREÇÃO 2: Puxa o título certinho do novo banco para a pré-visualização
+        titulo: passo.titulo || "Passo", 
         descricao: passo.descricao, 
-        dica: passo.dica_do_chef || "Siga o passo a passo com atenção.",
+        dica: passo.dica_do_chef || "", 
+        // CORREÇÃO 3: Lê o timer (que agora já vem corrigido do banco novo)
         hasTimer: passo.tempo_timer_minutos > 0,
         tempoTimer: (passo.tempo_timer_minutos || 0) * 60 
       }));
@@ -62,7 +67,7 @@ export default function DetalheReceitaScreen() {
   const receita = {
     titulo: (params.title as string) || 'Receita Desconhecida',
     descricao: (params.description as string) || 'Descrição indisponível.',
-    tempo: (params.time as string) || '-- min',
+    tempo: formatarTempo((params.time as string) || '-- min'), 
     dificuldade: (params.difficulty as string) || '--',
     calorias: (params.calories as string) || '-- kcal',
     imagem: (params.image as string) || 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000',
@@ -131,12 +136,15 @@ export default function DetalheReceitaScreen() {
             )}
 
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
+            
+            {/* UI DA PRÉ-VISUALIZAÇÃO DE PASSOS EXATAMENTE COMO VOCÊ FEZ ANTES */}
             {receita.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
                 <View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View>
                 <Text style={styles.stepText}>{passo.titulo}</Text>
               </View>
             ))}
+
           </View>
         </ScrollView>
         <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />

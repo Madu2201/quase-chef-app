@@ -9,12 +9,11 @@ export const useAuth = () => {
   const signUp = async (
     nome: string,
     email: string,
-    telefone: string,
     senha: string,
   ) => {
     setIsLoading(true);
     try {
-      const userId = await registerUser(nome, email, telefone, senha);
+      const userId = await registerUser(nome, email, senha);
       return { success: true, userId };
     } catch (error: any) {
       return { success: false, error: error.message };
@@ -28,7 +27,10 @@ export const useAuth = () => {
     try {
       const user = await loginUser(email, senha);
       setUser(user); // Armazena o usuário logado no estado
-      await AsyncStorage.setItem('@user_name', user.full_name);
+      await AsyncStorage.setItem('@user_id', user.id);
+      await AsyncStorage.setItem('@user_full_name', user.full_name);
+      await AsyncStorage.setItem('@user_foto', user.foto || '');
+      await AsyncStorage.setItem('@user_email', user.email);
       return { success: true, user };
     } catch (error: any) {
       return { success: false, error: error.message };

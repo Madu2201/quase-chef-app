@@ -91,3 +91,24 @@ export const uploadAvatar = async (
     throw error;
   }
 };
+//Editar Perfil
+export const updateUserProfile = async (userId: string, novoNome: string, novoEmail: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ 
+        full_name: novoNome, 
+        email: novoEmail 
+      })
+      .eq("id", userId)
+      .select() // Pede pro Supabase devolver a linha atualizada
+      .single();
+
+    if (error) throw error;
+
+    return data; // Retorna os dados novos
+  } catch (error: any) {
+    console.error("Erro ao atualizar perfil:", error.message);
+    throw new Error("Não foi possível atualizar os dados.");
+  }
+};

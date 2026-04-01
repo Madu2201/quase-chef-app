@@ -37,7 +37,7 @@ import { Header } from '../../components/header';
 import { useAuth } from '@/hooks/useAuth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
-import { uploadAvatar } from '@/services/authService';
+import { uploadAvatar, updateUserProfile } from '@/services/authService';
 export default function PerfilScreen() {
   const router = useRouter();
   const { user } = useAuth(); // Puxando o usuário do banco
@@ -47,6 +47,7 @@ export default function PerfilScreen() {
   const [nome, setNome] = useState('Carregando...');
   const [email, setEmail] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isVegetariano, setIsVegetariano] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
 
@@ -106,28 +107,36 @@ export default function PerfilScreen() {
   };
 
   const handleSave = async () => {
-    // Agora ele verifica o estado userId que acabamos de criar
     if (!userId) {
-      Alert.alert('Sessão Expirada', 'Por favor, faça logout e login novamente para salvar a foto.');
+      Alert.alert('Sessão Expirada', 'Por favor, faça logout e login novamente.');
       return;
     }
 
     try {
       setLoadingImage(true);
+      setIsUpdating(true); // Se quiser usar aquele estado de loading pro texto também
 
+      // 1. Salva a foto (se tiver uma nova)
       if (fotoUrl && !fotoUrl.startsWith('http')) {
-        // Usa o userId garantido
         const novaUrl = await uploadAvatar(userId, nome, fotoUrl);
         setFotoUrl(novaUrl);
         await AsyncStorage.setItem('@user_foto', novaUrl);
       }
 
+      // 2. Salva o Nome e E-mail no Supabase
+      await updateUserProfile(userId, nome, email);
+
+      // 3. Salva o Nome e E-mail na memória do celular (para a Home atualizar)
+      await AsyncStorage.setItem('@user_full_name', nome);
+      await AsyncStorage.setItem('@user_email', email);
+
       Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar perfil:', error);
-      Alert.alert('Erro', 'Não foi possível salvar a foto no momento.');
+      Alert.alert('Erro', 'Não foi possível salvar os dados no momento.');
     } finally {
       setLoadingImage(false);
+      setIsUpdating(false);
     }
   };
 
@@ -173,20 +182,33 @@ export default function PerfilScreen() {
             <Text style={styles.sectionTitle}>Meus Dados</Text>
           </View>
 
+          {/* NOVO: Adicione o bloco do Nome aqui! */}
           <View style={styles.inputBlock}>
-            <Text style={styles.inputLabel}>E-mail</Text>
+            <Text style={styles.inputLabel}>Nome Completo</Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.textInput}
+                value={nome}
+                onChangeText={setNome}
+              />
+              <Pencil size={14} color={Colors.subtext} />
+            </View>
+          </View>
+
+          {/* NOVO: Adicione o bloco do Email aqui! */}
+          <View style={styles.inputBlock}>
+            <Text style={styles.inputLabel}>Email</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.textInput}
                 value={email}
                 onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
               />
               <Pencil size={14} color={Colors.subtext} />
             </View>
           </View>
         </View>
+
 
         {/* Card: Preferências */}
         <View style={styles.sectionCard}>
@@ -243,9 +265,19 @@ export default function PerfilScreen() {
             <Text style={styles.logoutTextInline}>Sair</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.mainSaveButton} onPress={handleSave}>
-            <CheckCircle size={20} color={Colors.light} />
-            <Text style={styles.mainSaveText}>Salvar</Text>
+          <TouchableOpacity
+            style={styles.mainSaveButton}
+            onPress={handleSave}
+            disabled={isUpdating} // <--- Evita cliques duplos enquanto salva
+          >
+            {isUpdating ? (
+              <ActivityIndicator color={Colors.light} /> // Mostra a rodinha
+            ) : (
+              <>
+                <CheckCircle size={20} color={Colors.light} />
+                <Text style={styles.mainSaveText}>Salvar</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 

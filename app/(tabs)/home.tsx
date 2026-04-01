@@ -67,33 +67,28 @@ export default function HomeScreen() {
 
   const [nomeExibido, setNomeExibido] = useState<any>(["Usuário"]);
 
-  useEffect(() => {
-    const carregarNome = async () => {
-      if (user?.full_name) {
-        setNomeExibido((user.full_name || "").split(" "));
-      } else {
-        const salvo = await AsyncStorage.getItem("@user_full_name");
-        if (salvo) setNomeExibido(salvo.split(" "));
-      }
-    };
-    carregarNome();
-  }, [user]);
-  useFocusEffect(
+useFocusEffect(
     useCallback(() => {
-      const carregarFoto = async () => {
-        // Primeiro tenta pegar do hook de auth, se não tiver, pega da memória
+      const carregarDadosUsuario = async () => {
+        // --- 1. Carrega o Nome ---
+        if (user?.full_name) {
+          setNomeExibido(user.full_name.split(" "));
+        } else {
+          const nomeSalvo = await AsyncStorage.getItem("@user_full_name");
+          if (nomeSalvo) setNomeExibido(nomeSalvo.split(" "));
+        }
+
+        // --- 2. Carrega a Foto ---
         if (user?.avatar_url) {
           setFotoUrl(user.avatar_url);
         } else {
           const fotoSalva = await AsyncStorage.getItem("@user_foto");
-          if (fotoSalva) {
-            setFotoUrl(fotoSalva);
-          }
+          if (fotoSalva) setFotoUrl(fotoSalva);
         }
       };
 
-      carregarFoto();
-    }, [user]) // Colocamos o user na dependência caso ele atualize
+      carregarDadosUsuario();
+    }, [user]) // O array de dependências avisa: "rode de novo se o objeto 'user' mudar"
   );
 
   const ativosCount = INGREDIENTES.filter((i) => i.active).length;

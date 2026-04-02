@@ -218,7 +218,7 @@ export default function SelecaoIAScreen() {
           label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"}
           selectedCount={selecionados.length}
           onPress={handleGerarReceita}
-          style={[styles.generateButton, isGenerating ? { opacity: 0.7 } : null]}
+          style={isGenerating ? [styles.generateButton, { opacity: 0.7 }] : styles.generateButton}
           iconColor={isGenerating ? Colors.primary : Colors.light} // Deixa meio transparente se estiver carregando
           alwaysVisible={true}
           showBadge={false}

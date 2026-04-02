@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart, Lightbulb, PlayCircle, Share2, Sparkles } from 'lucide-react-native';
+import { AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart, Lightbulb, PlayCircle, Share2 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, Share, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanimated';
@@ -8,7 +8,6 @@ import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanima
 import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
-
 
 
 interface Ingrediente {
@@ -99,16 +98,14 @@ export default function DetalheReceitaScreen() {
 
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        { /*  COMENTADO POR ENQUANTO QUE NÃO HÁ IAMGENS 
-        
-          <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
-            <Image source={{ uri: receita.imagem }} style={styles.image} />
-            <Animated.View entering={FadeInLeft.delay(500)} style={[styles.badgePopular, isIA && { backgroundColor: Colors.secondary }]}>
-              {isIA && <Sparkles size={12} color={Colors.light} style={{ marginRight: 4 }} />}
-              <Text style={styles.badgeText}>{isIA ? "Gerado por IA" : "Sugestão Quase Chef"}</Text>
+          {!isIA && (
+            <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
+              <Image source={{ uri: receita.imagem }} style={styles.image} />
+              <Animated.View entering={FadeInLeft.delay(500)} style={[styles.badgePopular, { backgroundColor: Colors.primary }]}>
+                <Text style={styles.badgeText}>Sugestão Quase Chef</Text>
+              </Animated.View>
             </Animated.View>
-          </Animated.View>
-        */}
+          )}
         
           <View style={styles.contentCard}>
             <Animated.Text entering={FadeInDown.delay(200)} style={styles.title}>{receita.titulo}</Animated.Text>
@@ -180,7 +177,13 @@ export default function DetalheReceitaScreen() {
   );
 }
 
-const InfoCard = ({ icon: Icon, label, value }: any) => (
+interface InfoCardProps {
+  icon: React.ComponentType<{ size: number; color: string }>;
+  label: string;
+  value: string;
+}
+
+const InfoCard: React.FC<InfoCardProps> = ({ icon: Icon, label, value }) => (
   <View style={styles.infoCard}>
     <View style={styles.infoIconContainer}><Icon size={18} color={Colors.primary} /></View>
     <View>

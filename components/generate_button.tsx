@@ -1,15 +1,17 @@
-import React from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, ViewStyle } from 'react-native';
 import { Sparkles } from 'lucide-react-native';
+import React from 'react';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
 
 interface GenerateButtonProps {
     onPress: () => void;
     selectedCount: number;
     label?: string;
-    style?: ViewStyle;
+    style?: StyleProp<ViewStyle>;
     showBadge?: boolean;
     alwaysVisible?: boolean;
+    iconColor?: string;
+    disabled?: boolean;
 }
 
 export const GenerateButton = ({
@@ -18,7 +20,9 @@ export const GenerateButton = ({
     label = "Gerar receitas",
     style,
     showBadge = true,        // Padrão é mostrar
-    alwaysVisible = false     // Padrão é esconder se count for 0
+    alwaysVisible = false,   // Padrão é esconder se count for 0
+    iconColor = Colors.light,
+    disabled = false
 }: GenerateButtonProps) => {
 
     // Se não for "sempre visível" e o contador for 0, não renderiza
@@ -33,10 +37,10 @@ export const GenerateButton = ({
             ]}
             onPress={onPress}
             activeOpacity={0.8}
-            disabled={alwaysVisible && selectedCount === 0} // Desativa o clique se estiver vazio
+            disabled={disabled || (alwaysVisible && selectedCount === 0)} // Desativa o clique se estiver vazio
         >
             <View style={styles.content}>
-                <Sparkles size={20} color={Colors.light} fill={Colors.light} />
+                <Sparkles size={20} color={iconColor} fill={iconColor} />
                 <Text style={styles.text}>{label}</Text>
             </View>
 

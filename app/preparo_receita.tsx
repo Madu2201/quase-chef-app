@@ -42,7 +42,7 @@ export default function PreparoReceitaScreen() {
 
     // Lógica do timer, decrementando a cada segundo quando ativo
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: ReturnType<typeof setInterval>;
         if (timerAtivo && tempo > 0) {
             interval = setInterval(() => setTempo(t => t - 1), 1000);
         } else if (tempo === 0) {

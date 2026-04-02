@@ -23,7 +23,7 @@ export const preparoStyles = StyleSheet.create({
         backgroundColor: Colors.light,
         alignItems: 'center',
         justifyContent: 'center',
-        ...Shadows.md,
+        ...Shadows.sm,
     },
     headerTitle: {
         flex: 1,
@@ -58,7 +58,7 @@ export const preparoStyles = StyleSheet.create({
         padding: Spacing.xl,
         marginHorizontal: Spacing.md,
         alignItems: 'center',
-        ...Shadows.lg,
+        ...Shadows.md,
     },
     stepIndicator: {
         color: Colors.primary,
@@ -134,7 +134,7 @@ export const preparoStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        ...Shadows.md,
+        ...Shadows.sm,
     },
     btnTimerResetText: {
         color: Colors.primary,
@@ -150,7 +150,7 @@ export const preparoStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        ...Shadows.md,
+        ...Shadows.sm,
     },
     btnTimerControlText: {
         color: Colors.light,
@@ -210,7 +210,7 @@ export const preparoStyles = StyleSheet.create({
     },
     btnLaranja: {
         backgroundColor: Colors.primary,
-        ...Shadows.md
+        ...Shadows.sm
     },
     btnBorda: {
         borderWidth: 2,
@@ -262,7 +262,7 @@ export const preparoStyles = StyleSheet.create({
         borderTopEndRadius: Radius.xl * 3,
         borderTopStartRadius: Radius.xl * 3,
         overflow: 'hidden',
-        ...Shadows.lg,
+        ...Shadows.md,
         marginBottom: Spacing.xl,
     },
     successImage: {
@@ -303,7 +303,7 @@ export const preparoStyles = StyleSheet.create({
         borderRadius: Radius.full,
         gap: Spacing.xs,
         backgroundColor: Colors.light,
-        ...Shadows.lg
+        ...Shadows.sm
     },
     btnOutlineActive: {
         borderColor: Colors.errorDark,
@@ -321,6 +321,6 @@ export const preparoStyles = StyleSheet.create({
         borderRadius: Radius.xl,
         justifyContent: 'center',
         alignItems: 'center',
-        ...Shadows.lg,
+        ...Shadows.sm,
     }
 });

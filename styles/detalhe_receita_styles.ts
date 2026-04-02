@@ -34,7 +34,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
     borderRadius: Radius.full,
-    flexDirection: 'row', // Adicionado para ícone + texto
+    flexDirection: 'row',
     alignItems: 'center',
     ...Shadows.sm,
   },
@@ -128,7 +128,6 @@ export const detalheReceitaStyles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: Radius.md,
     marginBottom: Spacing.sm,
-    ...Shadows.sm,
   },
   ingredientMissing: {
     backgroundColor: Colors.errorLight + '90',
@@ -143,7 +142,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     color: Colors.dark,
   },
 
-  /* --- DICA DA IA (NOVO) --- */
+  /* --- DICA DA IA --- */
   aiTipContainer: {
     backgroundColor: Colors.primary + '20',
     padding: Spacing.md,
@@ -153,7 +152,6 @@ export const detalheReceitaStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primary + '70',
     marginVertical: Spacing.md,
-    ...Shadows.md,
   },
   aiTipHeader: {
     flexDirection: 'row',
@@ -248,7 +246,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.sm,
-    ...Shadows.md,
+    ...Shadows.sm,
   },
   mainButtonText: {
     color: Colors.light,

@@ -69,8 +69,6 @@ export default function DetalheReceitaScreen() {
     calorias: (params.calories as string) || '-- kcal',
     imagem: (params.image as string) || 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000',
     itensCount: ingredientesTraduzidos.length,
-
-    // CORREÇÃO AQUI: Agora ele puxa a dica real da IA!
     dicaIA: (params.dicaIA as string) || "Que tal adicionar seu toque especial a essa receita?",
 
     ingredientes: ingredientesTraduzidos.length > 0 ? ingredientesTraduzidos : [{ id: '1', nome: 'Sem ingredientes cadastrados.', status: 'faltando' as const }],

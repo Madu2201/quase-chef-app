@@ -18,15 +18,16 @@ import Animated, {
   FadeOut,
 } from "react-native-reanimated";
 
-// Estilos e utilitários
+// Meus imports
 import { authStyles as styles } from "../../styles/auth_styles";
 import { Colors, Spacing, Radius, FontSizes } from "../../constants/theme";
 import { validateEmail } from "../../utils/validation";
 
-//Importação do Backend
+// Hooks e funções de autentificação
 import { useAuth } from "@/hooks/useAuth"; // Hook de autentificação
 import { ActivityIndicator } from "react-native";
 
+// Tela de Login
 export default function LoginScreen() {
   // Constantes de autentificação
   const { signIn, isLoading } = useAuth();
@@ -67,6 +68,7 @@ export default function LoginScreen() {
     }
   };
 
+  // Renderiza a tela de login
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}

@@ -5,17 +5,15 @@ import { Eye, EyeOff, User, Mail, Lock, CheckCircle } from 'lucide-react-native'
 import { FontAwesome5 } from "@expo/vector-icons";
 import Animated, { FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
 
-// Estilos e utilitários
+// Meus imports
 import { authStyles as styles } from '../../styles/auth_styles';
 import { Colors, Fonts, Spacing, Radius, FontSizes } from '../../constants/theme';
 import { validateEmail, getPasswordRequirements, isPasswordStrong, validateName } from '../../utils/validation';
-
-// Import do Backend
 import { useAuth } from '../../hooks/useAuth';
 
+// Definição do componente de cadastro
 export default function CadastroScreen() {
-  const { signUp, isLoading } = useAuth(); // <-- Hook do backend adicionado
-
+  const { signUp, isLoading } = useAuth();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -29,7 +27,7 @@ export default function CadastroScreen() {
   // Regras de validação em tempo real para a senha
   const reqs = getPasswordRequirements(senha);
 
-  // Validação ao tentar cadastrar (Agora Async!)
+  // Validação ao tentar cadastrar
   const handleRegister = async () => {
     let newErrors: any = {};
     if (!validateName(nome)) newErrors.nome = "Nome deve ter 3-50 caracteres.";
@@ -52,7 +50,6 @@ export default function CadastroScreen() {
             router.push('/(auth)/login');
           }, 2000);
         } else {
-          // Erro retornado pelo Supabase (ex: Email já existe)
           setErrors({ geral: result.error || 'Erro ao criar conta.' });
         }
       } catch (error) {
@@ -70,6 +67,7 @@ export default function CadastroScreen() {
     </View>
   );
 
+  // Renderização do componente
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -107,9 +105,9 @@ export default function CadastroScreen() {
 
         {/* Exibição de Erro Geral do Backend */}
         {errors.geral && !isSuccess && (
-           <Animated.View entering={FadeInDown} style={{ marginBottom: 10, backgroundColor: Colors.errorLight, padding: 10, borderRadius: 8 }}>
-             <Text style={{ color: Colors.errorDark, textAlign: 'center', fontSize: 14 }}>{errors.geral}</Text>
-           </Animated.View>
+          <Animated.View entering={FadeInDown} style={{ marginBottom: 10, backgroundColor: Colors.errorLight, padding: 10, borderRadius: 8 }}>
+            <Text style={{ color: Colors.errorDark, textAlign: 'center', fontSize: 14 }}>{errors.geral}</Text>
+          </Animated.View>
         )}
 
         {/* Formulário de Cadastro */}

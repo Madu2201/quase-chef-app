@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { View, Image, StyleSheet, StatusBar, Dimensions } from "react-native";
 import { router } from "expo-router";
-import { Colors } from "../../constants/theme";
 
+// Meus imports
+import { Colors } from "../../constants/theme";
+// Obtenho a largura da tela para dimensionar o logo de forma responsiva
 const { width } = Dimensions.get("window");
 
+// Tela de carregamento personalizada para a rota (auth)/loading
 export default function LoadingScreen() {
   const [step, setStep] = useState(0);
 
@@ -13,12 +16,11 @@ export default function LoadingScreen() {
     const interval = setInterval(() => {
       setStep((prev) => {
         // Se chegar no 3º ponto, volta para o 1 (ciclo infinito)
-        // O 0 é o estado "vazio" antes do primeiro ponto acender
         return prev < 3 ? prev + 1 : 1;
       });
     }, 1000);
 
-    // Redirecionamento após exatamente 6 segundos (2 ciclos de 3s)
+    // Redirecionamento após exatamente 6 segundos
     const timer = setTimeout(() => {
       router.replace("/(auth)/login");
     }, 6000);
@@ -29,6 +31,7 @@ export default function LoadingScreen() {
     };
   }, []);
 
+  // Renderização da tela de carregamento
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.secondary} />
@@ -66,6 +69,7 @@ export default function LoadingScreen() {
   );
 }
 
+// Estilos para a tela de carregamento
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -92,7 +96,6 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     backgroundColor: Colors.light,
-    // Transição suave para os pontos não "piscarem" secos
     transitionProperty: "opacity",
     transitionDuration: "0.3s",
   },

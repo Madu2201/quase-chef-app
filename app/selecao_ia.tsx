@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown, Layout } from "react-native-reanimated";
 
-// Meus importes
+// Meus imports
 import { GenerateButton } from "../components/generate_button";
 import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
@@ -59,7 +59,7 @@ export default function SelecaoIAScreen() {
   };
 
   const limparSelecao = () => setSelecionados([]);
-
+  // 3. Filtra os itens com base na busca, mantendo a estrutura de categorias
   const categoriasFiltradas = useMemo(() => {
     return CATEGORIAS.map(cat => ({
       ...cat,
@@ -79,7 +79,7 @@ export default function SelecaoIAScreen() {
     setIsGenerating(true);
 
     try {
-      // 1. O SUPER PROMPT: Usando chaves em Português para a IA não tentar traduzir!
+      // 4. Cria o prompt para a IA usando os ingredientes selecionados
       const prompt = `Atue como um chef criativo. Crie uma receita deliciosa focando nestes ingredientes: ${selecionados.join(", ")}. Pode assumir que tenho água, sal e óleo.
       
       CRÍTICO: Sua resposta deve ser ÚNICA E EXCLUSIVAMENTE um objeto JSON válido. Use exatamente esta estrutura:
@@ -108,7 +108,7 @@ export default function SelecaoIAScreen() {
       const textoLimpo = respostaIA.replace(/```json/gi, '').replace(/```/gi, '').trim();
       const receitaGerada = JSON.parse(textoLimpo);
 
-      // 4. Mandando os dados com proteção extra (aceita a chave em PT ou EN)
+      // 5. Navega para a tela de detalhes da receita, passando os dados gerados pela IA
       router.push({
         pathname: "/detalhe_receita",
         params: {
@@ -132,6 +132,7 @@ export default function SelecaoIAScreen() {
     }
   };
 
+  // 6. O restante do código permanece o mesmo, apenas adicionamos a lógica de carregamento e a navegação com os dados da IA
   return (
     <View style={styles.container}>
       <Header

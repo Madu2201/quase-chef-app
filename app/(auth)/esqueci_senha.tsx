@@ -12,9 +12,12 @@ import {
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+
+// Meus imports
 import { authStyles as styles } from "../../styles/auth_styles";
 import { Colors } from "../../constants/theme";
 
+// Tela de Esqueci Senha
 export default function EsqueciSenhaScreen() {
   // Estado para controlar o foco do input de email
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);

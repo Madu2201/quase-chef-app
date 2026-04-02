@@ -17,15 +17,15 @@ import {
   StatusBar,
   TouchableOpacity,
 } from "react-native";
-/* Adicionada a animação FadeInRight */
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 
+// Meus imports
 import { Header } from "../../components/header";
 import { GenerateButton } from "../../components/generate_button";
 import { Colors, Spacing, Radius, FontSizes } from "../../constants/theme";
 import { homeStyles as styles } from "../../styles/home_styles";
 
-// import de dados
+// Hooks e bibliotecas para autenticação e armazenamento local
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -59,6 +59,7 @@ const INGREDIENTES = [
   },
 ];
 
+// Componente principal
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
@@ -87,9 +88,9 @@ export default function HomeScreen() {
       };
 
       carregarDadosUsuario();
-    }, [user]) // O array de dependências avisa: "rode de novo se o objeto 'user' mudar"
+    }, [user])
   );
-
+  // Contagem de ingredientes ativos para o badge do botão
   const ativosCount = INGREDIENTES.filter((i) => i.active).length;
 
   return (
@@ -193,6 +194,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
+        {/* Cards de receitas com animação e navegação para detalhes */}
         <RecipeCard
           delay={700}
           image={require("../../assets/images/omelete.png")}
@@ -232,6 +234,7 @@ const Chip = ({ active = false, icon, label }: any) => (
   </View>
 );
 
+// Sub-componentes mantidos
 const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (
   <Animated.View
     entering={FadeInDown.delay(delay).springify()}

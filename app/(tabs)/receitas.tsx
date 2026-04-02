@@ -36,16 +36,14 @@ const CHIPS = [
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
   const flatListRef = useRef<FlatList<Recipe>>(null);
-
   const [busca, setBusca] = useState('');
   const [usarEstoque, setUsarEstoque] = useState(false);
-  const [filtro, setFiltro] = useState('Todas'); // Começa mostrando Todas
+  const [filtro, setFiltro] = useState('Todas');
   const [favoritos, setFavoritos] = useState<Record<string, boolean>>({});
   const [scrollY, setScrollY] = useState(0);
-
   const { receitasBanco, carregando } = useReceitas();
 
-  // A PENEIRA COMPLETA: Filtra por Tag E por Busca
+  // Filtra por Tag E por Busca
   const receitasFiltradas = receitasBanco.filter(receita => {
     // 1. Verifica se passa no filtro do Chip
     const passaNoFiltro = filtro === 'Todas' ? true : receita.tags.includes(filtro);

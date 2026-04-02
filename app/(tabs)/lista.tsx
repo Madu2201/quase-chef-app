@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Platform, Pressable } from 'react-native';
 import { Plus, Check, Trash2, ChevronDown, CheckSquare } from 'lucide-react-native';
 
-// Importações de Estilo e Componentes
+// Meus imports
 import { Header } from '../../components/header';
 import { listaStyles as styles } from '../../styles/lista_styles';
 import { Colors, Spacing } from '../../constants/theme';
@@ -43,6 +43,7 @@ export default function ListaScreen() {
         await exportarListaPendentes(pendentes);
     };
 
+    // Renderização
     return (
         <View style={styles.container}>
             <Header

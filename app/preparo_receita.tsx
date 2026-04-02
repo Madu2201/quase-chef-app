@@ -91,13 +91,13 @@ export default function PreparoReceitaScreen() {
         return (
             <ScrollView contentContainerStyle={styles.containerSucesso} showsVerticalScrollIndicator={false}>
                 <StatusBar barStyle="dark-content" />
-
+                {/* Badge de sucesso */}
                 <Animated.View entering={FadeInUp.duration(600)} style={styles.badgeWrapper}>
                     <View style={styles.successBadge}>
                         <Stars size={48} color={Colors.primary} />
                     </View>
                 </Animated.View>
-
+                {/* Parágrafo de parabéns */}
                 <Animated.View entering={FadeInUp.duration(600).delay(200)} style={{ width: '100%', alignItems: 'center' }}>
                     <Text style={styles.congratsTitle}>Parabéns!</Text>
                     <Text style={styles.congratsSub}>Você concluiu sua receita com sucesso.</Text>
@@ -154,7 +154,7 @@ export default function PreparoReceitaScreen() {
             </ScrollView>
         );
     }
-
+    // Tela de preparo com passos dinâmicos, timer integrado e dicas do chef
     return (
         <View style={styles.container}>
             {/* Cabeçalho */}
@@ -165,20 +165,20 @@ export default function PreparoReceitaScreen() {
                 </Pressable>
                 <Text style={styles.headerTitle}>{params.titulo}</Text>
             </View>
-
+            {/* Indicador de progresso dos passos */}
             <View style={styles.progressContainer}>
                 {passosDinamicos.map((_: any, i: number) => (
                     <View key={i} style={[styles.progressStep, i <= passoAtual ? styles.progressActive : styles.progressInactive]} />
                 ))}
             </View>
-            
+            {/* Card do passo atual */}
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Animated.View key={passoAtual} entering={FadeIn.duration(400)}>
                     <View style={styles.stepCard}>
                         <Text style={styles.stepIndicator}>Passo {passoAtual + 1} de {passosDinamicos.length}</Text>
                         <Text style={styles.stepTitle}>{step?.titulo}</Text>
                         <Text style={styles.stepDescription}>{step?.descricao}</Text>
-
+                        {/* Timer integrado, exibido apenas se o passo tiver um timer associado */}
                         {step?.hasTimer && (
                             <View style={styles.timerInternalWrapper}>
                                 <View style={styles.outerCircle}>
@@ -202,7 +202,7 @@ export default function PreparoReceitaScreen() {
                             </View>
                         )}
                     </View>
-
+                    {/* Dica do Chef */}
                     <Animated.View
                         entering={FadeInLeft.duration(600).delay(200)}
                         style={styles.dicaBox}
@@ -215,7 +215,7 @@ export default function PreparoReceitaScreen() {
                     </Animated.View>
                 </Animated.View>
             </ScrollView>
-
+            {/* Botoes de acao */}
             <View style={styles.footer}>
                 {passoAtual > 0 && (
                     <Pressable style={[styles.btnAcao, styles.btnBorda]} onPress={() => setPassoAtual(passoAtual - 1)}>

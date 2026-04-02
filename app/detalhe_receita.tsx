@@ -10,7 +10,7 @@ import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
 
-// Tipagens para os dados que recebemos via params (ajuda a evitar erros e facilita o entendimento do código)
+// Tipagens para os dados que recebemos via params
 interface Ingrediente {
   id: string;
   nome: string;
@@ -94,6 +94,7 @@ export default function DetalheReceitaScreen() {
         }
       />
 
+      {/* Conteúdo Principal */}
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {!isIA && (
@@ -104,7 +105,7 @@ export default function DetalheReceitaScreen() {
               </Animated.View>
             </Animated.View>
           )}
-        
+          {/* Conteúdo da receita, ingredientes e preparo, com animações para cada seção e item */}
           <View style={styles.contentCard}>
             <Animated.Text entering={FadeInDown.delay(200)} style={styles.title}>{receita.titulo}</Animated.Text>
             <Text style={styles.description}>{receita.descricao}</Text>
@@ -139,7 +140,7 @@ export default function DetalheReceitaScreen() {
 
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
 
-            {/* UI DA PRÉ-VISUALIZAÇÃO DE PASSOS EXATAMENTE COMO VOCÊ FEZ ANTES */}
+            {/* Preparo da receita, com animações para cada passo */}
             {receita.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
                 <View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View>
@@ -151,7 +152,7 @@ export default function DetalheReceitaScreen() {
         </ScrollView>
         <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
       </View>
-
+      {/* Botões de ação para favoritar e iniciar preparo, fixados no rodapé da tela */}
       <View style={styles.footer}>
         <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
           <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />
@@ -175,6 +176,7 @@ export default function DetalheReceitaScreen() {
   );
 }
 
+// Sub-componentes mantidos
 interface InfoCardProps {
   icon: React.ComponentType<{ size: number; color: string }>;
   label: string;

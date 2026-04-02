@@ -1,7 +1,10 @@
 import { Tabs } from "expo-router";
 import { Home, Utensils, Heart, Refrigerator, ListTodo } from "lucide-react-native";
-import { Colors, Fonts, FontSizes, Spacing } from "../../constants/theme";
 
+// Meu import
+import { Colors, FontSizes } from "../../constants/theme";
+
+// Layout de tabs para navegação inferior
 export default function TabsLayout() {
   return (
     <Tabs

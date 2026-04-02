@@ -3,7 +3,7 @@ import { View, Text, TextInput, ScrollView, Pressable, TouchableOpacity } from "
 import { Plus, Trash2, ChevronDown, Check } from "lucide-react-native";
 import { router } from "expo-router";
 
-// Importações de Estilo e Componentes
+// Meus imports
 import { Colors } from "../../constants/theme";
 import { Header } from "../../components/header";
 import { GenerateButton } from "../../components/generate_button";
@@ -41,6 +41,7 @@ export default function DispensaScreen() {
         });
     };
 
+    // Renderização da tela
     return (
         <View style={styles.container}>
             <Header

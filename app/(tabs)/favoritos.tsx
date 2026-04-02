@@ -10,10 +10,12 @@ import Animated, {
     withSequence
 } from 'react-native-reanimated';
 
+// Meus imports
 import { Header } from '../../components/header';
 import { favStyles as styles } from '../../styles/favoritos_styles';
 import { Colors } from '../../constants/theme';
 
+// Dados Iniciais
 const FAVORITOS_DATA = [
     { id: '1', name: 'Bowl de Quinoa e Vegetais', info: '15 min • Fácil', img: require('../../assets/images/Bowl_Quinoa.png') },
     { id: '2', name: 'Pasta Pesto Mediterrânea', info: '20 min • Médio', img: require('../../assets/images/Pasta_Pesto.png') },
@@ -23,6 +25,7 @@ const FAVORITOS_DATA = [
     { id: '6', name: 'Pizza Integral Marguerita', info: '45 min • Médio', img: require('../../assets/images/Pizza_marguerita.png') },
 ];
 
+// Dados Iniciais para os filtros
 const FILTROS = [
     { id: 'Todos', label: 'Todos', icon: Sparkles },
     { id: 'Salgadas', label: 'Salgadas', icon: Utensils },
@@ -44,6 +47,7 @@ const RecipeCard = ({ item, index }: any) => {
         setIsLiked(!isLiked);
     };
 
+    // Animação de entrada do card e do coração
     return (
         <Animated.View
             entering={FadeInDown.delay(index * 150).duration(600).springify()}
@@ -69,6 +73,7 @@ const RecipeCard = ({ item, index }: any) => {
     );
 };
 
+// Tela Principal
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -107,6 +112,7 @@ export default function FavoritosScreen() {
         </View>
     );
 
+    // Renderiza a tela
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
@@ -144,6 +150,7 @@ export default function FavoritosScreen() {
     );
 }
 
+// Componente do Chip para os filtros
 const Chip = ({ active = false, icon, label, onPress }: any) => (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
         {icon}

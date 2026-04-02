@@ -129,6 +129,7 @@ export const styles = StyleSheet.create({
     borderRadius: Radius.full,
     borderWidth: 1.5,
     borderColor: Colors.primary,
+    ...Shadows.sm,
   },
   chipSelected: {
     backgroundColor: Colors.secondary,

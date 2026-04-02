@@ -98,6 +98,7 @@ export const homeStyles = StyleSheet.create({
         backgroundColor: Colors.light,
         borderWidth: 1.5,
         borderColor: Colors.primary,
+        ...Shadows.sm,
     },
     chipActive: {
         backgroundColor: Colors.secondary,

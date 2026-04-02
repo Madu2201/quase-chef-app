@@ -60,6 +60,7 @@ export const receitasStyles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.primary + '30', // Borda sutil quando inativo
     gap: 6,
+    ...Shadows.sm,
   },
   chipActive: {
     backgroundColor: Colors.secondary,

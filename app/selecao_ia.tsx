@@ -10,6 +10,10 @@ import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
 import { styles } from "../styles/selecao_ia_styles";
 
+// Importa a função de perguntar ao Gemini
+import { perguntarAoGemini } from "../services/geminiService";
+
+
 // Dados mockados para categorias e itens
 const CATEGORIAS = [
   {
@@ -44,6 +48,8 @@ export default function SelecaoIAScreen() {
   const [busca, setBusca] = useState("");
   const [selecionados, setSelecionados] = useState<string[]>([]);
 
+  // 2. Adicione este novo estado para controlar o carregamento da IA
+  const [isGenerating, setIsGenerating] = useState(false);
   const toggleIngrediente = (item: string) => {
     if (selecionados.includes(item)) {
       setSelecionados(selecionados.filter(i => i !== item));
@@ -64,15 +70,66 @@ export default function SelecaoIAScreen() {
   }, [busca]);
 
   // Função para navegar enviando a flag de IA e dados mockados
-  const handleGerarReceita = () => {
-    router.push({
-      pathname: "/detalhe_receita",
-      params: {
-        tipo: 'ia',
-        title: 'Risoto de Sobras Criativo',
-        description: 'Uma combinação inteligente baseada nos itens selecionados da sua dispensa.'
-      }
-    });
+  const handleGerarReceita = async () => {
+    if (selecionados.length === 0) {
+      alert("Selecione pelo menos um ingrediente da dispensa!");
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      // 1. O SUPER PROMPT: Usando chaves em Português para a IA não tentar traduzir!
+      const prompt = `Atue como um chef criativo. Crie uma receita deliciosa focando nestes ingredientes: ${selecionados.join(", ")}. Pode assumir que tenho água, sal e óleo.
+      
+      CRÍTICO: Sua resposta deve ser ÚNICA E EXCLUSIVAMENTE um objeto JSON válido. Use exatamente esta estrutura:
+      {
+        "titulo": "Nome criativo da receita",
+        "descricao": "Uma breve frase de dar água na boca",
+        "tempo": "30 min",
+        "dificuldade": "Fácil",
+        "calorias": "350 kcal",
+        "dicaIA": "Uma dica de ouro para essa receita ficar perfeita",
+        "ingredientes": [
+          "Quantidade e nome do ingrediente 1",
+          "Quantidade e nome do ingrediente 2"
+        ],
+        "passos": [
+          {
+            "titulo": "Nome do passo",
+            "descricao": "Instruções detalhadas",
+            "dica_do_chef": "Dica extra opcional",
+            "tempo_timer_minutos": 0
+          }
+        ]
+      }`;
+
+      const respostaIA = await perguntarAoGemini(prompt);
+      const textoLimpo = respostaIA.replace(/```json/gi, '').replace(/```/gi, '').trim();
+      const receitaGerada = JSON.parse(textoLimpo);
+
+      // 4. Mandando os dados com proteção extra (aceita a chave em PT ou EN)
+      router.push({
+        pathname: "/detalhe_receita",
+        params: {
+          tipo: 'ia',
+          title: receitaGerada.titulo || receitaGerada.title || "Receita Surpresa",
+          description: receitaGerada.descricao || receitaGerada.description || "Sem descrição",
+          time: receitaGerada.tempo || receitaGerada.time || "30 min",
+          difficulty: receitaGerada.dificuldade || receitaGerada.difficulty || "Média",
+          calories: receitaGerada.calorias || receitaGerada.calories || "N/A",
+          dicaIA: receitaGerada.dicaIA || "",
+          ingredients: JSON.stringify(receitaGerada.ingredientes || receitaGerada.ingredients || []),
+          steps: JSON.stringify(receitaGerada.passos || receitaGerada.steps || [])
+        }
+      });
+
+    } catch (error) {
+      console.error("Erro na IA ou no JSON:", error);
+      alert("Nossa panela queimou! Tente gerar novamente.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -158,12 +215,14 @@ export default function SelecaoIAScreen() {
       {/* Footer com Botão Gerador Reutilizável */}
       <View style={styles.footer}>
         <GenerateButton
-          label="Gerar Receita Mágica"
+          label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"}
           selectedCount={selecionados.length}
           onPress={handleGerarReceita}
-          style={styles.generateButton}
-          alwaysVisible={true} // O botão não some mais
-          showBadge={false}    // Remove o badge interno
+          style={[styles.generateButton, isGenerating ? { opacity: 0.7 } : null]}
+          iconColor={isGenerating ? Colors.primary : Colors.light} // Deixa meio transparente se estiver carregando
+          alwaysVisible={true}
+          showBadge={false}
+          disabled={isGenerating} // Evita que o usuário clique duas vezes enquanto a IA pensa
         />
       </View>
     </View>

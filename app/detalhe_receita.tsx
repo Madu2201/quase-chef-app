@@ -9,6 +9,8 @@ import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
 
+
+
 interface Ingrediente {
   id: string;
   nome: string;
@@ -38,8 +40,8 @@ export default function DetalheReceitaScreen() {
       const rawIng = JSON.parse(params.ingredients);
       ingredientesTraduzidos = rawIng.map((ing: any, idx: number) => ({
         id: String(idx),
-        nome: ing.texto_original || ing, 
-        status: 'ok' as const 
+        nome: ing.texto_original || ing,
+        status: 'ok' as const
       }));
     }
   } catch (e) {
@@ -52,12 +54,12 @@ export default function DetalheReceitaScreen() {
       const rawSteps = JSON.parse(params.steps);
       passosTraduzidos = rawSteps.map((passo: any) => ({
         // CORREÇÃO 2: Puxa o título certinho do novo banco para a pré-visualização
-        titulo: passo.titulo || "Passo", 
-        descricao: passo.descricao, 
-        dica: passo.dica_do_chef || "", 
+        titulo: passo.titulo || "Passo",
+        descricao: passo.descricao,
+        dica: passo.dica_do_chef || "",
         // CORREÇÃO 3: Lê o timer (que agora já vem corrigido do banco novo)
         hasTimer: passo.tempo_timer_minutos > 0,
-        tempoTimer: (passo.tempo_timer_minutos || 0) * 60 
+        tempoTimer: (passo.tempo_timer_minutos || 0) * 60
       }));
     }
   } catch (e) {
@@ -67,12 +69,15 @@ export default function DetalheReceitaScreen() {
   const receita = {
     titulo: (params.title as string) || 'Receita Desconhecida',
     descricao: (params.description as string) || 'Descrição indisponível.',
-    tempo: formatarTempo((params.time as string) || '-- min'), 
+    tempo: formatarTempo((params.time as string) || '-- min'),
     dificuldade: (params.difficulty as string) || '--',
     calorias: (params.calories as string) || '-- kcal',
     imagem: (params.image as string) || 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000',
     itensCount: ingredientesTraduzidos.length,
-    dicaIA: "Que tal adicionar seu toque especial a essa receita para deixá-la ainda mais saborosa?",
+
+    // CORREÇÃO AQUI: Agora ele puxa a dica real da IA!
+    dicaIA: (params.dicaIA as string) || "Que tal adicionar seu toque especial a essa receita?",
+
     ingredientes: ingredientesTraduzidos.length > 0 ? ingredientesTraduzidos : [{ id: '1', nome: 'Sem ingredientes cadastrados.', status: 'faltando' as const }],
     preparo: passosTraduzidos.length > 0 ? passosTraduzidos : [{ titulo: "Siga sua intuição", descricao: "Sem passos cadastrados", dica: "", hasTimer: false, tempoTimer: 0 }]
   };
@@ -91,10 +96,11 @@ export default function DetalheReceitaScreen() {
           </TouchableOpacity>
         }
       />
-      
+
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-
+        { /*  COMENTADO POR ENQUANTO QUE NÃO HÁ IAMGENS 
+        
           <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
             <Image source={{ uri: receita.imagem }} style={styles.image} />
             <Animated.View entering={FadeInLeft.delay(500)} style={[styles.badgePopular, isIA && { backgroundColor: Colors.secondary }]}>
@@ -102,7 +108,8 @@ export default function DetalheReceitaScreen() {
               <Text style={styles.badgeText}>{isIA ? "Gerado por IA" : "Sugestão Quase Chef"}</Text>
             </Animated.View>
           </Animated.View>
-
+        */}
+        
           <View style={styles.contentCard}>
             <Animated.Text entering={FadeInDown.delay(200)} style={styles.title}>{receita.titulo}</Animated.Text>
             <Text style={styles.description}>{receita.descricao}</Text>
@@ -136,7 +143,7 @@ export default function DetalheReceitaScreen() {
             )}
 
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
-            
+
             {/* UI DA PRÉ-VISUALIZAÇÃO DE PASSOS EXATAMENTE COMO VOCÊ FEZ ANTES */}
             {receita.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
@@ -149,7 +156,7 @@ export default function DetalheReceitaScreen() {
         </ScrollView>
         <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
       </View>
-      
+
       <View style={styles.footer}>
         <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
           <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />
@@ -161,7 +168,7 @@ export default function DetalheReceitaScreen() {
             params: {
               titulo: receita.titulo,
               imagem: receita.imagem,
-              passosJson: JSON.stringify(receita.preparo) 
+              passosJson: JSON.stringify(receita.preparo)
             }
           })}
         >

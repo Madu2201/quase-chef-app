@@ -1,114 +1,98 @@
 # 🍳 Quase Chef App
 
-Quase Chef é um aplicativo mobile inteligente de receitas desenvolvido em **React Native** com **Expo SDK 55 e TypeScript**.
+Aplicativo mobile inteligente de receitas desenvolvido com **React Native** + **Expo SDK 55** + **TypeScript**.
 
-## 🚀 Tecnologias
+## 🚀 Tecnologias Principais
 
-- [Expo](https://expo.dev/) (SDK 55)
-- [React Native](https://reactnative.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Expo Router](https://expo.github.io/router/) (estrutura `app/`)
-- [Supabase](https://supabase.com/) (backend e autenticação)
-- [Lucide React Native](https://lucide.dev/) (ícones)
-- [Expo Font](https://docs.expo.dev/versions/latest/sdk/font/) + Google Fonts (Plus Jakarta Sans)
-- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) (animações)
-- Expo Sharing para compartilhar arquivos (exportar e importar)
-- Expo Print para imprimir lista de compras
-- AsyncStorage para persistência local
+| Tecnologia | Descrição |
+|---|---|
+| **Expo** | SDK 55 - framework React Native |
+| **Supabase** | Backend e autenticação |
+| **Expo Router** | Navegação (file-based routing) |
+| **React Native Reanimated** | Animações e gestos |
+| **Lucide React Native** | Ícones |
+| **AsyncStorage** | Persistência local |
+| **Expo Sharing & Print** | Compartilhar e imprimir conteúdo |
+| **Plus Jakarta Sans** | Fonte personalizada |
 
-## 📂 Estrutura de Pastas
+## 📂 Estrutura do Projeto
 
-```bash
+```
 app/
-├── (auth)/                 # Fluxo de autenticação (pré-login)
-│   ├── loading.tsx         # Tela de carregamento inicial
-│   ├── login.tsx           # Tela de login
-│   ├── cadastro.tsx        # Tela de cadastro
-│   ├── esqueci-senha.tsx   # Tela de recuperação de senha
-│   └── _layout.tsx         # Layout simples sem tabs
-│
-├── (tabs)/                 # Fluxo principal com navegação por abas (pós-login)
-│   ├── home.tsx            # Tela inicial (Home)
-│   ├── receitas.tsx        # Tela de receitas
-│   ├── favoritos.tsx       # Tela de favoritos
-│   ├── dispensa.tsx        # Tela de dispensa
-│   ├── lista.tsx          # Tela de listas
-│   └── _layout.tsx         # Layout com Tab.Navigator (somente Home e Receitas)
-│
-├── perfil/                 # Tela secundária fora das tabs
-│   └── index.tsx           # Tela de perfil
-│
-├── _layout.tsx             # Layout raiz (envolve tudo)
-└── index.tsx               # Decide se mostra (auth) ou (tabs)
+├── (auth)/              # Fluxo autenticação (pré-login)
+│   ├── loading.tsx
+│   ├── login.tsx
+│   ├── cadastro.tsx
+│   ├── esqueci_senha.tsx
+│   └── _layout.tsx
+├── (tabs)/              # Fluxo principal (pós-login)
+│   ├── home.tsx
+│   ├── receitas.tsx
+│   ├── favoritos.tsx
+│   ├── dispensa.tsx
+│   ├── lista.tsx
+│   └── _layout.tsx (Home e Receitas no menu inferior)
+├── perfil/              # Tela acessada via header
+├── detalhe_receita.tsx
+├── preparo_receita.tsx
+├── selecao_ia.tsx
+├── _layout.tsx          # Root layout
+└── index.tsx            # Redirecionamento (auth vs tabs)
 
-assets/ # Imagens e ícones
-components/ # Componentes reutilizáveis (ex: header.tsx)
-constants/ # Temas e constantes
-hooks/ # Hooks customizados (ex: useDispensa.ts, useFavoritos.ts etc )
-services/ # API, Supabase, Gemini
-styles/ # Estilos
+components/             # Componentes reutilizáveis
+constants/              # Temas e configurações
+hooks/                  # Hooks customizados
+services/               # API, Supabase, Gemini
+styles/                 # Estilos globais
+utils/                  # Funções auxiliares
 ```
 
-## 📖 Explicação dos fluxos
+## 🔄 Fluxos de Navegação
 
-### (auth) → Fluxo de autenticação (pré-login)
+### (auth) - Autenticação
+- **Telas**: login, cadastro, esqueci_senha, loading
+- Sem abas na parte inferior
+- Redireciona para `/(tabs)/home` após sucesso
 
-- Telas: **login**, **cadastro**, **esqueci-senha** e **loading**.
-- Não possuem navegação por abas(na parte inferior).
-- Após login/cadastro bem-sucedido, o usuário é redirecionado para `/(tabs)/home`.
+### (tabs) - Principal
+- **Menu inferior**: Home e Receitas
+- **Perfil**: Acessado via header (fora das abas)
+- Redirecionamento: baseado em sessão do Supabase
 
-### (tabs) → Fluxo principal com navegação inferior (pós-login)
+### Telas Secundárias
+- `detalhe_receita` - Detalhes da receita
+- `preparo_receita` - Modo de preparo
+- `selecao_ia` - Seleção de IA
+- `perfil` - Perfil do usuário
 
-- Contém apenas **Home** e **Receitas** na barra inferior.
-- O **Perfil** não aparece na barra, sendo acessado apenas pelo botão no header.
-- O layout é definido em `app/(tabs)/_layout.tsx` usando `Tabs`.
-
-### perfil → Tela secundária fora das tabs
-
-- Aberta via botão de perfil no header.
-- O botão de voltar pode ser:
-  - **Automático** → quando a tela é aberta com `router.push`.
-  - **Customizado** → usando `router.replace("/(tabs)/home")` para garantir retorno direto à Home.
-
-### index.tsx → Decisor de fluxo
-- Localizado na raiz de `app/`.
-- Verifica se o usuário está autenticado.
-- Redireciona para:
-  - `/(auth)/login` se não houver sessão.
-  - `/(tabs)/home` se o usuário já estiver logado.
-
-## ⚙️ Instalação
+## ⚙️ Instalação e Uso
 
 ```bash
 # Instalar dependências
 npm install
 
-# Rodar o projeto
+# Rodar em desenvolvimento
 npx expo start
 
-# Rodar no Web
+# Rodar no navegador
 npm run web
 
-# Limpar cache do Expo
+# Limpar cache
 npx expo start --clear
-
 ```
 
-## 🎨 Tema
+## 🎨 Tema e Estilos
 
-- O app usa uma paleta personalizada definida em constantes/theme.ts:
+- Paleta personalizada em `constants/theme.ts`
+- Fonte: Plus Jakarta Sans (Regular, Medium, Bold)
+- Design tokens: cores, espaçamentos, tamanhos de fonte, bordas
 
-- Fontes: Plus Jakarta Sans (Regular, Medium, Bold)
+## 📝 Funcionalidades Principais
 
-- Tokens: tamanhos de fonte, espaçamentos, bordas e sombras
-
-## ✅ Resumo
-
-- Fluxo (auth) → login/cadastro/esqueci senha.
-- Fluxo (tabs) → navegação principal com Home e Receitas.
-- Fluxo (perfil) → tela secundária fora das tabs ecessada via header.
-
-## 📝 Notas
-
-- O fluxo fora das **tabs (perfil)** não entra na barra de navegação inferior e pode ser feito para outras telas.
-- O botão de voltar pode ser automático **(router.push)** ou customizado **(router.replace("/(tabs)/home"))**.
+- 🔐 Autenticação com Supabase
+- 📝 Gerenciamento de receitas
+- ❤️ Sistema de favoritos
+- 🛒 Lista de compras (imprimir/exportar)
+- 📦 Controle de dispensa
+- 🤖 Integração com Gemini (seleção de IA)
+- 💾 Sincronização local com AsyncStorage

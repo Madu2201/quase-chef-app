@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
+// Meus imports
 import { Header } from '../../components/header';
 import { Colors } from '../../constants/theme';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
@@ -31,6 +32,7 @@ const CHIPS = [
   { label: 'Econômicas', icon: Banknote },
 ];
 
+// Adicionado o 'Todas' para poder ver tudo sem filtro de tag
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
   const flatListRef = useRef<FlatList<Recipe>>(null);
@@ -62,6 +64,7 @@ export default function ReceitasScreen() {
     return achouNoTitulo || achouNosIngredientes;
   });
 
+  // Restaura a posição de scroll ao voltar da tela de detalhes
   useEffect(() => {
     const restoreScroll = Number(params.restoreScroll ?? 0);
     if (restoreScroll > 0) {
@@ -72,10 +75,12 @@ export default function ReceitasScreen() {
     }
   }, [params.restoreScroll]);
 
+  // Atualiza a barra de favoritos em tempo real
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setScrollY(event.nativeEvent.contentOffset.y);
   };
 
+  // Renderiza o header com os filtros e a contagem de resultados
   const ListHeader = () => (
     <View style={styles.filtersContainer}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chipsScrollContent}>
@@ -98,6 +103,7 @@ export default function ReceitasScreen() {
     </View>
   );
 
+  // Renderiza cada card de receita
   function renderRecipeCard({ item, index }: ListRenderItemInfo<Recipe>) {
     const isFav = favoritos[item.id] || false;
     return (
@@ -106,9 +112,9 @@ export default function ReceitasScreen() {
           {item.image ? (
             <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
           ) : (
-             <View style={[styles.cardImage, { backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center' }]}>
-               <Text>Sem foto</Text>
-             </View>
+            <View style={[styles.cardImage, { backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center' }]}>
+              <Text>Sem foto</Text>
+            </View>
           )}
         </View>
         <View style={styles.cardBody}>
@@ -149,6 +155,7 @@ export default function ReceitasScreen() {
     );
   }
 
+  // Renderiza a tela principal
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
@@ -161,9 +168,9 @@ export default function ReceitasScreen() {
       </Header>
       
       {carregando && receitasFiltradas.length === 0 ? (
-         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text>Buscando receitas fresquinhas...</Text>
-         </View>
+        </View>
       ) : (
         <FlatList
           ref={flatListRef}

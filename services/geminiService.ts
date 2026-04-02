@@ -2,7 +2,11 @@
 import "react-native-url-polyfill/auto";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = "AIzaSyDvXcs5Xx9w_2zOhK5U1O1tPQnIt7L9CrQ";
+const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+
+if (!API_KEY) {
+  throw new Error("API_KEY is not defined.");
+}
 
 // Inicializa a IA
 const genAI = new GoogleGenerativeAI(API_KEY);

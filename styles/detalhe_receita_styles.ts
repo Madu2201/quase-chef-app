@@ -128,6 +128,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: Radius.md,
     marginBottom: Spacing.sm,
+    ...Shadows.sm,
   },
   ingredientMissing: {
     backgroundColor: Colors.errorLight + '90',

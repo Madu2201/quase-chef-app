@@ -5,11 +5,12 @@ import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, Share, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanimated';
 
+// Meus imports
 import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
 
-
+// Tipagens para os dados que recebemos via params (ajuda a evitar erros e facilita o entendimento do código)
 interface Ingrediente {
   id: string;
   nome: string;
@@ -24,6 +25,7 @@ interface PassoPreparo {
   tempoTimer: number;
 }
 
+// Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
@@ -61,6 +63,7 @@ export default function DetalheReceitaScreen() {
     console.log("Erro ao processar passos:", e);
   }
 
+  // Construção do objeto receita com dados processados e valores padrão para casos de ausência de dados
   const receita = {
     titulo: (params.title as string) || 'Receita Desconhecida',
     descricao: (params.description as string) || 'Descrição indisponível.',
@@ -75,6 +78,7 @@ export default function DetalheReceitaScreen() {
     preparo: passosTraduzidos.length > 0 ? passosTraduzidos : [{ titulo: "Siga sua intuição", descricao: "Sem passos cadastrados", dica: "", hasTimer: false, tempoTimer: 0 }]
   };
 
+  // Tela de detalhes da receita, com animações, compartilhamento e navegação para a tela de preparo
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />

@@ -23,6 +23,7 @@ export const preparoStyles = StyleSheet.create({
         backgroundColor: Colors.light,
         alignItems: 'center',
         justifyContent: 'center',
+        marginLeft: Spacing.sm + 1,
         ...Shadows.sm,
     },
     headerTitle: {

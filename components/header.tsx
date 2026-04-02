@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ViewStyle, StyleProp } from "react-native";
 import { Search, FileText, ArrowLeft } from "lucide-react-native";
 import { router } from "expo-router";
 
@@ -19,6 +19,7 @@ interface HeaderProps {
   rightElement?: React.ReactNode;
   children?: React.ReactNode;
   showBackButton?: boolean;
+  style?: StyleProp<ViewStyle>; // Prop para permitir customização por tela
 }
 
 export const Header = ({
@@ -33,6 +34,7 @@ export const Header = ({
   onBack,
   rightElement,
   children,
+  style, // Recebendo a prop de estilo
   showBackButton = false,
 }: HeaderProps) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -43,7 +45,8 @@ export const Header = ({
   };
 
   return (
-    <View style={styles.header}>
+    /* APLICAÇÃO DO ESTILO: Aqui combinamos o padrão com o que vier por prop */
+    <View style={[styles.header, style]}>
       <View style={styles.titleContainer}>
 
         {/* Botão Voltar */}

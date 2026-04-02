@@ -166,7 +166,7 @@ export const dispensaStyles = StyleSheet.create({
         left: Spacing.lg,
         right: Spacing.lg,
         backgroundColor: Colors.primary,
-        height: 52,
+        height: 55,
         borderRadius: Radius.full,
         flexDirection: "row",
         justifyContent: "space-between",

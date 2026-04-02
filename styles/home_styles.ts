@@ -1,7 +1,15 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import { headerStyles } from "./header.styles";
 
 export const homeStyles = StyleSheet.create({
+    //Header
+    customHeader: {
+        paddingTop: 0,
+        paddingBottom: 0,
+        marginBottom: 0,
+    },
+    // Container principal
     container: {
         flex: 1,
         backgroundColor: Colors.background,
@@ -123,17 +131,64 @@ export const homeStyles = StyleSheet.create({
     },
     // --- CARDS ---
     recipeCard: {
-        flexDirection: 'row',
         backgroundColor: Colors.light,
         borderRadius: Radius.md,
-        marginBottom: Spacing.sm,
+        marginBottom: Spacing.md,
         marginHorizontal: Spacing.lg,
-        overflow: 'hidden',
-        ...Shadows.xs,
+        elevation: 3,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
-    recipeImage: { width: 90, height: 90 },
-    recipeInfo: { flex: 1, padding: Spacing.sm, justifyContent: 'center' },
-    recipeTime: { fontFamily: Fonts.bold, fontSize: FontSizes.small - 2, color: Colors.primary },
-    recipeTitle: { fontFamily: Fonts.bold, fontSize: FontSizes.small, color: Colors.dark },
-    recipeDesc: { fontFamily: Fonts.regular, fontSize: FontSizes.small - 1, color: Colors.subtitle },
+    recipeTouchable: {
+        flexDirection: 'row',
+        alignItems: 'center', // Alinha imagem e o bloco de texto/seta pelo centro vertical
+        borderRadius: Radius.md,
+        overflow: 'hidden',
+        backgroundColor: Colors.light,
+    },
+    recipeImage: {
+        width: 100,
+        height: 100,
+    },
+    recipeInfo: {
+        flex: 1, // Ocupa todo o espaço ao lado da imagem
+        flexDirection: 'row', // --- NOVO: Separa texto da seta horizontalmente ---
+        alignItems: 'center', // --- NOVO: Centraliza verticalmente a seta grande ---
+        justifyContent: 'space-between', // --- NOVO: Empurra o texto para esquerda e a seta para direita ---
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.sm,
+        height: 100, // Mesma altura da imagem
+    },
+    recipeTextBlock: {
+        flex: 1, // Ocupa o máximo de espaço que sobrar da seta
+        flexShrink: 1, // --- CRÍTICO: Impede que textos longos empurrem a seta ---
+        justifyContent: 'center', // Centraliza os textos verticalmente dentro do bloco
+        marginRight: Spacing.sm, // Espaço para não grudar na seta
+    },
+    recipeArrowBlock: {
+        // Container opcional caso queira adicionar padding específico na seta
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    recipeTime: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small - 3,
+        color: Colors.primary,
+        textTransform: 'uppercase',
+        marginBottom: 2,
+    },
+    recipeTitle: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small,
+        color: Colors.dark,
+        marginBottom: 1,
+    },
+    recipeDesc: {
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.small - 2,
+        color: Colors.subtitle,
+        lineHeight: 16,
+    },
 });

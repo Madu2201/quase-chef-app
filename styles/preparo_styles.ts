@@ -171,7 +171,6 @@ export const preparoStyles = StyleSheet.create({
         marginHorizontal: Spacing.md,
         marginVertical: Spacing.lg,
         gap: Spacing.md,
-        ...Shadows.md,
     },
     dicaIconCircle: {
         width: 32,

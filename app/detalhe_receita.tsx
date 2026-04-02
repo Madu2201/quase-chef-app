@@ -27,8 +27,6 @@ interface PassoPreparo {
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const [favorito, setFavorito] = useState(false);
-
-  // CORREÇÃO 1: Formata o tempo para não estourar a caixinha
   const formatarTempo = (t: string) => t.toLowerCase().replace('minutos', 'min').replace('minuto', 'min').replace('horas', 'h').replace('hora', 'h');
 
   const isIA = params.tipo === 'ia';
@@ -52,11 +50,9 @@ export default function DetalheReceitaScreen() {
     if (typeof params.steps === 'string') {
       const rawSteps = JSON.parse(params.steps);
       passosTraduzidos = rawSteps.map((passo: any) => ({
-        // CORREÇÃO 2: Puxa o título certinho do novo banco para a pré-visualização
         titulo: passo.titulo || "Passo",
         descricao: passo.descricao,
         dica: passo.dica_do_chef || "",
-        // CORREÇÃO 3: Lê o timer (que agora já vem corrigido do banco novo)
         hasTimer: passo.tempo_timer_minutos > 0,
         tempoTimer: (passo.tempo_timer_minutos || 0) * 60
       }));

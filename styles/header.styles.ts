@@ -4,7 +4,7 @@ import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants
 export const headerStyles = StyleSheet.create({
     header: {
         backgroundColor: Colors.light,
-        paddingTop: Platform.OS === 'ios' ? 60 : 40,
+        paddingTop: Platform.OS === 'ios' ? 35 : 25,
         zIndex: 10,
         borderBottomLeftRadius: Radius.xl,
         borderBottomRightRadius: Radius.xl,
@@ -15,10 +15,9 @@ export const headerStyles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Spacing.lg,
-        paddingBottom: Spacing.sm,
-        marginBottom: Spacing.sm,
+        marginBottom: 6,
         minHeight: 40,
-        position: 'relative', // Importante para o botão voltar absoluto
+        position: 'relative',
     },
     title: {
         fontFamily: Fonts.bold,
@@ -47,7 +46,7 @@ export const headerStyles = StyleSheet.create({
     },
     headerContent: {
         paddingHorizontal: Spacing.lg,
-        paddingBottom: Spacing.md,
+        paddingBottom: Spacing.sm,
     },
     searchContainer: {
         backgroundColor: Colors.background,
@@ -58,6 +57,7 @@ export const headerStyles = StyleSheet.create({
         height: 44,
         borderWidth: 1.5,
         borderColor: 'transparent',
+        ...Shadows.sm,
     },
     searchContainerFocused: {
         borderColor: Colors.primary,
@@ -66,7 +66,7 @@ export const headerStyles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small + 2,
+        fontSize: FontSizes.small + 1,
         color: Colors.dark,
         marginLeft: Spacing.sm,
         height: "100%",

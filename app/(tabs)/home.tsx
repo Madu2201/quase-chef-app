@@ -7,7 +7,7 @@ import {
   UtensilsCrossed,
   ChevronRight,
 } from "lucide-react-native";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   Image,
   Pressable,
@@ -28,7 +28,6 @@ import { homeStyles as styles } from "../../styles/home_styles";
 // import de dados
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User as UserIcon } from 'lucide-react-native';
 
 // Dados mockados para os chips animados
 const INGREDIENTES = [
@@ -67,7 +66,7 @@ export default function HomeScreen() {
 
   const [nomeExibido, setNomeExibido] = useState<any>(["Usuário"]);
 
-useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
       const carregarDadosUsuario = async () => {
         // --- 1. Carrega o Nome ---
@@ -96,7 +95,7 @@ useFocusEffect(
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <Header title="" showSearch={false}>
+      <Header title="" showSearch={false} style={styles.customHeader}>
         <Pressable
           style={styles.userHeader}
           onPress={() => router.push("/perfil")}
@@ -241,31 +240,35 @@ const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
-      style={{ flexDirection: "row", alignItems: "center" }}
+      style={styles.recipeTouchable}
     >
-      <Image source={image} style={styles.recipeImage} />
-      <View style={styles.recipeInfo}>
-        <Text style={styles.recipeTime}>⏱ {time}</Text>
-        <Text style={styles.recipeTitle}>{title}</Text>
-        <Text style={styles.recipeDesc} numberOfLines={1}>
-          {desc}
-        </Text>
+      <Image
+        source={image}
+        style={styles.recipeImage}
+        resizeMode="cover"
+      />
 
-        <View
-          style={{ flexDirection: "row", alignItems: "center", marginTop: 4 }}
-        >
-          <Text
-            style={{
-              color: Colors.primary,
-              fontSize: FontSizes.small,
-              fontWeight: "600",
-              marginRight: 2,
-            }}
-          >
-            Ver receita
+      {/* Container Principal das Infos (agora é row) */}
+      <View style={styles.recipeInfo}>
+
+        {/* Bloco de Esquerda: Apenas Textos */}
+        <View style={styles.recipeTextBlock}>
+          <Text style={styles.recipeTime}>⏱ {time}</Text>
+
+          <Text style={styles.recipeTitle} numberOfLines={1}>
+            {title}
           </Text>
-          <ChevronRight size={14} color={Colors.primary} />
+
+          <Text style={styles.recipeDesc} numberOfLines={2}>
+            {desc}
+          </Text>
         </View>
+
+        {/* Bloco de Direita: Seta Grande e Centralizada */}
+        <View style={styles.recipeArrowBlock}>
+          <ChevronRight size={22} color={Colors.primary} strokeWidth={2.5} />
+        </View>
+
       </View>
     </TouchableOpacity>
   </Animated.View>

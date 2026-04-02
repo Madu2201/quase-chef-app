@@ -237,8 +237,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.secondary + '1A',
-    ...Shadows.sm,
+    backgroundColor: Colors.secondary + '10',
   },
   mainButton: {
     flex: 1,

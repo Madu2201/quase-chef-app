@@ -1,5 +1,5 @@
 import { router } from 'expo-router'; // ✅ Importado para navegação
-import { Heart, IceCream, Package, Sparkles, Utensils } from 'lucide-react-native';
+import { Activity, Banknote, Heart, IceCream, LayoutGrid, Package, Utensils, Zap } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, StatusBar, Switch, Text, View } from 'react-native';
 import Animated, {
@@ -16,21 +16,22 @@ import { Header } from '../../components/header';
 import { Colors } from '../../constants/theme';
 import { favStyles as styles } from '../../styles/favoritos_styles';
 
-// ✅ 1. Importamos os Hooks Reais
+// Importamos os Hooks Reais
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 
-// Dados Iniciais para os filtros (Mantidos os seus originais)
-const FILTROS = [
-    { id: 'Todos', label: 'Todos', icon: Sparkles },
-    { id: 'Salgadas', label: 'Salgadas', icon: Utensils },
-    { id: 'Doces', label: 'Doces', icon: IceCream },
-    { id: 'Lanches', label: 'Lanches', icon: Package },
+// ✅ 1. Filtros igual da tela de receitas
+const CHIPS = [
+    { label: 'Todas', icon: LayoutGrid },
+    { label: 'Salgadas', icon: Utensils },
+    { label: 'Doces', icon: IceCream },
+    { label: 'Rápidas', icon: Zap },
+    { label: 'Saudáveis', icon: Activity },
+    { label: 'Econômicas', icon: Banknote },
 ];
 
 // Componente do Card isolado e conectado ao Cérebro de Favoritos
 const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
-    // ✅ 2. Conectando o card ao Hook Global
     const { isFavorito, toggleFavorito } = useFavoritosGlobal();
     const ehFav = isFavorito(item.id);
     const scale = useSharedValue(1);
@@ -50,7 +51,6 @@ const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
             entering={FadeInDown.delay(index * 150).duration(600).springify()}
             style={styles.card}
         >
-            {/* Clicar na imagem abre os Detalhes */}
             <Pressable onPress={() => router.push({
                 pathname: '/detalhe_receita',
                 params: {
@@ -74,7 +74,6 @@ const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
                         </View>
                     )}
                     
-                    {/* Botão independente só para o coração */}
                     <Pressable style={styles.heartIcon} onPress={handleLike} hitSlop={10}>
                         <Animated.View style={animatedHeartStyle}>
                             <Heart
@@ -87,7 +86,6 @@ const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
                 </View>
                 <View style={styles.cardInfo}>
                     <Text style={styles.recipeName} numberOfLines={2}>{item.title}</Text>
-                    {/* Exibe o tempo e a dificuldade juntos igual seu design antigo */}
                     <Text style={styles.recipeDetail}>{item.time} • {item.difficulty}</Text>
                 </View>
             </Pressable>
@@ -99,22 +97,20 @@ const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [searchText, setSearchText] = useState('');
-    const [filtro, setFiltro] = useState('Todos');
+    
+    // Estado inicial ajustado para 'Todas'
+    const [filtro, setFiltro] = useState('Todas');
 
-    // ✅ 3. Puxando dados Reais
     const { receitasBanco } = useReceitas();
     const { isFavorito } = useFavoritosGlobal();
 
-    // ✅ 4. Lógica Mestra de Filtragem (Filtra APENAS favoritos, cruza com busca e com a tag)
     const receitasFiltradas = receitasBanco.filter(receita => {
-        // Regra de ouro: Se não for favorito, nem mostra na tela
         if (!isFavorito(receita.id)) return false;
 
-        // Verifica a Tag/Filtro
-        const passaNoFiltro = filtro === 'Todos' ? true : receita.tags.includes(filtro);
+        // Lógica de filtro ajustada para a chave correta
+        const passaNoFiltro = filtro === 'Todas' ? true : receita.tags.includes(filtro);
         if (!passaNoFiltro) return false;
 
-        // Verifica a Barra de Pesquisa
         if (!searchText) return true;
         const termoBusca = searchText.toLowerCase();
         const achouNoTitulo = receita.title.toLowerCase().includes(termoBusca);
@@ -131,19 +127,19 @@ export default function FavoritosScreen() {
                 style={styles.chipsScroll}
                 contentContainerStyle={styles.chipsScrollContent}
             >
-                {FILTROS.map((item, index) => {
-                    const Icon = item.icon;
-                    const isActive = filtro === item.id;
+                {CHIPS.map((chip, index) => {
+                    const Icon = chip.icon;
+                    const isActive = filtro === chip.label;
                     return (
                         <Animated.View
-                            key={item.id}
+                            key={chip.label}
                             entering={FadeInRight.delay(index * 100).duration(500)}
                         >
                             <Chip
                                 active={isActive}
-                                onPress={() => setFiltro(item.id)}
-                                icon={<Icon size={14} color={isActive ? Colors.light : Colors.primary} fill={isActive && item.id === 'Todos' ? Colors.light : 'transparent'} />}
-                                label={item.label}
+                                onPress={() => setFiltro(chip.label)}
+                                icon={<Icon size={14} color={isActive ? Colors.light : Colors.primary} fill={isActive && chip.label === 'Todas' ? Colors.light : 'transparent'} />}
+                                label={chip.label}
                             />
                         </Animated.View>
                     );
@@ -158,7 +154,6 @@ export default function FavoritosScreen() {
         </View>
     );
 
-    // Renderiza a tela
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
@@ -183,11 +178,12 @@ export default function FavoritosScreen() {
             </Header>
 
             {receitasFiltradas.length === 0 ? (
-                // Uma tela vazia elegante para quando não houver favoritos
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
                     <Heart size={48} color={Colors.subtext} style={{ marginBottom: 10, opacity: 0.5 }} />
                     <Text style={{ color: Colors.subtext, fontSize: 16, textAlign: 'center' }}>
-                        {searchText ? "Nenhuma receita salva encontrada com esse nome." : "Você ainda não salvou nenhuma receita. \nExplore e favorite suas preferidas!"}
+                        {searchText || filtro !== 'Todas' 
+                            ? "Nenhuma receita salva encontrada com esse filtro." 
+                            : "Você ainda não salvou nenhuma receita. \nExplore e favorite suas preferidas!"}
                     </Text>
                 </View>
             ) : (
@@ -206,7 +202,6 @@ export default function FavoritosScreen() {
     );
 }
 
-// Componente do Chip para os filtros
 const Chip = ({ active = false, icon, label, onPress }: any) => (
     <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
         {icon}

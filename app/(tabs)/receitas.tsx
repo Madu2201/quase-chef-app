@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Activity, Banknote, BarChart, Clock, Heart, LayoutGrid, Leaf, Package, TrendingUp, Zap } from 'lucide-react-native';
+import { Activity, Banknote, BarChart, Clock, Heart, LayoutGrid, Package, IceCream, Utensils, Zap } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList, Image,
@@ -22,15 +22,15 @@ import { Colors } from '../../constants/theme';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
 
-// ✅ 1. IMPORTAMOS O NOSSO HOOK GLOBAL AQUI
+// ✅ 1. Importação do hook favoritos
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 
-// Adicionado o 'Todas' para poder ver tudo sem filtro de tag
+// ✅ 2. Filtros atualizados
 const CHIPS = [
   { label: 'Todas', icon: LayoutGrid },
+  { label: 'Salgadas', icon: Utensils },
+  { label: 'Doces', icon: IceCream },
   { label: 'Rápidas', icon: Zap },
-  { label: 'Vegetarianas', icon: Leaf },
-  { label: 'Populares', icon: TrendingUp },
   { label: 'Saudáveis', icon: Activity },
   { label: 'Econômicas', icon: Banknote },
 ];
@@ -46,7 +46,7 @@ export default function ReceitasScreen() {
   
   const { receitasBanco, carregando } = useReceitas();
   
-  // ✅ 2. PUXAMOS AS FUNÇÕES DO CÉREBRO DE FAVORITOS
+  // PUXAMOS AS FUNÇÕES DO CÉREBRO DE FAVORITOS
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
 
   // Filtra por Tag E por Busca
@@ -103,7 +103,7 @@ export default function ReceitasScreen() {
 
   // Renderiza cada card de receita
   function renderRecipeCard({ item, index }: ListRenderItemInfo<Recipe>) {
-    // ✅ 3. PERGUNTA AO CÉREBRO SE ESSE ITEM ESPECÍFICO É FAVORITO
+    // PERGUNTA AO CÉREBRO SE ESSE ITEM ESPECÍFICO É FAVORITO
     const ehFav = isFavorito(item.id);
     
     return (
@@ -121,7 +121,7 @@ export default function ReceitasScreen() {
           <View style={styles.titleRow}>
             <Text style={styles.recipeTitle}>{item.title}</Text>
             
-            {/* ✅ 4. BOTÃO DE FAVORITO USANDO O HOOK GLOBAL */}
+            {/* BOTÃO DE FAVORITO USANDO O HOOK GLOBAL */}
             <TouchableOpacity onPress={() => toggleFavorito(item.id)} style={styles.heartButton}>
               <Heart size={22} color={Colors.secondary} fill={ehFav ? Colors.secondary : 'transparent'} />
             </TouchableOpacity>

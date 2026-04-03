@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, Image, ScrollView, StatusBar, Share, Alert } from 'react-native';
-import { X, Lightbulb, Stars, Share2, Heart, RotateCcw, Play, Pause } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Heart, Lightbulb, Pause, Play, RotateCcw, Share2, Stars, X } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, Share, StatusBar, Text, View } from 'react-native';
 import Animated, {
     FadeIn,
-    FadeInUp,
     FadeInLeft,
-    useSharedValue,
+    FadeInUp,
     useAnimatedStyle,
+    useSharedValue,
     withSpring
 } from 'react-native-reanimated';
 
 // Meus imports
-import { preparoStyles as styles } from '../styles/preparo_styles';
 import { Colors } from '../constants/theme';
+import { preparoStyles as styles } from '../styles/preparo_styles';
+
+// ✅ 1. IMPORTA O HOOK GLOBAL (O Cérebro)
+import { useFavoritosGlobal } from '../hooks/useFavoritos';
 
 // Tela de preparo da receita, com passos dinâmicos e timer integrado
 export default function PreparoReceitaScreen() {
     const params = useLocalSearchParams();
+
+    // Precisamos do ID para saber o que favoritar!
+    const idReceita = params.id as string;
 
     const imagemUri = Array.isArray(params.imagem) ? params.imagem[0] : params.imagem;
     const passosDinamicos = params.passosJson ? JSON.parse(params.passosJson as string) : [];
@@ -27,9 +33,11 @@ export default function PreparoReceitaScreen() {
     const [tempo, setTempo] = useState<number>(0);
     const [timerAtivo, setTimerAtivo] = useState(false);
 
-    const [isFavorito, setIsFavorito] = useState(false);
-    const heartScale = useSharedValue(1);
+    // ✅ 2. PUXA AS FUNÇÕES DO CÉREBRO
+    const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+    const ehFav = isFavorito(idReceita); // Verifica no banco se já é favorito
 
+    const heartScale = useSharedValue(1);
     const step = passosDinamicos[passoAtual];
 
     // Sincroniza o timer com o passo atual, reiniciando quando necessário
@@ -63,7 +71,7 @@ export default function PreparoReceitaScreen() {
         setTempo(step?.tempoTimer || 300);
     };
 
-    // Função para compartilhar a receita concluída, utilizando a API de compartilhamento nativa
+    // Função para compartilhar a receita concluída
     const handleShare = async () => {
         try {
             await Share.share({
@@ -74,12 +82,14 @@ export default function PreparoReceitaScreen() {
         }
     };
 
-    // Função para alternar o estado de favorito, com animação de escala no ícone de coração
-    const toggleFavorito = () => {
-        setIsFavorito(!isFavorito);
-        heartScale.value = withSpring(1.5, {}, () => {
-            heartScale.value = withSpring(1);
-        });
+    // ✅ 3. FUNÇÃO DE FAVORITAR ATUALIZADA
+    const handleToggleFavorito = () => {
+        if (idReceita) {
+            toggleFavorito(idReceita); // Manda o comando pro banco de dados
+            heartScale.value = withSpring(1.5, {}, () => {
+                heartScale.value = withSpring(1); // Faz a animação de pulo do coração
+            });
+        }
     };
 
     const animatedHeartStyle = useAnimatedStyle(() => ({
@@ -120,19 +130,20 @@ export default function PreparoReceitaScreen() {
                     entering={FadeInUp.duration(600).delay(600)}
                     style={[styles.successActions, { width: '100%' }]}
                 >
+                    {/* ✅ 4. BOTÃO USANDO A VARIÁVEL GLOBAL */}
                     <Pressable
-                        style={[styles.btnOutline, isFavorito && styles.btnOutlineActive]}
-                        onPress={toggleFavorito}
+                        style={[styles.btnOutline, ehFav && styles.btnOutlineActive]}
+                        onPress={handleToggleFavorito}
                     >
                         <Animated.View style={animatedHeartStyle}>
                             <Heart
                                 size={18}
-                                color={isFavorito ? Colors.errorDark : Colors.primary}
-                                fill={isFavorito ? Colors.errorDark : "transparent"}
+                                color={ehFav ? Colors.errorDark : Colors.primary}
+                                fill={ehFav ? Colors.errorDark : "transparent"}
                             />
                         </Animated.View>
-                        <Text style={[styles.btnOutlineText, isFavorito && { color: Colors.errorDark }]}>
-                            {isFavorito ? 'Favoritado' : 'Favoritar'}
+                        <Text style={[styles.btnOutlineText, ehFav && { color: Colors.errorDark }]}>
+                            {ehFav ? 'Favoritado' : 'Favoritar'}
                         </Text>
                     </Pressable>
 

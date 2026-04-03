@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart, Lightbulb, PlayCircle, Share2 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React from 'react';
 import { Image, Pressable, ScrollView, Share, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanimated';
 
@@ -9,6 +9,9 @@ import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanima
 import { Header } from '../components/header';
 import { Colors } from '../constants/theme';
 import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
+
+// ✅ 1. IMPORTAMOS O HOOK GLOBAL
+import { useFavoritosGlobal } from '../hooks/useFavoritos';
 
 // Tipagens para os dados que recebemos via params
 interface Ingrediente {
@@ -28,7 +31,11 @@ interface PassoPreparo {
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
-  const [favorito, setFavorito] = useState(false);
+  
+  // ✅ 2. PUXAMOS AS FUNÇÕES GLOBAIS (Substituindo o useState antigo)
+  const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+  const ehFav = isFavorito(params.id as string);
+
   const formatarTempo = (t: string) => t.toLowerCase().replace('minutos', 'min').replace('minuto', 'min').replace('horas', 'h').replace('hora', 'h');
 
   const isIA = params.tipo === 'ia';
@@ -63,7 +70,6 @@ export default function DetalheReceitaScreen() {
     console.log("Erro ao processar passos:", e);
   }
 
-  // Construção do objeto receita com dados processados e valores padrão para casos de ausência de dados
   const receita = {
     titulo: (params.title as string) || 'Receita Desconhecida',
     descricao: (params.description as string) || 'Descrição indisponível.',
@@ -78,7 +84,6 @@ export default function DetalheReceitaScreen() {
     preparo: passosTraduzidos.length > 0 ? passosTraduzidos : [{ titulo: "Siga sua intuição", descricao: "Sem passos cadastrados", dica: "", hasTimer: false, tempoTimer: 0 }]
   };
 
-  // Tela de detalhes da receita, com animações, compartilhamento e navegação para a tela de preparo
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -94,7 +99,6 @@ export default function DetalheReceitaScreen() {
         }
       />
 
-      {/* Conteúdo Principal */}
       <View style={styles.mainContentWrapper}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {!isIA && (
@@ -105,7 +109,7 @@ export default function DetalheReceitaScreen() {
               </Animated.View>
             </Animated.View>
           )}
-          {/* Conteúdo da receita, ingredientes e preparo, com animações para cada seção e item */}
+
           <View style={styles.contentCard}>
             <Animated.Text entering={FadeInDown.delay(200)} style={styles.title}>{receita.titulo}</Animated.Text>
             <Text style={styles.description}>{receita.descricao}</Text>
@@ -140,7 +144,6 @@ export default function DetalheReceitaScreen() {
 
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
 
-            {/* Preparo da receita, com animações para cada passo */}
             {receita.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
                 <View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View>
@@ -152,16 +155,19 @@ export default function DetalheReceitaScreen() {
         </ScrollView>
         <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
       </View>
-      {/* Botões de ação para favoritar e iniciar preparo, fixados no rodapé da tela */}
+
       <View style={styles.footer}>
-        <Pressable onPress={() => setFavorito(!favorito)} style={styles.favButton}>
-          <Heart size={26} color={Colors.secondary} fill={favorito ? Colors.secondary : 'transparent'} />
+        {/* ✅ 3. BOTÃO DE FAVORITO ATUALIZADO PARA USAR O HOOK GLOBAL */}
+        <Pressable onPress={() => toggleFavorito(params.id as string)} style={styles.favButton}>
+          <Heart size={26} color={Colors.secondary} fill={ehFav ? Colors.secondary : 'transparent'} />
         </Pressable>
+
         <Pressable
           style={styles.mainButton}
           onPress={() => router.push({
             pathname: '/preparo_receita',
             params: {
+              id: params.id,
               titulo: receita.titulo,
               imagem: receita.imagem,
               passosJson: JSON.stringify(receita.preparo)

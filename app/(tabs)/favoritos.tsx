@@ -1,31 +1,26 @@
+import { router } from 'expo-router'; // ✅ Importado para navegação
+import { Heart, IceCream, Package, Sparkles, Utensils } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { View, Text, FlatList, Image, Pressable, Switch, ScrollView, StatusBar } from 'react-native';
-import { Heart, Sparkles, Utensils, IceCream, Package } from 'lucide-react-native';
+import { FlatList, Image, Pressable, ScrollView, StatusBar, Switch, Text, View } from 'react-native';
 import Animated, {
     FadeInDown,
     FadeInRight,
-    useSharedValue,
     useAnimatedStyle,
-    withSpring,
-    withSequence
+    useSharedValue,
+    withSequence,
+    withSpring
 } from 'react-native-reanimated';
 
 // Meus imports
 import { Header } from '../../components/header';
-import { favStyles as styles } from '../../styles/favoritos_styles';
 import { Colors } from '../../constants/theme';
+import { favStyles as styles } from '../../styles/favoritos_styles';
 
-// Dados Iniciais
-const FAVORITOS_DATA = [
-    { id: '1', name: 'Bowl de Quinoa e Vegetais', info: '15 min • Fácil', img: require('../../assets/images/Bowl_Quinoa.png') },
-    { id: '2', name: 'Pasta Pesto Mediterrânea', info: '20 min • Médio', img: require('../../assets/images/Pasta_Pesto.png') },
-    { id: '3', name: 'Creme de Abóbora', info: '40 min • Fácil', img: require('../../assets/images/Creme_Abóbora.png') },
-    { id: '4', name: 'Panquecas Fit de Banana', info: '10 min • Super Fácil', img: require('../../assets/images/Panquecas_fit.png') },
-    { id: '5', name: 'Risoto de Cogumelos', info: '35 min • Difícil', img: require('../../assets/images/Risoto_cogumelos.png') },
-    { id: '6', name: 'Pizza Integral Marguerita', info: '45 min • Médio', img: require('../../assets/images/Pizza_marguerita.png') },
-];
+// ✅ 1. Importamos os Hooks Reais
+import { useFavoritosGlobal } from '../../hooks/useFavoritos';
+import { Recipe, useReceitas } from '../../hooks/useReceitas';
 
-// Dados Iniciais para os filtros
+// Dados Iniciais para os filtros (Mantidos os seus originais)
 const FILTROS = [
     { id: 'Todos', label: 'Todos', icon: Sparkles },
     { id: 'Salgadas', label: 'Salgadas', icon: Utensils },
@@ -33,9 +28,11 @@ const FILTROS = [
     { id: 'Lanches', label: 'Lanches', icon: Package },
 ];
 
-// Componente do Card isolado para gerenciar o estado da animação individual de cada coração
-const RecipeCard = ({ item, index }: any) => {
-    const [isLiked, setIsLiked] = useState(true);
+// Componente do Card isolado e conectado ao Cérebro de Favoritos
+const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
+    // ✅ 2. Conectando o card ao Hook Global
+    const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+    const ehFav = isFavorito(item.id);
     const scale = useSharedValue(1);
 
     const animatedHeartStyle = useAnimatedStyle(() => ({
@@ -44,29 +41,54 @@ const RecipeCard = ({ item, index }: any) => {
 
     const handleLike = () => {
         scale.value = withSequence(withSpring(1.3), withSpring(1));
-        setIsLiked(!isLiked);
+        toggleFavorito(item.id);
     };
 
-    // Animação de entrada do card e do coração
+    // Card abre a receita, Coração apenas favorita/desfavorita
     return (
         <Animated.View
             entering={FadeInDown.delay(index * 150).duration(600).springify()}
             style={styles.card}
         >
-            <Pressable onPress={handleLike}>
+            {/* Clicar na imagem abre os Detalhes */}
+            <Pressable onPress={() => router.push({
+                pathname: '/detalhe_receita',
+                params: {
+                    id: item.id,
+                    title: item.title,
+                    time: item.time,
+                    difficulty: item.difficulty,
+                    image: item.image,
+                    calories: item.calories,
+                    description: item.descStart,
+                    ingredients: item.rawIngredients,
+                    steps: item.rawSteps
+                }
+            })}>
                 <View style={styles.imageContainer}>
-                    <Image source={item.img} style={styles.image} resizeMode="cover" />
-                    <Animated.View style={[styles.heartIcon, animatedHeartStyle]}>
-                        <Heart
-                            size={16}
-                            color={isLiked ? Colors.secondary : Colors.subtext}
-                            fill={isLiked ? Colors.secondary : 'transparent'}
-                        />
-                    </Animated.View>
+                    {item.image ? (
+                        <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
+                    ) : (
+                        <View style={[styles.image, { backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center' }]}>
+                            <Text>Sem foto</Text>
+                        </View>
+                    )}
+                    
+                    {/* Botão independente só para o coração */}
+                    <Pressable style={styles.heartIcon} onPress={handleLike} hitSlop={10}>
+                        <Animated.View style={animatedHeartStyle}>
+                            <Heart
+                                size={16}
+                                color={ehFav ? Colors.secondary : Colors.subtext}
+                                fill={ehFav ? Colors.secondary : 'transparent'}
+                            />
+                        </Animated.View>
+                    </Pressable>
                 </View>
                 <View style={styles.cardInfo}>
-                    <Text style={styles.recipeName} numberOfLines={2}>{item.name}</Text>
-                    <Text style={styles.recipeDetail}>{item.info}</Text>
+                    <Text style={styles.recipeName} numberOfLines={2}>{item.title}</Text>
+                    {/* Exibe o tempo e a dificuldade juntos igual seu design antigo */}
+                    <Text style={styles.recipeDetail}>{item.time} • {item.difficulty}</Text>
                 </View>
             </Pressable>
         </Animated.View>
@@ -78,6 +100,28 @@ export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [filtro, setFiltro] = useState('Todos');
+
+    // ✅ 3. Puxando dados Reais
+    const { receitasBanco } = useReceitas();
+    const { isFavorito } = useFavoritosGlobal();
+
+    // ✅ 4. Lógica Mestra de Filtragem (Filtra APENAS favoritos, cruza com busca e com a tag)
+    const receitasFiltradas = receitasBanco.filter(receita => {
+        // Regra de ouro: Se não for favorito, nem mostra na tela
+        if (!isFavorito(receita.id)) return false;
+
+        // Verifica a Tag/Filtro
+        const passaNoFiltro = filtro === 'Todos' ? true : receita.tags.includes(filtro);
+        if (!passaNoFiltro) return false;
+
+        // Verifica a Barra de Pesquisa
+        if (!searchText) return true;
+        const termoBusca = searchText.toLowerCase();
+        const achouNoTitulo = receita.title.toLowerCase().includes(termoBusca);
+        const achouNosIngredientes = receita.rawIngredients.toLowerCase().includes(termoBusca);
+        
+        return achouNoTitulo || achouNosIngredientes;
+    });
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
@@ -107,7 +151,9 @@ export default function FavoritosScreen() {
             </ScrollView>
 
             <View style={styles.infoBar}>
-                <Text style={styles.infoText}>{FAVORITOS_DATA.length} receitas encontradas</Text>
+                <Text style={styles.infoText}>
+                    {receitasFiltradas.length} {receitasFiltradas.length === 1 ? 'receita salva' : 'receitas salvas'}
+                </Text>
             </View>
         </View>
     );
@@ -136,16 +182,26 @@ export default function FavoritosScreen() {
                 </View>
             </Header>
 
-            <FlatList
-                data={FAVORITOS_DATA}
-                keyExtractor={item => item.id}
-                numColumns={2}
-                ListHeaderComponent={ListHeader}
-                columnWrapperStyle={styles.columnWrapper}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-                renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
-            />
+            {receitasFiltradas.length === 0 ? (
+                // Uma tela vazia elegante para quando não houver favoritos
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                    <Heart size={48} color={Colors.subtext} style={{ marginBottom: 10, opacity: 0.5 }} />
+                    <Text style={{ color: Colors.subtext, fontSize: 16, textAlign: 'center' }}>
+                        {searchText ? "Nenhuma receita salva encontrada com esse nome." : "Você ainda não salvou nenhuma receita. \nExplore e favorite suas preferidas!"}
+                    </Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={receitasFiltradas}
+                    keyExtractor={item => String(item.id)}
+                    numColumns={2}
+                    ListHeaderComponent={ListHeader}
+                    columnWrapperStyle={styles.columnWrapper}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
+                />
+            )}
         </View>
     );
 }

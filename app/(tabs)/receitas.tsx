@@ -22,6 +22,9 @@ import { Colors } from '../../constants/theme';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
 
+// ✅ 1. IMPORTAMOS O NOSSO HOOK GLOBAL AQUI
+import { useFavoritosGlobal } from '../../hooks/useFavoritos';
+
 // Adicionado o 'Todas' para poder ver tudo sem filtro de tag
 const CHIPS = [
   { label: 'Todas', icon: LayoutGrid },
@@ -32,29 +35,26 @@ const CHIPS = [
   { label: 'Econômicas', icon: Banknote },
 ];
 
-// Adicionado o 'Todas' para poder ver tudo sem filtro de tag
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
   const flatListRef = useRef<FlatList<Recipe>>(null);
+  
   const [busca, setBusca] = useState('');
   const [usarEstoque, setUsarEstoque] = useState(false);
   const [filtro, setFiltro] = useState('Todas');
-  const [favoritos, setFavoritos] = useState<Record<string, boolean>>({});
   const [scrollY, setScrollY] = useState(0);
+  
   const { receitasBanco, carregando } = useReceitas();
+  
+  // ✅ 2. PUXAMOS AS FUNÇÕES DO CÉREBRO DE FAVORITOS
+  const { isFavorito, toggleFavorito } = useFavoritosGlobal();
 
   // Filtra por Tag E por Busca
   const receitasFiltradas = receitasBanco.filter(receita => {
-    // 1. Verifica se passa no filtro do Chip
     const passaNoFiltro = filtro === 'Todas' ? true : receita.tags.includes(filtro);
-    
-    // 2. Se não passou no Chip, já descarta
     if (!passaNoFiltro) return false;
-
-    // 3. Se a busca estiver vazia, deixa passar
     if (!busca) return true;
     
-    // 4. Verifica a busca de texto
     const termoBusca = busca.toLowerCase();
     const achouNoTitulo = receita.title.toLowerCase().includes(termoBusca);
     const achouNosIngredientes = receita.rawIngredients.toLowerCase().includes(termoBusca);
@@ -73,7 +73,7 @@ export default function ReceitasScreen() {
     }
   }, [params.restoreScroll]);
 
-  // Atualiza a barra de favoritos em tempo real
+  // Atualiza o scroll em tempo real
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setScrollY(event.nativeEvent.contentOffset.y);
   };
@@ -103,7 +103,9 @@ export default function ReceitasScreen() {
 
   // Renderiza cada card de receita
   function renderRecipeCard({ item, index }: ListRenderItemInfo<Recipe>) {
-    const isFav = favoritos[item.id] || false;
+    // ✅ 3. PERGUNTA AO CÉREBRO SE ESSE ITEM ESPECÍFICO É FAVORITO
+    const ehFav = isFavorito(item.id);
+    
     return (
       <Animated.View entering={FadeInDown.delay(index * 150).duration(600).springify()} style={styles.card}>
         <View style={styles.cardImageContainer}>
@@ -118,9 +120,12 @@ export default function ReceitasScreen() {
         <View style={styles.cardBody}>
           <View style={styles.titleRow}>
             <Text style={styles.recipeTitle}>{item.title}</Text>
-            <TouchableOpacity onPress={() => setFavoritos(p => ({ ...p, [item.id]: !p[item.id] }))} style={styles.heartButton}>
-              <Heart size={22} color={Colors.secondary} fill={isFav ? Colors.secondary : 'transparent'} />
+            
+            {/* ✅ 4. BOTÃO DE FAVORITO USANDO O HOOK GLOBAL */}
+            <TouchableOpacity onPress={() => toggleFavorito(item.id)} style={styles.heartButton}>
+              <Heart size={22} color={Colors.secondary} fill={ehFav ? Colors.secondary : 'transparent'} />
             </TouchableOpacity>
+            
           </View>
           <View style={styles.metaRow}>
             <View style={styles.metaItem}><Clock size={14} color={Colors.primary} /><Text style={styles.metaText}>{item.time}</Text></View>

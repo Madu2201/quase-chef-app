@@ -19,13 +19,12 @@ export const GenerateButton = ({
     selectedCount,
     label = "Gerar receitas",
     style,
-    showBadge = true,        // Padrão é mostrar
-    alwaysVisible = false,   // Padrão é esconder se count for 0
+    showBadge = true,        
+    alwaysVisible = false,   
     iconColor = Colors.light,
     disabled = false
 }: GenerateButtonProps) => {
 
-    // Se não for "sempre visível" e o contador for 0, não renderiza
     if (!alwaysVisible && selectedCount === 0) return null;
 
     return (
@@ -33,11 +32,11 @@ export const GenerateButton = ({
             style={[
                 styles.button,
                 style,
-                alwaysVisible && selectedCount === 0 && { opacity: 0.6 } // Feedback visual de desativado
+                alwaysVisible && selectedCount === 0 && { opacity: 0.6 } 
             ]}
             onPress={onPress}
             activeOpacity={0.8}
-            disabled={disabled || (alwaysVisible && selectedCount === 0)} // Desativa o clique se estiver vazio
+            disabled={disabled || (alwaysVisible && selectedCount === 0)} 
         >
             <View style={styles.content}>
                 <Sparkles size={20} color={iconColor} fill={iconColor} />
@@ -46,7 +45,7 @@ export const GenerateButton = ({
 
             {showBadge && selectedCount > 0 && (
                 <View style={styles.badgeContainer}>
-                    <Text style={styles.badgeText}>{selectedCount} selecionados</Text>
+                    <Text style={styles.badgeText}>{selectedCount}</Text>
                 </View>
             )}
         </TouchableOpacity>
@@ -61,7 +60,7 @@ const styles = StyleSheet.create({
         borderRadius: Radius.full,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center', 
         ...Shadows.md,
     },
     content: {
@@ -74,15 +73,17 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.medium - 1
     },
+    // Bolinha limpa mostrando só o número!
     badgeContainer: {
-        marginLeft: Spacing.md,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        paddingHorizontal: Spacing.sm,
-        paddingVertical: Spacing.sm,
-        borderRadius: Radius.sm
+        backgroundColor: Colors.light,
+        width: 28,
+        height: 28,
+        borderRadius: Radius.full,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     badgeText: {
-        color: Colors.light,
+        color: Colors.primary,
         fontSize: FontSizes.small,
         fontFamily: Fonts.bold
     }

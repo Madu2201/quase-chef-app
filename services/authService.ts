@@ -1,4 +1,6 @@
 import { supabase } from "@/services/supabase";
+import * as FileSystem from "expo-file-system/legacy";
+import { File } from "expo-file-system";
 
 // 1. Cadastro Simples
 export const registerUser = async (
@@ -43,47 +45,44 @@ export const loginUser = async (email: string, senha: string) => {
   return data;
 };
 //upload de fotos
-// Adicione o parâmetro 'nome' na função
 export const uploadAvatar = async (
   userId: string,
   nome: string,
   imageUri: string,
 ) => {
   try {
-    // 1. Pega a imagem real
-    const response = await fetch(imageUri);
-    const blob = await response.blob();
+    // 1. Cria o arquivo a partir da URI
+    const file = new File(imageUri);
 
-    // 2. Descobre a extensão real do arquivo (ex: 'image/jpeg' vira 'jpeg')
-    const mimeType = blob.type || "image/jpeg";
-    const fileExt = mimeType.split("/") || "jpg";
+    // 2. Lê como base64
+    const base64 = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: "base64",
+    });
 
-    // 3. Formata o nome para evitar bugs (tira barras caso o usuário digite no nome)
+    const fileExt = imageUri.split(".").pop() || "jpg";
     const nomeLimpo = nome.trim().replace(/\//g, "");
-
-    // 4. Monta o caminho exato que você pediu:
-    // Pasta: userId
-    // Arquivo: Nome - perfil.extensao
     const filePath = `${userId}/${nomeLimpo} - perfil.${fileExt}`;
 
-    // 5. Upload com upsert (se ele já tiver uma foto com esse nome, substitui)
+    // 3. Converte base64 → ArrayBuffer
+    const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+    // 4. Upload
     const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(filePath, blob, { upsert: true });
+      .upload(filePath, arrayBuffer, {
+        contentType: `image/${fileExt}`,
+        upsert: true,
+      });
 
     if (uploadError) throw uploadError;
 
-    // 6. Pega a URL pública e quebra o cache do celular
     const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
     const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
 
-    // 7. Atualiza o banco
-    const { error: updateError } = await supabase
+    await supabase
       .from("users")
       .update({ avatar_url: publicUrl })
       .eq("id", userId);
-
-    if (updateError) throw updateError;
 
     return publicUrl;
   } catch (error: any) {
@@ -92,13 +91,17 @@ export const uploadAvatar = async (
   }
 };
 //Editar Perfil
-export const updateUserProfile = async (userId: string, novoNome: string, novoEmail: string) => {
+export const updateUserProfile = async (
+  userId: string,
+  novoNome: string,
+  novoEmail: string,
+) => {
   try {
     const { data, error } = await supabase
       .from("users")
-      .update({ 
-        full_name: novoNome, 
-        email: novoEmail 
+      .update({
+        full_name: novoNome,
+        email: novoEmail,
       })
       .eq("id", userId)
       .select() // Pede pro Supabase devolver a linha atualizada

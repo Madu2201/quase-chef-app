@@ -5,10 +5,10 @@ export const authStyles = StyleSheet.create({
   // --- ESTRUTURA PRINCIPAL ---
   container: {
     flexGrow: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.light,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xl,
-    paddingTop: 55, // Padronizado para todas as telas de auth
+    paddingTop: 55,
   },
 
   // -- VALIDAÇÕES ERROS --
@@ -38,6 +38,7 @@ export const authStyles = StyleSheet.create({
     width: 80,
     height: 80,
     marginBottom: Spacing.xs,
+    ...Shadows.md,
   },
   brandName: {
     fontFamily: Fonts.bold,
@@ -56,7 +57,7 @@ export const authStyles = StyleSheet.create({
   welcomeSubtitle: {
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small,
-    color: Colors.subtitle,
+    color: Colors.subtitle + "99",
     textAlign: "center",
     marginTop: Spacing.xs,
     lineHeight: Spacing.lg,
@@ -67,7 +68,7 @@ export const authStyles = StyleSheet.create({
   inputGroup: {
     marginTop: Spacing.lg,
   },
-  label: { // Adicionado para o Cadastro
+  label: {
     fontFamily: Fonts.medium,
     fontSize: FontSizes.small,
     color: Colors.dark,
@@ -79,12 +80,12 @@ export const authStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: Colors.subtext + "80",
     borderRadius: Radius.lg,
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
     marginBottom: Spacing.xs,
-    height: 48, // Altura padronizada
+    height: 48,
     ...Shadows.sm,
   },
   inputContainerFocused: {

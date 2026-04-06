@@ -60,6 +60,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     fontSize: FontSizes.large + 2,
     color: Colors.dark,
     marginBottom: Spacing.xs,
+    marginTop: Spacing.md,
   },
   description: {
     fontFamily: Fonts.regular,

@@ -135,7 +135,6 @@ export const preparoStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        ...Shadows.sm,
     },
     btnTimerResetText: {
         color: Colors.primary,

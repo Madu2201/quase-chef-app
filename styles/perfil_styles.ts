@@ -5,7 +5,7 @@ export const perfilStyles = StyleSheet.create({
   // --- ESTRUTURA GERAL ---
   keyboardContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.light,
   },
   scrollContent: {
     paddingBottom: Spacing.xl,
@@ -24,7 +24,7 @@ export const perfilStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: Colors.light,
+    borderColor: Colors.secondary + '99',
     position: 'relative',
     ...Shadows.sm,
   },
@@ -60,7 +60,7 @@ export const perfilStyles = StyleSheet.create({
     color: Colors.primary,
   },
   memberSince: {
-    fontSize: 10,
+    fontSize: FontSizes.small - 1,
     fontFamily: Fonts.regular,
     color: Colors.subtitle,
     marginTop: Spacing.xs,
@@ -68,12 +68,13 @@ export const perfilStyles = StyleSheet.create({
 
   // --- CARDS E INPUTS ---
   sectionCard: {
-    backgroundColor: Colors.light,
+    backgroundColor: Colors.subtext + '5',
     marginHorizontal: Spacing.lg,
     marginVertical: Spacing.sm,
     padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.subtext + '50',
     borderRadius: Radius.lg,
-    ...Shadows.sm,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -90,7 +91,7 @@ export const perfilStyles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   inputLabel: {
-    fontSize: 12,
+    fontSize: FontSizes.small,
     color: Colors.subtitle,
     marginBottom: 6,
     fontFamily: Fonts.medium,
@@ -109,7 +110,7 @@ export const perfilStyles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
 
-  // --- PREFERÊNCIAS (RESPONSIVO) ---
+  // --- PREFERÊNCIAS ---
   prefRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -123,13 +124,13 @@ export const perfilStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    flex: 1, // Permite que o texto cresça e quebre
+    flex: 1,
   },
   prefRight: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    minWidth: 80, // Mantém o "Configurar" visível
+    minWidth: 80,
   },
   prefText: {
     fontSize: FontSizes.small,
@@ -139,7 +140,7 @@ export const perfilStyles = StyleSheet.create({
   },
   prefHintText: {
     color: Colors.subtext,
-    fontSize: 12,
+    fontSize: FontSizes.small - 1,
     marginRight: Spacing.xs,
     fontFamily: Fonts.regular,
   },
@@ -183,7 +184,7 @@ export const perfilStyles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderRadius: Radius.lg,
     gap: Spacing.sm,
-    ...Shadows.md,
+    ...Shadows.sm,
   },
   mainSaveText: {
     color: Colors.light,

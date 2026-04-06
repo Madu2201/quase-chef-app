@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ViewStyle, StyleProp } from "react-native";
-import { Search, FileText, ArrowLeft } from "lucide-react-native";
 import { router } from "expo-router";
+import { ArrowLeft, FileText, Search } from "lucide-react-native";
+import React, { useState } from "react";
+import { StyleProp, Text, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
 
 import { Colors, Spacing } from "../constants/theme";
 import { headerStyles as styles } from "../styles/header.styles";
@@ -106,6 +106,7 @@ export const Header = ({
                 placeholderTextColor={Colors.primary + "80"}
                 selectionColor={Colors.primary}
                 autoCorrect={false}
+                underlineColorAndroid="transparent"
               />
             </View>
           )}

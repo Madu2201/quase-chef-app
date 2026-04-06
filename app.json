@@ -37,7 +37,8 @@
       "expo-font",
       "expo-image",
       "expo-web-browser",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -85,8 +85,8 @@ export const authStyles = StyleSheet.create({
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
     marginBottom: Spacing.xs,
-    height: 48, // Altura padronizada
-    ...Shadows.md,
+    height: 48,
+    ...Shadows.sm,
   },
   inputContainerFocused: {
     borderColor: Colors.primary,

@@ -98,7 +98,7 @@ export const receitasStyles = StyleSheet.create({
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.lg,
     overflow: 'hidden',
-    ...Shadows.md, // Sombra um pouco mais profunda para destaque
+    ...Shadows.md,
   },
   cardImageContainer: {
     width: '100%',

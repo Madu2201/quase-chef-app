@@ -1,5 +1,5 @@
-import { StyleSheet, Platform, TextStyle } from "react-native";
-import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import { Platform, StyleSheet, TextStyle } from "react-native";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 
 export const headerStyles = StyleSheet.create({
     header: {
@@ -70,5 +70,9 @@ export const headerStyles = StyleSheet.create({
         color: Colors.dark,
         marginLeft: Spacing.sm,
         height: "100%",
+        ...Platform.select({
+            web: { outlineStyle: 'none' } as any,
+            default: {},
+        }),
     } as TextStyle,
 });

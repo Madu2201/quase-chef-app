@@ -5,7 +5,7 @@ export const perfilStyles = StyleSheet.create({
   // --- ESTRUTURA GERAL ---
   keyboardContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.light,
   },
   scrollContent: {
     paddingBottom: Spacing.xl,
@@ -20,11 +20,11 @@ export const perfilStyles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: Radius.full,
-    backgroundColor: Colors.light,
+    backgroundColor: Colors.subtext + '15',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: Colors.light,
+    borderColor: Colors.secondary + '99',
     position: 'relative',
     ...Shadows.sm,
   },
@@ -60,7 +60,7 @@ export const perfilStyles = StyleSheet.create({
     color: Colors.primary,
   },
   memberSince: {
-    fontSize: 10,
+    fontSize: FontSizes.small - 1,
     fontFamily: Fonts.regular,
     color: Colors.subtitle,
     marginTop: Spacing.xs,
@@ -68,12 +68,12 @@ export const perfilStyles = StyleSheet.create({
 
   // --- CARDS E INPUTS ---
   sectionCard: {
-    backgroundColor: Colors.light,
+    backgroundColor: Colors.subtext + '5',
     marginHorizontal: Spacing.lg,
     marginVertical: Spacing.sm,
     padding: Spacing.lg,
     borderRadius: Radius.lg,
-    ...Shadows.sm,
+    ...Shadows.md,
   },
   sectionHeader: {
     flexDirection: 'row',

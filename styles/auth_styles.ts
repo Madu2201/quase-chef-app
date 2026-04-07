@@ -1,8 +1,14 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
-import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
+import {
+  Colors,
+  Fonts,
+  FontSizes,
+  Radius,
+  Shadows,
+  Spacing,
+} from "../constants/theme";
 
 export const authStyles = StyleSheet.create({
-  // --- ESTRUTURA PRINCIPAL ---
   container: {
     flexGrow: 1,
     backgroundColor: Colors.light,
@@ -11,7 +17,6 @@ export const authStyles = StyleSheet.create({
     paddingTop: 55,
   },
 
-  // -- VALIDAÇÕES ERROS --
   inputContainerError: {
     borderColor: Colors.errorDark,
     backgroundColor: Colors.errorLight,
@@ -29,7 +34,6 @@ export const authStyles = StyleSheet.create({
     marginBottom: Spacing.xs - 2,
   },
 
-  // --- LOGO E IDENTIDADE ---
   header: {
     alignItems: "center",
     marginBottom: Spacing.xs,
@@ -46,7 +50,6 @@ export const authStyles = StyleSheet.create({
     color: Colors.dark,
   },
 
-  // --- MENSAGENS DE TEXTO ---
   welcomeTitle: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.large,
@@ -64,7 +67,6 @@ export const authStyles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
   },
 
-  // --- FORMULÁRIOS E INPUTS ---
   inputGroup: {
     marginTop: Spacing.lg,
   },
@@ -100,12 +102,11 @@ export const authStyles = StyleSheet.create({
     marginLeft: Spacing.xs,
     height: "100%",
     ...Platform.select({
-      web: { outlineStyle: 'none' } as any,
+      web: { outlineStyle: "none" } as any,
       default: {},
     }),
   } as TextStyle,
 
-  // --- BOTÕES E AÇÕES ---
   buttonPrimary: {
     backgroundColor: Colors.primary,
     height: 50,
@@ -128,7 +129,6 @@ export const authStyles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
 
-  // --- DIVISORES E SOCIAL ---
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -169,7 +169,6 @@ export const authStyles = StyleSheet.create({
     fontSize: FontSizes.small,
   },
 
-  // --- RODAPÉ E LINKS ---
   footerText: {
     textAlign: "center",
     marginTop: Spacing.lg,
@@ -193,5 +192,179 @@ export const authStyles = StyleSheet.create({
   linkUnderline: {
     textDecorationLine: "underline",
     color: Colors.primary,
+  },
+
+  accordionSection: {
+    marginTop: Spacing.xl,
+    borderWidth: 1,
+    borderColor: Colors.subtext + "25",
+    borderRadius: 18,
+    backgroundColor: Colors.light,
+    overflow: "hidden",
+  },
+  accordionHeader: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.md,
+  },
+  accordionHeaderLeft: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.sm,
+  },
+  accordionTitleWrap: {
+    flex: 1,
+  },
+  accordionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 4,
+  },
+  accordionContent: {
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.md,
+  },
+
+  sectionIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.primary + "12",
+    marginTop: 2,
+  },
+  sectionIconBadgeWarning: {
+    backgroundColor: "#D97706" + "12",
+  },
+  sectionTitle: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.medium,
+    color: Colors.dark,
+  },
+  sectionDescription: {
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.small,
+    color: Colors.subtitle,
+    lineHeight: 20,
+  },
+  sectionHelper: {
+    fontFamily: Fonts.medium,
+    fontSize: FontSizes.small - 1,
+    color: Colors.subtext,
+    marginBottom: Spacing.md,
+  },
+
+  optionalPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: Colors.primary + "14",
+  },
+  optionalPillText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.small - 2,
+    color: Colors.primary,
+  },
+
+  subSectionTitle: {
+    fontFamily: Fonts.medium,
+    fontSize: FontSizes.small,
+    color: Colors.subtitle,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xs,
+    marginLeft: Spacing.xs,
+  },
+
+  chipsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -6,
+  },
+  cardWrapper: {
+    width: "50%",
+    paddingHorizontal: 6,
+    marginBottom: 12,
+  },
+  chipButton: {
+    minHeight: 82,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: Colors.subtext + "22",
+    backgroundColor: Colors.light,
+    ...Shadows.sm,
+  },
+  chipButtonSelected: {
+    borderColor: Colors.primary + "55",
+    backgroundColor: Colors.primary + "10",
+    ...Shadows.md,
+  },
+  chipIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.subtext + "12",
+    marginRight: Spacing.sm,
+  },
+  chipIconWrapSelected: {
+    backgroundColor: Colors.primary,
+  },
+  chipText: {
+    flex: 1,
+    fontFamily: Fonts.medium,
+    fontSize: FontSizes.small,
+    color: Colors.dark,
+    lineHeight: 18,
+  },
+  chipTextSelected: {
+    color: Colors.primary,
+    fontFamily: Fonts.bold,
+  },
+
+  textAreaContainer: {
+    minHeight: 110,
+    height: "auto",
+    alignItems: "flex-start",
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.md,
+  },
+  textArea: {
+    width: "100%",
+    minHeight: 80,
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.small,
+    color: Colors.dark,
+    textAlignVertical: "top",
+    ...Platform.select({
+      web: { outlineStyle: "none" } as any,
+      default: {},
+    }),
+  } as TextStyle,
+  textAreaHelper: {
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.small - 1,
+    color: Colors.subtext,
+    marginBottom: Spacing.xs,
+    marginLeft: Spacing.xs,
+  },
+
+  afterAccordionText: {
+    textAlign: "center",
+    marginTop: Spacing.lg,
+    fontFamily: Fonts.medium,
+    fontSize: FontSizes.small,
+    color: Colors.subtitle,
   },
 });

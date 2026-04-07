@@ -1,5 +1,12 @@
-import { StyleSheet } from 'react-native';
-import { Colors, Fonts, Radius, Shadows, Spacing, FontSizes } from '../constants/theme';
+import { StyleSheet } from "react-native";
+import {
+  Colors,
+  Fonts,
+  FontSizes,
+  Radius,
+  Shadows,
+  Spacing,
+} from "../constants/theme";
 
 export const perfilStyles = StyleSheet.create({
   // --- ESTRUTURA GERAL ---
@@ -13,7 +20,7 @@ export const perfilStyles = StyleSheet.create({
 
   // --- AVATAR ---
   avatarSection: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: Spacing.xl,
   },
   avatarCircle: {
@@ -21,11 +28,11 @@ export const perfilStyles = StyleSheet.create({
     height: 110,
     borderRadius: Radius.full,
     backgroundColor: Colors.light,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: Colors.secondary + '99',
-    position: 'relative',
+    borderColor: Colors.secondary + "99",
+    position: "relative",
     ...Shadows.sm,
   },
   avatarImage: {
@@ -34,24 +41,24 @@ export const perfilStyles = StyleSheet.create({
     borderRadius: Radius.full,
   },
   cameraBadge: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 2,
     right: 2,
     backgroundColor: Colors.secondary,
     width: 32,
     height: 32,
     borderRadius: Radius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 3,
     borderColor: Colors.background,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: "rgba(0,0,0,0.3)",
     borderRadius: Radius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   userNameDisplay: {
     marginTop: Spacing.md,
@@ -68,17 +75,17 @@ export const perfilStyles = StyleSheet.create({
 
   // --- CARDS E INPUTS ---
   sectionCard: {
-    backgroundColor: Colors.subtext + '5',
+    backgroundColor: Colors.subtext + "5",
     marginHorizontal: Spacing.lg,
     marginVertical: Spacing.sm,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.subtext + '50',
+    borderColor: Colors.subtext + "50",
     borderRadius: Radius.lg,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: Spacing.lg,
     gap: Spacing.sm,
   },
@@ -97,10 +104,10 @@ export const perfilStyles = StyleSheet.create({
     fontFamily: Fonts.medium,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: Colors.subtext + '30',
+    borderBottomColor: Colors.subtext + "30",
     paddingBottom: Spacing.sm,
   },
   textInput: {
@@ -110,82 +117,343 @@ export const perfilStyles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
 
-  // --- PREFERÊNCIAS ---
-  prefRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.background,
+  // --- PREFERÊNCIAS ALIMENTARES ---
+  prefDescription: {
+    fontSize: FontSizes.small - 1,
+    color: Colors.subtitle,
+    fontFamily: Fonts.regular,
+    marginBottom: Spacing.lg,
+    lineHeight: 20,
+  },
+
+  preferenceBlock: {
+    marginBottom: Spacing.lg,
+  },
+
+  preferenceLabel: {
+    fontSize: FontSizes.small,
+    color: Colors.subtitle,
+    fontFamily: Fonts.bold,
+    marginBottom: Spacing.sm,
+  },
+
+  chipsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: Spacing.sm,
   },
-  prefLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    flex: 1,
+
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: Colors.primary + "40",
+    backgroundColor: Colors.secondary + "10",
   },
-  prefRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    minWidth: 80,
-  },
-  prefText: {
+
+  chipText: {
     fontSize: FontSizes.small,
     color: Colors.primary,
     fontFamily: Fonts.medium,
-    flexShrink: 1,
   },
-  prefHintText: {
-    color: Colors.subtext,
-    fontSize: FontSizes.small - 1,
-    marginRight: Spacing.xs,
+
+  preferenceRow: {
+    paddingVertical: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.subtext + "20",
+  },
+
+  preferenceRowLeft: {
+    flex: 1,
+  },
+
+  preferenceValue: {
+    fontSize: FontSizes.small,
+    color: Colors.primary,
     fontFamily: Fonts.regular,
+    lineHeight: 20,
+  },
+
+  preferenceValueMuted: {
+    fontSize: FontSizes.small,
+    color: Colors.subtext,
+    fontFamily: Fonts.regular,
+    lineHeight: 20,
+  },
+
+  // --- MODO TEMPORÁRIO ---
+  temporaryModeCard: {
+    marginTop: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.subtext + "20",
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    backgroundColor: Colors.light,
+  },
+
+  temporaryModeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Spacing.lg,
+  },
+
+  temporaryModeIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: Colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.md,
+  },
+
+  temporaryModeHeaderText: {
+    flex: 1,
+  },
+
+  temporaryModeTitle: {
+    fontSize: FontSizes.medium + 1,
+    color: Colors.primary,
+    fontFamily: Fonts.bold,
+    marginBottom: 2,
+  },
+
+  temporaryModeSubtitle: {
+    fontSize: FontSizes.small,
+    color: Colors.subtitle,
+    fontFamily: Fonts.regular,
+    lineHeight: 20,
+  },
+
+  segmentedControl: {
+    flexDirection: "row",
+    backgroundColor: Colors.background,
+    borderRadius: Radius.full,
+    overflow: "hidden",
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.subtext + "18",
+  },
+
+  segmentButton: {
+    flex: 1,
+    minHeight: 48,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+
+  segmentButtonActive: {
+    backgroundColor: Colors.primary,
+  },
+
+  segmentButtonText: {
+    fontSize: FontSizes.small,
+    fontFamily: Fonts.bold,
+    color: Colors.subtitle,
+    textAlign: "center",
+  },
+
+  segmentButtonTextActive: {
+    color: Colors.light,
+  },
+
+  modeHintBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: Colors.background,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    gap: Spacing.sm,
+  },
+
+  modeHintText: {
+    flex: 1,
+    fontSize: FontSizes.small,
+    color: Colors.primary,
+    fontFamily: Fonts.regular,
+    lineHeight: 22,
+  },
+
+  lastUpdatedRow: {
+    marginTop: Spacing.lg,
+    paddingTop: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.subtext + "20",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  lastUpdatedLabel: {
+    fontSize: FontSizes.medium,
+    color: Colors.primary,
+    fontFamily: Fonts.medium,
+  },
+
+  lastUpdatedValue: {
+    fontSize: FontSizes.medium,
+    color: Colors.subtitle,
+    fontFamily: Fonts.regular,
+  },
+
+  // --- BOTÃO EDITAR / EDITOR ---
+  editPreferencesButton: {
+    marginTop: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.subtext + "20",
+    paddingTop: Spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.xs,
+  },
+
+  editPreferencesText: {
+    fontSize: FontSizes.medium,
+    color: Colors.primary,
+    fontFamily: Fonts.bold,
+  },
+
+  chevronExpanded: {
+    transform: [{ rotate: "90deg" }],
+  },
+
+  editorContainer: {
+    marginTop: Spacing.lg,
+    paddingTop: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.subtext + "20",
+  },
+
+  editorSection: {
+    marginBottom: Spacing.xl,
+  },
+
+  editorSectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+
+  editorSectionTitle: {
+    fontSize: FontSizes.medium,
+    color: Colors.primary,
+    fontFamily: Fonts.bold,
+    marginBottom: Spacing.sm,
+  },
+
+  editorHelperText: {
+    fontSize: FontSizes.small - 1,
+    color: Colors.subtitle,
+    fontFamily: Fonts.regular,
+    marginBottom: Spacing.sm,
+    lineHeight: 20,
+  },
+
+  selectableChip: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: Radius.full,
+    borderWidth: 1,
+    borderColor: Colors.subtext + "35",
+    backgroundColor: Colors.light,
+  },
+
+  selectableChipActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
+  },
+
+  selectableChipText: {
+    fontSize: FontSizes.small,
+    color: Colors.primary,
+    fontFamily: Fonts.medium,
+  },
+
+  selectableChipTextActive: {
+    color: Colors.light,
+    fontFamily: Fonts.bold,
+  },
+
+  restrictionsInput: {
+    minHeight: 110,
+    borderWidth: 1,
+    borderColor: Colors.subtext + "30",
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.light,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    fontSize: FontSizes.small,
+    color: Colors.primary,
+    fontFamily: Fonts.regular,
+  },
+
+  preferencesSaveButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.lg,
+    paddingVertical: Spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: Spacing.sm,
+    ...Shadows.sm,
+  },
+
+  preferencesSaveButtonText: {
+    color: Colors.light,
+    fontSize: FontSizes.small,
+    fontFamily: Fonts.bold,
   },
 
   // --- BOTÕES INFERIORES ---
   footerActions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap', // Quebra linha se necessário
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginTop: Spacing.xl,
     marginBottom: Spacing.xl * 2,
     paddingHorizontal: Spacing.lg,
     gap: Spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
+
   logoutButtonInline: {
     flex: 1,
     minWidth: 90,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: Spacing.md,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: Colors.errorDark + '40',
+    borderColor: Colors.errorDark + "40",
     backgroundColor: Colors.errorLight,
     gap: Spacing.xs,
   },
+
   logoutTextInline: {
     color: Colors.errorDark,
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small,
   },
+
   mainSaveButton: {
     flex: 2,
     minWidth: 140,
     backgroundColor: Colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: Spacing.md,
     borderRadius: Radius.lg,
     gap: Spacing.sm,
     ...Shadows.sm,
   },
+
   mainSaveText: {
     color: Colors.light,
     fontFamily: Fonts.bold,

@@ -1,35 +1,18 @@
-import { StyleSheet, Dimensions } from "react-native";
-import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import { Dimensions, StyleSheet } from "react-native";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
+import { GLOBAL_CHIPS_FILTERS } from "./global_styles";
+import { HEADER_STOCK_TOGGLE } from "./header.styles";
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - (Spacing.lg * 2) - Spacing.md) / 2;
 
+// ESTILOS ESPECÍFICOS PARA: FAVORITOS
 export const favStyles = StyleSheet.create({
+    ...GLOBAL_CHIPS_FILTERS,
+    ...HEADER_STOCK_TOGGLE,
     container: {
         flex: 1,
         backgroundColor: Colors.background,
-    },
-    // --- HEADER / TOGGLE ---
-    stockToggle: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: Colors.background,
-        borderRadius: Radius.full,
-        paddingHorizontal: Spacing.md,
-        height: 40,
-        borderWidth: 1,
-        borderColor: Colors.subtext + '20',
-        marginTop: Spacing.xs,
-    },
-    stockText: {
-        flex: 1,
-        fontFamily: Fonts.medium,
-        fontSize: FontSizes.small - 1,
-        color: Colors.primary,
-        marginLeft: Spacing.sm,
-    },
-    switchStyle: {
-        transform: [{ scaleX: 0.75 }, { scaleY: 0.75 }],
     },
     // --- FILTROS ---
     listHeaderContainer: {
@@ -41,29 +24,6 @@ export const favStyles = StyleSheet.create({
     chipsScrollContent: {
         paddingHorizontal: Spacing.lg,
         gap: Spacing.sm,
-    },
-    chip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 36,
-        paddingHorizontal: Spacing.md,
-        borderRadius: Radius.full,
-        backgroundColor: Colors.light,
-        borderWidth: 1.5,
-        borderColor: Colors.primary + '30',
-        gap: 6,
-    },
-    chipActive: {
-        backgroundColor: Colors.secondary,
-        borderColor: Colors.secondary,
-    },
-    chipText: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small - 1,
-        color: Colors.primary,
-    },
-    chipTextActive: {
-        color: Colors.light,
     },
     infoBar: {
         paddingHorizontal: Spacing.lg,

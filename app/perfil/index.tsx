@@ -19,6 +19,7 @@ export default function PerfilScreen() {
   const { user } = useAuth();
   const { profile, setProfile, preferences, setPreferences, isLoading, isSavingPref, savePreferences, saveBasicProfile } = useProfile(user);
   const [isEditing, setIsEditing] = useState(false);
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   // Descrições dinâmicas que você tinha originalmente
   const modeDescription = useMemo(() => {
@@ -130,13 +131,18 @@ export default function PerfilScreen() {
               <View style={styles.editorSection}>
                 <Text style={styles.editorSectionTitle}>Outras restrições</Text>
                 <Text style={styles.editorHelperText}>Descreva preferências ou restrições não listadas.</Text>
-                <TextInput
-                  style={styles.restrictionsInput}
-                  value={preferences.otherRestrictions}
-                  onChangeText={(t) => setPreferences({ ...preferences, otherRestrictions: t })}
-                  placeholder="Ex: Evitar pimenta ou coentro..."
-                  multiline
-                />
+                <View style={[styles.inputContainer, styles.textAreaContainer, focusedInput === "outras_restricoes" && styles.inputContainerFocused]}>
+                  <TextInput
+                    style={styles.textArea}
+                    multiline
+                    placeholder="Ex: Evitar pimenta ou coentro..."
+                    placeholderTextColor={Colors.subtitle + "99"}
+                    value={preferences.otherRestrictions}
+                    onFocus={() => setFocusedInput("outras_restricoes")}
+                    onBlur={() => setFocusedInput(null)}
+                    onChangeText={(t) => setPreferences({ ...preferences, otherRestrictions: t })}
+                  />
+                </View>
               </View>
 
               <TouchableOpacity style={styles.preferencesSaveButton} onPress={savePreferences} disabled={isSavingPref}>

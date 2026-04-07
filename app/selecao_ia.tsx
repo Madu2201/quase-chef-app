@@ -200,9 +200,9 @@ export default function SelecaoIAScreen() {
                   <Pressable
                     key={item}
                     onPress={() => toggleIngrediente(item)}
-                    style={[styles.chip, isSelected && styles.chipSelected]}
+                    style={[styles.chip, isSelected && styles.chipActive]}
                   >
-                    <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                    <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
                       {item}
                     </Text>
                   </Pressable>

@@ -1,78 +1,43 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import {
+  GLOBAL_CHIPS_FILTERS,
+  ITEM_LIST_CONTAINERS,
+  GLOBAL_ACTION_BUTTONS
+} from "./global_styles";
+
+// Importando o Toggle do arquivo de Header
+import { HEADER_STOCK_TOGGLE } from "./header.styles";
 
 export const receitasStyles = StyleSheet.create({
-  container: {
-    flex: 1,
+  // Herda o container básico
+  ...ITEM_LIST_CONTAINERS,
+
+  // Herda os filtros (Chips)
+  ...GLOBAL_CHIPS_FILTERS,
+
+  // Herda o Stock Toggle do Header (stockToggle, stockText, switchStyle)
+  ...HEADER_STOCK_TOGGLE,
+
+  /* --- FILTROS CONTAINER --- */
+  filtersContainer: {
     backgroundColor: Colors.background,
+    paddingVertical: Spacing.sm,
+  },
+  chipsScroll: {
+    paddingLeft: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  chipsScrollContent: {
+    paddingRight: Spacing.xl,
+    gap: Spacing.sm,
   },
 
+  /* --- BOTÃO FAVORITO --- */
   heartButton: {
     padding: Spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  /* --- SEÇÃO DE ESTOQUE NO HEADER --- */
-  stockToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.background,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.md,
-    height: 42,
-    borderWidth: 1,
-    borderColor: Colors.subtext + '20',
-    marginTop: Spacing.xs,
-  },
-  stockText: {
-    flex: 1,
-    fontFamily: Fonts.medium,
-    fontSize: FontSizes.small - 1,
-    color: Colors.primary,
-    marginLeft: Spacing.sm,
-  },
-  switchStyle: {
-    transform: [{ scaleX: 0.75 }, { scaleY: 0.75 }],
-  },
-
-  /* --- FILTROS (CHIPS) --- */
-  filtersContainer: {
-    paddingTop: Spacing.md,
-    width: '100%',
-  },
-  chipsScroll: {
-    marginBottom: Spacing.sm,
-  },
-  chipsScrollContent: {
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.sm,
-    flexDirection: 'row',
-    paddingBottom: Spacing.xs,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 36,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.light,
-    borderWidth: 1.5,
-    borderColor: Colors.primary + '30', // Borda sutil quando inativo
-    gap: 6,
-    ...Shadows.sm,
-  },
-  chipActive: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
-  },
-  chipText: {
-    fontFamily: Fonts.bold,
-    fontSize: FontSizes.small - 1,
-    color: Colors.primary,
-  },
-  chipTextActive: {
-    color: Colors.light,
   },
 
   /* --- BARRA DE INFORMAÇÕES (CONTADOR) --- */
@@ -143,7 +108,7 @@ export const receitasStyles = StyleSheet.create({
     color: Colors.primary,
   },
 
-  /* --- DESCRIÇÃO E HIGHLIGHT --- */
+  /* --- DESCRIÇÃO --- */
   recipeDescription: {
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small,
@@ -151,23 +116,16 @@ export const receitasStyles = StyleSheet.create({
     marginBottom: Spacing.lg,
     lineHeight: 20,
   },
-  highlightText: {
-    fontFamily: Fonts.bold,
-    color: Colors.secondary,
-  },
 
   /* --- BOTÃO DE AÇÃO --- */
   viewButton: {
-    backgroundColor: Colors.primary,
+    ...GLOBAL_ACTION_BUTTONS.btn,
     height: 48,
     borderRadius: Radius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
     ...Shadows.sm,
   },
   viewButtonText: {
-    fontFamily: Fonts.bold,
+    ...GLOBAL_ACTION_BUTTONS.btnText,
     fontSize: FontSizes.medium - 1,
-    color: Colors.light,
   },
 });

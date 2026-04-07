@@ -1,7 +1,10 @@
 import { Platform, StyleSheet } from 'react-native';
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
+import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from './global_styles';
 
 export const styles = StyleSheet.create({
+  ...GLOBAL_CHIPS_FILTERS,
+  ...GLOBAL_ACTION_BUTTONS,
   container: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -123,26 +126,9 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   chip: {
-    backgroundColor: Colors.light,
+    ...GLOBAL_CHIPS_FILTERS.chip,
     paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.full,
-    borderWidth: 1.5,
     borderColor: Colors.primary,
-    ...Shadows.sm,
-  },
-  chipSelected: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
-  },
-  chipText: {
-    fontFamily: Fonts.medium,
-    fontSize: FontSizes.small,
-    color: Colors.primary
-  },
-  chipTextSelected: {
-    color: Colors.light,
-    fontFamily: Fonts.bold,
   },
 
   /* --- RODAPÉ FIXO --- */
@@ -157,19 +143,14 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   generateButton: {
-    backgroundColor: Colors.primary,
+    ...GLOBAL_ACTION_BUTTONS.btn,
     height: 58,
-    borderRadius: Radius.full,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     gap: 12,
     ...Shadows.md,
   },
   generateButtonText: {
-    fontFamily: Fonts.bold,
+    ...GLOBAL_ACTION_BUTTONS.btnText,
     fontSize: 16,
-    color: Colors.light
   },
   btnDisabled: {
     backgroundColor: Colors.subtitle,

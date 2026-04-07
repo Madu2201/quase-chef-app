@@ -1,14 +1,12 @@
-import { Platform, StyleSheet, TextStyle } from "react-native";
+import { StyleSheet } from "react-native";
 import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Radius,
-  Shadows,
-  Spacing,
+  Colors, Fonts, FontSizes, Radius, Shadows, Spacing,
 } from "../constants/theme";
+import { AUTH_INPUTS, AUTH_TEXTAREA } from "./global_styles";
 
 export const authStyles = StyleSheet.create({
+    ...AUTH_INPUTS,
+    ...AUTH_TEXTAREA,
   // --- CONTAINER PRINCIPAL ---
   container: {
     flexGrow: 1,
@@ -96,48 +94,6 @@ export const authStyles = StyleSheet.create({
     marginTop: Spacing.sm,
     marginLeft: Spacing.xs,
   },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.subtext + "80",
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.light,
-    paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.xs,
-    height: 48,
-    ...Shadows.sm,
-  },
-  inputContainerFocused: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.light,
-  },
-  inputContainerError: {
-    borderColor: Colors.errorDark,
-    backgroundColor: Colors.errorLight,
-  },
-  input: {
-    flex: 1,
-    fontFamily: Fonts.regular,
-    fontSize: FontSizes.small,
-    color: Colors.dark,
-    marginLeft: Spacing.xs,
-    height: "100%",
-    ...Platform.select({
-      web: { outlineStyle: "none" } as any,
-      default: {},
-    }),
-  } as TextStyle,
-
-  // --- ESTILIZAÇÃO DE ERROS NO INPUT ---
-  fieldErrorText: {
-    color: Colors.errorDark,
-    fontSize: FontSizes.small - 2,
-    marginTop: Spacing.xs - 2,
-    marginLeft: Spacing.xs,
-    marginBottom: Spacing.sm,
-  },
-
   // --- ESTILIZAÇÃO DE ERROS ---
   passwordRequirements: {
     marginTop: Spacing.xs,
@@ -238,7 +194,7 @@ export const authStyles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
 
-// --- ESTILIZAÇÃO DE PILL OPCIONAL ---
+  // --- ESTILIZAÇÃO DE PILL OPCIONAL ---
   optionalPill: {
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
@@ -298,39 +254,11 @@ export const authStyles = StyleSheet.create({
     fontFamily: Fonts.bold,
   },
 
-// --- ESTILIZAÇÃO DE CHIP ---
+  // --- ESTILIZAÇÃO DE CHIP ---
   chipsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     marginHorizontal: -6,
-  },
-
-  // --- ESTILIZAÇÃO DE TEXT AREA ---
-  textAreaContainer: {
-    minHeight: 110,
-    height: "auto",
-    alignItems: "flex-start",
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.md,
-  },
-  textArea: {
-    width: "100%",
-    minHeight: 80,
-    fontFamily: Fonts.regular,
-    fontSize: FontSizes.small,
-    color: Colors.dark,
-    textAlignVertical: "top",
-    ...Platform.select({
-      web: { outlineStyle: "none" } as any,
-      default: {},
-    }),
-  } as TextStyle,
-  textAreaHelper: {
-    fontFamily: Fonts.regular,
-    fontSize: FontSizes.small - 1,
-    color: Colors.subtext,
-    marginBottom: Spacing.xs,
-    marginLeft: Spacing.xs,
   },
 
   // --- BUTTON PRIMARY ---

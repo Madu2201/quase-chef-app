@@ -1,88 +1,21 @@
-import { StyleSheet, Platform, TextStyle } from "react-native";
-import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import { StyleSheet } from "react-native";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
+import { ITEM_LIST_ACTIONS, ITEM_LIST_BUTTONS, ITEM_LIST_CARDS, ITEM_LIST_CHECKBOX, ITEM_LIST_CONTAINERS, ITEM_LIST_FLEX, ITEM_LIST_INPUTS, ITEM_LIST_PICKERS } from "./global_styles";
 
+// ESTILOS ESPECÍFICOS PARA: LISTA DE COMPRAS
 export const listaStyles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.background,
-    },
+    ...ITEM_LIST_CONTAINERS,
+    ...ITEM_LIST_CARDS,
+    ...ITEM_LIST_INPUTS,
+    ...ITEM_LIST_FLEX,
+    ...ITEM_LIST_PICKERS,
+    ...ITEM_LIST_BUTTONS,
+    ...ITEM_LIST_CHECKBOX,
+    ...ITEM_LIST_ACTIONS,
     scrollContent: {
         paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
         paddingBottom: Spacing.xl * 2,
-    },
-
-    // --- CARD DE ADIÇÃO ---
-    addCard: {
-        backgroundColor: Colors.light,
-        borderRadius: Radius.lg,
-        padding: Spacing.md,
-        marginBottom: Spacing.lg,
-        ...Shadows.sm,
-        borderWidth: 1,
-        borderColor: Colors.subtext + '15',
-    },
-    sectionLabel: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
-        color: Colors.dark,
-        marginBottom: Spacing.sm,
-    },
-    inputBase: {
-        backgroundColor: Colors.background,
-        borderRadius: Radius.md,
-        height: 38,
-        paddingHorizontal: Spacing.md,
-        fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
-        color: Colors.dark,
-        borderWidth: 1.5,
-        borderColor: Colors.subtext + '20',
-        ...Platform.select({
-            web: { outlineStyle: 'none' } as any,
-            default: {},
-        }),
-    } as TextStyle,
-    inputFocused: {
-        borderColor: Colors.secondary,
-        backgroundColor: Colors.light,
-    },
-    inputFull: {
-        marginBottom: Spacing.xs,
-    },
-    row: {
-        flexDirection: "row",
-        gap: Spacing.sm,
-        alignItems: "center",
-    },
-    inputField: {
-        flex: 1.5,
-    },
-    pickerMock: {
-        backgroundColor: Colors.background,
-        borderRadius: Radius.md,
-        height: 38,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: Spacing.md,
-        flex: 1,
-        borderWidth: 1.5,
-        borderColor: Colors.subtext + '20',
-    },
-    pickerText: {
-        fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
-        color: Colors.dark,
-    },
-    btnAdd: {
-        backgroundColor: Colors.secondary,
-        width: 38,
-        height: 38,
-        borderRadius: Radius.md,
-        justifyContent: "center",
-        alignItems: "center",
-        ...Shadows.sm,
     },
 
     // --- AÇÕES EM MASSA ---
@@ -138,19 +71,6 @@ export const listaStyles = StyleSheet.create({
         marginBottom: Spacing.sm,
         ...Shadows.xs,
     },
-    checkbox: {
-        width: 22,
-        height: 22,
-        borderRadius: Radius.md,
-        borderWidth: 2,
-        borderColor: Colors.secondary,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    checkboxActive: {
-        backgroundColor: Colors.secondary,
-        borderColor: Colors.secondary,
-    },
     itemInfo: {
         flex: 1,
         marginLeft: Spacing.md,
@@ -166,11 +86,7 @@ export const listaStyles = StyleSheet.create({
         color: Colors.subtext,
     },
 
-    // --- BOTÃO DELETAR (LIXEIRA VERMELHA) ---
-    btnDelete: {
-        padding: Spacing.xs,
-        marginLeft: Spacing.xs,
-    },
+
 
     // --- ESTADOS ESPECIAIS ---
     itemCardComprado: {

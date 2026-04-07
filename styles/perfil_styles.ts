@@ -2,8 +2,13 @@ import { StyleSheet } from "react-native";
 import {
   Colors, Fonts, FontSizes, Radius, Shadows, Spacing,
 } from "../constants/theme";
+import { AUTH_INPUTS, AUTH_TEXTAREA, PERFIL_INPUTS } from "./global_styles";
 
+// ESTILOS ESPECÍFICOS PARA: PERFIL
 export const perfilStyles = StyleSheet.create({
+    ...PERFIL_INPUTS,
+    ...AUTH_INPUTS,
+    ...AUTH_TEXTAREA,
   // --- ESTRUTURA GERAL ---
   keyboardContainer: {
     flex: 1,
@@ -88,25 +93,6 @@ export const perfilStyles = StyleSheet.create({
   },
   inputBlock: {
     marginBottom: Spacing.md,
-  },
-  inputLabel: {
-    fontSize: FontSizes.small,
-    color: Colors.subtitle,
-    marginBottom: Spacing.xs,
-    fontFamily: Fonts.medium,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.subtext + "30",
-    paddingBottom: Spacing.sm,
-  },
-  textInput: {
-    flex: 1,
-    fontSize: FontSizes.small,
-    color: Colors.primary,
-    fontFamily: Fonts.regular,
   },
 
   // --- PREFERÊNCIAS ALIMENTARES ---
@@ -330,19 +316,6 @@ export const perfilStyles = StyleSheet.create({
   selectableChipTextActive: {
     color: Colors.light,
     fontFamily: Fonts.bold,
-  },
-
-  restrictionsInput: {
-    minHeight: 80,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "30",
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.light,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    fontSize: FontSizes.small - 1,
-    color: Colors.subtext,
-    fontFamily: Fonts.regular,
   },
 
   preferencesSaveButton: {

@@ -1,7 +1,34 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 
+// --- HEADER: STOCK TOGGLE ---
+export const HEADER_STOCK_TOGGLE = StyleSheet.create({
+    stockToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.background,
+        borderRadius: Radius.full,
+        paddingHorizontal: Spacing.md,
+        height: 42,
+        borderWidth: 1,
+        borderColor: Colors.subtext + '20',
+        marginTop: Spacing.xs,
+    },
+    stockText: {
+        flex: 1,
+        fontFamily: Fonts.medium,
+        fontSize: FontSizes.small - 1,
+        color: Colors.primary,
+        marginLeft: Spacing.sm,
+    },
+    switchStyle: {
+        transform: [{ scaleX: 0.75 }, { scaleY: 0.75 }],
+    },
+});
+
+// --- HEADER: ESTILOS GERAIS PARA TELAS COM HEADER CUSTOMIZADO ---
 export const headerStyles = StyleSheet.create({
+    ...HEADER_STOCK_TOGGLE,
     header: {
         backgroundColor: Colors.light,
         paddingTop: Platform.OS === 'ios' ? 35 : 25,

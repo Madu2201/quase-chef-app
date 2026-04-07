@@ -1,8 +1,10 @@
 import { StyleSheet } from "react-native";
-import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
-import { headerStyles } from "./header.styles";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
+import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from "./global_styles";
 
 export const homeStyles = StyleSheet.create({
+    ...GLOBAL_CHIPS_FILTERS,
+    ...GLOBAL_ACTION_BUTTONS,
     //Header
     customHeader: {
         paddingTop: 0,
@@ -88,46 +90,19 @@ export const homeStyles = StyleSheet.create({
         gap: Spacing.xs,
         flexDirection: 'row',
     },
-    chip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: Spacing.md,
-        height: 38,
-        borderRadius: Radius.full,
-        backgroundColor: Colors.light,
-        borderWidth: 1.5,
-        borderColor: Colors.primary,
-        ...Shadows.sm,
-    },
-    chipActive: {
-        backgroundColor: Colors.secondary,
-        borderColor: Colors.secondary,
-    },
-    chipText: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small - 1,
-        color: Colors.primary,
-    },
-    chipTextActive: { color: Colors.light },
     // --- BOTÃO GERAR ---
     btnContainer: {
         paddingHorizontal: Spacing.lg,
         marginBottom: Spacing.lg,
     },
     generateButton: {
-        backgroundColor: Colors.primary,
-        flexDirection: 'row',
+        ...GLOBAL_ACTION_BUTTONS.btn,
         height: 52,
-        borderRadius: Radius.full,
-        justifyContent: 'center',
-        alignItems: 'center',
         gap: Spacing.sm,
         ...Shadows.sm,
     },
     generateButtonText: {
-        fontFamily: Fonts.bold,
-        color: Colors.light,
+        ...GLOBAL_ACTION_BUTTONS.btnText,
         fontSize: FontSizes.small,
     },
     // --- CARDS ---
@@ -144,7 +119,7 @@ export const homeStyles = StyleSheet.create({
     },
     recipeTouchable: {
         flexDirection: 'row',
-        alignItems: 'center', // Alinha imagem e o bloco de texto/seta pelo centro vertical
+        alignItems: 'center',
         borderRadius: Radius.md,
         overflow: 'hidden',
         backgroundColor: Colors.light,
@@ -154,22 +129,21 @@ export const homeStyles = StyleSheet.create({
         height: 100,
     },
     recipeInfo: {
-        flex: 1, // Ocupa todo o espaço ao lado da imagem
-        flexDirection: 'row', // --- NOVO: Separa texto da seta horizontalmente ---
-        alignItems: 'center', // --- NOVO: Centraliza verticalmente a seta grande ---
-        justifyContent: 'space-between', // --- NOVO: Empurra o texto para esquerda e a seta para direita ---
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.sm,
-        height: 100, // Mesma altura da imagem
+        height: 100,
     },
     recipeTextBlock: {
-        flex: 1, // Ocupa o máximo de espaço que sobrar da seta
-        flexShrink: 1, // --- CRÍTICO: Impede que textos longos empurrem a seta ---
-        justifyContent: 'center', // Centraliza os textos verticalmente dentro do bloco
-        marginRight: Spacing.sm, // Espaço para não grudar na seta
+        flex: 1,
+        flexShrink: 1,
+        justifyContent: 'center',
+        marginRight: Spacing.sm,
     },
     recipeArrowBlock: {
-        // Container opcional caso queira adicionar padding específico na seta
         justifyContent: 'center',
         alignItems: 'center',
     },

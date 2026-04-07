@@ -4,16 +4,16 @@ Aplicativo mobile inteligente de receitas desenvolvido com **React Native** + **
 
 ## 🚀 Tecnologias Principais
 
-| Tecnologia | Descrição |
-|---|---|
-| **Expo** | SDK 55 - framework React Native |
-| **Supabase** | Backend e autenticação |
-| **Expo Router** | Navegação (file-based routing) |
-| **React Native Reanimated** | Animações e gestos |
-| **Lucide React Native** | Ícones |
-| **AsyncStorage** | Persistência local |
-| **Expo Sharing & Print** | Compartilhar e imprimir conteúdo |
-| **Plus Jakarta Sans** | Fonte personalizada |
+| Tecnologia                  | Descrição                        |
+| --------------------------- | -------------------------------- |
+| **Expo**                    | SDK 55 - framework React Native  |
+| **Supabase**                | Backend e autenticação           |
+| **Expo Router**             | Navegação (file-based routing)   |
+| **React Native Reanimated** | Animações e gestos               |
+| **Lucide React Native**     | Ícones                           |
+| **AsyncStorage**            | Persistência local               |
+| **Expo Sharing & Print**    | Compartilhar e imprimir conteúdo |
+| **Plus Jakarta Sans**       | Fonte personalizada              |
 
 ## 📂 Estrutura do Projeto
 
@@ -68,17 +68,25 @@ utils/                  # Funções auxiliares
 ## ⚙️ Instalação e Uso
 
 ```bash
-# Instalar dependências
+# 1. Instalar as dependências do projeto
 npm install
 
-# Rodar em desenvolvimento
+# 2. Corrigir e atualizar versões de pacotes do Expo (Recomendado)
+# Digite "y" quando solicitado para confirmar as atualizações
+npx expo install --check
+
+# 3. Rodar o projeto em desenvolvimento (Gera o QR Code)
 npx expo start
 
-# Rodar no navegador
-npm run web
+# 4. Rodar com túnel (Para testar no 4G ou redes diferentes)
+npx expo start --tunnel
 
-# Limpar cache
+# 5. Limpar o cache e reiniciar o Metro Bundler
+# Útil quando o app apresenta erros estranhos após instalar pacotes
 npx expo start --clear
+
+# 6. Rodar a versão para navegador
+npx expo start --web
 ```
 
 ## 🎨 Tema e Estilos

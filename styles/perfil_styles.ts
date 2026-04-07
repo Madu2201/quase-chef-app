@@ -1,11 +1,6 @@
 import { StyleSheet } from "react-native";
 import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Radius,
-  Shadows,
-  Spacing,
+  Colors, Fonts, FontSizes, Radius, Shadows, Spacing,
 } from "../constants/theme";
 
 export const perfilStyles = StyleSheet.create({
@@ -15,7 +10,7 @@ export const perfilStyles = StyleSheet.create({
     backgroundColor: Colors.light,
   },
   scrollContent: {
-    paddingBottom: Spacing.xl,
+    paddingBottom: Spacing.xs,
   },
 
   // --- AVATAR ---
@@ -45,13 +40,11 @@ export const perfilStyles = StyleSheet.create({
     bottom: 2,
     right: 2,
     backgroundColor: Colors.secondary,
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
     borderRadius: Radius.full,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 3,
-    borderColor: Colors.background,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -61,7 +54,7 @@ export const perfilStyles = StyleSheet.create({
     alignItems: "center",
   },
   userNameDisplay: {
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
     fontSize: FontSizes.large,
     fontFamily: Fonts.bold,
     color: Colors.primary,
@@ -75,22 +68,21 @@ export const perfilStyles = StyleSheet.create({
 
   // --- CARDS E INPUTS ---
   sectionCard: {
-    backgroundColor: Colors.subtext + "5",
+    backgroundColor: Colors.light,
     marginHorizontal: Spacing.lg,
     marginVertical: Spacing.sm,
     padding: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "50",
     borderRadius: Radius.lg,
+    ...Shadows.sm,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
     gap: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: FontSizes.medium,
+    fontSize: FontSizes.large - 2,
     fontFamily: Fonts.bold,
     color: Colors.primary,
   },
@@ -100,7 +92,7 @@ export const perfilStyles = StyleSheet.create({
   inputLabel: {
     fontSize: FontSizes.small,
     color: Colors.subtitle,
-    marginBottom: 6,
+    marginBottom: Spacing.xs,
     fontFamily: Fonts.medium,
   },
   inputRow: {
@@ -118,23 +110,17 @@ export const perfilStyles = StyleSheet.create({
   },
 
   // --- PREFERÊNCIAS ALIMENTARES ---
+
   prefDescription: {
     fontSize: FontSizes.small - 1,
     color: Colors.subtitle,
     fontFamily: Fonts.regular,
-    marginBottom: Spacing.lg,
-    lineHeight: 20,
+    marginBottom: Spacing.xs,
+    lineHeight: Spacing.md,
   },
 
   preferenceBlock: {
     marginBottom: Spacing.lg,
-  },
-
-  preferenceLabel: {
-    fontSize: FontSizes.small,
-    color: Colors.subtitle,
-    fontFamily: Fonts.bold,
-    marginBottom: Spacing.sm,
   },
 
   chipsContainer: {
@@ -144,8 +130,8 @@ export const perfilStyles = StyleSheet.create({
   },
 
   chip: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
     borderRadius: Radius.full,
     borderWidth: 1,
     borderColor: Colors.primary + "40",
@@ -158,72 +144,38 @@ export const perfilStyles = StyleSheet.create({
     fontFamily: Fonts.medium,
   },
 
-  preferenceRow: {
-    paddingVertical: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.subtext + "20",
-  },
-
-  preferenceRowLeft: {
-    flex: 1,
-  },
-
-  preferenceValue: {
-    fontSize: FontSizes.small,
-    color: Colors.primary,
-    fontFamily: Fonts.regular,
-    lineHeight: 20,
-  },
-
-  preferenceValueMuted: {
-    fontSize: FontSizes.small,
-    color: Colors.subtext,
-    fontFamily: Fonts.regular,
-    lineHeight: 20,
-  },
-
   // --- MODO TEMPORÁRIO ---
   temporaryModeCard: {
-    marginTop: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "20",
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    backgroundColor: Colors.light,
+    marginTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.subtext + "20",
+    paddingTop: Spacing.md,
   },
 
   temporaryModeHeader: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.lg,
+    alignItems: "flex-start",
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
   },
-
-  temporaryModeIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: Colors.background,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.md,
-  },
-
   temporaryModeHeaderText: {
     flex: 1,
+    flexShrink: 1,
   },
 
   temporaryModeTitle: {
-    fontSize: FontSizes.medium + 1,
+    fontSize: FontSizes.medium,
     color: Colors.primary,
     fontFamily: Fonts.bold,
-    marginBottom: 2,
+    marginBottom: Spacing.xs,
   },
 
   temporaryModeSubtitle: {
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small - 1,
     color: Colors.subtitle,
     fontFamily: Fonts.regular,
-    lineHeight: 20,
+    flexWrap: "wrap",
+    lineHeight: Spacing.md,
   },
 
   segmentedControl: {
@@ -233,13 +185,13 @@ export const perfilStyles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.subtext + "18",
+    borderColor: Colors.subtitle + "30",
   },
 
   segmentButton: {
     flex: 1,
-    minHeight: 48,
-    paddingHorizontal: 10,
+    minHeight: 45,
+    paddingHorizontal: Spacing.md,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
@@ -250,7 +202,7 @@ export const perfilStyles = StyleSheet.create({
   },
 
   segmentButtonText: {
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small - 1,
     fontFamily: Fonts.bold,
     color: Colors.subtitle,
     textAlign: "center",
@@ -263,45 +215,45 @@ export const perfilStyles = StyleSheet.create({
   modeHintBox: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.light,
+    borderColor: Colors.primary,
+    borderLeftWidth: 2,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     gap: Spacing.sm,
+    marginHorizontal: Spacing.md,
   },
 
   modeHintText: {
     flex: 1,
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small - 1,
     color: Colors.primary,
     fontFamily: Fonts.regular,
-    lineHeight: 22,
+    lineHeight: Spacing.md,
   },
 
   lastUpdatedRow: {
-    marginTop: Spacing.lg,
-    paddingTop: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: Colors.subtext + "20",
+    marginTop: Spacing.xl + 5,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
   lastUpdatedLabel: {
-    fontSize: FontSizes.medium,
+    fontSize: FontSizes.small,
     color: Colors.primary,
-    fontFamily: Fonts.medium,
+    fontFamily: Fonts.bold,
   },
 
   lastUpdatedValue: {
-    fontSize: FontSizes.medium,
-    color: Colors.subtitle,
+    fontSize: FontSizes.small - 1,
+    color: Colors.subtext,
     fontFamily: Fonts.regular,
   },
 
   // --- BOTÃO EDITAR / EDITOR ---
   editPreferencesButton: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
     borderTopWidth: 1,
     borderTopColor: Colors.subtext + "20",
     paddingTop: Spacing.md,
@@ -315,6 +267,7 @@ export const perfilStyles = StyleSheet.create({
     fontSize: FontSizes.medium,
     color: Colors.primary,
     fontFamily: Fonts.bold,
+    marginBottom: Spacing.xs,
   },
 
   chevronExpanded: {
@@ -322,14 +275,14 @@ export const perfilStyles = StyleSheet.create({
   },
 
   editorContainer: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
     paddingTop: Spacing.lg,
     borderTopWidth: 1,
     borderTopColor: Colors.subtext + "20",
   },
 
   editorSection: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
 
   editorSectionHeader: {
@@ -343,7 +296,6 @@ export const perfilStyles = StyleSheet.create({
     fontSize: FontSizes.medium,
     color: Colors.primary,
     fontFamily: Fonts.bold,
-    marginBottom: Spacing.sm,
   },
 
   editorHelperText: {
@@ -351,12 +303,13 @@ export const perfilStyles = StyleSheet.create({
     color: Colors.subtitle,
     fontFamily: Fonts.regular,
     marginBottom: Spacing.sm,
-    lineHeight: 20,
+    lineHeight: Spacing.md,
   },
 
   selectableChip: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    marginTop: Spacing.xs - 2,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     borderRadius: Radius.full,
     borderWidth: 1,
     borderColor: Colors.subtext + "35",
@@ -369,7 +322,7 @@ export const perfilStyles = StyleSheet.create({
   },
 
   selectableChipText: {
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small - 1,
     color: Colors.primary,
     fontFamily: Fonts.medium,
   },
@@ -380,15 +333,15 @@ export const perfilStyles = StyleSheet.create({
   },
 
   restrictionsInput: {
-    minHeight: 110,
+    minHeight: 80,
     borderWidth: 1,
     borderColor: Colors.subtext + "30",
     borderRadius: Radius.lg,
     backgroundColor: Colors.light,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    fontSize: FontSizes.small,
-    color: Colors.primary,
+    fontSize: FontSizes.small - 1,
+    color: Colors.subtext,
     fontFamily: Fonts.regular,
   },
 

@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Image,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View, Text, TextInput, Pressable, Image, ScrollView, KeyboardAvoidingView, Platform,
 } from "react-native";
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";

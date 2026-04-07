@@ -1,12 +1,12 @@
 import { router } from "expo-router";
-import { Check, ChevronDown, Trash2 } from "lucide-react-native";
+import { Check, ChevronDown, Plus, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 // Meus imports
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
-import { Colors, Radius } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 import { useDispensa } from "../../hooks/useDispensa";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 
@@ -27,18 +27,16 @@ export default function DispensaScreen() {
     const [qtdNova, setQtdNova] = useState("");
     const [unidadeNova, setUnidadeNova] = useState("un");
     const [showUnitPicker, setShowUnitPicker] = useState(false);
+    const [activeInput, setActiveInput] = useState<string | null>(null);
 
     const handleAdd = async () => {
-        if (!nomeNovo.trim()) {
-            Alert.alert("Atenção", "Por favor, digite o nome do ingrediente."); return;
-        }
-        if (!qtdNova.trim()) {
-            Alert.alert("Atenção", "Por favor, digite a quantidade."); return;
+        if (!nomeNovo.trim() || !qtdNova.trim()) {
+            Alert.alert("Atenção", "Preencha o nome e a quantidade."); return;
         }
 
         const qtdNum = parseFloat(qtdNova.replace(',', '.'));
         if (isNaN(qtdNum)) {
-            Alert.alert("Atenção", "A quantidade precisa ser um número (Ex: 1.5, 2, 500)."); return;
+            Alert.alert("Atenção", "A quantidade precisa ser um número."); return;
         }
 
         try {
@@ -52,7 +50,6 @@ export default function DispensaScreen() {
         }
     };
 
-    // 🔥 PREPARANDO O TERRENO PARA A IA DO SEU AMIGO
     const handleGerarReceitas = () => {
         const selecionados = ingredients
             .filter(item => item.selected)
@@ -63,10 +60,9 @@ export default function DispensaScreen() {
             return;
         }
 
-        // Manda os dados mastigados para a tela de Seleção da IA
         router.push({
-            pathname: "/selecao_ia", 
-            params: { 
+            pathname: "/selecao_ia",
+            params: {
                 ingredientes_ia: selecionados.join(','),
                 gerar_ia: "true"
             }
@@ -75,110 +71,104 @@ export default function DispensaScreen() {
 
     return (
         <View style={styles.container}>
-            <Header title="Sua Dispensa" />
+            <Header title="Minha Dispensa" centerTitle />
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                
+
+                {/* Card de Adição */}
                 <View style={styles.addCard}>
-                    <Text style={styles.sectionLabel}>Adicionar Novo Ingrediente</Text>
-                    
+                    <Text style={styles.sectionLabel}>Adicionar Ingrediente</Text>
+
+                    <TextInput
+                        placeholder="Ex: Tomate, Cebola, Alface..."
+                        placeholderTextColor={Colors.subtext + '80'}
+                        value={nomeNovo}
+                        onChangeText={setNomeNovo}
+                        onFocus={() => setActiveInput('nome')}
+                        onBlur={() => setActiveInput(null)}
+                        style={[styles.inputBase, styles.inputFull, activeInput === 'nome' && styles.inputFocused]}
+                    />
+
                     <View style={styles.row}>
-                        <TextInput
-                            style={[styles.inputBase, { flex: 2 }]}
-                            placeholder="Ex: Tomate"
-                            value={nomeNovo}
-                            onChangeText={setNomeNovo}
-                            placeholderTextColor={Colors.subtext}
-                        />
-                        <TextInput
-                            style={[styles.inputBase, { flex: 1 }]}
-                            placeholder="Qtd"
-                            value={qtdNova}
-                            onChangeText={setQtdNova}
-                            keyboardType="numeric"
-                            placeholderTextColor={Colors.subtext}
-                        />
-                        
-                        <TouchableOpacity 
-                            style={[styles.inputBase as any, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10 }]}
+                        <View style={styles.inputField}>
+                            <TextInput
+                                placeholder="Qtd"
+                                placeholderTextColor={Colors.subtext + '80'}
+                                value={qtdNova}
+                                onChangeText={setQtdNova}
+                                keyboardType="numeric"
+                                onFocus={() => setActiveInput('qtd')}
+                                onBlur={() => setActiveInput(null)}
+                                style={[styles.inputBase, activeInput === 'qtd' && styles.inputFocused]}
+                            />
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.pickerMock}
                             onPress={() => setShowUnitPicker(!showUnitPicker)}
-                            activeOpacity={0.7}
                         >
                             <Text style={styles.pickerText}>{unidadeNova}</Text>
                             <ChevronDown size={16} color={Colors.subtext} />
                         </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
+                            <Plus size={22} color={Colors.light} />
+                        </TouchableOpacity>
                     </View>
 
                     {showUnitPicker && (
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 15, padding: 10, backgroundColor: Colors.background, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.subtext + '20' }}>
-                            <Text style={{ width: '100%', fontSize: 12, color: Colors.subtext, marginBottom: 4 }}>Escolha a unidade:</Text>
+                        <View style={styles.unitPickerDropdown}>
                             {UNIDADES_ACEITAS.map((unidade) => (
                                 <TouchableOpacity
                                     key={unidade}
                                     onPress={() => { setUnidadeNova(unidade); setShowUnitPicker(false); }}
-                                    style={{
-                                        paddingHorizontal: 12, paddingVertical: 6, borderRadius: Radius.sm,
-                                        backgroundColor: unidadeNova === unidade ? Colors.secondary : Colors.light,
-                                        borderWidth: 1, borderColor: unidadeNova === unidade ? Colors.secondary : Colors.subtext + '30',
-                                    }}
+                                    style={[styles.unitBadge, unidadeNova === unidade && styles.unitBadgeActive]}
                                 >
-                                    <Text style={{ color: unidadeNova === unidade ? Colors.light : Colors.dark, fontWeight: '500' }}>{unidade}</Text>
+                                    <Text style={[styles.unitBadgeText, unidadeNova === unidade && styles.unitBadgeTextActive]}>{unidade}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
                     )}
-                    
-                    <TouchableOpacity 
-                        style={{ backgroundColor: Colors.secondary, padding: 12, borderRadius: 8, marginTop: 15, alignItems: 'center' }}
-                        onPress={handleAdd}
-                        activeOpacity={0.8}
-                    >
-                        <Text style={{ color: Colors.light, fontWeight: 'bold', fontSize: 15 }}>+ Adicionar à Dispensa</Text>
-                    </TouchableOpacity>
                 </View>
 
-                <Text style={[styles.sectionLabel, { marginTop: 10, marginBottom: 10 }]}>Meus Ingredientes</Text>
+                <Text style={styles.sectionTitle}>Meus Ingredientes</Text>
 
                 {isLoading ? (
                     <ActivityIndicator size="large" color={Colors.secondary} style={{ marginTop: 30 }} />
                 ) : filteredIngredients.length === 0 ? (
-                    <Text style={{ textAlign: 'center', color: Colors.subtext, marginTop: 30 }}>
-                        Sua dispensa está vazia ou nenhum item foi encontrado.
-                    </Text>
+                    <Text style={styles.emptyText}>Sua dispensa está vazia.</Text>
                 ) : (
                     filteredIngredients.map((item) => (
                         <View key={item.id} style={styles.ingredientItem}>
-                            
+
+                            {/* Checkbox Circular */}
                             <TouchableOpacity
                                 onPress={() => toggleIngredient(item.id)}
-                                style={[
-                                    styles.checkbox,
-                                    item.selected && styles.checkboxActive
-                                ]}
-                                activeOpacity={0.7}
+                                style={[styles.checkbox, item.selected && styles.checkboxActive]}
                             >
                                 {item.selected && <Check size={14} color={Colors.light} strokeWidth={3} />}
                             </TouchableOpacity>
 
+                            {/* Nome e Seletores abaixo */}
                             <View style={styles.ingredientInfo}>
-                                <Text style={styles.ingredientName} numberOfLines={1}>{item.name}</Text>
+                                <Text style={styles.ingredientName}>{item.name}</Text>
+
+                                <View style={styles.controlsRow}>
+                                    <View style={styles.listInputQtyWrap}>
+                                        <Text style={styles.listInputQtyText}>{item.qty}</Text>
+                                    </View>
+
+                                    <TouchableOpacity style={styles.listPickerUnit}>
+                                        <Text style={styles.unitText}>{item.unit}</Text>
+                                        <ChevronDown size={12} color={Colors.subtext} />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
 
-                            <View style={styles.row}>
-                                <Text style={{ fontSize: 15, color: Colors.dark, fontWeight: '600' }}>{item.qty}</Text>
-                                <View style={styles.listPickerUnit}>
-                                    <Text style={styles.unitText}>{item.unit}</Text>
-                                </View>
-                                
-                                <TouchableOpacity
-                                    onPress={() => removeIngredient(item.id)}
-                                    activeOpacity={0.5}
-                                    style={{ marginLeft: 5 }}
-                                >
-                                    <Trash2 size={18} color={'#E53E3E'} />
-                                </TouchableOpacity>
-                            </View>
-                            
+                            {/* Lixeira Vermelha */}
+                            <TouchableOpacity onPress={() => removeIngredient(item.id)} style={styles.deleteButton}>
+                                <Trash2 size={20} color={'#E53E3E'} />
+                            </TouchableOpacity>
                         </View>
                     ))
                 )}
@@ -188,6 +178,7 @@ export default function DispensaScreen() {
                 selectedCount={selectedCount}
                 onPress={handleGerarReceitas}
                 style={styles.floatingBtn}
+                badgeContainerStyle={styles.badgeContainer}
             />
         </View>
     );

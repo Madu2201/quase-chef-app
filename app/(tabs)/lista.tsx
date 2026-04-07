@@ -1,12 +1,12 @@
+import { Check, CheckSquare, ChevronDown, Plus, Trash2 } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Platform, Pressable } from 'react-native';
-import { Plus, Check, Trash2, ChevronDown, CheckSquare } from 'lucide-react-native';
+import { Alert, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // Meus imports
 import { Header } from '../../components/header';
-import { listaStyles as styles } from '../../styles/lista_styles';
 import { Colors, Spacing } from '../../constants/theme';
 import { useListaCompras } from '../../hooks/useListaCompras';
+import { listaStyles as styles } from '../../styles/lista_styles';
 import { exportarListaPendentes } from '../../utils/exportPdf';
 
 // Dados Iniciais
@@ -72,6 +72,7 @@ export default function ListaScreen() {
                         <View style={styles.inputField}>
                             <TextInput
                                 placeholder="Qtd"
+                                placeholderTextColor={Colors.subtext + '80'}
                                 value={quantidade}
                                 onChangeText={setQuantidade}
                                 keyboardType="numeric"

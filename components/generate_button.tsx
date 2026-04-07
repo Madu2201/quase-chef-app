@@ -8,6 +8,7 @@ interface GenerateButtonProps {
     selectedCount: number;
     label?: string;
     style?: StyleProp<ViewStyle>;
+    badgeContainerStyle?: StyleProp<ViewStyle>;
     showBadge?: boolean;
     alwaysVisible?: boolean;
     iconColor?: string;
@@ -19,6 +20,7 @@ export const GenerateButton = ({
     selectedCount,
     label = "Gerar receitas",
     style,
+    badgeContainerStyle,
     showBadge = true,        
     alwaysVisible = false,   
     iconColor = Colors.light,
@@ -44,7 +46,7 @@ export const GenerateButton = ({
             </View>
 
             {showBadge && selectedCount > 0 && (
-                <View style={styles.badgeContainer}>
+                <View style={[styles.badgeContainer, badgeContainerStyle]}>
                     <Text style={styles.badgeText}>{selectedCount}</Text>
                 </View>
             )}

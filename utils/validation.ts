@@ -42,3 +42,38 @@ export const validateName = (name: string): boolean => {
     const trimmed = name.trim();
     return trimmed.length >= 3 && trimmed.length <= 50;
 };
+
+/**
+ * Valida se uma quantidade é válida (número positivo)
+ * Aceita string ou number, com , ou . como separador decimal
+ */
+export const validarQuantidade = (qtd: string | number): { valido: boolean; erro?: string; valor?: number } => {
+    const numValue = Number(String(qtd).replace(',', '.'));
+  
+    if (isNaN(numValue)) {
+      return { valido: false, erro: 'Quantidade deve ser um número válido' };
+    }
+    if (numValue <= 0) {
+      return { valido: false, erro: 'Quantidade deve ser maior que zero' };
+    }
+    if (numValue > 999999) {
+      return { valido: false, erro: 'Quantidade muito grande' };
+    }
+    return { valido: true, valor: numValue };
+  };
+
+/**
+ * Valida se uma unidade é aceita
+ */
+export const validarUnidade = (unidade: string, unidadesAceitas: string[]): { valido: boolean; erro?: string } => {
+    if (!unidade || !unidade.trim()) {
+      return { valido: false, erro: 'Unidade não pode estar vazia' };
+    }
+    if (!unidadesAceitas.includes(unidade.trim())) {
+      return { 
+        valido: false, 
+        erro: `Unidade deve ser uma das: ${unidadesAceitas.join(', ')}` 
+      };
+    }
+    return { valido: true };
+  };

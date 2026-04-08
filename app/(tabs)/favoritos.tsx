@@ -1,6 +1,6 @@
 import { router } from 'expo-router'; // ✅ Importado para navegação
 import { Activity, Banknote, Heart, IceCream, LayoutGrid, Package, Utensils, Zap } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, StatusBar, Switch, Text, View } from 'react-native';
 import Animated, {
     FadeInDown,
@@ -17,6 +17,7 @@ import { Colors } from '../../constants/theme';
 import { favStyles as styles } from '../../styles/favoritos_styles';
 
 // Importamos os Hooks Reais
+import { useDispensa } from '../../hooks/useDispensa';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 
@@ -31,7 +32,7 @@ const CHIPS = [
 ];
 
 // Componente do Card isolado e conectado ao Cérebro de Favoritos
-const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
+const RecipeCard = ({ item, index, hasMounted }: { item: Recipe, index: number, hasMounted: boolean }) => {
     const { isFavorito, toggleFavorito } = useFavoritosGlobal();
     const ehFav = isFavorito(item.id);
     const scale = useSharedValue(1);
@@ -48,7 +49,7 @@ const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
     // Card abre a receita, Coração apenas favorita/desfavorita
     return (
         <Animated.View
-            entering={FadeInDown.delay(index * 150).duration(600).springify()}
+            entering={!hasMounted ? FadeInDown.delay(index * 150).duration(600).springify() : undefined}
             style={styles.card}
         >
             <Pressable onPress={() => router.push({
@@ -97,27 +98,29 @@ const RecipeCard = ({ item, index }: { item: Recipe, index: number }) => {
 export default function FavoritosScreen() {
     const [isEnabled, setIsEnabled] = useState(false);
     const [searchText, setSearchText] = useState('');
-    
-    // Estado inicial ajustado para 'Todas'
     const [filtro, setFiltro] = useState('Todas');
+    const [hasMounted, setHasMounted] = useState(false);
 
-    const { receitasBanco } = useReceitas();
+    const { receitasBanco, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque } = useReceitas();
     const { isFavorito } = useFavoritosGlobal();
+    const { ingredients: dispensaIngredientes } = useDispensa();
 
-    const receitasFiltradas = receitasBanco.filter(receita => {
-        if (!isFavorito(receita.id)) return false;
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
 
-        // Lógica de filtro ajustada para a chave correta
-        const passaNoFiltro = filtro === 'Todas' ? true : receita.tags.includes(filtro);
-        if (!passaNoFiltro) return false;
+    const receitasFiltradas = useMemo(() => {
+        let favoritas = receitasBanco.filter(receita => isFavorito(receita.id));
 
-        if (!searchText) return true;
-        const termoBusca = searchText.toLowerCase();
-        const achouNoTitulo = receita.title.toLowerCase().includes(termoBusca);
-        const achouNosIngredientes = receita.rawIngredients.toLowerCase().includes(termoBusca);
-        
-        return achouNoTitulo || achouNosIngredientes;
-    });
+        favoritas = filtrarPorCategoria(favoritas, filtro);
+        favoritas = filtrarPorBusca(favoritas, searchText);
+
+        if (isEnabled) {
+            favoritas = filtrarPorEstoque(favoritas, dispensaIngredientes);
+        }
+
+        return favoritas;
+    }, [receitasBanco, isFavorito, filtro, searchText, isEnabled, dispensaIngredientes, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque]);
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
@@ -133,7 +136,7 @@ export default function FavoritosScreen() {
                     return (
                         <Animated.View
                             key={chip.label}
-                            entering={FadeInRight.delay(index * 100).duration(500)}
+                            entering={!hasMounted ? FadeInRight.delay(index * 100).duration(500) : undefined}
                         >
                             <Chip
                                 active={isActive}
@@ -177,6 +180,8 @@ export default function FavoritosScreen() {
                 </View>
             </Header>
 
+            <ListHeader />
+            
             {receitasFiltradas.length === 0 ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
                     <Heart size={48} color={Colors.subtext} style={{ marginBottom: 10, opacity: 0.5 }} />
@@ -191,11 +196,10 @@ export default function FavoritosScreen() {
                     data={receitasFiltradas}
                     keyExtractor={item => String(item.id)}
                     numColumns={2}
-                    ListHeaderComponent={ListHeader}
                     columnWrapperStyle={styles.columnWrapper}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                    renderItem={({ item, index }) => <RecipeCard item={item} index={index} />}
+                    renderItem={({ item, index }) => <RecipeCard item={item} index={index} hasMounted={hasMounted} />}
                 />
             )}
         </View>

@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Activity, Banknote, BarChart, Clock, Heart, LayoutGrid, Package, IceCream, Utensils, Zap } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { Activity, Banknote, BarChart, Clock, Heart, IceCream, LayoutGrid, Package, Utensils, Zap } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList, Image,
   ListRenderItemInfo,
   NativeScrollEvent,
@@ -22,10 +23,10 @@ import { Colors } from '../../constants/theme';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
 
-// ✅ 1. Importação do hook favoritos
+// Hooks Globais
+import { useDispensa } from '../../hooks/useDispensa';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 
-// ✅ 2. Filtros atualizados
 const CHIPS = [
   { label: 'Todas', icon: LayoutGrid },
   { label: 'Salgadas', icon: Utensils },
@@ -43,24 +44,29 @@ export default function ReceitasScreen() {
   const [usarEstoque, setUsarEstoque] = useState(false);
   const [filtro, setFiltro] = useState('Todas');
   const [scrollY, setScrollY] = useState(0);
+  const [hasMounted, setHasMounted] = useState(false);
   
-  const { receitasBanco, carregando } = useReceitas();
-  
-  // PUXAMOS AS FUNÇÕES DO CÉREBRO DE FAVORITOS
+  const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque } = useReceitas();
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+  const { ingredients: dispensaIngredientes } = useDispensa(); 
 
-  // Filtra por Tag E por Busca
-  const receitasFiltradas = receitasBanco.filter(receita => {
-    const passaNoFiltro = filtro === 'Todas' ? true : receita.tags.includes(filtro);
-    if (!passaNoFiltro) return false;
-    if (!busca) return true;
-    
-    const termoBusca = busca.toLowerCase();
-    const achouNoTitulo = receita.title.toLowerCase().includes(termoBusca);
-    const achouNosIngredientes = receita.rawIngredients.toLowerCase().includes(termoBusca);
-    
-    return achouNoTitulo || achouNosIngredientes;
-  });
+  // 🔥 LÓGICA DE FILTRAGEM INTEGRADA - Usar hooks do useReceitas
+  const receitasFiltradas = useMemo(() => {
+    let filtradas = receitasBanco;
+
+    // 1. Filtro por Categoria (Chips)
+    filtradas = filtrarPorCategoria(filtradas, filtro);
+
+    // 2. Filtro de Texto (Barra de Pesquisa)
+    filtradas = filtrarPorBusca(filtradas, busca);
+
+    // 3. Filtro Rigoroso de Estoque (Botão "Cozinhar com meu estoque")
+    if (usarEstoque) {
+      filtradas = filtrarPorEstoque(filtradas, dispensaIngredientes);
+    }
+
+    return filtradas;
+  }, [receitasBanco, busca, filtro, usarEstoque, dispensaIngredientes, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque]);
 
   // Restaura a posição de scroll ao voltar da tela de detalhes
   useEffect(() => {
@@ -73,12 +79,14 @@ export default function ReceitasScreen() {
     }
   }, [params.restoreScroll]);
 
-  // Atualiza o scroll em tempo real
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setScrollY(event.nativeEvent.contentOffset.y);
   };
 
-  // Renderiza o header com os filtros e a contagem de resultados
   const ListHeader = () => (
     <View style={styles.filtersContainer}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chipsScrollContent}>
@@ -86,7 +94,10 @@ export default function ReceitasScreen() {
           const Icon = chip.icon;
           const isActive = filtro === chip.label;
           return (
-            <Animated.View key={chip.label} entering={FadeInRight.delay(index * 100).duration(400)}>
+            <Animated.View
+              key={chip.label}
+              entering={!hasMounted ? FadeInRight.delay(index * 100).duration(400) : undefined}
+            >
               <Pressable onPress={() => setFiltro(chip.label)} style={[styles.chip, isActive && styles.chipActive]}>
                 <Icon size={14} color={isActive ? Colors.light : Colors.primary} />
                 <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{chip.label}</Text>
@@ -101,13 +112,14 @@ export default function ReceitasScreen() {
     </View>
   );
 
-  // Renderiza cada card de receita
   function renderRecipeCard({ item, index }: ListRenderItemInfo<Recipe>) {
-    // PERGUNTA AO CÉREBRO SE ESSE ITEM ESPECÍFICO É FAVORITO
     const ehFav = isFavorito(item.id);
     
     return (
-      <Animated.View entering={FadeInDown.delay(index * 150).duration(600).springify()} style={styles.card}>
+      <Animated.View
+        entering={!hasMounted ? FadeInDown.delay(index * 150).duration(600).springify() : undefined}
+        style={styles.card}
+      >
         <View style={styles.cardImageContainer}>
           {item.image ? (
             <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
@@ -121,7 +133,6 @@ export default function ReceitasScreen() {
           <View style={styles.titleRow}>
             <Text style={styles.recipeTitle}>{item.title}</Text>
             
-            {/* BOTÃO DE FAVORITO USANDO O HOOK GLOBAL */}
             <TouchableOpacity onPress={() => toggleFavorito(item.id)} style={styles.heartButton}>
               <Heart size={22} color={Colors.secondary} fill={ehFav ? Colors.secondary : 'transparent'} />
             </TouchableOpacity>
@@ -158,7 +169,6 @@ export default function ReceitasScreen() {
     );
   }
 
-  // Renderiza a tela principal
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
@@ -170,9 +180,26 @@ export default function ReceitasScreen() {
         </View>
       </Header>
       
+      <ListHeader />
+      
       {carregando && receitasFiltradas.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text>Buscando receitas fresquinhas...</Text>
+            <ActivityIndicator size="large" color={Colors.secondary} />
+            <Text style={{ marginTop: 10, color: Colors.subtext }}>Buscando receitas fresquinhas...</Text>
+        </View>
+      ) : receitasFiltradas.length === 0 && usarEstoque ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <Package size={48} color={Colors.subtext} style={{ opacity: 0.5, marginBottom: 10 }} />
+            <Text style={{ textAlign: 'center', color: Colors.subtext, fontSize: 16 }}>
+              Não conseguimos encontrar nenhuma receita onde você possua TODOS os ingredientes.
+            </Text>
+        </View>
+      ) : receitasFiltradas.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <IceCream size={48} color={Colors.subtext} style={{ opacity: 0.5, marginBottom: 10 }} />
+            <Text style={{ textAlign: 'center', color: Colors.subtext, fontSize: 16 }}>
+              Nenhuma receita encontrada com esse filtro.
+            </Text>
         </View>
       ) : (
         <FlatList
@@ -184,7 +211,6 @@ export default function ReceitasScreen() {
           showsVerticalScrollIndicator={false}
           onScroll={handleScroll}
           scrollEventThrottle={16}
-          ListHeaderComponent={ListHeader}
         />
       )}
     </View>

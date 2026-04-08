@@ -160,6 +160,14 @@ export const GLOBAL_CHIPS_FILTERS = StyleSheet.create({
     chipTextActive: {
         color: Colors.light,
     },
+    chipSelected: {
+    backgroundColor: Colors.secondary, // Ou Colors.primary, dependendo do seu design
+    borderColor: Colors.secondary,
+  },
+  chipTextSelected: {
+    color: Colors.light,
+    fontFamily: Fonts.bold, // Deixa o texto em negrito quando selecionado para dar mais destaque
+  },
 });
 
 // --- GLOBAL: AUTH INPUTS ---

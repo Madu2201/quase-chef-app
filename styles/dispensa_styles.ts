@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet, TextStyle } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 import { GLOBAL_ACTION_BUTTONS, ITEM_LIST_ACTIONS, ITEM_LIST_BUTTONS, ITEM_LIST_CARDS, ITEM_LIST_CHECKBOX, ITEM_LIST_CONTAINERS, ITEM_LIST_FLEX, ITEM_LIST_INPUTS, ITEM_LIST_PICKERS } from "./global_styles";
 
@@ -155,5 +155,60 @@ export const dispensaStyles = StyleSheet.create({
         fontSize: FontSizes.small - 1,
         fontFamily: Fonts.bold,
     },
-
+    inlineInput: {
+        minWidth: 45,
+        height: 30,
+        backgroundColor: Colors.light,
+        borderRadius: Radius.full,
+        borderWidth: 1.5,
+        borderColor: Colors.secondary,
+        textAlign: 'center',
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small,
+        color: Colors.dark,
+        paddingHorizontal: Spacing.sm,
+        ...Platform.select({
+            web: { outlineStyle: 'none' } as any,
+            default: {},
+        }),
+    } as TextStyle,
+    
+    inlineUnitPanel: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: Spacing.xs,
+        marginTop: 4,
+        padding: Spacing.sm,
+        backgroundColor: Colors.light,
+        borderRadius: Radius.md,
+        borderWidth: 1,
+        borderColor: Colors.subtext + '15',
+        marginLeft: 40, 
+        marginRight: Spacing.md,
+    },
+    
+    inlineUnitChip: {
+        paddingHorizontal: Spacing.sm,
+        paddingVertical: 6,
+        borderRadius: Radius.sm,
+        backgroundColor: Colors.background,
+        borderWidth: 1,
+        borderColor: Colors.subtext + '20',
+    },
+    
+    inlineUnitChipActive: {
+        backgroundColor: Colors.secondary,
+        borderColor: Colors.secondary,
+    },
+    
+    inlineUnitText: {
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.small - 2,
+        color: Colors.dark,
+    },
+    
+    inlineUnitTextActive: {
+        color: Colors.light,
+        fontFamily: Fonts.bold,
+    },
 });

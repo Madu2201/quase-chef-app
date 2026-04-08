@@ -9,9 +9,9 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// 1. IMPORTANDO OS CÉREBROS (Note que o AuthProvider foi adicionado)
 import { AuthProvider } from "../hooks/useAuth";
 import { FavoritosProvider } from "../hooks/useFavoritos";
+import { DispensaProvider } from "../hooks/useDispensa";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,15 +34,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* 2. AUTH PROVIDER ABRAÇA TUDO PRIMEIRO */}
       <AuthProvider>
-        <FavoritosProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="index" />
-          </Stack>
-        </FavoritosProvider>
+        <DispensaProvider>
+          <FavoritosProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="selecao_ia" options={{ presentation: 'modal' }} />
+              <Stack.Screen name="detalhe_receita" />
+              <Stack.Screen name="preparo_receita" />
+              <Stack.Screen name="perfil" />
+            </Stack>
+          </FavoritosProvider>
+        </DispensaProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );

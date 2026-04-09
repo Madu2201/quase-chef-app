@@ -1,23 +1,47 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
-import { AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart, Lightbulb, PlayCircle, Share2 } from 'lucide-react-native';
-import React from 'react';
-import { Image, Pressable, ScrollView, Share, StatusBar, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeInDown, FadeInLeft, FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from "expo-linear-gradient";
+import { router, useLocalSearchParams } from "expo-router";
+import {
+  AlertCircle,
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Heart,
+  Lightbulb,
+  PlayCircle,
+  Share2,
+} from "lucide-react-native";
+import React from "react";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  Share,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, {
+  FadeInDown,
+  FadeInLeft,
+  FadeInUp,
+} from "react-native-reanimated";
 
 // Meus imports
-import { Header } from '../components/header';
-import { Colors } from '../constants/theme';
-import { detalheReceitaStyles as styles } from '../styles/detalhe_receita_styles';
+import { Header } from "../components/header";
+import { Colors } from "../constants/theme";
+import type { Recipe } from "../hooks/useReceitas";
+import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 
 // ✅ 1. IMPORTAMOS O HOOK GLOBAL
-import { useFavoritosGlobal } from '../hooks/useFavoritos';
+import { useFavoritosGlobal } from "../hooks/useFavoritos";
 
 // Tipagens para os dados que recebemos via params
 interface Ingrediente {
   id: string;
   nome: string;
-  status: 'ok' | 'faltando';
+  status: "ok" | "faltando";
 }
 
 interface PassoPreparo {
@@ -31,23 +55,30 @@ interface PassoPreparo {
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
-  
+
   // ✅ 2. PUXAMOS AS FUNÇÕES GLOBAIS (Substituindo o useState antigo)
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
-  const ehFav = isFavorito(params.id as string);
+  const receitaId = (params.id as string) || `ia-${Date.now()}`;
+  const ehFav = isFavorito(receitaId);
 
-  const formatarTempo = (t: string) => t.toLowerCase().replace('minutos', 'min').replace('minuto', 'min').replace('horas', 'h').replace('hora', 'h');
+  const formatarTempo = (t: string) =>
+    t
+      .toLowerCase()
+      .replace("minutos", "min")
+      .replace("minuto", "min")
+      .replace("horas", "h")
+      .replace("hora", "h");
 
-  const isIA = params.tipo === 'ia';
+  const isIA = params.tipo === "ia";
 
   let ingredientesTraduzidos: Ingrediente[] = [];
   try {
-    if (typeof params.ingredients === 'string') {
+    if (typeof params.ingredients === "string") {
       const rawIng = JSON.parse(params.ingredients);
       ingredientesTraduzidos = rawIng.map((ing: any, idx: number) => ({
         id: String(idx),
         nome: ing.texto_original || ing,
-        status: 'ok' as const
+        status: "ok" as const,
       }));
     }
   } catch (e) {
@@ -56,14 +87,14 @@ export default function DetalheReceitaScreen() {
 
   let passosTraduzidos: PassoPreparo[] = [];
   try {
-    if (typeof params.steps === 'string') {
+    if (typeof params.steps === "string") {
       const rawSteps = JSON.parse(params.steps);
       passosTraduzidos = rawSteps.map((passo: any) => ({
         titulo: passo.titulo || "Passo",
         descricao: passo.descricao,
         dica: passo.dica_do_chef || "",
         hasTimer: passo.tempo_timer_minutos > 0,
-        tempoTimer: (passo.tempo_timer_minutos || 0) * 60
+        tempoTimer: (passo.tempo_timer_minutos || 0) * 60,
       }));
     }
   } catch (e) {
@@ -71,18 +102,60 @@ export default function DetalheReceitaScreen() {
   }
 
   const receita = {
-    titulo: (params.title as string) || 'Receita Desconhecida',
-    descricao: (params.description as string) || 'Descrição indisponível.',
-    tempo: formatarTempo((params.time as string) || '-- min'),
-    dificuldade: (params.difficulty as string) || '--',
-    calorias: (params.calories as string) || '-- kcal',
-    imagem: (params.image as string) || 'https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000',
+    titulo: (params.title as string) || "Receita Desconhecida",
+    descricao: (params.description as string) || "Descrição indisponível.",
+    tempo: formatarTempo((params.time as string) || "-- min"),
+    dificuldade: (params.difficulty as string) || "--",
+    calorias: (params.calories as string) || "-- kcal",
+    imagem:
+      (params.image as string) ||
+      "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000",
     itensCount: ingredientesTraduzidos.length,
-    dicaIA: (params.dicaIA as string) || "Que tal adicionar seu toque especial a essa receita?",
+    dicaIA:
+      (params.dicaIA as string) ||
+      "Que tal adicionar seu toque especial a essa receita?",
 
-    ingredientes: ingredientesTraduzidos.length > 0 ? ingredientesTraduzidos : [{ id: '1', nome: 'Sem ingredientes cadastrados.', status: 'faltando' as const }],
-    preparo: passosTraduzidos.length > 0 ? passosTraduzidos : [{ titulo: "Siga sua intuição", descricao: "Sem passos cadastrados", dica: "", hasTimer: false, tempoTimer: 0 }]
+    ingredientes:
+      ingredientesTraduzidos.length > 0
+        ? ingredientesTraduzidos
+        : [
+            {
+              id: "1",
+              nome: "Sem ingredientes cadastrados.",
+              status: "faltando" as const,
+            },
+          ],
+    preparo:
+      passosTraduzidos.length > 0
+        ? passosTraduzidos
+        : [
+            {
+              titulo: "Siga sua intuição",
+              descricao: "Sem passos cadastrados",
+              dica: "",
+              hasTimer: false,
+              tempoTimer: 0,
+            },
+          ],
   };
+
+  const receitaFavoritoIA: Recipe | undefined = isIA
+    ? {
+        id: receitaId,
+        title: receita.titulo,
+        time: receita.tempo,
+        difficulty: receita.dificuldade,
+        descStart: receita.descricao,
+        ingredients: (params.ingredients as string) || "[]",
+        descEnd: "",
+        image: receita.imagem,
+        calories: receita.calorias,
+        rawIngredients: (params.ingredients as string) || "[]",
+        rawSteps: (params.steps as string) || "[]",
+        tags: ["IA"],
+        tipo: "ia",
+      }
+    : undefined;
 
   return (
     <View style={styles.container}>
@@ -93,31 +166,60 @@ export default function DetalheReceitaScreen() {
         onBack={() => router.back()}
         showSearch={false}
         rightElement={
-          <TouchableOpacity onPress={() => Share.share({ message: `Receita de ${receita.titulo}` })}>
+          <TouchableOpacity
+            onPress={() =>
+              Share.share({ message: `Receita de ${receita.titulo}` })
+            }
+          >
             <Share2 size={22} color={Colors.primary} />
           </TouchableOpacity>
         }
       />
 
       <View style={styles.mainContentWrapper}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
           {!isIA && (
-            <Animated.View entering={FadeInUp.duration(600)} style={styles.imageHeader}>
+            <Animated.View
+              entering={FadeInUp.duration(600)}
+              style={styles.imageHeader}
+            >
               <Image source={{ uri: receita.imagem }} style={styles.image} />
-              <Animated.View entering={FadeInLeft.delay(500)} style={[styles.badgePopular, { backgroundColor: Colors.primary }]}>
+              <Animated.View
+                entering={FadeInLeft.delay(500)}
+                style={[
+                  styles.badgePopular,
+                  { backgroundColor: Colors.primary },
+                ]}
+              >
                 <Text style={styles.badgeText}>Sugestão Quase Chef</Text>
               </Animated.View>
             </Animated.View>
           )}
 
           <View style={styles.contentCard}>
-            <Animated.Text entering={FadeInDown.delay(200)} style={styles.title}>{receita.titulo}</Animated.Text>
+            <Animated.Text
+              entering={FadeInDown.delay(200)}
+              style={styles.title}
+            >
+              {receita.titulo}
+            </Animated.Text>
             <Text style={styles.description}>{receita.descricao}</Text>
 
             <View style={styles.infoContainer}>
               <InfoCard icon={Clock} label="Tempo" value={receita.tempo} />
-              <InfoCard icon={BarChart3} label="Nível" value={receita.dificuldade} />
-              <InfoCard icon={Flame} label="Calorias" value={receita.calorias} />
+              <InfoCard
+                icon={BarChart3}
+                label="Nível"
+                value={receita.dificuldade}
+              />
+              <InfoCard
+                icon={Flame}
+                label="Calorias"
+                value={receita.calorias}
+              />
             </View>
 
             <View style={styles.sectionTitleRow}>
@@ -126,14 +228,28 @@ export default function DetalheReceitaScreen() {
             </View>
 
             {receita.ingredientes.map((item, index) => (
-              <Animated.View key={item.id} entering={FadeInLeft.delay(400 + index * 50)} style={[styles.ingredientItem, item.status === 'faltando' && styles.ingredientMissing]}>
-                {item.status === 'faltando' ? <AlertCircle size={20} color={Colors.errorDark} /> : <CheckCircle2 size={20} color={Colors.success} />}
+              <Animated.View
+                key={item.id}
+                entering={FadeInLeft.delay(400 + index * 50)}
+                style={[
+                  styles.ingredientItem,
+                  item.status === "faltando" && styles.ingredientMissing,
+                ]}
+              >
+                {item.status === "faltando" ? (
+                  <AlertCircle size={20} color={Colors.errorDark} />
+                ) : (
+                  <CheckCircle2 size={20} color={Colors.success} />
+                )}
                 <Text style={styles.ingredientText}>{item.nome}</Text>
               </Animated.View>
             ))}
 
             {isIA && (
-              <Animated.View entering={FadeInDown.delay(300)} style={styles.aiTipContainer}>
+              <Animated.View
+                entering={FadeInDown.delay(300)}
+                style={styles.aiTipContainer}
+              >
                 <View style={styles.aiTipHeader}>
                   <Lightbulb size={18} color={Colors.secondary} />
                   <Text style={styles.aiTipTitle}>Dica da IA!</Text>
@@ -146,33 +262,53 @@ export default function DetalheReceitaScreen() {
 
             {receita.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
-                <View style={styles.stepNumber}><Text style={styles.stepNumberText}>{index + 1}</Text></View>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>{index + 1}</Text>
+                </View>
                 <Text style={styles.stepText}>{passo.titulo}</Text>
               </View>
             ))}
-
           </View>
         </ScrollView>
-        <LinearGradient colors={['transparent', Colors.background]} style={styles.fadeGradient} pointerEvents="none" />
+        <LinearGradient
+          colors={["transparent", Colors.background]}
+          style={styles.fadeGradient}
+          pointerEvents="none"
+        />
       </View>
 
       <View style={styles.footer}>
         {/* ✅ 3. BOTÃO DE FAVORITO ATUALIZADO PARA USAR O HOOK GLOBAL */}
-        <Pressable onPress={() => toggleFavorito(params.id as string)} style={styles.favButton}>
-          <Heart size={26} color={Colors.secondary} fill={ehFav ? Colors.secondary : 'transparent'} />
+        <Pressable
+          onPress={() => toggleFavorito(receitaId, receitaFavoritoIA)}
+          style={styles.favButton}
+        >
+          <Heart
+            size={26}
+            color={Colors.secondary}
+            fill={ehFav ? Colors.secondary : "transparent"}
+          />
         </Pressable>
 
         <Pressable
           style={styles.mainButton}
-          onPress={() => router.push({
-            pathname: '/preparo_receita',
-            params: {
-              id: params.id,
-              titulo: receita.titulo,
-              imagem: receita.imagem,
-              passosJson: JSON.stringify(receita.preparo)
-            }
-          })}
+          onPress={() =>
+            router.push({
+              pathname: "/preparo_receita",
+              params: {
+                id: receitaId,
+                tipo: params.tipo,
+                titulo: receita.titulo,
+                imagem: receita.imagem,
+                time: receita.tempo,
+                difficulty: receita.dificuldade,
+                calories: receita.calorias,
+                description: receita.descricao,
+                rawIngredients: params.ingredients,
+                passosJson: JSON.stringify(receita.preparo),
+              },
+            })
+          }
         >
           <PlayCircle size={22} color={Colors.light} />
           <Text style={styles.mainButtonText}>Iniciar preparo</Text>
@@ -191,7 +327,9 @@ interface InfoCardProps {
 
 const InfoCard: React.FC<InfoCardProps> = ({ icon: Icon, label, value }) => (
   <View style={styles.infoCard}>
-    <View style={styles.infoIconContainer}><Icon size={18} color={Colors.primary} /></View>
+    <View style={styles.infoIconContainer}>
+      <Icon size={18} color={Colors.primary} />
+    </View>
     <View>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.infoValue}>{value}</Text>

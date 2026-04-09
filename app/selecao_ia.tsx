@@ -1,7 +1,21 @@
 import { router } from "expo-router";
-import { Flame, Leaf, RotateCcw, Sparkles, Utensils, Zap } from "lucide-react-native";
+import {
+  Flame,
+  Leaf,
+  RotateCcw,
+  Sparkles,
+  Utensils,
+  Zap,
+} from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, { FadeInDown, Layout } from "react-native-reanimated";
 
 // Meus imports
@@ -13,34 +27,57 @@ import { styles } from "../styles/selecao_ia_styles";
 // Importa a função de perguntar ao Gemini
 import { perguntarAoGemini } from "../services/geminiService";
 
-
 // Dados mockados para categorias e itens
 const CATEGORIAS = [
   {
     titulo: "PROTEÍNAS",
     icon: <Flame size={14} color={Colors.dark} />,
-    itens: ["Ovos", "Frango", "Carne Moída", "Peixe", "Tofu", "Feijão"]
+    itens: ["Ovos", "Frango", "Carne Moída", "Peixe", "Tofu", "Feijão"],
   },
   {
     titulo: "VEGETAIS",
     icon: <Leaf size={14} color={Colors.dark} />,
-    itens: ["Tomate", "Cebola", "Pimentão", "Brócolis", "Cenoura", "Espinafre", "Abobrinha"]
+    itens: [
+      "Tomate",
+      "Cebola",
+      "Pimentão",
+      "Brócolis",
+      "Cenoura",
+      "Espinafre",
+      "Abobrinha",
+    ],
   },
   {
     titulo: "CARBOIDRATOS",
     icon: <Utensils size={14} color={Colors.dark} />,
-    itens: ["Arroz", "Macarrão", "Batata", "Pão", "Cuscuz", "Tapioca"]
+    itens: ["Arroz", "Macarrão", "Batata", "Pão", "Cuscuz", "Tapioca"],
   },
   {
     titulo: "GRÃOS E CEREAIS",
     icon: <Sparkles size={14} color={Colors.dark} />,
-    itens: ["Arroz Branco", "Arroz Integral", "Feijão Preto", "Feijão Carioca", "Lentilha", "Grão de Bico", "Macarrão Espaguete"]
+    itens: [
+      "Arroz Branco",
+      "Arroz Integral",
+      "Feijão Preto",
+      "Feijão Carioca",
+      "Lentilha",
+      "Grão de Bico",
+      "Macarrão Espaguete",
+    ],
   },
   {
     titulo: "TEMPEROS BASICOS",
     icon: <Zap size={14} color={Colors.dark} />,
-    itens: ["Alho", "Sal", "Pimenta do Reino", "Azeite", "Orégano", "Manjericão", "Páprica"]
-  }
+    itens: [
+      "Alho",
+      "Sal",
+      "Pimenta do Reino",
+      "Azeite",
+      "Orégano",
+      "Manjericão",
+      "Páprica",
+    ],
+  },
 ];
 
 // Tela de Seleção de Ingredientes para IA
@@ -52,7 +89,7 @@ export default function SelecaoIAScreen() {
   const [isGenerating, setIsGenerating] = useState(false);
   const toggleIngrediente = (item: string) => {
     if (selecionados.includes(item)) {
-      setSelecionados(selecionados.filter(i => i !== item));
+      setSelecionados(selecionados.filter((i) => i !== item));
     } else {
       setSelecionados([...selecionados, item]);
     }
@@ -61,12 +98,12 @@ export default function SelecaoIAScreen() {
   const limparSelecao = () => setSelecionados([]);
   // 3. Filtra os itens com base na busca, mantendo a estrutura de categorias
   const categoriasFiltradas = useMemo(() => {
-    return CATEGORIAS.map(cat => ({
+    return CATEGORIAS.map((cat) => ({
       ...cat,
-      itens: cat.itens.filter(item =>
-        item.toLowerCase().includes(busca.toLowerCase())
-      )
-    })).filter(cat => cat.itens.length > 0);
+      itens: cat.itens.filter((item) =>
+        item.toLowerCase().includes(busca.toLowerCase()),
+      ),
+    })).filter((cat) => cat.itens.length > 0);
   }, [busca]);
 
   // Função para navegar enviando a flag de IA e dados mockados
@@ -105,25 +142,38 @@ export default function SelecaoIAScreen() {
       }`;
 
       const respostaIA = await perguntarAoGemini(prompt);
-      const textoLimpo = respostaIA.replace(/```json/gi, '').replace(/```/gi, '').trim();
+      const textoLimpo = respostaIA
+        .replace(/```json/gi, "")
+        .replace(/```/gi, "")
+        .trim();
       const receitaGerada = JSON.parse(textoLimpo);
 
       // 5. Navega para a tela de detalhes da receita, passando os dados gerados pela IA
+      const receitaId = `ia-${Date.now()}`;
       router.push({
         pathname: "/detalhe_receita",
         params: {
-          tipo: 'ia',
-          title: receitaGerada.titulo || receitaGerada.title || "Receita Surpresa",
-          description: receitaGerada.descricao || receitaGerada.description || "Sem descrição",
+          id: receitaId,
+          tipo: "ia",
+          title:
+            receitaGerada.titulo || receitaGerada.title || "Receita Surpresa",
+          description:
+            receitaGerada.descricao ||
+            receitaGerada.description ||
+            "Sem descrição",
           time: receitaGerada.tempo || receitaGerada.time || "30 min",
-          difficulty: receitaGerada.dificuldade || receitaGerada.difficulty || "Média",
+          difficulty:
+            receitaGerada.dificuldade || receitaGerada.difficulty || "Média",
           calories: receitaGerada.calorias || receitaGerada.calories || "N/A",
           dicaIA: receitaGerada.dicaIA || "",
-          ingredients: JSON.stringify(receitaGerada.ingredientes || receitaGerada.ingredients || []),
-          steps: JSON.stringify(receitaGerada.passos || receitaGerada.steps || [])
-        }
+          ingredients: JSON.stringify(
+            receitaGerada.ingredientes || receitaGerada.ingredients || [],
+          ),
+          steps: JSON.stringify(
+            receitaGerada.passos || receitaGerada.steps || [],
+          ),
+        },
       });
-
     } catch (error) {
       console.error("Erro na IA ou no JSON:", error);
       alert("Nossa panela queimou! Tente gerar novamente.");
@@ -145,7 +195,10 @@ export default function SelecaoIAScreen() {
         searchPlaceholder="Buscar ingrediente..."
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Banner Hero */}
         <Animated.View entering={FadeInDown.delay(100)} style={styles.heroCard}>
           <View style={styles.heroTextArea}>
@@ -154,26 +207,39 @@ export default function SelecaoIAScreen() {
               <Text style={styles.heroTagText}>IA GASTRONÔMICA</Text>
             </View>
             <Text style={styles.heroTitle}>Cozinha Inteligente</Text>
-            <Text style={styles.heroSubtitle}>Selecione os itens e crie sua receita.</Text>
+            <Text style={styles.heroSubtitle}>
+              Selecione os itens e crie sua receita.
+            </Text>
           </View>
           <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80' }}
+            source={{
+              uri: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+            }}
             style={styles.heroImage}
           />
         </Animated.View>
 
         {/* Título da Seção */}
-        <Animated.View entering={FadeInDown.delay(150)} style={styles.sectionTitleContainer}>
-          <Text style={styles.sectionTitleText}>Ingredientes da minha dispensa:</Text>
+        <Animated.View
+          entering={FadeInDown.delay(150)}
+          style={styles.sectionTitleContainer}
+        >
+          <Text style={styles.sectionTitleText}>
+            Ingredientes da minha dispensa:
+          </Text>
         </Animated.View>
 
         {/* Linha de Ação */}
         <View style={styles.actionRow}>
           <Text style={styles.countText}>
-            {selecionados.length} {selecionados.length === 1 ? 'selecionado' : 'selecionados'}
+            {selecionados.length}{" "}
+            {selecionados.length === 1 ? "selecionado" : "selecionados"}
           </Text>
           {selecionados.length > 0 && (
-            <TouchableOpacity style={styles.clearButton} onPress={limparSelecao}>
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={limparSelecao}
+            >
               <RotateCcw size={14} color={Colors.primary} />
               <Text style={styles.clearButtonText}>Limpar</Text>
             </TouchableOpacity>
@@ -202,7 +268,12 @@ export default function SelecaoIAScreen() {
                     onPress={() => toggleIngrediente(item)}
                     style={[styles.chip, isSelected && styles.chipActive]}
                   >
-                    <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
+                    <Text
+                      style={[
+                        styles.chipText,
+                        isSelected && styles.chipTextActive,
+                      ]}
+                    >
                       {item}
                     </Text>
                   </Pressable>
@@ -216,10 +287,16 @@ export default function SelecaoIAScreen() {
       {/* Footer com Botão Gerador Reutilizável */}
       <View style={styles.footer}>
         <GenerateButton
-          label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"}
+          label={
+            isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"
+          }
           selectedCount={selecionados.length}
           onPress={handleGerarReceita}
-          style={isGenerating ? [styles.generateButton, { opacity: 0.7 }] : styles.generateButton}
+          style={
+            isGenerating
+              ? [styles.generateButton, { opacity: 0.7 }]
+              : styles.generateButton
+          }
           iconColor={isGenerating ? Colors.primary : Colors.light} // Deixa meio transparente se estiver carregando
           alwaysVisible={true}
           showBadge={false}

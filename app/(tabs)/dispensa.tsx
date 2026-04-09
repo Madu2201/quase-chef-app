@@ -1,16 +1,17 @@
 import { router } from "expo-router";
-import { Check, ChevronDown, Plus, Trash2 } from "lucide-react-native";
+import { Check, ChevronDown, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
+import { AddItemCard } from "../../components/AddItemCard";
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
 import { UNIDADES_ACEITAS } from "../../constants/ingredients";
@@ -85,68 +86,30 @@ export default function DispensaScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* --- Card de Adição --- */}
-        <View style={styles.addCard}>
-          <Text style={styles.sectionLabel}>Novo Ingrediente</Text>
-          <TextInput
-            style={[styles.inputBase, styles.inputFull]}
-            placeholder="Ex: Tomate, Arroz..."
-            placeholderTextColor={Colors.subtext}
-            value={nomeNovo}
-            onChangeText={setNomeNovo}
-          />
-          <View style={styles.row}>
-            <View style={styles.inputField}>
-              <TextInput
-                style={[styles.inputBase]}
-                placeholder="Qtd"
-                keyboardType="numeric"
-                value={qtdNova}
-                onChangeText={setQtdNova}
-              />
-            </View>
-            <TouchableOpacity
-              style={styles.pickerMock}
-              onPress={() => setShowUnitPicker(!showUnitPicker)}
-            >
-              <Text style={styles.pickerText}>{unidadeNova}</Text>
-              <ChevronDown size={18} color={Colors.subtext} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnAdd} onPress={handleAdd}>
-              <Plus size={20} color={Colors.light} />
-            </TouchableOpacity>
-          </View>
-
-          {showUnitPicker && (
-            <View style={styles.unitPickerDropdown}>
-              {UNIDADES_ACEITAS.map((u) => (
-                <TouchableOpacity
-                  key={u}
-                  style={[
-                    styles.unitBadge,
-                    unidadeNova === u && styles.unitBadgeActive,
-                  ]}
-                  onPress={() => {
-                    setUnidadeNova(u);
-                    setShowUnitPicker(false);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.unitBadgeText,
-                      unidadeNova === u && styles.unitBadgeTextActive,
-                    ]}
-                  >
-                    {u}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
+        <AddItemCard
+          label="Novo Ingrediente"
+          placeholder="Ex: Tomate, Arroz..."
+          nameValue={nomeNovo}
+          onNameChange={setNomeNovo}
+          qtyValue={qtdNova}
+          onQtyChange={setQtdNova}
+          unitValue={unidadeNova}
+          onUnitChange={setUnidadeNova}
+          onAddPress={handleAdd}
+          showUnitPicker={showUnitPicker}
+          onToggleUnitPicker={() => setShowUnitPicker(!showUnitPicker)}
+          activeInput={activeInput}
+          onNameFocus={() => setActiveInput("nome")}
+          onNameBlur={() => setActiveInput(null)}
+          onQtyFocus={() => setActiveInput("qtd")}
+          onQtyBlur={() => setActiveInput(null)}
+          styles={styles}
+          iconSize={18}
+        />
 
         {/* --- Título da Seção de Itens Disponíveis --- */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Itens disponíveis</Text>
+          <Text style={styles.sectionTitle}>Ingredientes Disponíveis</Text>
           <View style={styles.badgeCount}>
             <Text style={styles.badgeText}>{filteredIngredients.length}</Text>
           </View>

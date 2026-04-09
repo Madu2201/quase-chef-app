@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
-import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 import {
+  GLOBAL_ACTION_BUTTONS,
   GLOBAL_CHIPS_FILTERS,
-  ITEM_LIST_CONTAINERS,
-  GLOBAL_ACTION_BUTTONS
+  ITEM_LIST_CONTAINERS
 } from "./global_styles";
 
 // Importando o Toggle do arquivo de Header
@@ -22,14 +22,13 @@ export const receitasStyles = StyleSheet.create({
   /* --- FILTROS CONTAINER --- */
   filtersContainer: {
     backgroundColor: Colors.background,
-    paddingVertical: Spacing.sm,
+    paddingTop: Spacing.md,
   },
   chipsScroll: {
-    paddingLeft: Spacing.lg,
     marginBottom: Spacing.sm,
   },
   chipsScrollContent: {
-    paddingRight: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
     gap: Spacing.sm,
   },
 
@@ -43,14 +42,12 @@ export const receitasStyles = StyleSheet.create({
   /* --- BARRA DE INFORMAÇÕES (CONTADOR) --- */
   infoBar: {
     paddingHorizontal: Spacing.lg,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.md,
+    marginVertical: Spacing.sm,
   },
   infoText: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small,
     color: Colors.brown,
-    opacity: 0.8,
   },
 
   /* --- LISTA E CARDS --- */

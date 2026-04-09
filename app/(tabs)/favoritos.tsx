@@ -1,33 +1,33 @@
 import { router } from "expo-router"; // ✅ Importado para navegação
 import {
-    Activity,
-    Banknote,
-    Heart,
-    IceCream,
-    LayoutGrid,
-    Package,
-    Sparkles,
-    Utensils,
-    Zap,
+  Activity,
+  Banknote,
+  Heart,
+  IceCream,
+  LayoutGrid,
+  Package,
+  Sparkles,
+  Utensils,
+  Zap,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    FlatList,
-    Image,
-    Pressable,
-    ScrollView,
-    StatusBar,
-    Switch,
-    Text,
-    View,
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StatusBar,
+  Switch,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-    FadeInDown,
-    FadeInRight,
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withSpring,
+  FadeInDown,
+  FadeInRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
 } from "react-native-reanimated";
 
 // Meus imports
@@ -232,11 +232,7 @@ export default function FavoritosScreen() {
                   <Icon
                     size={14}
                     color={isActive ? Colors.light : Colors.primary}
-                    fill={
-                      isActive && chip.label === "Todas"
-                        ? Colors.light
-                        : "transparent"
-                    }
+                    fill={isActive ? '#FFFFFFB3' : 'transparent'}
                   />
                 }
                 label={chip.label}
@@ -328,7 +324,7 @@ const Chip = ({ active = false, icon, label, onPress }: any) => (
     style={[styles.chip, active && styles.chipActive]}
   >
     {icon}
-    <Text style={active ? styles.chipTextActive : styles.chipText}>
+    <Text style={[styles.chipText, active && styles.chipTextActive]}>
       {label}
     </Text>
   </Pressable>

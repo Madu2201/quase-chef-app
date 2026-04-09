@@ -99,7 +99,7 @@ export default function ReceitasScreen() {
               entering={!hasMounted ? FadeInRight.delay(index * 100).duration(400) : undefined}
             >
               <Pressable onPress={() => setFiltro(chip.label)} style={[styles.chip, isActive && styles.chipActive]}>
-                <Icon size={14} color={isActive ? Colors.light : Colors.primary} />
+                <Icon size={14} color={isActive ? Colors.light : Colors.primary} fill={isActive ? '#FFFFFFB3' : 'transparent'} />
                 <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{chip.label}</Text>
               </Pressable>
             </Animated.View>

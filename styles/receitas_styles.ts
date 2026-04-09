@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 import {
+  FILTERS_LAYOUT,
   GLOBAL_ACTION_BUTTONS,
   GLOBAL_CHIPS_FILTERS,
   ITEM_LIST_CONTAINERS
@@ -16,38 +17,17 @@ export const receitasStyles = StyleSheet.create({
   // Herda os filtros (Chips)
   ...GLOBAL_CHIPS_FILTERS,
 
+  // Herda layout dos filtros
+  ...FILTERS_LAYOUT,
+
   // Herda o Stock Toggle do Header (stockToggle, stockText, switchStyle)
   ...HEADER_STOCK_TOGGLE,
-
-  /* --- FILTROS CONTAINER --- */
-  filtersContainer: {
-    backgroundColor: Colors.background,
-    paddingTop: Spacing.md,
-  },
-  chipsScroll: {
-    marginBottom: Spacing.sm,
-  },
-  chipsScrollContent: {
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.sm,
-  },
 
   /* --- BOTÃO FAVORITO --- */
   heartButton: {
     padding: Spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  /* --- BARRA DE INFORMAÇÕES (CONTADOR) --- */
-  infoBar: {
-    paddingHorizontal: Spacing.lg,
-    marginVertical: Spacing.sm,
-  },
-  infoText: {
-    fontFamily: Fonts.bold,
-    fontSize: FontSizes.small,
-    color: Colors.brown,
   },
 
   /* --- LISTA E CARDS --- */

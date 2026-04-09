@@ -1,19 +1,14 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
 import {
-    Colors,
-    Fonts,
-    FontSizes,
-    Radius,
-    Shadows,
-    Spacing,
+  Colors,
+  Fonts,
+  FontSizes,
+  Radius,
+  Shadows,
+  Spacing,
 } from "../constants/theme";
 
-/**
- * Global Styles - Estilos compartilhados reutilizáveis em todo o app
- * Organizado por categoria para fácil manutenção e localização
- */
-
-// --- ITEM LIST: CONTAINER E LAYOUT BÁSICO ---
+// CONTAINERS E LAYOUTS BÁSICOS
 export const ITEM_LIST_CONTAINERS = StyleSheet.create({
   container: {
     flex: 1,
@@ -21,7 +16,7 @@ export const ITEM_LIST_CONTAINERS = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: CARDS E SEÇÕES ---
+// CARDS E SEÇÕES - DISPENSA, LISTA
 export const ITEM_LIST_CARDS = StyleSheet.create({
   addCard: {
     backgroundColor: Colors.light,
@@ -38,7 +33,7 @@ export const ITEM_LIST_CARDS = StyleSheet.create({
     color: Colors.dark,
     marginBottom: Spacing.sm,
   },
-  // --- CABEÇALHOS DE SEÇÃO ---
+  // Cabeçalho com título e badge/contador
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -50,6 +45,7 @@ export const ITEM_LIST_CARDS = StyleSheet.create({
     fontSize: FontSizes.medium,
     color: Colors.dark,
   },
+  // Badge redondo para contadores (ex: "5 itens")
   badgeCount: {
     backgroundColor: Colors.primary + "15",
     paddingHorizontal: Spacing.sm,
@@ -63,7 +59,7 @@ export const ITEM_LIST_CARDS = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: INPUTS E CAMPOS DE TEXTO ---
+// INPUTS E CAMPOS DE TEXTO - DISPENSA, LISTA
 export const ITEM_LIST_INPUTS = StyleSheet.create({
   inputBase: {
     backgroundColor: Colors.background,
@@ -89,7 +85,7 @@ export const ITEM_LIST_INPUTS = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: LAYOUTS FLEX ---
+// LAYOUTS FLEX - DISPENSA, LISTA
 export const ITEM_LIST_FLEX = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -101,7 +97,7 @@ export const ITEM_LIST_FLEX = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: SELETORES/PICKERS ---
+// PICKERS E SELETORES DE UNIDADES - DISPENSA, LISTA
 export const ITEM_LIST_PICKERS = StyleSheet.create({
   pickerMock: {
     backgroundColor: Colors.background,
@@ -120,7 +116,7 @@ export const ITEM_LIST_PICKERS = StyleSheet.create({
     fontSize: FontSizes.small,
     color: Colors.dark,
   },
-  // --- SELETORES DE UNIDADES ---
+  // Dropdown com unidades (kg, l, ml, etc)
   unitPickerDropdown: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -152,7 +148,7 @@ export const ITEM_LIST_PICKERS = StyleSheet.create({
   unitBadgeTextActive: {
     color: Colors.light,
   },
-  // --- SELETORES INLINE (DENTRO DOS CARDS) ---
+  // Painel inline de unidades dentro dos cards
   inlineUnitPanel: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -187,7 +183,7 @@ export const ITEM_LIST_PICKERS = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: BOTÕES ---
+// BOTÕES AÇÃO E INTERAÇÃO - DISPENSA, LISTA
 export const ITEM_LIST_BUTTONS = StyleSheet.create({
   btnAdd: {
     backgroundColor: Colors.secondary,
@@ -200,7 +196,7 @@ export const ITEM_LIST_BUTTONS = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: CHECKBOX ---
+// CHECKBOX - LISTA
 export const ITEM_LIST_CHECKBOX = StyleSheet.create({
   checkbox: {
     width: 22,
@@ -217,7 +213,7 @@ export const ITEM_LIST_CHECKBOX = StyleSheet.create({
   },
 });
 
-// --- ITEM LIST: AÇÕES (DELETAR) ---
+// AÇÕES - DELETAR/REMOVER - DISPENSA, LISTA
 export const ITEM_LIST_ACTIONS = StyleSheet.create({
   btnDelete: {
     padding: Spacing.xs,
@@ -230,7 +226,7 @@ export const ITEM_LIST_ACTIONS = StyleSheet.create({
   },
 });
 
-// --- GLOBAL: CHIPS/FILTROS ---
+// CHIPS/FILTROS - RECEITAS, FAVORITOS
 export const GLOBAL_CHIPS_FILTERS = StyleSheet.create({
   chip: {
     flexDirection: "row",
@@ -256,16 +252,42 @@ export const GLOBAL_CHIPS_FILTERS = StyleSheet.create({
     color: Colors.light,
   },
   chipSelected: {
-    backgroundColor: Colors.secondary, // Ou Colors.primary, dependendo do seu design
+    backgroundColor: Colors.secondary,
     borderColor: Colors.secondary,
   },
   chipTextSelected: {
     color: Colors.light,
-    fontFamily: Fonts.bold, // Deixa o texto em negrito quando selecionado para dar mais destaque
+    fontFamily: Fonts.bold,
   },
 });
 
-// --- GLOBAL: AUTH INPUTS ---
+// LAYOUT FILTROS - RECEITAS, FAVORITOS
+
+// Container dos filtros, scroll de chips, barra de info/contador
+export const FILTERS_LAYOUT = StyleSheet.create({
+  filtersContainer: {
+    backgroundColor: Colors.background,
+    paddingTop: Spacing.md,
+  },
+  chipsScroll: {
+    marginBottom: Spacing.sm,
+  },
+  chipsScrollContent: {
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  infoBar: {
+    paddingHorizontal: Spacing.lg,
+    marginVertical: Spacing.sm,
+  },
+  infoText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.small,
+    color: Colors.brown,
+  },
+});
+
+// AUTH INPUTS - LOGIN, CADASTRO, ESQUECI SENHA
 export const AUTH_INPUTS = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
@@ -308,7 +330,7 @@ export const AUTH_INPUTS = StyleSheet.create({
   },
 });
 
-// --- GLOBAL: AUTH TEXTAREA ---
+// AUTH TEXTAREA - CADASTRO, PERFIL
 export const AUTH_TEXTAREA = StyleSheet.create({
   textAreaContainer: {
     minHeight: 110,
@@ -338,7 +360,7 @@ export const AUTH_TEXTAREA = StyleSheet.create({
   },
 });
 
-// --- GLOBAL: PERFIL INPUTS ---
+// PERFIL INPUTS - PERFIL
 export const PERFIL_INPUTS = StyleSheet.create({
   inputLabel: {
     fontSize: FontSizes.small,
@@ -361,7 +383,7 @@ export const PERFIL_INPUTS = StyleSheet.create({
   },
 });
 
-// --- GLOBAL: ACTION BUTTONS ---
+// ACTION BUTTONS - HOME, DISPENSA, LISTA, SELECAO_IA
 export const GLOBAL_ACTION_BUTTONS = StyleSheet.create({
   btn: {
     flexDirection: "row",

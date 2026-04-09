@@ -1,6 +1,6 @@
 import { Dimensions, StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
-import { GLOBAL_CHIPS_FILTERS } from "./global_styles";
+import { FILTERS_LAYOUT, GLOBAL_CHIPS_FILTERS } from "./global_styles";
 import { HEADER_STOCK_TOGGLE } from "./header.styles";
 
 const { width } = Dimensions.get('window');
@@ -9,6 +9,7 @@ const cardWidth = (width - (Spacing.lg * 2) - Spacing.md) / 2;
 // ESTILOS ESPECÍFICOS PARA: FAVORITOS
 export const favStyles = StyleSheet.create({
     ...GLOBAL_CHIPS_FILTERS,
+    ...FILTERS_LAYOUT,
     ...HEADER_STOCK_TOGGLE,
     container: {
         flex: 1,
@@ -17,22 +18,6 @@ export const favStyles = StyleSheet.create({
     // --- FILTROS ---
     listHeaderContainer: {
         paddingTop: Spacing.md,
-    },
-    chipsScroll: {
-        marginBottom: Spacing.sm,
-    },
-    chipsScrollContent: {
-        paddingHorizontal: Spacing.lg,
-        gap: Spacing.sm,
-    },
-    infoBar: {
-        paddingHorizontal: Spacing.lg,
-        marginVertical: Spacing.sm,
-    },
-    infoText: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
-        color: Colors.brown,
     },
     // --- GRID E CARDS ---
     listContent: {

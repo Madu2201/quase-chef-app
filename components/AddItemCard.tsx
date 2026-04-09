@@ -17,7 +17,7 @@ interface AddItemCardProps {
     onAddPress: () => void;
     showUnitPicker: boolean;
     onToggleUnitPicker: () => void;
-    activeInput: string | null;
+    activeInput: string | null; // Controle de foco visual
     onNameFocus: () => void;
     onNameBlur: () => void;
     onQtyFocus: () => void;
@@ -48,8 +48,10 @@ export function AddItemCard({
 }: AddItemCardProps) {
     return (
         <View style={styles.addCard}>
+            {/* Título da Seção */}
             <Text style={styles.sectionLabel}>{label}</Text>
 
+            {/* Input Principal: Nome do Item */}
             <TextInput
                 placeholder={placeholder}
                 placeholderTextColor={Colors.subtext + "80"}
@@ -65,6 +67,7 @@ export function AddItemCard({
             />
 
             <View style={styles.row}>
+                {/* Input Secundário: Quantidade */}
                 <View style={styles.inputField}>
                     <TextInput
                         placeholder="Qtd"
@@ -81,6 +84,7 @@ export function AddItemCard({
                     />
                 </View>
 
+                {/* Seletor de Unidade (Mock/Botão) */}
                 <TouchableOpacity
                     style={styles.pickerMock}
                     activeOpacity={0.8}
@@ -90,6 +94,7 @@ export function AddItemCard({
                     <ChevronDown size={iconSize - 2} color={Colors.dark} />
                 </TouchableOpacity>
 
+                {/* Botão de Adição Final */}
                 <TouchableOpacity
                     style={styles.btnAdd}
                     activeOpacity={0.7}
@@ -99,6 +104,7 @@ export function AddItemCard({
                 </TouchableOpacity>
             </View>
 
+            {/* Dropdown de Unidades (Condicional) */}
             {showUnitPicker && (
                 <View style={styles.unitPickerDropdown}>
                     {UNIDADES_ACEITAS.map((u) => (

@@ -1,223 +1,170 @@
-import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { supabase } from '../services/supabase';
-import { useAuth } from './useAuth';
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+import { supabase } from "../services/supabase";
+import { DispensaContextData, EditField, Ingredient } from "../types/dispensa";
+import { useAuth } from "./useAuth";
 
-export interface Ingredient {
-    id: string;
-    name: string;
-    qty: string;
-    unit: string;
-    selected: boolean;
-}
+const DispensaContext = createContext<DispensaContextData>(
+  {} as DispensaContextData,
+);
 
-interface DispensaContextData {
-    ingredients: Ingredient[];
-    filteredIngredients: Ingredient[];
-    searchText: string;
-    setSearchText: (text: string) => void;
-    addIngredient: (nome: string, qtd: string, unidade: string) => Promise<void>;
-    toggleIngredient: (id: string) => Promise<void>;
-    removeIngredient: (id: string) => Promise<void>;
-    editIngredient: (id: string, field: 'quantidade' | 'unidade', value: string | number) => Promise<void>;
-    selectedCount: number;
-    isLoading: boolean;
-    buscarDispensa: () => Promise<void>;
-}
+export function DispensaProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-const DispensaContext = createContext<DispensaContextData>({} as DispensaContextData);
+  // Busca inicial do banco
+  const buscarDispensa = async () => {
+    if (!user?.id) return;
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("dispensa")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
-export function DispensaProvider({ children }: { children: ReactNode }) {
-    const { user } = useAuth(); 
-    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-    const [searchText, setSearchText] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
+      if (error) throw error;
+      setIngredients(
+        data?.map((item) => ({
+          id: item.id,
+          name: item.nome_base,
+          qty: String(item.quantidade),
+          unit: item.unidade,
+          selected: item.selected,
+        })) || [],
+      );
+    } catch (e) {
+      console.error("Erro ao carregar dispensa:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const buscarDispensa = async () => {
-        if (!user?.id) return;
-        try {
-            setIsLoading(true);
-            const { data, error } = await supabase
-                .from('dispensa')
-                .select('*')
-                .eq('user_id', user.id) 
-                .order('created_at', { ascending: false });
+  useEffect(() => {
+    user?.id ? buscarDispensa() : setIngredients([]);
+  }, [user?.id]);
 
-            if (error) {
-                console.error("❌ Erro ao carregar ingredientes:", error.message);
-                return;
-            }
+  // Filtro performático via Memo
+  const filteredIngredients = useMemo(() => {
+    const term = searchText.toLowerCase().trim();
+    return term
+      ? ingredients.filter((i) => i.name.toLowerCase().includes(term))
+      : ingredients;
+  }, [ingredients, searchText]);
 
-            if (data) {
-                const formatado = data.map((item: any) => ({
-                    id: item.id,
-                    name: item.nome_base,
-                    qty: String(item.quantidade),
-                    unit: item.unidade,
-                    selected: item.selected
-                }));
-                setIngredients(formatado);
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const addIngredient = async (nome: string, qtd: string, unidade: string) => {
+    if (!user?.id) return;
+    const { data, error } = await supabase
+      .from("dispensa")
+      .insert([
+        {
+          user_id: user.id,
+          nome_base: nome.trim(),
+          quantidade: Number(qtd.replace(",", ".")),
+          unidade,
+          selected: true,
+        },
+      ])
+      .select()
+      .single();
 
-    useEffect(() => {
-        if (user?.id) {
-            buscarDispensa();
-        } else {
-            setIngredients([]);
-            setIsLoading(false);
-        }
-    }, [user?.id]);
+    if (error) throw error;
+    setIngredients((prev) => [
+      {
+        id: data.id,
+        name: data.nome_base,
+        qty: String(data.quantidade),
+        unit: data.unidade,
+        selected: data.selected,
+      },
+      ...prev,
+    ]);
+  };
 
-    // O Cérebro da Busca: Filtra instantaneamente baseado no SearchText
-    const filteredIngredients = useMemo(() => {
-        if (!searchText.trim()) return ingredients;
-        const lowerSearch = searchText.toLowerCase().trim();
-        return ingredients.filter(item => item.name.toLowerCase().includes(lowerSearch));
-    }, [ingredients, searchText]);
+  // Alterna seleção (Update Otimista)
+  const toggleIngredient = async (id: string) => {
+    const backup = [...ingredients];
+    const item = ingredients.find((i) => i.id === id);
+    if (!item) return;
 
-    const addIngredient = async (nome: string, qtd: string, unidade: string) => {
-        if (!user?.id) return;
-        try {
-            const { data, error } = await supabase.from('dispensa').insert([{
-                user_id: user.id,
-                nome_base: nome.trim(),
-                quantidade: Number(qtd.replace(',', '.')),
-                unidade: unidade,
-                selected: true
-            }]).select().single();
-
-            if (error) {
-                console.error("❌ Erro ao inserir:", error.message);
-                throw error;
-            }
-
-            if (data) {
-                const novo = {
-                    id: data.id,
-                    name: data.nome_base,
-                    qty: String(data.quantidade),
-                    unit: data.unidade,
-                    selected: data.selected
-                };
-                setIngredients(prev => [novo, ...prev]);
-            }
-        } catch (err) {
-            console.error("❌ Falha ao adicionar ingrediente:", err);
-            throw err;
-        }
-    };
-
-    const toggleIngredient = async (id: string) => {
-        const itemAtual = ingredients.find(i => i.id === id);
-        if (!itemAtual) return;
-
-        // Salva estado anterior para rollback
-        const estadoAnterior = ingredients;
-        const novoEstado = !itemAtual.selected;
-
-        // Atualiza otimista
-        setIngredients(prev => 
-            prev.map(item => item.id === id ? { ...item, selected: novoEstado } : item)
-        );
-
-        try {
-            const { error } = await supabase
-                .from('dispensa')
-                .update({ selected: novoEstado })
-                .eq('id', id);
-
-            if (error) {
-                console.error("❌ Erro ao toggle:", error.message);
-                // Faz rollback
-                setIngredients(estadoAnterior);
-                throw error;
-            }
-        } catch (err) {
-            console.error("❌ Falha ao atualizar seleção:", err);
-        }
-    };
-
-    const removeIngredient = async (id: string) => {
-        // Salva estado anterior para rollback
-        const estadoAnterior = ingredients;
-        
-        // Remove otimista
-        setIngredients(prev => prev.filter(item => item.id !== id));
-
-        try {
-            const { error } = await supabase.from('dispensa').delete().eq('id', id);
-            
-            if (error) {
-                console.error("❌ Erro ao remover:", error.message);
-                // Faz rollback
-                setIngredients(estadoAnterior);
-                throw error;
-            }
-        } catch (err) {
-            console.error("❌ Falha ao remover ingrediente:", err);
-        }
-    };
-
-    // Edita quantidade e unidade com rollback em caso de erro
-    const editIngredient = async (id: string, field: 'quantidade' | 'unidade', value: string | number) => {
-        const numValue = field === 'quantidade' ? Number(String(value).replace(',', '.')) : value;
-        
-        // Salva estado anterior para rollback
-        const estadoAnterior = ingredients;
-        
-        // Atualiza otimista
-        setIngredients(prev => prev.map(item => {
-            if (item.id === id) {
-                return { 
-                    ...item, 
-                    qty: field === 'quantidade' ? String(value) : item.qty,
-                    unit: field === 'unidade' ? String(value) : item.unit
-                };
-            }
-            return item;
-        }));
-
-        try {
-            const { error } = await supabase
-                .from('dispensa')
-                .update({ [field]: numValue })
-                .eq('id', id);
-            
-            if (error) {
-                console.error(`❌ Erro ao atualizar ${field}:`, error.message);
-                // Faz rollback
-                setIngredients(estadoAnterior);
-                throw error;
-            }
-        } catch (err) {
-            console.error(`❌ Falha ao editar ${field}:`, err);
-        }
-    };
-
-    const selectedCount = ingredients.filter(i => i.selected).length;
-
-    return (
-        <DispensaContext.Provider value={{
-            ingredients,
-            filteredIngredients,
-            searchText,
-            setSearchText,
-            addIngredient,
-            toggleIngredient,
-            removeIngredient,
-            editIngredient,
-            selectedCount,
-            isLoading,
-            buscarDispensa
-        }}>
-            {children}
-        </DispensaContext.Provider>
+    setIngredients((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i)),
     );
+    const { error } = await supabase
+      .from("dispensa")
+      .update({ selected: !item.selected })
+      .eq("id", id);
+    if (error) setIngredients(backup);
+  };
+
+  const removeIngredient = async (id: string) => {
+    const backup = [...ingredients];
+    setIngredients((prev) => prev.filter((i) => i.id !== id));
+    const { error } = await supabase.from("dispensa").delete().eq("id", id);
+    if (error) setIngredients(backup);
+  };
+
+  // Edição genérica (Qtd ou Unidade) com Rollback
+  const editIngredient = async (
+    id: string,
+    field: EditField,
+    value: string,
+  ) => {
+    const backup = [...ingredients];
+    const isQty = field === "quantidade";
+
+    setIngredients((prev) =>
+      prev.map((i) =>
+        i.id === id
+          ? {
+              ...i,
+              qty: isQty ? value : i.qty,
+              unit: !isQty ? value : i.unit,
+            }
+          : i,
+      ),
+    );
+
+    const dbValue = isQty ? Number(value.replace(",", ".")) : value;
+    const { error } = await supabase
+      .from("dispensa")
+      .update({ [isQty ? "quantidade" : "unidade"]: dbValue })
+      .eq("id", id);
+
+    if (error) setIngredients(backup);
+  };
+
+  const selectedCount = useMemo(
+    () => ingredients.filter((i) => i.selected).length,
+    [ingredients],
+  );
+
+  return (
+    <DispensaContext.Provider
+      value={{
+        ingredients,
+        filteredIngredients,
+        searchText,
+        setSearchText,
+        addIngredient,
+        toggleIngredient,
+        removeIngredient,
+        editIngredient,
+        selectedCount,
+        isLoading,
+        buscarDispensa,
+      }}
+    >
+      {children}
+    </DispensaContext.Provider>
+  );
 }
 
-export function useDispensa() {
-    return useContext(DispensaContext);
-}
+export const useDispensa = () => useContext(DispensaContext);

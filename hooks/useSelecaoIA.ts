@@ -97,19 +97,36 @@ export function useSelecaoIA() {
 
     // Cria um prompt com os ingredientes selecionados
     try {
-      const prompt = `Atue como um chef criativo. Crie uma receita deliciosa focando nestes ingredientes: ${selecionados.join(", ")}. Pode assumir que tenho água, sal e óleo.
-      
-      CRÍTICO: Sua resposta deve ser ÚNICA E EXCLUSIVAMENTE um objeto JSON válido. Use exatamente esta estrutura:
-      {
-        "titulo": "Nome criativo da receita",
-        "descricao": "Uma breve frase de dar água na boca",
-        "tempo": "30 min",
-        "dificuldade": "Fácil",
-        "calorias": "350 kcal",
-        "dicaIA": "Uma dica de ouro para essa receita ficar perfeita",
-        "ingredientes": ["Quantidade e nome"],
-        "passos": [{"titulo": "Nome", "descricao": "Instruções", "dica_do_chef": "Dica", "tempo_timer_minutos": 0}]
-      }`;
+      const prompt = `
+        Atue como um Chef de Cozinha minimalista e direto. 
+        Crie uma receita focando nestes ingredientes: ${selecionados.join(", ")}. 
+        Considere que o usuário tem: água, sal e óleo.
+
+        REGRAS OBRIGATÓRIAS DE FORMATO:
+        1. TITULO: Máximo 4 palavras. Seja breve (Ex: "Arroz com Carne Moída").
+        2. TIMERS: O campo 'tempo_timer_minutos' deve ser > 0 APENAS para processos de cozimento, fogo ou espera. Para picar, misturar ou montar, use 0.
+        3. DICAS: Se a 'dicaIA' não for realmente útil ou essencial, retorne uma string vazia "".
+        4. JSON: Retorne APENAS o JSON, sem textos antes ou depois.
+
+        Estrutura:
+        {
+          "titulo": "Nome Curto",
+          "descricao": "Frase breve",
+          "tempo": "XX min",
+          "dificuldade": "Fácil/Média",
+          "calorias": "000 kcal",
+          "dicaIA": "",
+          "ingredientes": ["quantidade e nome"],
+          "passos": [
+            {
+              "titulo": "Preparar",
+              "descricao": "Instrução",
+              "dica_do_chef": "",
+              "tempo_timer_minutos": 0
+            }
+          ]
+        }`
+        ;
 
       // Envia o prompt para a IA e processa a resposta
       const respostaIA = await perguntarAoGemini(prompt);

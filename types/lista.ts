@@ -1,3 +1,4 @@
+// Tipos organizados para a funcionalidade de Lista de Compras
 export interface CompraItem {
     id: string;
     name: string;
@@ -5,6 +6,7 @@ export interface CompraItem {
     comprado: boolean;
 }
 
+// Contexto de Lista
 export interface ListaContextData {
     pendentes: CompraItem[];
     comprados: CompraItem[];

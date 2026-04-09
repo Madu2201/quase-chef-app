@@ -10,6 +10,7 @@ export interface Ingredient {
 // Campos permitidos para edição rápida
 export type EditField = "quantidade" | "unidade";
 
+// Tipos relacionados aos contextos da dispensa
 export interface DispensaContextData {
   ingredients: Ingredient[];
   filteredIngredients: Ingredient[];

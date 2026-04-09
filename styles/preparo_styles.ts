@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Colors, Fonts, Spacing, Radius, Shadows, FontSizes } from '../constants/theme';
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
 
 export const preparoStyles = StyleSheet.create({
     // --- CONTAINER PRINCIPAL ---
@@ -151,6 +151,10 @@ export const preparoStyles = StyleSheet.create({
         justifyContent: 'center',
         gap: 6,
         ...Shadows.sm,
+    },
+    btnTimerControlDisabled: {
+        backgroundColor: Colors.gray,
+        opacity: 0.6,
     },
     btnTimerControlText: {
         color: Colors.light,

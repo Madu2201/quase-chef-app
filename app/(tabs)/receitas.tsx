@@ -22,12 +22,8 @@ import { Header } from '../../components/header';
 import { Colors } from '../../constants/theme';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
-
-// Hooks Globais
 import { useDispensa } from '../../hooks/useDispensa';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
-
-// Filtros
 import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
 
 export default function ReceitasScreen() {

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { PassoPreparo } from '../types/detalhe_receita';
 
-export function usePreparoReceita(passos: any[]) {
+export function usePreparoReceita(passos: PassoPreparo[]) {
     const [passoAtual, setPassoAtual] = useState(0);
     const [isConcluido, setIsConcluido] = useState(false);
     const [tempo, setTempo] = useState<number>(0);
@@ -10,28 +11,38 @@ export function usePreparoReceita(passos: any[]) {
 
     // Sincroniza o timer quando o passo muda
     useEffect(() => {
-        if (step?.hasTimer) {
-            setTempo(step.tempoTimer || 300);
+        if (step?.hasTimer && step.tempoTimer > 0) {
+            setTempo(step.tempoTimer);
+            setTimerAtivo(false);
+        } else {
+            setTempo(0);
             setTimerAtivo(false);
         }
     }, [passoAtual]);
 
     // Lógica do contador (decremento)
     useEffect(() => {
-        // 1. Defina o tipo de forma dinâmica
-        let interval: ReturnType<typeof setInterval>;
+        let interval: ReturnType<typeof setInterval> | null = null;
 
         if (timerAtivo && tempo > 0) {
-            // 2. Use o window.setInterval para garantir que o TS não se confunda
-            interval = setInterval(() => setTempo((t) => t - 1), 1000);
-        } else if (tempo === 0) {
-            setTimerAtivo(false);
+            interval = setInterval(() => {
+                setTempo((prevTempo) => {
+                    const novoTempo = prevTempo - 1;
+                    if (novoTempo <= 0) {
+                        setTimerAtivo(false);
+                        return 0;
+                    }
+                    return novoTempo;
+                });
+            }, 1000);
         }
 
         return () => {
-            if (interval) clearInterval(interval);
+            if (interval) {
+                clearInterval(interval);
+            }
         };
-    }, [timerAtivo, tempo]);
+    }, [timerAtivo]);
 
     const proximoPasso = () => {
         if (passoAtual === passos.length - 1) {
@@ -47,7 +58,11 @@ export function usePreparoReceita(passos: any[]) {
 
     const resetarTimer = () => {
         setTimerAtivo(false);
-        setTempo(step?.tempoTimer || 300);
+        if (step?.hasTimer && step.tempoTimer > 0) {
+            setTempo(step.tempoTimer);
+        } else {
+            setTempo(0);
+        }
     };
 
     return {

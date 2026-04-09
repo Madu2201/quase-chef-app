@@ -1,55 +1,55 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-    Heart,
-    Lightbulb,
-    Pause,
-    Play,
-    RotateCcw,
-    Share2,
-    Stars,
-    X,
+  Heart,
+  Lightbulb,
+  Pause,
+  Play,
+  RotateCcw,
+  Share2,
+  Stars,
+  X,
 } from "lucide-react-native";
 import React from "react";
 import {
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    Share,
-    StatusBar,
-    Text,
-    View,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Share,
+  StatusBar,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-    FadeIn,
-    FadeInLeft,
-    FadeInUp,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
+  FadeIn,
+  FadeInLeft,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 
-// Meus imports
+// Meus imports organizados
 import { Colors } from "../constants/theme";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
 import type { Recipe } from "../hooks/useReceitas";
 import { preparoStyles as styles } from "../styles/preparo_styles";
+import type { PassoPreparo } from "../types/detalhe_receita";
+import type { PreparoReceitaParams } from "../types/preparo_receita";
+import { criarReceitaIAParaPreparo, processarParamsPreparo } from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 
 export default function PreparoReceitaScreen() {
   const params = useLocalSearchParams();
-  const idReceita = params.id as string;
 
-  // Tratamento de dados iniciais
-  const imagemUri = Array.isArray(params.imagem)
-    ? params.imagem[0]
-    : params.imagem;
-  const passosDinamicos = params.passosJson
-    ? JSON.parse(params.passosJson as string)
+  // Processamento organizado dos parâmetros
+  const paramsProcessados: PreparoReceitaParams = processarParamsPreparo(params);
+  const passosDinamicos: PassoPreparo[] = paramsProcessados.passosJson
+    ? JSON.parse(paramsProcessados.passosJson)
     : [];
 
-  // LÓGICA EXTRAÍDA PARA HOOKS
+  // Hooks organizados
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const {
     passoAtual,
@@ -64,31 +64,27 @@ export default function PreparoReceitaScreen() {
     totalPassos,
   } = usePreparoReceita(passosDinamicos);
 
-  const isIA = params.tipo === "ia";
+  // Função para controlar o timer com validação
+  const toggleTimer = () => {
+    if (!timerAtivo && tempo <= 0) {
+      // Não permite iniciar timer se não há tempo
+      return;
+    }
+    setTimerAtivo(!timerAtivo);
+  };
+
+  // Estado local organizado
+  const isIA = paramsProcessados.tipo === "ia";
   const iaRecipeData: Recipe | undefined = isIA
-    ? {
-        id: idReceita,
-        title: (params.titulo as string) || "",
-        time: (params.time as string) || "",
-        difficulty: (params.difficulty as string) || "",
-        descStart: (params.description as string) || "",
-        ingredients: (params.rawIngredients as string) || "[]",
-        descEnd: "",
-        image: imagemUri as string,
-        calories: (params.calories as string) || "",
-        rawIngredients: (params.rawIngredients as string) || "[]",
-        rawSteps: (params.passosJson as string) || "[]",
-        tags: ["IA"],
-        tipo: "ia",
-      }
+    ? criarReceitaIAParaPreparo(paramsProcessados)
     : undefined;
 
-  const ehFav = isFavorito(idReceita);
+  const ehFav = isFavorito(paramsProcessados.id);
   const heartScale = useSharedValue(1);
 
   const handleToggleFavorito = () => {
-    if (idReceita) {
-      toggleFavorito(idReceita, iaRecipeData);
+    if (paramsProcessados.id) {
+      toggleFavorito(paramsProcessados.id, iaRecipeData);
       heartScale.value = withSpring(1.5, {}, () => {
         heartScale.value = withSpring(1);
       });
@@ -99,7 +95,7 @@ export default function PreparoReceitaScreen() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Olha só a receita de ${params.titulo} que acabei de preparar! 🍳`,
+        message: `Olha só a receita de ${paramsProcessados.titulo} que acabei de preparar! 🍳`,
       });
     } catch (error) {
       Alert.alert("Erro", "Não foi possível compartilhar.");
@@ -142,13 +138,13 @@ export default function PreparoReceitaScreen() {
           style={[styles.successCard, { width: "100%" }]}
         >
           <Image
-            source={{ uri: imagemUri as string }}
+            source={{ uri: paramsProcessados.imagem }}
             style={styles.successImage}
             resizeMode="cover"
           />
           <View style={styles.successInfo}>
             <Text style={styles.preparouLabel}>VOCÊ PREPAROU:</Text>
-            <Text style={styles.sucessRecipeTitle}>{params.titulo}</Text>
+            <Text style={styles.sucessRecipeTitle}>{paramsProcessados.titulo}</Text>
           </View>
         </Animated.View>
 
@@ -208,7 +204,7 @@ export default function PreparoReceitaScreen() {
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
           <X size={24} color={Colors.primary} />
         </Pressable>
-        <Text style={styles.headerTitle}>{params.titulo}</Text>
+        <Text style={styles.headerTitle}>{paramsProcessados.titulo}</Text>
       </View>
 
       <View style={styles.progressContainer}>
@@ -251,8 +247,12 @@ export default function PreparoReceitaScreen() {
                   </Pressable>
 
                   <Pressable
-                    style={styles.btnTimerControl}
-                    onPress={() => setTimerAtivo(!timerAtivo)}
+                    style={[
+                      styles.btnTimerControl,
+                      (!timerAtivo && tempo <= 0) && styles.btnTimerControlDisabled
+                    ]}
+                    onPress={toggleTimer}
+                    disabled={!timerAtivo && tempo <= 0}
                   >
                     {timerAtivo ? (
                       <Pause size={20} color="white" fill="white" />

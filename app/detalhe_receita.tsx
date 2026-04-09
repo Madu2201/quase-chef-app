@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import {
   AlertCircle,
   BarChart3,
@@ -31,131 +31,19 @@ import Animated, {
 // Meus imports
 import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
-import type { Recipe } from "../hooks/useReceitas";
 import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
-
-// ✅ 1. IMPORTAMOS O HOOK GLOBAL
+import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
-
-// Tipagens para os dados que recebemos via params
-interface Ingrediente {
-  id: string;
-  nome: string;
-  status: "ok" | "faltando";
-}
-
-interface PassoPreparo {
-  titulo: string;
-  descricao: string;
-  dica: string;
-  hasTimer: boolean;
-  tempoTimer: number;
-}
+import type { InfoCardProps } from "../types/detalhe_receita";
 
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
-  const params = useLocalSearchParams();
+  // Usamos o hook personalizado para gerenciar a lógica
+  const { receitaDetalhada, receitaFavoritoIA, isIA, receitaId } = useDetalheReceita();
 
-  // ✅ 2. PUXAMOS AS FUNÇÕES GLOBAIS (Substituindo o useState antigo)
+  // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
-  const receitaId = (params.id as string) || `ia-${Date.now()}`;
   const ehFav = isFavorito(receitaId);
-
-  const formatarTempo = (t: string) =>
-    t
-      .toLowerCase()
-      .replace("minutos", "min")
-      .replace("minuto", "min")
-      .replace("horas", "h")
-      .replace("hora", "h");
-
-  const isIA = params.tipo === "ia";
-
-  let ingredientesTraduzidos: Ingrediente[] = [];
-  try {
-    if (typeof params.ingredients === "string") {
-      const rawIng = JSON.parse(params.ingredients);
-      ingredientesTraduzidos = rawIng.map((ing: any, idx: number) => ({
-        id: String(idx),
-        nome: ing.texto_original || ing,
-        status: "ok" as const,
-      }));
-    }
-  } catch (e) {
-    console.log("Erro ao processar ingredientes:", e);
-  }
-
-  let passosTraduzidos: PassoPreparo[] = [];
-  try {
-    if (typeof params.steps === "string") {
-      const rawSteps = JSON.parse(params.steps);
-      passosTraduzidos = rawSteps.map((passo: any) => ({
-        titulo: passo.titulo || "Passo",
-        descricao: passo.descricao,
-        dica: passo.dica_do_chef || "",
-        hasTimer: passo.tempo_timer_minutos > 0,
-        tempoTimer: (passo.tempo_timer_minutos || 0) * 60,
-      }));
-    }
-  } catch (e) {
-    console.log("Erro ao processar passos:", e);
-  }
-
-  const receita = {
-    titulo: (params.title as string) || "Receita Desconhecida",
-    descricao: (params.description as string) || "Descrição indisponível.",
-    tempo: formatarTempo((params.time as string) || "-- min"),
-    dificuldade: (params.difficulty as string) || "--",
-    calorias: (params.calories as string) || "-- kcal",
-    imagem:
-      (params.image as string) ||
-      "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000",
-    itensCount: ingredientesTraduzidos.length,
-    dicaIA:
-      (params.dicaIA as string) ||
-      "Que tal adicionar seu toque especial a essa receita?",
-
-    ingredientes:
-      ingredientesTraduzidos.length > 0
-        ? ingredientesTraduzidos
-        : [
-            {
-              id: "1",
-              nome: "Sem ingredientes cadastrados.",
-              status: "faltando" as const,
-            },
-          ],
-    preparo:
-      passosTraduzidos.length > 0
-        ? passosTraduzidos
-        : [
-            {
-              titulo: "Siga sua intuição",
-              descricao: "Sem passos cadastrados",
-              dica: "",
-              hasTimer: false,
-              tempoTimer: 0,
-            },
-          ],
-  };
-
-  const receitaFavoritoIA: Recipe | undefined = isIA
-    ? {
-        id: receitaId,
-        title: receita.titulo,
-        time: receita.tempo,
-        difficulty: receita.dificuldade,
-        descStart: receita.descricao,
-        ingredients: (params.ingredients as string) || "[]",
-        descEnd: "",
-        image: receita.imagem,
-        calories: receita.calorias,
-        rawIngredients: (params.ingredients as string) || "[]",
-        rawSteps: (params.steps as string) || "[]",
-        tags: ["IA"],
-        tipo: "ia",
-      }
-    : undefined;
 
   return (
     <View style={styles.container}>
@@ -168,7 +56,7 @@ export default function DetalheReceitaScreen() {
         rightElement={
           <TouchableOpacity
             onPress={() =>
-              Share.share({ message: `Receita de ${receita.titulo}` })
+              Share.share({ message: `Receita de ${receitaDetalhada.titulo}` })
             }
           >
             <Share2 size={22} color={Colors.primary} />
@@ -186,7 +74,7 @@ export default function DetalheReceitaScreen() {
               entering={FadeInUp.duration(600)}
               style={styles.imageHeader}
             >
-              <Image source={{ uri: receita.imagem }} style={styles.image} />
+              <Image source={{ uri: receitaDetalhada.imagem }} style={styles.image} />
               <Animated.View
                 entering={FadeInLeft.delay(500)}
                 style={[
@@ -204,30 +92,30 @@ export default function DetalheReceitaScreen() {
               entering={FadeInDown.delay(200)}
               style={styles.title}
             >
-              {receita.titulo}
+              {receitaDetalhada.titulo}
             </Animated.Text>
-            <Text style={styles.description}>{receita.descricao}</Text>
+            <Text style={styles.description}>{receitaDetalhada.descricao}</Text>
 
             <View style={styles.infoContainer}>
-              <InfoCard icon={Clock} label="Tempo" value={receita.tempo} />
+              <InfoCard icon={Clock} label="Tempo" value={receitaDetalhada.tempo} />
               <InfoCard
                 icon={BarChart3}
                 label="Nível"
-                value={receita.dificuldade}
+                value={receitaDetalhada.dificuldade}
               />
               <InfoCard
                 icon={Flame}
                 label="Calorias"
-                value={receita.calorias}
+                value={receitaDetalhada.calorias}
               />
             </View>
 
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Ingredientes</Text>
-              <Text style={styles.itemsCount}>{receita.itensCount} itens</Text>
+              <Text style={styles.itemsCount}>{receitaDetalhada.itensCount} itens</Text>
             </View>
 
-            {receita.ingredientes.map((item, index) => (
+            {receitaDetalhada.ingredientes.map((item, index) => (
               <Animated.View
                 key={item.id}
                 entering={FadeInLeft.delay(400 + index * 50)}
@@ -254,13 +142,13 @@ export default function DetalheReceitaScreen() {
                   <Lightbulb size={18} color={Colors.secondary} />
                   <Text style={styles.aiTipTitle}>Dica da IA!</Text>
                 </View>
-                <Text style={styles.aiTipText}>{receita.dicaIA}</Text>
+                <Text style={styles.aiTipText}>{receitaDetalhada.dicaIA}</Text>
               </Animated.View>
             )}
 
             <Text style={styles.preparoTitle}>Modo de preparo</Text>
 
-            {receita.preparo.map((passo, index) => (
+            {receitaDetalhada.preparo.map((passo, index) => (
               <View key={index} style={styles.stepItem}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>{index + 1}</Text>
@@ -278,7 +166,7 @@ export default function DetalheReceitaScreen() {
       </View>
 
       <View style={styles.footer}>
-        {/* ✅ 3. BOTÃO DE FAVORITO ATUALIZADO PARA USAR O HOOK GLOBAL */}
+        {/* BOTÃO DE FAVORITO ATUALIZADO PARA USAR O HOOK GLOBAL */}
         <Pressable
           onPress={() => toggleFavorito(receitaId, receitaFavoritoIA)}
           style={styles.favButton}
@@ -297,15 +185,15 @@ export default function DetalheReceitaScreen() {
               pathname: "/preparo_receita",
               params: {
                 id: receitaId,
-                tipo: params.tipo,
-                titulo: receita.titulo,
-                imagem: receita.imagem,
-                time: receita.tempo,
-                difficulty: receita.dificuldade,
-                calories: receita.calorias,
-                description: receita.descricao,
-                rawIngredients: params.ingredients,
-                passosJson: JSON.stringify(receita.preparo),
+                tipo: isIA ? "ia" : "regular",
+                titulo: receitaDetalhada.titulo,
+                imagem: receitaDetalhada.imagem,
+                time: receitaDetalhada.tempo,
+                difficulty: receitaDetalhada.dificuldade,
+                calories: receitaDetalhada.calorias,
+                description: receitaDetalhada.descricao,
+                rawIngredients: JSON.stringify(receitaDetalhada.ingredientes),
+                passosJson: JSON.stringify(receitaDetalhada.preparo),
               },
             })
           }
@@ -319,12 +207,6 @@ export default function DetalheReceitaScreen() {
 }
 
 // Sub-componentes mantidos
-interface InfoCardProps {
-  icon: React.ComponentType<{ size: number; color: string }>;
-  label: string;
-  value: string;
-}
-
 const InfoCard: React.FC<InfoCardProps> = ({ icon: Icon, label, value }) => (
   <View style={styles.infoCard}>
     <View style={styles.infoIconContainer}>

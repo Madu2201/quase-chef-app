@@ -20,8 +20,6 @@ import { useFavoritosGlobal, useFavoritosLogic } from "../../hooks/useFavoritos"
 import { Recipe } from "../../hooks/useReceitas";
 import { favStyles as styles } from "../../styles/favoritos_styles";
 import { ChipItem } from "../../types/favoritos";
-
-// Filtros
 import { BASE_CHIPS, IA_CHIP } from "../../constants/filtros";
 
 // Configuração dos Filtros

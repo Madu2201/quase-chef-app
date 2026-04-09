@@ -37,45 +37,6 @@ export const dispensaStyles = StyleSheet.create({
   },
 
   // --- DROPDOWN DE UNIDADES (ADIÇÃO) ---
-  unitPickerDropdown: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: Spacing.xs,
-    padding: Spacing.xs,
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "20",
-  },
-  unitBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.light,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "30",
-  },
-  unitBadgeActive: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
-  },
-  unitBadgeText: {
-    color: Colors.dark + "90",
-    fontWeight: "500",
-    fontSize: FontSizes.small,
-  },
-  unitBadgeTextActive: {
-    color: Colors.light,
-  },
-
-  // --- LISTA DE INGREDIENTES ---
-  sectionTitle: {
-    fontFamily: Fonts.bold,
-    fontSize: FontSizes.medium,
-    color: Colors.dark,
-    marginBottom: Spacing.md,
-  },
   ingredientItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -189,43 +150,4 @@ export const dispensaStyles = StyleSheet.create({
       default: {},
     }),
   } as TextStyle,
-
-  inlineUnitPanel: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.xs,
-    marginTop: 4,
-    padding: Spacing.sm,
-    backgroundColor: Colors.light,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "15",
-    marginLeft: 40,
-    marginRight: Spacing.md,
-  },
-
-  inlineUnitChip: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 6,
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.background,
-    borderWidth: 1,
-    borderColor: Colors.subtext + "20",
-  },
-
-  inlineUnitChipActive: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
-  },
-
-  inlineUnitText: {
-    fontFamily: Fonts.regular,
-    fontSize: FontSizes.small - 2,
-    color: Colors.dark,
-  },
-
-  inlineUnitTextActive: {
-    color: Colors.light,
-    fontFamily: Fonts.bold,
-  },
 });

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
+import { Ingredient } from "../types/dispensa";
 import { normalizarBase, normalizarTexto } from "../utils/normalization";
-import { Ingredient } from "./useDispensa";
 
 export interface Recipe {
   id: string;

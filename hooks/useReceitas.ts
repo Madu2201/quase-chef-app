@@ -16,7 +16,7 @@ export interface Recipe {
   calories: string;
   rawIngredients: string;
   rawSteps: string;
-  tags: string[]; // <-- Nova propriedade!
+  tags: string[];
   tipo?: string;
 }
 

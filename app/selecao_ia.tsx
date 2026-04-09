@@ -21,64 +21,13 @@ import Animated, { FadeInDown, Layout } from "react-native-reanimated";
 // Meus imports
 import { GenerateButton } from "../components/generate_button";
 import { Header } from "../components/header";
+import { CATEGORIAS_DISPENSA } from "../constants/ingredients";
 import { Colors } from "../constants/theme";
+import { useDispensa } from "../hooks/useDispensa";
 import { styles } from "../styles/selecao_ia_styles";
 
 // Importa a função de perguntar ao Gemini
 import { perguntarAoGemini } from "../services/geminiService";
-
-// Dados mockados para categorias e itens
-const CATEGORIAS = [
-  {
-    titulo: "PROTEÍNAS",
-    icon: <Flame size={14} color={Colors.dark} />,
-    itens: ["Ovos", "Frango", "Carne Moída", "Peixe", "Tofu", "Feijão"],
-  },
-  {
-    titulo: "VEGETAIS",
-    icon: <Leaf size={14} color={Colors.dark} />,
-    itens: [
-      "Tomate",
-      "Cebola",
-      "Pimentão",
-      "Brócolis",
-      "Cenoura",
-      "Espinafre",
-      "Abobrinha",
-    ],
-  },
-  {
-    titulo: "CARBOIDRATOS",
-    icon: <Utensils size={14} color={Colors.dark} />,
-    itens: ["Arroz", "Macarrão", "Batata", "Pão", "Cuscuz", "Tapioca"],
-  },
-  {
-    titulo: "GRÃOS E CEREAIS",
-    icon: <Sparkles size={14} color={Colors.dark} />,
-    itens: [
-      "Arroz Branco",
-      "Arroz Integral",
-      "Feijão Preto",
-      "Feijão Carioca",
-      "Lentilha",
-      "Grão de Bico",
-      "Macarrão Espaguete",
-    ],
-  },
-  {
-    titulo: "TEMPEROS BASICOS",
-    icon: <Zap size={14} color={Colors.dark} />,
-    itens: [
-      "Alho",
-      "Sal",
-      "Pimenta do Reino",
-      "Azeite",
-      "Orégano",
-      "Manjericão",
-      "Páprica",
-    ],
-  },
-];
 
 // Tela de Seleção de Ingredientes para IA
 export default function SelecaoIAScreen() {
@@ -87,6 +36,9 @@ export default function SelecaoIAScreen() {
 
   // 2. Adicione este novo estado para controlar o carregamento da IA
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const { filteredIngredients } = useDispensa();
+
   const toggleIngrediente = (item: string) => {
     if (selecionados.includes(item)) {
       setSelecionados(selecionados.filter((i) => i !== item));
@@ -96,20 +48,155 @@ export default function SelecaoIAScreen() {
   };
 
   const limparSelecao = () => setSelecionados([]);
+
+  // Agrupar ingredientes da dispensa por categorias (sem repetição)
+  const categoriasComItens = useMemo(() => {
+    // Verificação de segurança para evitar erros se filteredIngredients for undefined
+    if (!filteredIngredients || !Array.isArray(filteredIngredients)) {
+      return [];
+    }
+
+    // Rastrear quais ingredientes já foram atribuídos a uma categoria
+    const ingredientesAtribuidos = new Set<string>();
+
+    // Função para verificar se um ingrediente corresponde a um item da categoria
+    const verificarCorrespondencia = (
+      ingName: string,
+      catItem: string,
+    ): boolean => {
+      const ingLower = ingName.toLowerCase().trim();
+      const itemLower = catItem.toLowerCase().trim();
+
+      // Correspondência exata ou contém
+      if (
+        ingLower === itemLower ||
+        ingLower.includes(itemLower) ||
+        itemLower.includes(ingLower)
+      ) {
+        return true;
+      }
+
+      // Variações comuns
+      const variacoes: { [key: string]: string[] } = {
+        ovo: ["ovos", "ovo", "egg"],
+        frango: ["frango", "chicken", "galinha"],
+        carne: [
+          "carne moída",
+          "carne vermelha",
+          "carne",
+          "beef",
+          "ground meat",
+        ],
+        peixe: ["peixe", "fish", "salmão", "sardinha"],
+        tofu: ["tofu", "soja"],
+        feijão: ["feijão", "feijão preto", "feijão carioca", "beans"],
+        lentilha: ["lentilha", "lentilhas"],
+        grão: ["grão de bico", "grão", "chickpea"],
+        tomate: ["tomate", "tomato", "tomate cereja"],
+        cebola: ["cebola", "onion", "cebola roxa"],
+        pimentão: ["pimentão", "pepper", "pimentão vermelho"],
+        brócolis: ["brócolis", "brócolis"],
+        cenoura: ["cenoura", "carrot"],
+        espinafre: ["espinafre", "spinach"],
+        abobrinha: ["abobrinha", "zucchini"],
+        batata: ["batata", "potato", "batata doce"],
+        arroz: ["arroz", "rice", "arroz branco", "arroz integral"],
+        macarrão: ["macarrão", "pasta", "espaguete"],
+        pão: ["pão", "bread"],
+        cuscuz: ["cuscuz", "couscous"],
+        tapioca: ["tapioca", "mandioca"],
+        alho: ["alho", "garlic"],
+        sal: ["sal", "salt"],
+        pimenta: ["pimenta", "pimenta do reino", "pepper"],
+        azeite: ["azeite", "olive oil"],
+        óleo: ["óleo", "oil", "óleo de girassol"],
+        vinagre: ["vinagre", "vinegar"],
+        orégano: ["orégano", "oregano"],
+        manjericão: ["manjericão", "basil"],
+        páprica: ["páprica", "paprika"],
+      };
+
+      for (const [key, values] of Object.entries(variacoes)) {
+        if (values.some((v) => ingLower.includes(v.toLowerCase()))) {
+          if (values.some((v) => itemLower.includes(v.toLowerCase()))) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    };
+
+    const categorias = CATEGORIAS_DISPENSA.map((cat) => {
+      const itensFiltrados = filteredIngredients.filter((ing) => {
+        // Pula ingredientes já atribuídos a outra categoria
+        if (ingredientesAtribuidos.has(ing.name.toLowerCase())) {
+          return false;
+        }
+
+        // Procura correspondência na categoria atual
+        const temCorrespondencia = cat.itens.some((item) =>
+          verificarCorrespondencia(ing.name, item),
+        );
+
+        // Se encontrou correspondência, marca como atribuído
+        if (temCorrespondencia) {
+          ingredientesAtribuidos.add(ing.name.toLowerCase());
+        }
+
+        return temCorrespondencia;
+      });
+
+      return {
+        ...cat,
+        icon:
+          cat.icon === "Flame" ? (
+            <Flame size={14} color={Colors.dark} />
+          ) : cat.icon === "Leaf" ? (
+            <Leaf size={14} color={Colors.dark} />
+          ) : cat.icon === "Utensils" ? (
+            <Utensils size={14} color={Colors.dark} />
+          ) : cat.icon === "Sparkles" ? (
+            <Sparkles size={14} color={Colors.dark} />
+          ) : (
+            <Zap size={14} color={Colors.dark} />
+          ),
+        itens: itensFiltrados.map((ing) => ing.name),
+      };
+    });
+
+    // Adicionar categoria "Outros" para itens não categorizados
+    const outrosItens = filteredIngredients.filter(
+      (ing) => !ingredientesAtribuidos.has(ing.name.toLowerCase()),
+    );
+
+    if (outrosItens.length > 0) {
+      categorias.push({
+        titulo: "OUTROS",
+        icon: <RotateCcw size={14} color={Colors.dark} />,
+        itens: outrosItens.map((ing) => ing.name),
+      });
+    }
+
+    return categorias.filter((cat) => cat.itens.length > 0);
+  }, [filteredIngredients]);
+
   // 3. Filtra os itens com base na busca, mantendo a estrutura de categorias
   const categoriasFiltradas = useMemo(() => {
-    return CATEGORIAS.map((cat) => ({
-      ...cat,
-      itens: cat.itens.filter((item) =>
-        item.toLowerCase().includes(busca.toLowerCase()),
-      ),
-    })).filter((cat) => cat.itens.length > 0);
-  }, [busca]);
+    return categoriasComItens
+      .map((cat) => ({
+        ...cat,
+        itens: cat.itens.filter((item) =>
+          item.toLowerCase().includes(busca.toLowerCase()),
+        ),
+      }))
+      .filter((cat) => cat.itens.length > 0);
+  }, [busca, categoriasComItens]);
 
   // Função para navegar enviando a flag de IA e dados mockados
   const handleGerarReceita = async () => {
     if (selecionados.length === 0) {
-      alert("Selecione pelo menos um ingrediente da dispensa!");
+      alert("Selecione pelo menos um ingrediente da sua dispensa!");
       return;
     }
 
@@ -247,41 +334,64 @@ export default function SelecaoIAScreen() {
         </View>
 
         {/* Categorias e Chips */}
-        {categoriasFiltradas.map((cat, idx) => (
-          <Animated.View
-            key={cat.titulo}
-            entering={FadeInDown.delay(200 + idx * 100)}
-            layout={Layout.springify()}
-            style={styles.categoryContainer}
+        {categoriasFiltradas.length === 0 ? (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              paddingHorizontal: 20,
+            }}
           >
-            <View style={styles.sectionHeader}>
-              {cat.icon}
-              <Text style={styles.categoryTitle}>{cat.titulo}</Text>
-            </View>
+            <Text
+              style={{
+                color: Colors.subtext,
+                fontSize: 16,
+                textAlign: "center",
+              }}
+            >
+              {busca
+                ? "Nenhum ingrediente encontrado com essa busca."
+                : "Sua dispensa está vazia. Adicione ingredientes para gerar receitas com IA!"}
+            </Text>
+          </View>
+        ) : (
+          categoriasFiltradas.map((cat, idx) => (
+            <Animated.View
+              key={cat.titulo}
+              entering={FadeInDown.delay(200 + idx * 100)}
+              layout={Layout.springify()}
+              style={styles.categoryContainer}
+            >
+              <View style={styles.sectionHeader}>
+                {cat.icon}
+                <Text style={styles.categoryTitle}>{cat.titulo}</Text>
+              </View>
 
-            <View style={styles.chipsWrapper}>
-              {cat.itens.map((item) => {
-                const isSelected = selecionados.includes(item);
-                return (
-                  <Pressable
-                    key={item}
-                    onPress={() => toggleIngrediente(item)}
-                    style={[styles.chip, isSelected && styles.chipActive]}
-                  >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        isSelected && styles.chipTextActive,
-                      ]}
+              <View style={styles.chipsWrapper}>
+                {cat.itens.map((item) => {
+                  const isSelected = selecionados.includes(item);
+                  return (
+                    <Pressable
+                      key={item}
+                      onPress={() => toggleIngrediente(item)}
+                      style={[styles.chip, isSelected && styles.chipActive]}
                     >
-                      {item}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Animated.View>
-        ))}
+                      <Text
+                        style={[
+                          styles.chipText,
+                          isSelected && styles.chipTextActive,
+                        ]}
+                      >
+                        {item}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Animated.View>
+          ))
+        )}
       </ScrollView>
 
       {/* Footer com Botão Gerador Reutilizável */}

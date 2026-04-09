@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { supabase } from "../services/supabase";
-import { useAuth } from "./useAuth"; // <-- Puxando o usuário REAL!
+import { useAuth } from "./useAuth";
 import type { Recipe } from "./useReceitas";
 
 interface FavoritosContextData {
@@ -34,7 +34,7 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
       buscarFavoritos(user.id);
       carregarFavoritosIA(user.id);
     } else {
-      setFavoritosIds([]); // Limpa a tela se deslogar
+      setFavoritosIds([]);
       setFavoritosIA([]);
       setCarregandoFavoritos(false);
     }

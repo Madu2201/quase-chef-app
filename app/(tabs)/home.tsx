@@ -1,63 +1,31 @@
-import { useRouter, useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   ChevronDown,
-  Flame,
-  Leaf,
-  User2,
-  UtensilsCrossed,
   ChevronRight,
+  User2
 } from "lucide-react-native";
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Image,
   Pressable,
   ScrollView,
-  Text,
-  View,
   StatusBar,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 // Meus imports
-import { Header } from "../../components/header";
 import { GenerateButton } from "../../components/generate_button";
-import { Colors, Spacing, Radius, FontSizes } from "../../constants/theme";
+import { Header } from "../../components/header";
+import { Colors, Radius, Spacing } from "../../constants/theme";
 import { homeStyles as styles } from "../../styles/home_styles";
 
 // Hooks e bibliotecas para autenticação e armazenamento local
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Dados mockados para os chips animados
-const INGREDIENTES = [
-  {
-    id: 1,
-    icon: <Flame size={14} color={Colors.light} />,
-    label: "Ovos (4)",
-    active: true,
-  },
-  {
-    id: 2,
-    icon: <UtensilsCrossed size={14} color={Colors.primary} />,
-    label: "Tomate (1)",
-  },
-  {
-    id: 3,
-    icon: <Leaf size={14} color={Colors.primary} />,
-    label: "Cebola (1)",
-  },
-  {
-    id: 4,
-    icon: <Leaf size={14} color={Colors.primary} />,
-    label: "Pimentão (1)",
-  },
-  {
-    id: 5,
-    icon: <Leaf size={14} color={Colors.primary} />,
-    label: "Queijo (200g)",
-  },
-];
 
 // Componente principal
 export default function HomeScreen() {
@@ -90,9 +58,8 @@ export default function HomeScreen() {
       carregarDadosUsuario();
     }, [user])
   );
-  // Contagem de ingredientes ativos para o badge do botão
-  const ativosCount = INGREDIENTES.filter((i) => i.active).length;
 
+  // Renderiza o componente
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -140,40 +107,17 @@ export default function HomeScreen() {
           Transforme o que você tem na geladeira em pratos incríveis.
         </Animated.Text>
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Ingredientes selecionados</Text>
-          <Pressable onPress={() => router.push("/dispensa")}>
-            <Text style={styles.editText}>Editar</Text>
-          </Pressable>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.ingredientsScroll}
-          contentContainerStyle={styles.ingredientsScrollContent}
-        >
-          {INGREDIENTES.map((item, index) => (
-            <Animated.View
-              key={item.id}
-              entering={FadeInRight.delay(index * 100 + 300).duration(500)}
-            >
-              <Chip active={item.active} icon={item.icon} label={item.label} />
-            </Animated.View>
-          ))}
-        </ScrollView>
-
         <Animated.View
           entering={FadeInDown.delay(600)}
           style={styles.btnContainer}
         >
-          {/* Botão com estilo customizado para a Home */}
+          {/* Botão para gerar receitas */}
           <GenerateButton
             label="Gerar receitas mágicas"
-            selectedCount={ativosCount}
+            selectedCount={0}
             onPress={() => router.push("/selecao_ia")}
             alwaysVisible={true}
-            showBadge={false}
+            forceEnabled={true}
             style={{
               borderRadius: Radius.lg,
               paddingVertical: Spacing.md,
@@ -223,16 +167,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-// Sub-componentes mantidos
-const Chip = ({ active = false, icon, label }: any) => (
-  <View style={[styles.chip, active && styles.chipActive]}>
-    {icon}
-    <Text style={active ? styles.chipTextActive : styles.chipText}>
-      {label}
-    </Text>
-  </View>
-);
 
 // Sub-componentes mantidos
 const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (

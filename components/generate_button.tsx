@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
 
+// Componente de botão de gerar receitas
 interface GenerateButtonProps {
     onPress: () => void;
     selectedCount: number;
@@ -13,6 +14,7 @@ interface GenerateButtonProps {
     alwaysVisible?: boolean;
     iconColor?: string;
     disabled?: boolean;
+    forceEnabled?: boolean;
 }
 
 export const GenerateButton = ({
@@ -24,21 +26,27 @@ export const GenerateButton = ({
     showBadge = true,        
     alwaysVisible = false,   
     iconColor = Colors.light,
-    disabled = false
+    disabled = false,
+    forceEnabled = false
 }: GenerateButtonProps) => {
 
     if (!alwaysVisible && selectedCount === 0) return null;
 
+    // Verifica se o botão deve estar desabilitado
+    const isDisabled = forceEnabled ? disabled : (disabled || (alwaysVisible && selectedCount === 0));
+    const shouldReduceOpacity = forceEnabled ? false : (alwaysVisible && selectedCount === 0);
+
+    // Renderiza o botão
     return (
         <TouchableOpacity
             style={[
                 styles.button,
                 style,
-                alwaysVisible && selectedCount === 0 && { opacity: 0.6 } 
+                shouldReduceOpacity && { opacity: 0.6 } 
             ]}
             onPress={onPress}
             activeOpacity={0.8}
-            disabled={disabled || (alwaysVisible && selectedCount === 0)} 
+            disabled={isDisabled} 
         >
             <View style={styles.content}>
                 <Sparkles size={20} color={iconColor} fill={iconColor} />
@@ -54,6 +62,7 @@ export const GenerateButton = ({
     );
 };
 
+// Estilos do botão
 const styles = StyleSheet.create({
     button: {
         backgroundColor: Colors.primary,

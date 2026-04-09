@@ -1,9 +1,8 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
-import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from "./global_styles";
+import { GLOBAL_ACTION_BUTTONS } from "./global_styles";
 
 export const homeStyles = StyleSheet.create({
-    ...GLOBAL_CHIPS_FILTERS,
     ...GLOBAL_ACTION_BUTTONS,
     //Header
     customHeader: {
@@ -60,7 +59,7 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.subtitle,
         paddingHorizontal: Spacing.lg,
-        marginBottom: Spacing.xl,
+        marginBottom: Spacing.lg,
     },
     // --- SEÇÕES ---
     sectionHeader: {
@@ -79,16 +78,6 @@ export const homeStyles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.small,
         color: Colors.primary,
-    },
-    // --- CHIPS (CORREÇÃO DO ESPAÇAMENTO DIREITO) ---
-    ingredientsScroll: {
-        width: '100%',
-        marginBottom: Spacing.lg,
-    },
-    ingredientsScrollContent: {
-        paddingHorizontal: Spacing.lg,
-        gap: Spacing.xs,
-        flexDirection: 'row',
     },
     // --- BOTÃO GERAR ---
     btnContainer: {

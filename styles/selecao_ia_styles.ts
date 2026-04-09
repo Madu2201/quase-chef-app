@@ -1,6 +1,13 @@
-import { Platform, StyleSheet } from 'react-native';
-import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
-import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from './global_styles';
+import { Platform, StyleSheet } from "react-native";
+import {
+  Colors,
+  Fonts,
+  FontSizes,
+  Radius,
+  Shadows,
+  Spacing,
+} from "../constants/theme";
+import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from "./global_styles";
 
 export const styles = StyleSheet.create({
   ...GLOBAL_CHIPS_FILTERS,
@@ -16,9 +23,9 @@ export const styles = StyleSheet.create({
 
   /* --- CABEÇALHO DE AÇÕES --- */
   actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
   },
@@ -28,12 +35,12 @@ export const styles = StyleSheet.create({
     color: Colors.brown,
   },
   clearButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.primary + '10',
+    backgroundColor: Colors.primary + "10",
     borderRadius: Radius.md,
   },
   clearButtonText: {
@@ -45,11 +52,11 @@ export const styles = StyleSheet.create({
   /* --- BANNER PRINCIPAL (HERO) --- */
   heroCard: {
     backgroundColor: Colors.light,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginHorizontal: Spacing.sm,
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.primary + '10',
+    borderColor: Colors.primary + "10",
     borderEndEndRadius: Radius.xl * 2,
     borderStartStartRadius: Radius.xl * 2,
     ...Shadows.sm,
@@ -58,35 +65,35 @@ export const styles = StyleSheet.create({
     padding: Spacing.md,
   },
   heroTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     backgroundColor: Colors.background,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.full,
-    alignSelf: 'flex-start',
-    marginBottom: Spacing.sm
+    alignSelf: "flex-start",
+    marginBottom: Spacing.sm,
   },
   heroTagText: {
     fontSize: FontSizes.small - 1,
     fontFamily: Fonts.bold,
-    color: Colors.primary
+    color: Colors.primary,
   },
   heroTitle: {
     fontSize: FontSizes.large,
     fontFamily: Fonts.bold,
     color: Colors.dark,
-    marginBottom: Spacing.xs
+    marginBottom: Spacing.xs,
   },
   heroSubtitle: {
     fontSize: FontSizes.small,
     fontFamily: Fonts.regular,
-    color: Colors.subtitle
+    color: Colors.subtitle,
   },
   heroImage: {
-    width: '100%',
-    height: 120
+    width: "100%",
+    height: 120,
   },
 
   /* --- TÍTULO DA SEÇÃO --- */
@@ -104,26 +111,26 @@ export const styles = StyleSheet.create({
   /* --- SEÇÕES E CATEGORIAS --- */
   categoryContainer: {
     paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.xl
+    marginBottom: Spacing.xl,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
-    marginBottom: Spacing.sm
+    marginBottom: Spacing.sm,
   },
   categoryTitle: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small,
     color: Colors.dark,
-    letterSpacing: 2
+    letterSpacing: 2,
   },
 
   /* --- CHIPS DE INGREDIENTES --- */
   chipsWrapper: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
   },
   chip: {
     ...GLOBAL_CHIPS_FILTERS.chip,
@@ -131,14 +138,30 @@ export const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
 
+  /* --- ESTADOS VAZIOS --- */
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.xl,
+  },
+  emptyText: {
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.medium,
+    color: Colors.subtitle,
+    textAlign: "center",
+    lineHeight: 22,
+  },
+
   /* --- RODAPÉ FIXO --- */
   footer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingBottom: Platform.OS === "ios" ? 40 : 20,
     paddingTop: Spacing.xs,
     backgroundColor: Colors.background,
   },
@@ -154,6 +177,6 @@ export const styles = StyleSheet.create({
   },
   btnDisabled: {
     backgroundColor: Colors.subtitle,
-    opacity: 0.5
+    opacity: 0.5,
   },
 });

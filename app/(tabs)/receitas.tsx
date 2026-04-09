@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Activity, Banknote, BarChart, Clock, Heart, IceCream, LayoutGrid, Package, Utensils, Zap } from 'lucide-react-native';
+import { BarChart, Clock, Heart, IceCream, Package } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -27,14 +27,8 @@ import { receitasStyles as styles } from '../../styles/receitas_styles';
 import { useDispensa } from '../../hooks/useDispensa';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 
-const CHIPS = [
-  { label: 'Todas', icon: LayoutGrid },
-  { label: 'Salgadas', icon: Utensils },
-  { label: 'Doces', icon: IceCream },
-  { label: 'Rápidas', icon: Zap },
-  { label: 'Saudáveis', icon: Activity },
-  { label: 'Econômicas', icon: Banknote },
-];
+// Filtros
+import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
 
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();

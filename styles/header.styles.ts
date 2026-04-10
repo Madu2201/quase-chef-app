@@ -31,7 +31,7 @@ export const headerStyles = StyleSheet.create({
     ...HEADER_STOCK_TOGGLE,
     header: {
         backgroundColor: Colors.light,
-        paddingTop: Platform.OS === 'ios' ? 35 : 25,
+        paddingTop: Platform.OS === 'ios' ? 55 : 40,
         zIndex: 10,
         borderBottomLeftRadius: Radius.xl,
         borderBottomRightRadius: Radius.xl,

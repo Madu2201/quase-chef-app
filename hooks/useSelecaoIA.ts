@@ -98,7 +98,7 @@ export function useSelecaoIA() {
     // Cria um prompt com os ingredientes selecionados
     try {
       const prompt = `
-        Atue como um Chef de Cozinha minimalista e direto. 
+        Atue como um Chef de Cozinha, sem precisar dar um nome enorme para a receita, mande dicas bem explicatívas. 
         Crie uma receita focando nestes ingredientes: ${selecionados.join(", ")}. 
         Considere que o usuário tem: água, sal e óleo.
 

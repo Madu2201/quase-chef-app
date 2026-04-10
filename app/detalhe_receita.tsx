@@ -11,7 +11,7 @@ import {
   PlayCircle,
   Share2,
 } from "lucide-react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   Pressable,
@@ -21,6 +21,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import Animated, {
   FadeInDown,
@@ -35,6 +36,7 @@ import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import type { InfoCardProps } from "../types/detalhe_receita";
+import { gerarImagemDaReceita } from "@/services/huggingFaceService";
 
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
@@ -44,6 +46,32 @@ export default function DetalheReceitaScreen() {
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const ehFav = isFavorito(receitaId);
+  // --- NOVOS ESTADOS PARA A IMAGEM ---
+  const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
+
+  // --- EFFECT QUE CHAMA A FOTO ASSIM QUE A TELA ABRE ---
+  useEffect(() => {
+    async function fetchImage() {
+      // Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
+      if (isIA && receitaDetalhada.titulo && !aiImageBase64) {
+        setIsLoadingImage(true);
+        try {
+          const base64 = await gerarImagemDaReceita(receitaDetalhada.titulo);
+          if (base64) {
+            setAiImageBase64(base64);
+            // IMPORTANTE: Se você quiser salvar essa foto nos favoritos depois, 
+            // precisaremos injetar esse base64 no objeto receitaFavoritoIA.
+          }
+        } catch (error) {
+          console.error("Erro na tela ao buscar imagem:", error);
+        } finally {
+          setIsLoadingImage(false);
+        }
+      }
+    }
+    fetchImage();
+  }, [isIA, receitaDetalhada.titulo]);
 
   return (
     <View style={styles.container}>
@@ -69,20 +97,42 @@ export default function DetalheReceitaScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          {!isIA && (
+          {/* BLOCO DA IMAGEM ATUALIZADO */}
+
+          {/* 1. Mostra LOADING se for IA e estiver carregando */}
+          {(isIA && isLoadingImage) && (
+            <Animated.View
+              entering={FadeInUp.duration(600)}
+              style={[styles.imageHeader, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#E2E8F0' }]}
+            >
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={{ marginTop: 12, color: Colors.primary, fontWeight: 'bold' }}>
+                Cozinhando a foto perfeita...
+              </Text>
+            </Animated.View>
+          )}
+
+          {/* 2. Mostra a IMAGEM (se for receita normal OU se a foto da IA já carregou) */}
+          {(!isIA || aiImageBase64) && !isLoadingImage && (
             <Animated.View
               entering={FadeInUp.duration(600)}
               style={styles.imageHeader}
             >
-              <Image source={{ uri: receitaDetalhada.imagem }} style={styles.image} />
+              <Image
+                source={{ uri: isIA ? (aiImageBase64 || "") : receitaDetalhada.imagem }}
+                style={styles.image}
+              />
+
               <Animated.View
                 entering={FadeInLeft.delay(500)}
                 style={[
                   styles.badgePopular,
-                  { backgroundColor: Colors.primary },
+                  { backgroundColor: isIA ? Colors.secondary : Colors.primary }, // Muda a cor se for IA
                 ]}
               >
-                <Text style={styles.badgeText}>Sugestão Quase Chef</Text>
+                <Text style={styles.badgeText}>
+                  {isIA ? "Foto Gerada por IA 🤖" : "Sugestão Quase Chef"}
+                </Text>
               </Animated.View>
             </Animated.View>
           )}

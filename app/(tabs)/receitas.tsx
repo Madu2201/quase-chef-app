@@ -22,9 +22,9 @@ import { Header } from '../../components/header';
 import { Colors } from '../../constants/theme';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
-import { useDispensa } from '../../hooks/useDispensa';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
+import { useFiltroEstoque } from '../../hooks/useFiltroEstoque';
 
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
@@ -36,11 +36,11 @@ export default function ReceitasScreen() {
   const [scrollY, setScrollY] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
   
-  const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque } = useReceitas();
+  const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca } = useReceitas();
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
-  const { ingredients: dispensaIngredientes } = useDispensa(); 
+  const { filtrarPorEstoque } = useFiltroEstoque();
 
-  // 🔥 LÓGICA DE FILTRAGEM INTEGRADA - Usar hooks do useReceitas
+  // 🔥 LÓGICA DE FILTRAGEM INTEGRADA
   const receitasFiltradas = useMemo(() => {
     let filtradas = receitasBanco;
 
@@ -52,11 +52,11 @@ export default function ReceitasScreen() {
 
     // 3. Filtro Rigoroso de Estoque (Botão "Cozinhar com meu estoque")
     if (usarEstoque) {
-      filtradas = filtrarPorEstoque(filtradas, dispensaIngredientes);
+      filtradas = filtrarPorEstoque(filtradas);
     }
 
     return filtradas;
-  }, [receitasBanco, busca, filtro, usarEstoque, dispensaIngredientes, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque]);
+  }, [receitasBanco, busca, filtro, usarEstoque, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque]);
 
   // Restaura a posição de scroll ao voltar da tela de detalhes
   useEffect(() => {

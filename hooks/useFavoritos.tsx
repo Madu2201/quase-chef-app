@@ -1,10 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, ReactNode, useContext, useEffect, useState, useMemo } from "react";
+import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "../services/supabase";
-import { useAuth } from "./useAuth";
-import { useReceitas, Recipe } from "./useReceitas";
-import { useDispensa } from "./useDispensa";
 import { FavoritosContextData } from "../types/favoritos";
+import { useAuth } from "./useAuth";
+import { Recipe, useReceitas } from "./useReceitas";
 
 const FavoritosContext = createContext<FavoritosContextData>({} as FavoritosContextData);
 
@@ -16,7 +15,6 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
 
   const iaStorageKey = (userId: string) => `@favoritos_ia_${userId}`;
 
-  // Sincroniza dados sempre que o usuário logar/deslogar
   useEffect(() => {
     if (user?.id) {
       buscarFavoritosBanco(user.id);
@@ -28,7 +26,6 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  /** Busca IDs das receitas do Supabase */
   async function buscarFavoritosBanco(userId: string) {
     try {
       setCarregandoFavoritos(true);
@@ -46,19 +43,16 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  /** Carrega receitas de IA salvas no AsyncStorage */
   async function carregarFavoritosIA(userId: string) {
     const stored = await AsyncStorage.getItem(iaStorageKey(userId));
     setFavoritosIA(stored ? JSON.parse(stored) : []);
   }
 
-  /** Verifica se o ID existe em qualquer uma das listas */
   const isFavorito = (id: string | number) => {
     const idStr = String(id);
     return favoritosIds.includes(idStr) || favoritosIA.some((item) => item.id === idStr);
   };
 
-  /** Lógica de Toggle: Decide se salva no Supabase ou Local (IA) */
   const toggleFavorito = async (receitaId: string | number, receitaData?: Recipe) => {
     if (!user?.id) return;
 
@@ -101,11 +95,10 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
 /** Acesso básico ao Contexto */
 export const useFavoritosGlobal = () => useContext(FavoritosContext);
 
-/** Lógica Unificada de Filtro para a Screen de Favoritos */
-export function useFavoritosLogic(searchText: string, filtro: string, useEstoque: boolean) {
-  const { receitasBanco, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque } = useReceitas();
+/** Lógica Unificada de Filtro para a Screen de Favoritos (SEM ESTOQUE AQUI) */
+export function useFavoritosLogic(searchText: string, filtro: string) {
+  const { receitasBanco, filtrarPorCategoria, filtrarPorBusca } = useReceitas();
   const { isFavorito, favoritosIA } = useFavoritosGlobal();
-  const { ingredients: dispensa } = useDispensa();
 
   const receitasFiltradas = useMemo(() => {
     // 1. Unifica Receitas Fixas Favoritadas + IA Salvas
@@ -122,16 +115,8 @@ export function useFavoritosLogic(searchText: string, filtro: string, useEstoque
     // 3. Filtra por Busca Textual
     lista = filtrarPorBusca(lista, searchText);
 
-    // 4. Filtra por Disponibilidade no Estoque
-    if (useEstoque) {
-      lista = lista.filter((r) => {
-        if (r.tipo === "ia") return true; // Receitas IA já são otimizadas
-        return filtrarPorEstoque([r], dispensa).length > 0;
-      });
-    }
-
     return lista;
-  }, [receitasBanco, favoritosIA, isFavorito, filtro, searchText, useEstoque, dispensa]);
+  }, [receitasBanco, favoritosIA, isFavorito, filtro, searchText]);
 
   return { receitasFiltradas };
 }

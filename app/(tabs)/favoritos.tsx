@@ -3,7 +3,7 @@ import {
   Heart,
   Package
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   FlatList, Image, Pressable, ScrollView,
   StatusBar, Switch, Text, View
@@ -21,6 +21,7 @@ import { Recipe } from "../../hooks/useReceitas";
 import { favStyles as styles } from "../../styles/favoritos_styles";
 import { ChipItem } from "../../types/favoritos";
 import { BASE_CHIPS, IA_CHIP } from "../../constants/filtros";
+import { useFiltroEstoque } from "../../hooks/useFiltroEstoque";
 
 // Configuração dos Filtros
 const CHIPS: ChipItem[] = [BASE_CHIPS[0], IA_CHIP, ...BASE_CHIPS.slice(1)];
@@ -31,8 +32,17 @@ export default function FavoritosScreen() {
   const [filtro, setFiltro] = useState("Todas");
   const [hasMounted, setHasMounted] = useState(false);
 
-  // Consome a lógica unificada de filtragem
-  const { receitasFiltradas } = useFavoritosLogic(searchText, filtro, useEstoque);
+  // Consome a lógica unificada de filtragem (SEM o estoque aqui)
+  const { receitasFiltradas: listaBaseFavoritos } = useFavoritosLogic(searchText, filtro);
+  const { filtrarPorEstoque } = useFiltroEstoque();
+
+  // Aplica o filtro de estoque no final, apenas para renderização
+  const receitasRenderizadas = useMemo(() => {
+    if (useEstoque) {
+      return filtrarPorEstoque(listaBaseFavoritos);
+    }
+    return listaBaseFavoritos;
+  }, [listaBaseFavoritos, useEstoque, filtrarPorEstoque]);
 
   useEffect(() => {
     setHasMounted(true);
@@ -92,17 +102,17 @@ export default function FavoritosScreen() {
 
         <View style={styles.infoBar}>
           <Text style={styles.infoText}>
-            {receitasFiltradas.length} {receitasFiltradas.length === 1 ? "receita salva" : "receitas salvas"}
+            {receitasRenderizadas.length} {receitasRenderizadas.length === 1 ? "receita salva" : "receitas salvas"}
           </Text>
         </View>
       </View>
 
       {/* Grid de Receitas */}
-      {receitasFiltradas.length === 0 ? (
+      {receitasRenderizadas.length === 0 ? (
         <EmptyState isSearch={!!searchText || filtro !== "Todas"} />
       ) : (
         <FlatList
-          data={receitasFiltradas}
+          data={receitasRenderizadas}
           keyExtractor={(item) => String(item.id)}
           numColumns={2}
           columnWrapperStyle={styles.columnWrapper}

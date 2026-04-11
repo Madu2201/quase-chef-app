@@ -13,6 +13,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -26,6 +27,8 @@ import { homeStyles as styles } from "../../styles/home_styles";
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Novo hook de sugestões
+import { useSugestoesHome } from "../../hooks/useSugestoesHome";
 
 // Componente principal
 export default function HomeScreen() {
@@ -34,6 +37,9 @@ export default function HomeScreen() {
   const [fotoUrl, setFotoUrl] = useState('');
 
   const [nomeExibido, setNomeExibido] = useState<any>(["Usuário"]);
+
+  // Chama o nosso novo hook pedindo 3 receitas baseadas no estoque
+  const { sugestoes, carregando } = useSugestoesHome(3);
 
   useFocusEffect(
     useCallback(() => {
@@ -138,31 +144,42 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* Cards de receitas com animação e navegação para detalhes */}
-        <RecipeCard
-          delay={700}
-          image={require("../../assets/images/omelete.png")}
-          time="10 MIN"
-          title="Omelete de Ervas"
-          desc="Perfeito com seus 4 ovos."
-          onPress={() => router.push("/detalhe_receita")}
-        />
-        <RecipeCard
-          delay={800}
-          image={require("../../assets/images/shakshuka.png")}
-          time="15 MIN"
-          title="Shakshuka"
-          desc="Ovos cozidos em salsa de tomate."
-          onPress={() => router.push("/detalhe_receita")}
-        />
-        <RecipeCard
-          delay={900}
-          image={require("../../assets/images/Pizza_marguerita.png")}
-          time="20 MIN"
-          title="Pizza de Marguerita"
-          desc="Ingredientes frescos e massa leve."
-          onPress={() => router.push("/detalhe_receita")}
-        />
+        {/* Renderização Dinâmica das Sugestões */}
+        {carregando ? (
+          <ActivityIndicator size="large" color={Colors.secondary} style={{ marginVertical: 20 }} />
+        ) : sugestoes.length > 0 ? (
+          sugestoes.map((receita: any, index: number) => (
+            <RecipeCard
+              key={receita.id}
+              delay={700 + (index * 100)} // Mantém o efeito cascata baseando-se no index
+              image={{ uri: receita.image }}
+              time={receita.time}
+              title={receita.title}
+              desc={receita.descStart}
+              onPress={() => router.push({
+                pathname: '/detalhe_receita',
+                params: {
+                  id: receita.id,
+                  title: receita.title,
+                  time: receita.time,
+                  difficulty: receita.difficulty,
+                  image: receita.image,
+                  calories: receita.calories,
+                  description: receita.descStart,
+                  ingredients: receita.rawIngredients,
+                  steps: receita.rawSteps,
+                }
+              })}
+            />
+          ))
+        ) : (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <Text style={{ color: Colors.subtext, textAlign: 'center' }}>
+              Adicione mais itens na dispensa para ver sugestões mágicas por aqui!
+            </Text>
+          </View>
+        )}
+
       </ScrollView>
     </View>
   );

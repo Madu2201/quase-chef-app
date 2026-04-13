@@ -9,7 +9,6 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 // Meus imports
 import { authStyles as styles } from "../../styles/auth_styles";
 import { Colors } from "../../constants/theme";
-// IMPORTANTE: Ajuste o caminho do supabaseConfig se necessário
 import { supabase } from "@/services/supabase"; 
 
 export default function EsqueciSenhaScreen() {

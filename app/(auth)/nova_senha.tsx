@@ -1,17 +1,22 @@
+import { router, useLocalSearchParams } from "expo-router";
+import { KeyRound, Lock } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  View, Text, TextInput, Pressable, Alert, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform
+  ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform,
+  Pressable, ScrollView, Text, TextInput, View,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { Lock, KeyRound } from "lucide-react-native";
-
-import { authStyles as styles } from "../../styles/auth_styles";
-import { Colors } from "../../constants/theme";
+import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { supabase } from "@/services/supabase";
+
+// Meus imports
+import { Colors } from "../../constants/theme";
+import { authStyles as styles } from "../../styles/auth_styles";
 
 export default function NovaSenhaScreen() {
   const { email } = useLocalSearchParams(); // Pega o e-mail da tela anterior
-  
+
+  const [isFocusedCodigo, setIsFocusedCodigo] = useState(false);
+  const [isFocusedSenha, setIsFocusedSenha] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,8 +59,8 @@ export default function NovaSenhaScreen() {
       const { error: erroUpdate } = await supabase
         .from('users')
         .update({
-          password_hash: novaSenha, // <--- O SEGREDO ESTAVA AQUI!
-          reset_token: null,   
+          password_hash: novaSenha,
+          reset_token: null,
           reset_token_expires: null
         })
         .eq('id', usuario.id);
@@ -73,47 +78,114 @@ export default function NovaSenhaScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View
+          entering={FadeInUp.delay(100).duration(600)}
+          style={styles.header}
+        >
+          <Image
+            source={require("../../assets/images/icon.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.brandName}>Quase Chef!</Text>
+
           <Text style={styles.welcomeTitle}>Criar Nova Senha</Text>
           <Text style={styles.welcomeSubtitle}>
             Digite o código de 6 dígitos que enviamos para {email}
           </Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
-          <View style={styles.inputContainer}>
-            <KeyRound size={20} color={Colors.subtitle} />
+        <Animated.View
+          entering={FadeInDown.delay(300).duration(600)}
+          style={styles.inputGroup}
+        >
+          <View
+            style={[
+              styles.inputContainer,
+              isFocusedCodigo && styles.inputContainerFocused,
+            ]}
+          >
+            <KeyRound
+              size={20}
+              color={
+                isFocusedCodigo ? Colors.primary : Colors.subtitle
+              }
+            />
             <TextInput
               placeholder="Código de 6 dígitos"
+              placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               keyboardType="number-pad"
               maxLength={6}
               value={codigo}
               onChangeText={setCodigo}
+              onFocus={() => setIsFocusedCodigo(true)}
+              onBlur={() => setIsFocusedCodigo(false)}
+              selectionColor={Colors.primary}
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Lock size={20} color={Colors.subtitle} />
+          <View
+            style={[
+              styles.inputContainer,
+              isFocusedSenha && styles.inputContainerFocused,
+            ]}
+          >
+            <Lock
+              size={20}
+              color={isFocusedSenha ? Colors.primary : Colors.subtitle}
+            />
             <TextInput
               placeholder="Sua nova senha"
+              placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               secureTextEntry
               value={novaSenha}
               onChangeText={setNovaSenha}
+              onFocus={() => setIsFocusedSenha(true)}
+              onBlur={() => setIsFocusedSenha(false)}
+              selectionColor={Colors.primary}
             />
           </View>
 
-          <Pressable 
-            style={styles.buttonPrimary} 
+          <Pressable
+            style={styles.buttonPrimary}
             onPress={handleSalvarNovaSenha}
             disabled={loading}
           >
-            {loading ? <ActivityIndicator color={Colors.light} /> : <Text style={styles.buttonPrimaryText}>Alterar Senha</Text>}
+            {loading ? (
+              <ActivityIndicator color={Colors.light} />
+            ) : (
+              <Text style={styles.buttonPrimaryText}>Alterar Senha</Text>
+            )}
           </Pressable>
-        </View>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(500).duration(600)}>
+          <Text style={styles.footerText}>
+            Lembrou a senha?{" "}
+            <Text
+              style={styles.primaryLink}
+              onPress={() => router.push("/(auth)/login")}
+            >
+              Voltar para o Login
+            </Text>
+          </Text>
+
+          <Text style={styles.legalText}>
+            Ao continuar, você concorda com nossos{" "}
+            <Text style={styles.linkUnderline}>Termos de Serviço</Text> e{" "}
+            <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
+          </Text>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

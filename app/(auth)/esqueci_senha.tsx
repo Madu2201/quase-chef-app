@@ -19,7 +19,7 @@ export default function EsqueciSenhaScreen() {
   const [loading, setLoading] = useState(false);
 
   // ⚠️ COLOQUE SUAS CHAVES DO EMAILJS AQUI
-  const EMAILJS_SERVICE_ID = "service_4i3v5ed";
+  const EMAILJS_SERVICE_ID = "service_b5282sg";
   const EMAILJS_TEMPLATE_ID = "template_s1zb6fs";
   const EMAILJS_PUBLIC_KEY = "mqdmJb88HtTXkQn9Q";
 

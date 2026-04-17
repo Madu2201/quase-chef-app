@@ -5,7 +5,7 @@ import {
   User2,
   Zap
 } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState , useEffect } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -27,6 +27,7 @@ import { homeStyles as styles } from "../../styles/home_styles";
 // Hooks e bibliotecas para autenticação e armazenamento local
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "@/services/supabase";
 
 // Novo hook de sugestões
 import { useSugestoesHome } from "../../hooks/useSugestoesHome";

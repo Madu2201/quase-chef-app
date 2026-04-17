@@ -114,7 +114,7 @@ export function useSelecaoIA() {
           "descricao": "Frase breve",
           "tempo": "XX min",
           "dificuldade": "Fácil/Média",
-          "calorias": "000 kcal",
+          "calorias": "xx kcal",
           "dicaIA": "",
           "ingredientes": ["quantidade e nome"],
           "passos": [

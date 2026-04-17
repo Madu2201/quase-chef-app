@@ -79,6 +79,45 @@ export const homeStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.primary,
     },
+    // --- HERO CARD ---
+    heroCard: {
+        backgroundColor: Colors.light,
+        overflow: "hidden",
+        marginHorizontal: Spacing.lg,
+        marginBottom: Spacing.lg,
+        borderWidth: 1,
+        borderColor: Colors.primary + "10",
+        borderRadius: Radius.lg,
+        ...Shadows.sm,
+    },
+    heroTextArea: {
+        padding: Spacing.md,
+    },
+    heroTag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: Colors.background,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.xs,
+        borderRadius: Radius.full,
+        alignSelf: "flex-start",
+        marginBottom: Spacing.sm,
+    },
+    heroTagText: {
+        fontSize: FontSizes.small - 1,
+        fontFamily: Fonts.bold,
+        color: Colors.primary,
+    },
+    heroTitle: {
+        fontSize: FontSizes.large,
+        fontFamily: Fonts.bold,
+        color: Colors.dark,
+    },
+    heroImage: {
+        width: "100%",
+        height: 120,
+    },
     // --- BOTÃO GERAR ---
     btnContainer: {
         paddingHorizontal: Spacing.lg,

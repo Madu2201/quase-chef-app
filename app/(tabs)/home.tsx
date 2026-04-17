@@ -2,10 +2,12 @@ import { useFocusEffect, useRouter } from "expo-router";
 import {
   ChevronDown,
   ChevronRight,
-  User2
+  User2,
+  Zap
 } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -13,7 +15,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -112,6 +113,26 @@ export default function HomeScreen() {
         >
           Transforme o que você tem na geladeira em pratos incríveis.
         </Animated.Text>
+
+        {/* Hero Card */}
+        <Animated.View
+          entering={FadeInDown.delay(500)}
+          style={styles.heroCard}
+        >
+          <View style={styles.heroTextArea}>
+            <View style={styles.heroTag}>
+              <Zap size={10} color={Colors.primary} fill={Colors.primary} />
+              <Text style={styles.heroTagText}>QUASE CHEF</Text>
+            </View>
+            <Text style={styles.heroTitle}>Cozinhe sem desperdícios!</Text>
+          </View>
+          <Image
+            source={{
+              uri: "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=1470&q=80",
+            }}
+            style={styles.heroImage}
+          />
+        </Animated.View>
 
         <Animated.View
           entering={FadeInDown.delay(600)}

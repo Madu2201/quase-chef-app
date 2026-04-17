@@ -1,27 +1,31 @@
 const HF_TOKEN = process.env.EXPO_PUBLIC_HF_TOKEN;
-const MODEL_ID = "black-forest-labs/FLUX.1-schnell";
+const MODEL_ID = "mrfakename/Z-Image-Turbo";
 
 export async function gerarImagemDaReceita(
   nomeDaReceita: string,
 ): Promise<string> {
   // Dica de Engenharia de Prompt: Mesmo que o nome venha em PT-BR,
   // colocar essas palavras-chave em inglês no final garante que a IA faça foto de comida e não um desenho.
-  const promptOtimizado = `uma deliciosa comida de restaurante: ${nomeDaReceita}, foto de comida realista,perspectiva de cima ou de frente, 4k, com luzes de restaurante, iluminação perfeita.`;
+  const promptOtimizado = `Uma fotografia gastronômica ultra-realista de alta qualidade de um prato de restaurante chamado "${nomeDaReceita}", apresentação sofisticada e apetitosa, comida fresca e detalhada, textura visível e suculenta, servido em prato elegante, composição profissional, iluminação cinematográfica de restaurante (luz quente e suave), sombras naturais, reflexos sutis, fundo desfocado estilo bokeh, perspectiva de cima ou ângulo frontal, foco nítido no prato, profundidade de campo, estilo fotografia profissional, 4K, extremamente detalhado`;
 
   try {
     const response = await fetch(
-      `https://router.huggingface.co/hf-inference/models/${MODEL_ID}`,
+      `https://api-inference.huggingface.co/models/${MODEL_ID}`,
       {
-        method: "POST",
         headers: {
           Authorization: `Bearer ${HF_TOKEN}`,
           "Content-Type": "application/json",
         },
+        method: "POST",
         body: JSON.stringify({ inputs: promptOtimizado }),
       },
     );
 
     if (!response.ok) {
+      // O PULO DO GATO: Vamos ler a mensagem de erro que a API mandou!
+      const errorText = await response.text();
+      console.error("🔴 ERRO REAL DO HUGGING FACE:", errorText);
+
       throw new Error("Erro na API do Hugging Face");
     }
 

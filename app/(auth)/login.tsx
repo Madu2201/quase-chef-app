@@ -53,38 +53,6 @@ export default function LoginScreen() {
       }
     }
   };
-  //Logica com o Google
-  // Lógica do Google
-  const handleGoogleLogin = async () => {
-    try {
-      // 1. Define a URL de retorno dependendo de onde o app tá rodando
-      const redirectUrl = Platform.OS === 'web'
-        ? 'http://localhost:8081/(tabs)/home' // Volta pro seu navegador
-        : Linking.createURL('/(tabs)/home'); // Volta pro app no celular
-
-      // 2. Chama o Supabase
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          // O PULO DO GATO: Se for Web, o Supabase redireciona a aba inteira. 
-          // Se for celular (iOS/Android), a gente impede isso para usar o WebBrowser do Expo.
-          skipBrowserRedirect: Platform.OS !== 'web',
-        },
-      });
-
-      if (error) throw error;
-
-      // 3. Abre a janela do Google APENAS se for celular (no Web o Supabase já fez sozinho)
-      if (Platform.OS !== 'web' && data?.url) {
-        await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
-      }
-
-    } catch (error) {
-      console.error("Erro no Google:", error);
-      setErrors({ geral: "Não foi possível conectar com o Google." });
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -184,24 +152,6 @@ export default function LoginScreen() {
 
         {/* Footer - Social e Cadastro */}
         <Animated.View entering={FadeInDown.delay(500).duration(600)}>
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} /><Text style={styles.dividerText}>ou entre com</Text><View style={styles.dividerLine} />
-          </View>
-
-          <View style={styles.socialContainer}>
-            <Pressable
-              style={styles.socialButton}
-              onPress={handleGoogleLogin}
-            >
-              <FontAwesome5 name="google" size={16} color="#DB4437" />
-              <Text style={styles.socialButtonText}>Google</Text>
-            </Pressable>
-
-            <Pressable style={styles.socialButton}>
-              <FontAwesome5 name="facebook" size={16} color="#4267B2" />
-              <Text style={styles.socialButtonText}>Facebook</Text>
-            </Pressable>
-          </View>
 
           <Text style={styles.footerText}>
             Não tem uma conta? <Text style={styles.primaryLink} onPress={() => router.push("/(auth)/cadastro")}>Cadastre-se</Text>

@@ -1,20 +1,20 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import {
-  ChevronDown,
-  ChevronRight,
-  User2,
-  Zap
+    ChevronDown,
+    ChevronRight,
+    User2,
+    Zap
 } from "lucide-react-native";
-import React, { useCallback, useState , useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -27,7 +27,6 @@ import { homeStyles as styles } from "../../styles/home_styles";
 // Hooks e bibliotecas para autenticação e armazenamento local
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { supabase } from "@/services/supabase";
 
 // Novo hook de sugestões
 import { useSugestoesHome } from "../../hooks/useSugestoesHome";
@@ -183,13 +182,11 @@ export default function HomeScreen() {
                 params: {
                   id: receita.id,
                   title: receita.title,
+                  image: receita.image,
                   time: receita.time,
                   difficulty: receita.difficulty,
-                  image: receita.image,
                   calories: receita.calories,
                   description: receita.descStart,
-                  ingredients: receita.rawIngredients,
-                  steps: receita.rawSteps,
                 }
               })}
             />

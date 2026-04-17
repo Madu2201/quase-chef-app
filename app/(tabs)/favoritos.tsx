@@ -1,27 +1,27 @@
 import { router } from "expo-router";
 import {
-  Heart,
-  Package
+    Heart,
+    Package
 } from "lucide-react-native";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  FlatList, Image, Pressable, ScrollView,
-  StatusBar, Switch, Text, View
+    FlatList, Image, Pressable, ScrollView,
+    StatusBar, Switch, Text, View
 } from "react-native";
 import Animated, {
-  FadeInDown, FadeInRight, useAnimatedStyle,
-  useSharedValue, withSequence, withSpring
+    FadeInDown, FadeInRight, useAnimatedStyle,
+    useSharedValue, withSequence, withSpring
 } from "react-native-reanimated";
 
 // Meus imports
 import { Header } from "../../components/header";
+import { BASE_CHIPS, IA_CHIP } from "../../constants/filtros";
 import { Colors } from "../../constants/theme";
 import { useFavoritosGlobal, useFavoritosLogic } from "../../hooks/useFavoritos";
+import { useFiltroEstoque } from "../../hooks/useFiltroEstoque";
 import { Recipe } from "../../hooks/useReceitas";
 import { favStyles as styles } from "../../styles/favoritos_styles";
 import { ChipItem } from "../../types/favoritos";
-import { BASE_CHIPS, IA_CHIP } from "../../constants/filtros";
-import { useFiltroEstoque } from "../../hooks/useFiltroEstoque";
 
 // Configuração dos Filtros
 const CHIPS: ChipItem[] = [BASE_CHIPS[0], IA_CHIP, ...BASE_CHIPS.slice(1)];
@@ -147,7 +147,16 @@ const RecipeCard = ({ item, index, hasMounted }: { item: Recipe; index: number; 
       entering={!hasMounted ? FadeInDown.delay(index * 150).springify() : undefined}
       style={styles.card}
     >
-      <Pressable onPress={() => router.push({ pathname: "/detalhe_receita", params: { ...item } as any })}>
+      <Pressable onPress={() => router.push({ pathname: "/detalhe_receita", params: {
+          id: item.id,
+          tipo: item.tipo,
+          title: item.title,
+          image: item.image,
+          time: item.time,
+          difficulty: item.difficulty,
+          calories: item.calories,
+          description: item.descStart,
+        } })}>
         <View style={styles.imageContainer}>
           <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
 

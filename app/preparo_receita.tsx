@@ -1,32 +1,33 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  Heart,
-  Lightbulb,
-  Pause,
-  Play,
-  RotateCcw,
-  Share2,
-  Stars,
-  X,
+    Heart,
+    Lightbulb,
+    Pause,
+    Play,
+    RotateCcw,
+    Share2,
+    Stars,
+    X,
 } from "lucide-react-native";
-import React from "react";
+import React, { useMemo } from "react";
 import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Share,
-  StatusBar,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    Share,
+    StatusBar,
+    Text,
+    View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInLeft,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+    FadeIn,
+    FadeInLeft,
+    FadeInUp,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
 } from "react-native-reanimated";
 
 // Meus imports organizados
@@ -34,23 +35,59 @@ import { Colors } from "../constants/theme";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
 import type { Recipe } from "../hooks/useReceitas";
+import { useRecipeById } from "../hooks/useRecipeById";
 import { preparoStyles as styles } from "../styles/preparo_styles";
 import type { PassoPreparo } from "../types/detalhe_receita";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
 import { criarReceitaIAParaPreparo, processarParamsPreparo } from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 
+const getStringParam = (value: any): string => {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value[0] ?? "";
+  return "";
+};
+
 export default function PreparoReceitaScreen() {
   const params = useLocalSearchParams();
+  const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+  const receitaId = getStringParam(params.id);
+  const { recipe: receitaOrigem, isLoading: isRecipeLoading } = useRecipeById(receitaId);
 
-  // Processamento organizado dos parâmetros
-  const paramsProcessados: PreparoReceitaParams = processarParamsPreparo(params);
+  const routeParams = useMemo(() => ({
+    id: receitaId,
+    titulo: receitaOrigem?.title ?? getStringParam(params.titulo),
+    imagem: receitaOrigem?.image ?? getStringParam(params.imagem),
+    time: receitaOrigem?.time ?? getStringParam(params.time),
+    difficulty: receitaOrigem?.difficulty ?? getStringParam(params.difficulty),
+    calories: receitaOrigem?.calories ?? getStringParam(params.calories),
+    description: receitaOrigem?.descStart ?? getStringParam(params.description),
+    rawIngredients: receitaOrigem?.rawIngredients ?? getStringParam(params.rawIngredients),
+    passosJson: receitaOrigem?.rawSteps ?? getStringParam(params.passosJson),
+    tipo: receitaOrigem?.tipo ?? getStringParam(params.tipo),
+  }), [params, receitaOrigem, receitaId]);
+
+  const paramsProcessados: PreparoReceitaParams = processarParamsPreparo(routeParams);
   const passosDinamicos: PassoPreparo[] = paramsProcessados.passosJson
     ? JSON.parse(paramsProcessados.passosJson)
     : [];
 
+  const isLoadingRecife = Boolean(
+    receitaId && !receitaOrigem && isRecipeLoading
+  );
+
+  if (isLoadingRecife && passosDinamicos.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}> 
+        <ActivityIndicator size="large" color={Colors.secondary} />
+        <Text style={{ marginTop: 16, color: Colors.subtext, textAlign: 'center' }}>
+          Carregando preparo da receita...
+        </Text>
+      </View>
+    );
+  }
+
   // Hooks organizados
-  const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const {
     passoAtual,
     isConcluido,

@@ -2,29 +2,29 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { BarChart, Clock, Heart, IceCream, Package } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList, Image,
-  ListRenderItemInfo,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    FlatList, Image,
+    ListRenderItemInfo,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 // Meus imports
 import { Header } from '../../components/header';
+import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
 import { Colors } from '../../constants/theme';
+import { useFavoritosGlobal } from '../../hooks/useFavoritos';
+import { useFiltroEstoque } from '../../hooks/useFiltroEstoque';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
-import { useFavoritosGlobal } from '../../hooks/useFavoritos';
-import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
-import { useFiltroEstoque } from '../../hooks/useFiltroEstoque';
 
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
@@ -141,14 +141,12 @@ export default function ReceitasScreen() {
               params: {
                 id: item.id,
                 title: item.title,
+                image: item.image,
                 time: item.time,
                 difficulty: item.difficulty,
-                image: item.image,
                 calories: item.calories,
                 description: item.descStart,
-                ingredients: item.rawIngredients,
-                steps: item.rawSteps,
-                restoreScroll: String(scrollY)
+                restoreScroll: String(scrollY),
               }
             })}
           >

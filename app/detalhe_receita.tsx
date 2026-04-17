@@ -1,47 +1,47 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
-  AlertCircle,
-  BarChart3,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Heart,
-  Lightbulb,
-  PlayCircle,
-  Share2,
+    AlertCircle,
+    BarChart3,
+    CheckCircle2,
+    Clock,
+    Flame,
+    Heart,
+    Lightbulb,
+    PlayCircle,
+    Share2,
 } from "lucide-react-native";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Image,
-  Pressable,
-  ScrollView,
-  Share,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-  ActivityIndicator,
+    ActivityIndicator,
+    Image,
+    Pressable,
+    ScrollView,
+    Share,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
-  FadeInLeft,
-  FadeInUp,
+    FadeInDown,
+    FadeInLeft,
+    FadeInUp,
 } from "react-native-reanimated";
 
 // Meus imports
+import { gerarImagemDaReceita } from "@/services/huggingFaceService";
 import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
-import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
+import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 import type { InfoCardProps } from "../types/detalhe_receita";
-import { gerarImagemDaReceita } from "@/services/huggingFaceService";
 
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
   // Usamos o hook personalizado para gerenciar a lógica
-  const { receitaDetalhada, receitaFavoritoIA, isIA, receitaId } = useDetalheReceita();
+  const { receitaDetalhada, receitaFavoritoIA, isIA, receitaId, isLoading } = useDetalheReceita();
 
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
@@ -138,29 +138,36 @@ export default function DetalheReceitaScreen() {
           )}
 
           <View style={styles.contentCard}>
-            <Animated.Text
-              entering={FadeInDown.delay(200)}
-              style={styles.title}
-            >
-              {receitaDetalhada.titulo}
-            </Animated.Text>
-            <Text style={styles.description}>{receitaDetalhada.descricao}</Text>
+            {isLoading ? (
+              <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={[styles.description, { marginTop: 12, textAlign: 'center' }]}>Carregando detalhes da receita...</Text>
+              </View>
+            ) : (
+              <>
+                <Animated.Text
+                  entering={FadeInDown.delay(200)}
+                  style={styles.title}
+                >
+                  {receitaDetalhada.titulo}
+                </Animated.Text>
+                <Text style={styles.description}>{receitaDetalhada.descricao}</Text>
 
-            <View style={styles.infoContainer}>
-              <InfoCard icon={Clock} label="Tempo" value={receitaDetalhada.tempo} />
-              <InfoCard
-                icon={BarChart3}
-                label="Nível"
-                value={receitaDetalhada.dificuldade}
-              />
-              <InfoCard
-                icon={Flame}
-                label="Calorias"
-                value={receitaDetalhada.calorias}
-              />
-            </View>
+                <View style={styles.infoContainer}>
+                  <InfoCard icon={Clock} label="Tempo" value={receitaDetalhada.tempo} />
+                  <InfoCard
+                    icon={BarChart3}
+                    label="Nível"
+                    value={receitaDetalhada.dificuldade}
+                  />
+                  <InfoCard
+                    icon={Flame}
+                    label="Calorias"
+                    value={receitaDetalhada.calorias}
+                  />
+                </View>
 
-            <View style={styles.sectionTitleRow}>
+                <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Ingredientes</Text>
               <Text style={styles.itemsCount}>{receitaDetalhada.itensCount} itens</Text>
             </View>
@@ -206,6 +213,8 @@ export default function DetalheReceitaScreen() {
                 <Text style={styles.stepText}>{passo.titulo}</Text>
               </View>
             ))}
+          </>
+        )}
           </View>
         </ScrollView>
         <LinearGradient
@@ -242,8 +251,6 @@ export default function DetalheReceitaScreen() {
                 difficulty: receitaDetalhada.dificuldade,
                 calories: receitaDetalhada.calorias,
                 description: receitaDetalhada.descricao,
-                rawIngredients: JSON.stringify(receitaDetalhada.ingredientes),
-                passosJson: JSON.stringify(receitaDetalhada.preparo),
               },
             })
           }

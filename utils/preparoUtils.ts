@@ -17,18 +17,24 @@ export const criarReceitaIAParaPreparo = (params: PreparoReceitaParams): Recipe 
     });
 };
 
+const getStringParam = (value: any): string => {
+    if (typeof value === "string") return value;
+    if (Array.isArray(value)) return value[0] ?? "";
+    return "";
+};
+
 // Processa parâmetros da rota para o formato estruturado
 export const processarParamsPreparo = (params: any): PreparoReceitaParams => {
     return {
-        id: params.id as string,
-        titulo: params.titulo as string,
-        imagem: Array.isArray(params.imagem) ? params.imagem[0] : params.imagem as string,
-        time: params.time as string,
-        difficulty: params.difficulty as string,
-        calories: params.calories as string,
-        description: params.description as string,
-        rawIngredients: params.rawIngredients as string,
-        passosJson: params.passosJson as string,
-        tipo: params.tipo as string,
+        id: getStringParam(params.id),
+        titulo: getStringParam(params.titulo),
+        imagem: getStringParam(params.imagem),
+        time: getStringParam(params.time),
+        difficulty: getStringParam(params.difficulty),
+        calories: getStringParam(params.calories),
+        description: getStringParam(params.description),
+        rawIngredients: getStringParam(params.rawIngredients) || "[]",
+        passosJson: getStringParam(params.passosJson) || "[]",
+        tipo: getStringParam(params.tipo),
     };
 };

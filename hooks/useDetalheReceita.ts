@@ -1,28 +1,61 @@
-import { useLocalSearchParams } from "expo-router";
+﻿import { useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import type { ReceitaDetalhada } from "../types/detalhe_receita";
 import { criarReceitaIA } from "../utils/receitaIAUtils";
 import { formatarTempo, processarIngredientes, processarPassosPreparo } from "../utils/receitaUtils";
+import { useFavoritosGlobal } from "./useFavoritos";
 import type { Recipe } from "./useReceitas";
+import { useReceitas } from "./useReceitas";
+import { useRecipeById } from "./useRecipeById";
+
+const getStringParam = (value: any): string => {
+    if (typeof value === "string") return value;
+    if (Array.isArray(value)) return value[0] ?? "";
+    return "";
+};
 
 export const useDetalheReceita = () => {
     const params = useLocalSearchParams();
+    const { receitasBanco, carregando } = useReceitas();
+    const { favoritosIA, carregandoFavoritos } = useFavoritosGlobal();
 
-    // Processa dados dos params
+    const receitaId = getStringParam(params.id) || `ia-${Date.now()}`;
+    const tipoParam = getStringParam(params.tipo);
+
+    const preview = useMemo(() => ({
+        title: getStringParam(params.title),
+        image: getStringParam(params.image),
+        time: getStringParam(params.time),
+        difficulty: getStringParam(params.difficulty),
+        description: getStringParam(params.description),
+        calories: getStringParam(params.calories),
+        dicaIA: getStringParam(params.dicaIA),
+        ingredients: getStringParam(params.ingredients),
+        steps: getStringParam(params.steps),
+        tipo: tipoParam,
+    }), [params, tipoParam]);
+
+    const { recipe: receitaOrigem, isLoading: isRecipeLoading } = useRecipeById(getStringParam(params.id));
+
+    const isIA = tipoParam === "ia" || receitaOrigem?.tipo === "ia";
+
     const receitaDetalhada: ReceitaDetalhada = useMemo(() => {
-        const ingredientes = processarIngredientes(params.ingredients as string);
-        const preparo = processarPassosPreparo(params.steps as string);
+        const rawIngredients = receitaOrigem?.rawIngredients ?? preview.ingredients;
+        const rawSteps = receitaOrigem?.rawSteps ?? preview.steps;
+
+        const ingredientes = processarIngredientes(rawIngredients);
+        const preparo = processarPassosPreparo(rawSteps);
 
         return {
-            titulo: (params.title as string) || RECEITA_STRINGS.RECEITA_DESCONHECIDA,
-            descricao: (params.description as string) || RECEITA_STRINGS.DESCRICAO_INDISPONIVEL,
-            tempo: formatarTempo((params.time as string) || `${RECEITA_STRINGS.VALOR_PADRAO} min`),
-            dificuldade: (params.difficulty as string) || RECEITA_STRINGS.VALOR_PADRAO,
-            calorias: (params.calories as string) || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
-            imagem: (params.image as string) || RECEITA_STRINGS.IMAGEM_PADRAO,
+            titulo: receitaOrigem?.title ?? preview.title ?? RECEITA_STRINGS.RECEITA_DESCONHECIDA,
+            descricao: receitaOrigem?.descStart ?? preview.description ?? RECEITA_STRINGS.DESCRICAO_INDISPONIVEL,
+            tempo: formatarTempo(receitaOrigem?.time ?? preview.time ?? `${RECEITA_STRINGS.VALOR_PADRAO} min`),
+            dificuldade: receitaOrigem?.difficulty ?? preview.difficulty ?? RECEITA_STRINGS.VALOR_PADRAO,
+            calorias: receitaOrigem?.calories ?? preview.calories ?? `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
+            imagem: receitaOrigem?.image ?? preview.image ?? RECEITA_STRINGS.IMAGEM_PADRAO,
             itensCount: ingredientes.length,
-            dicaIA: (params.dicaIA as string) || RECEITA_STRINGS.DICA_IA_PADRAO,
+            dicaIA: preview.dicaIA || RECEITA_STRINGS.DICA_IA_PADRAO,
             ingredientes: ingredientes.length > 0 ? ingredientes : [{
                 id: "1",
                 nome: RECEITA_STRINGS.SEM_INGREDIENTES,
@@ -36,14 +69,21 @@ export const useDetalheReceita = () => {
                 tempoTimer: 0,
             }],
         };
-    }, [params]);
+    }, [preview, receitaOrigem]);
 
-    // Dados para receita de IA (se aplicável)
+    const isLoading = Boolean(
+        getStringParam(params.id) &&
+        !receitaOrigem &&
+        isRecipeLoading &&
+        !preview.ingredients &&
+        !preview.steps
+    );
+
     const receitaFavoritoIA: Recipe | undefined = useMemo(() => {
-        const isIA = params.tipo === "ia";
         if (!isIA) return undefined;
 
-        const receitaId = (params.id as string) || `ia-${Date.now()}`;
+        const rawIngredients = receitaOrigem?.rawIngredients ?? preview.ingredients ?? "[]";
+        const rawSteps = receitaOrigem?.rawSteps ?? preview.steps ?? "[]";
 
         return criarReceitaIA({
             id: receitaId,
@@ -53,16 +93,18 @@ export const useDetalheReceita = () => {
             description: receitaDetalhada.descricao,
             imagem: receitaDetalhada.imagem,
             calories: receitaDetalhada.calorias,
-            rawIngredients: (params.ingredients as string) || "[]",
-            rawSteps: (params.steps as string) || "[]",
+            rawIngredients,
+            rawSteps,
         });
-    }, [params, receitaDetalhada]);
+    }, [isIA, receitaDetalhada, receitaId, preview, receitaOrigem]);
 
     return {
         params,
         receitaDetalhada,
         receitaFavoritoIA,
-        isIA: params.tipo === "ia",
-        receitaId: (params.id as string) || `ia-${Date.now()}`,
+        isIA,
+        receitaId,
+        isLoading,
+        preview,
     };
 };

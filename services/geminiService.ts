@@ -1,6 +1,6 @@
 // src/services/geminiService.ts
-import "react-native-url-polyfill/auto";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import "react-native-url-polyfill/auto";
 
 const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
@@ -12,7 +12,7 @@ if (!API_KEY) {
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Escolhe o modelo (o flash é o mais rápido e barato/grátis)
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
 export const perguntarAoGemini = async (textoUsuario: string) => {
   try {

@@ -280,49 +280,6 @@ export const authStyles = StyleSheet.create({
     opacity: 0.8,
   },
 
-  // --- DIVIDER ---
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: Spacing.lg,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.subtext,
-    opacity: 0.2,
-  },
-  dividerText: {
-    marginHorizontal: Spacing.md,
-    color: Colors.subtext,
-    fontFamily: Fonts.regular,
-    fontSize: FontSizes.small,
-  },
-
-  // --- SOCIAL BUTTONS ---
-  socialContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: Spacing.md,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 48,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.subtext,
-    backgroundColor: Colors.light,
-    gap: Spacing.sm,
-  },
-  socialButtonText: {
-    fontFamily: Fonts.bold,
-    color: Colors.dark,
-    fontSize: FontSizes.small,
-  },
-
   // --- FOOTER TEXT ---
   footerText: {
     textAlign: "center",

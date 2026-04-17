@@ -338,22 +338,8 @@ export default function CadastroScreen() {
           </Pressable>
         </Animated.View>
 
-        {/* Rodapé e Social Login */}
+        {/* Rodapé */}
         <Animated.View entering={FadeInDown.delay(500).duration(600)}>
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} /><Text style={styles.dividerText}>ou cadastrar-se com</Text><View style={styles.dividerLine} />
-          </View>
-
-          <View style={styles.socialContainer}>
-            <Pressable style={styles.socialButton}>
-              <FontAwesome5 name="google" size={16} color="#DB4437" />
-              <Text style={styles.socialButtonText}>Google</Text>
-            </Pressable>
-            <Pressable style={styles.socialButton}>
-              <FontAwesome5 name="facebook" size={16} color="#4267B2" />
-              <Text style={styles.socialButtonText}>Facebook</Text>
-            </Pressable>
-          </View>
 
           <Text style={styles.footerText}>
             Já tem uma conta? <Text style={styles.primaryLink} onPress={() => router.push("/(auth)/login")}>Entre aqui</Text>

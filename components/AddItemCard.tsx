@@ -2,9 +2,11 @@ import { ChevronDown, Plus } from "lucide-react-native";
 import React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
+// Meus imports
 import { UNIDADES_ACEITAS } from "../constants/ingredients";
 import { Colors } from "../constants/theme";
 
+// Tipagem das Props do Componente
 interface AddItemCardProps {
     label: string;
     placeholder: string;
@@ -17,7 +19,7 @@ interface AddItemCardProps {
     onAddPress: () => void;
     showUnitPicker: boolean;
     onToggleUnitPicker: () => void;
-    activeInput: string | null; // Controle de foco visual
+    activeInput: string | null;
     onNameFocus: () => void;
     onNameBlur: () => void;
     onQtyFocus: () => void;
@@ -26,6 +28,7 @@ interface AddItemCardProps {
     iconSize?: number;
 }
 
+// Componente Principal
 export function AddItemCard({
     label,
     placeholder,

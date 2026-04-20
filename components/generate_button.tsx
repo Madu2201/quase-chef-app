@@ -1,6 +1,8 @@
 import { Sparkles } from 'lucide-react-native';
 import React from 'react';
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+
+// Meus imports
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
 
 // Componente de botão de gerar receitas

@@ -1,32 +1,16 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
-    AlertCircle,
-    BarChart3,
-    CheckCircle2,
-    Clock,
-    Flame,
-    Heart,
-    Lightbulb,
-    PlayCircle,
-    Share2,
+    AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart,
+    Lightbulb, PlayCircle, Share2,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    Pressable,
-    ScrollView,
-    Share,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+    ActivityIndicator, Image, Pressable, ScrollView, Share,
+    StatusBar, Text, TouchableOpacity, View,
 } from "react-native";
 import Animated, {
-    FadeInDown,
-    FadeInLeft,
-    FadeInUp,
+    FadeInDown, FadeInLeft, FadeInUp,
 } from "react-native-reanimated";
 
 // Meus imports
@@ -46,7 +30,6 @@ export default function DetalheReceitaScreen() {
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const ehFav = isFavorito(receitaId);
-  // --- NOVOS ESTADOS PARA A IMAGEM ---
   const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
@@ -60,8 +43,6 @@ export default function DetalheReceitaScreen() {
           const base64 = await gerarImagemDaReceita(receitaDetalhada.titulo);
           if (base64) {
             setAiImageBase64(base64);
-            // IMPORTANTE: Se você quiser salvar essa foto nos favoritos depois, 
-            // precisaremos injetar esse base64 no objeto receitaFavoritoIA.
           }
         } catch (error) {
           console.error("Erro na tela ao buscar imagem:", error);

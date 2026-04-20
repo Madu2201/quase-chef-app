@@ -3,6 +3,7 @@ import { useFavoritosGlobal } from "./useFavoritos";
 import type { Recipe } from "./useReceitas";
 import { useReceitas } from "./useReceitas";
 
+// Função para obter uma receita por ID, verificando primeiro nos favoritos e depois no banco de receitas
 export const useRecipeById = (id?: string) => {
   const { receitasBanco, carregando } = useReceitas();
   const { favoritosIA, carregandoFavoritos } = useFavoritosGlobal();

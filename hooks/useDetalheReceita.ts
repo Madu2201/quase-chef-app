@@ -1,5 +1,7 @@
 ﻿import { useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
+
+//Meus imports
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import type { ReceitaDetalhada } from "../types/detalhe_receita";
 import { criarReceitaIA } from "../utils/receitaIAUtils";
@@ -17,9 +19,6 @@ const getStringParam = (value: any): string => {
 
 export const useDetalheReceita = () => {
     const params = useLocalSearchParams();
-    const { receitasBanco, carregando } = useReceitas();
-    const { favoritosIA, carregandoFavoritos } = useFavoritosGlobal();
-
     const receitaId = getStringParam(params.id) || `ia-${Date.now()}`;
     const tipoParam = getStringParam(params.tipo);
 

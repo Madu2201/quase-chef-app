@@ -6,13 +6,14 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
+// Meus imports de serviço e tipos
 import { loginUser, registerUser } from "../services/authService";
-// Importe os tipos que criamos
 import { UserData, AuthResponse } from "../types/auth";
 import { supabase } from "@/services/supabase";
 
 interface AuthContextData {
-  user: UserData | null; // Tipado corretamente
+  user: UserData | null;
   isLoading: boolean;
   signIn: (email: string, senha: string) => Promise<AuthResponse>;
   signUp: (
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null);
 
   useEffect(() => {
-    // 1. Mantém a sua lógica de carregar rápido do AsyncStorage (Não quebra nada que você já fez)
+    // 1. Mantém a lógica de carregar rápido do AsyncStorage
     const loadUser = async () => {
       try {
         const [id, name, email, avatar] = await Promise.all([

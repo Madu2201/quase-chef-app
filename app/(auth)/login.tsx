@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Image, KeyboardAvoidingView, Platform, Pressable,
   ScrollView, Text, TextInput, View, ActivityIndicator
 } from "react-native";
 import { router } from "expo-router";
-import { FontAwesome5 } from "@expo/vector-icons";
 import { CheckCircle, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import Animated, { FadeInDown, FadeInUp, FadeOut } from "react-native-reanimated";
 
 // Imports de Configuração e Estilo
-import { Colors, FontSizes, Radius, Spacing } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 import { validateEmail } from "../../utils/validation";
 import { LoginErrors } from "../../types/auth";
 import { useAuth } from "@/hooks/useAuth";
 import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
-import { supabase } from "@/services/supabase";
+
 //Avisa ao Expo para fechar o navegador assim que o usuário autenticar
 WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen() {
@@ -74,7 +72,7 @@ export default function LoginScreen() {
           <Text style={styles.brandName}>Quase Chef!</Text>
           <Text style={styles.welcomeTitle}>Bem-vindo de volta!</Text>
           <Text style={styles.welcomeSubtitle}>
-            Sentimos sua falta. Entre para ver o que sobrou hoje!
+            Faça login para acessar suas receitas e favoritos.
           </Text>
         </Animated.View>
 
@@ -158,7 +156,7 @@ export default function LoginScreen() {
           </Text>
 
           <Text style={styles.legalText}>
-            Ao se cadastrar, você aceita nossos <Text style={styles.linkUnderline}>Termos</Text> e <Text style={styles.linkUnderline}>Privacidade</Text>.
+            Ao entrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
           </Text>
         </Animated.View>
       </ScrollView>

@@ -3,6 +3,7 @@ import { ArrowLeft, FileText, Search } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { StyleProp, Text, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
 
+// Meus imports
 import { Colors, Spacing } from "../constants/theme";
 import { headerStyles as styles } from "../styles/header.styles";
 
@@ -19,7 +20,7 @@ interface HeaderProps {
   rightElement?: React.ReactNode;
   children?: React.ReactNode;
   showBackButton?: boolean;
-  style?: StyleProp<ViewStyle>; // Prop para permitir customização por tela
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Header = ({
@@ -34,7 +35,7 @@ export const Header = ({
   onBack,
   rightElement,
   children,
-  style, // Recebendo a prop de estilo
+  style,
   showBackButton = false,
 }: HeaderProps) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -53,7 +54,6 @@ export const Header = ({
   };
 
   return (
-    /* APLICAÇÃO DO ESTILO: Aqui combinamos o padrão com o que vier por prop */
     <View style={[styles.header, style]}>
       <View style={styles.titleContainer}>
 

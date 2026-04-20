@@ -1,33 +1,13 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  Heart,
-  Lightbulb,
-  Pause,
-  Play,
-  RotateCcw,
-  Share2,
-  Stars,
-  X,
+  Heart, Lightbulb, Pause, Play, RotateCcw, Share2, Stars, X,
 } from "lucide-react-native";
 import React, { useMemo } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Share,
-  StatusBar,
-  Text,
-  View,
+  ActivityIndicator, Alert, Image, Pressable, ScrollView, Share, StatusBar, Text, View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInLeft,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+  FadeIn, FadeInLeft, FadeInUp, useAnimatedStyle, useSharedValue, withSpring,
 } from "react-native-reanimated";
 
 // Meus imports organizados
@@ -42,6 +22,7 @@ import type { PreparoReceitaParams } from "../types/preparo_receita";
 import { criarReceitaIAParaPreparo, processarParamsPreparo } from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 
+// Função auxiliar
 const getStringParam = (value: any): string => {
   if (typeof value === "string") return value;
   if (Array.isArray(value)) return value[0] ?? "";
@@ -76,7 +57,7 @@ export default function PreparoReceitaScreen() {
     receitaId && !receitaOrigem && isRecipeLoading
   );
 
-  // Hooks organizados (sempre executados na mesma ordem)
+  // Hooks organizados
   const {
     passoAtual,
     isConcluido,

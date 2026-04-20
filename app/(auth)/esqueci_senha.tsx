@@ -123,7 +123,7 @@ export default function EsqueciSenhaScreen() {
 
           <Text style={styles.welcomeTitle}>Recuperar Conta</Text>
           <Text style={styles.welcomeSubtitle}>
-            Insira seu e-mail para receber um código de segurança
+            Insira seu e-mail para receber um código de segurança.
           </Text>
         </Animated.View>
 
@@ -178,9 +178,7 @@ export default function EsqueciSenhaScreen() {
           </Text>
 
           <Text style={styles.legalText}>
-            Ao continuar, você concorda com nossos{" "}
-            <Text style={styles.linkUnderline}>Termos de Serviço</Text> e{" "}
-            <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
+            Ao entrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
           </Text>
         </Animated.View>
       </ScrollView>

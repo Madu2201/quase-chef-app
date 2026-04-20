@@ -1,33 +1,33 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-    Heart,
-    Lightbulb,
-    Pause,
-    Play,
-    RotateCcw,
-    Share2,
-    Stars,
-    X,
+  Heart,
+  Lightbulb,
+  Pause,
+  Play,
+  RotateCcw,
+  Share2,
+  Stars,
+  X,
 } from "lucide-react-native";
 import React, { useMemo } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    Share,
-    StatusBar,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Share,
+  StatusBar,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-    FadeIn,
-    FadeInLeft,
-    FadeInUp,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
+  FadeIn,
+  FadeInLeft,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 
 // Meus imports organizados
@@ -76,18 +76,7 @@ export default function PreparoReceitaScreen() {
     receitaId && !receitaOrigem && isRecipeLoading
   );
 
-  if (isLoadingRecife && passosDinamicos.length === 0) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}> 
-        <ActivityIndicator size="large" color={Colors.secondary} />
-        <Text style={{ marginTop: 16, color: Colors.subtext, textAlign: 'center' }}>
-          Carregando preparo da receita...
-        </Text>
-      </View>
-    );
-  }
-
-  // Hooks organizados
+  // Hooks organizados (sempre executados na mesma ordem)
   const {
     passoAtual,
     isConcluido,
@@ -100,6 +89,22 @@ export default function PreparoReceitaScreen() {
     step,
     totalPassos,
   } = usePreparoReceita(passosDinamicos);
+
+  const heartScale = useSharedValue(1);
+  const animatedHeartStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heartScale.value }],
+  }));
+
+  if (isLoadingRecife && passosDinamicos.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}> 
+        <ActivityIndicator size="large" color={Colors.secondary} />
+        <Text style={{ marginTop: 16, color: Colors.subtext, textAlign: 'center' }}>
+          Carregando preparo da receita...
+        </Text>
+      </View>
+    );
+  }
 
   // Função para controlar o timer com validação
   const toggleTimer = () => {
@@ -117,7 +122,6 @@ export default function PreparoReceitaScreen() {
     : undefined;
 
   const ehFav = isFavorito(paramsProcessados.id);
-  const heartScale = useSharedValue(1);
 
   const handleToggleFavorito = () => {
     if (paramsProcessados.id) {
@@ -138,10 +142,6 @@ export default function PreparoReceitaScreen() {
       Alert.alert("Erro", "Não foi possível compartilhar.");
     }
   };
-
-  const animatedHeartStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: heartScale.value }],
-  }));
 
   // VIEW: ESTADO CONCLUÍDO
   if (isConcluido) {

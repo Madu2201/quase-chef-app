@@ -120,7 +120,7 @@ export const dispensaStyles = StyleSheet.create({
         fontSize: FontSizes.small + 1,
     },
     badgeContainer: {
-        backgroundColor: Colors.light + "99",
+        backgroundColor: Colors.primary + '15',
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.sm,
         borderRadius: Radius.full,

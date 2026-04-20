@@ -10,8 +10,8 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AuthProvider } from "../hooks/useAuth";
-import { FavoritosProvider } from "../hooks/useFavoritos";
 import { DispensaProvider } from "../hooks/useDispensa";
+import { FavoritosProvider } from "../hooks/useFavoritos";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -43,7 +43,7 @@ export default function RootLayout() {
               <Stack.Screen name="selecao_ia" options={{ presentation: 'modal' }} />
               <Stack.Screen name="detalhe_receita" />
               <Stack.Screen name="preparo_receita" />
-              <Stack.Screen name="perfil" />
+              <Stack.Screen name="perfil/index" />
             </Stack>
           </FavoritosProvider>
         </DispensaProvider>

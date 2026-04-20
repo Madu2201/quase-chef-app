@@ -1,6 +1,6 @@
-import { router } from "expo-router";
+import { router, useSegments } from "expo-router";
 import { ArrowLeft, FileText, Search } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleProp, Text, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
 
 import { Colors, Spacing } from "../constants/theme";
@@ -38,6 +38,14 @@ export const Header = ({
   showBackButton = false,
 }: HeaderProps) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchInputRef = useRef<TextInput | null>(null);
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (isSearchFocused) {
+      searchInputRef.current?.blur();
+    }
+  }, [segments]);
 
   const handleBack = () => {
     if (onBack) onBack();
@@ -97,6 +105,7 @@ export const Header = ({
             ]}>
               <Search size={18} color={Colors.primary} />
               <TextInput
+                ref={searchInputRef}
                 placeholder={searchPlaceholder}
                 style={styles.searchInput}
                 onFocus={() => setIsSearchFocused(true)}

@@ -27,9 +27,14 @@ export default function DetalheReceitaScreen() {
   // Usamos o hook personalizado para gerenciar a lógica
   const { receitaDetalhada, receitaFavoritoIA, isIA, receitaId, isLoading } = useDetalheReceita();
 
-  // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
-  const ehFav = isFavorito(receitaId);
+  
+  // Adicionamos <string | number> para o TypeScript parar de chorar com o setCurrentId
+  const [currentId, setCurrentId] = useState<string | number>(receitaId);
+  
+  // Simplificamos a checagem, já que o currentId vai ser atualizado!
+  const ehFav = isFavorito(currentId);
+  
   const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
@@ -53,6 +58,15 @@ export default function DetalheReceitaScreen() {
     }
     fetchImage();
   }, [isIA, receitaDetalhada.titulo]);
+
+  // CRIADO: Função que clica no coração e pega o novo ID gerado pelo banco
+  const handleToggleFavorito = async () => {
+    // Usamos o 'as any' para forçar o TypeScript a aceitar que a função agora retorna algo
+    const savedId = await (toggleFavorito as any)(currentId, receitaFavoritoIA);
+    if (savedId) {
+      setCurrentId(String(savedId)); // Atualiza pro ID real do Supabase
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -155,7 +169,7 @@ export default function DetalheReceitaScreen() {
 
             {receitaDetalhada.ingredientes.map((item, index) => (
               <Animated.View
-                key={item.id}
+                key={item.id || index}
                 entering={FadeInLeft.delay(400 + index * 50)}
                 style={[
                   styles.ingredientItem,
@@ -206,9 +220,9 @@ export default function DetalheReceitaScreen() {
       </View>
 
       <View style={styles.footer}>
-        {/* BOTÃO DE FAVORITO ATUALIZADO PARA USAR O HOOK GLOBAL */}
+        {/* BOTÃO DE FAVORITO ATUALIZADO (agora usa a handleToggleFavorito) */}
         <Pressable
-          onPress={() => toggleFavorito(receitaId, receitaFavoritoIA)}
+          onPress={handleToggleFavorito}
           style={styles.favButton}
         >
           <Heart
@@ -224,7 +238,7 @@ export default function DetalheReceitaScreen() {
             router.push({
               pathname: "/preparo_receita",
               params: {
-                id: receitaId,
+                id: currentId,
                 tipo: isIA ? "ia" : "regular",
                 titulo: receitaDetalhada.titulo,
                 imagem: receitaDetalhada.imagem,
@@ -232,6 +246,9 @@ export default function DetalheReceitaScreen() {
                 difficulty: receitaDetalhada.dificuldade,
                 calories: receitaDetalhada.calorias,
                 description: receitaDetalhada.descricao,
+                // AQUI É O PULO DO GATO PRA PASSAR AS LISTAS
+                ingredientesStr: JSON.stringify(receitaDetalhada.ingredientes),
+                preparoStr: JSON.stringify(receitaDetalhada.preparo),
               },
             })
           }

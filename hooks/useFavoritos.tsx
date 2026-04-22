@@ -62,19 +62,20 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
       // Mapeamento para o formato Recipe esperado, garantindo que todos os campos necessários estejam presentes
       const iaFormatadas = (data || []).map((item: any) => ({
         id: String(item.id),
-        titulo: item.nome_receita || "",
-        tempo: item.tempo_preparo || "",
-        dificuldade: item.dificuldade || "",
-        calorias: item.calorias || "",
-        imagem: item.imagem_url || "",
+        title: item.nome_receita || "",
+        time: item.tempo_preparo || "",
+        difficulty: item.dificuldade || "",
+        calories: item.calorias || "",
+        image: item.imagem_url || "",
         tipo: "ia",
-        descricao: item.descricao_simples_preparo || "",
+        descStart: item.descricao_simples_preparo || "",
         dicaIA: item.dica_rapida || "",
-        ingredientes: item.ingredientes || [],
-        preparo: item.passos_detalhados || [],
+        rawIngredients: JSON.stringify(item.ingredientes || []),
+        rawSteps: JSON.stringify(item.passos_detalhados || []),
+        ingredients: "", // Campo legado ou para exibição rápida
+        descEnd: "",
+        tags: item.tags || ["IA"],
       })) as unknown as Recipe[];
-
-      setFavoritosIA(iaFormatadas);
 
       setFavoritosIA(iaFormatadas);
     } catch (error) {
@@ -106,6 +107,10 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     try {
       if (jaFavoritado) {
         if (isIA) {
+          // Se for IA, removemos da tabela 'receitas' (já que é exclusiva do usuário)
+          // O cascade cuidará da 'receitas_favoritas' se houver relação, 
+          // mas por segurança removemos ambos ou dependemos da estrutura.
+          // De acordo com o schema, deletar a receita deleta o favorito (on delete CASCADE).
           await supabase.from("receitas").delete().eq("id", Number(idStr));
           setFavoritosIA((prev) => prev.filter((item) => item.id !== idStr));
         } else {
@@ -115,24 +120,42 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
             .match({ user_id: user.id, receita_id: Number(receitaId) });
         }
         setFavoritosIds((prev) => prev.filter((id) => id !== idStr));
-        return null; // Quando remove, não retorna ID
+        return null;
       } else {
         if (isIA && receitaData) {
+          // Para receitas de IA, primeiro salvamos na tabela 'receitas'
+          
+          let finalImageUrl = receitaData.image;
+
+          // Se a imagem for base64 (gerada pela IA mas ainda não salva no bucket)
+          if (receitaData.image && receitaData.image.startsWith('data:image')) {
+            const fileName = `receita-${user.id}-${Date.now()}`;
+            const uploadedUrl = await uploadImagemReceitaIA(receitaData.image, fileName);
+            if (uploadedUrl) {
+              finalImageUrl = uploadedUrl;
+            }
+          }
+
           const { data: novaReceita, error: erroReceita } = await supabase
             .from("receitas")
             .insert([
               {
-                nome_receita: receitaData.titulo,
-                tempo_preparo: receitaData.tempo,
-                dificuldade: receitaData.dificuldade,
-                calorias: receitaData.calorias,
-                descricao_simples_preparo: receitaData.descricao,
+                nome_receita: receitaData.title,
+                tempo_preparo: receitaData.time,
+                dificuldade: receitaData.difficulty,
+                calorias: receitaData.calories,
+                descricao_simples_preparo: receitaData.descStart,
                 dica_rapida: receitaData.dicaIA,
-                ingredientes: receitaData.ingredientes,
-                passos_detalhados: receitaData.preparo,
-                imagem_url: receitaData.imagem,
+                ingredientes: typeof receitaData.rawIngredients === 'string' 
+                  ? JSON.parse(receitaData.rawIngredients) 
+                  : receitaData.rawIngredients,
+                passos_detalhados: typeof receitaData.rawSteps === 'string'
+                  ? JSON.parse(receitaData.rawSteps)
+                  : receitaData.rawSteps,
+                imagem_url: finalImageUrl,
                 user_id: user.id,
                 eh_ia: true,
+                tags: receitaData.tags || ["IA"],
               },
             ])
             .select("id")
@@ -141,6 +164,8 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
           if (erroReceita) throw erroReceita;
 
           const novoIdDb = novaReceita.id;
+          
+          // Agora atrelamos ao usuário na tabela de favoritos
           await supabase
             .from("receitas_favoritas")
             .insert({ user_id: user.id, receita_id: novoIdDb });
@@ -148,10 +173,10 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
           setFavoritosIds((prev) => [...prev, String(novoIdDb)]);
           setFavoritosIA((prev) => [
             ...prev,
-            { ...receitaData, id: String(novoIdDb), tipo: "ia" },
+            { ...receitaData, id: String(novoIdDb), tipo: "ia", image: finalImageUrl },
           ]);
 
-          return novoIdDb; // <--- A MÁGICA ESTÁ AQUI: Retornamos o novo ID!
+          return novoIdDb;
         } else {
           await supabase
             .from("receitas_favoritas")
@@ -190,8 +215,15 @@ export function useFavoritosLogic(searchText: string, filtro: string) {
   const { isFavorito, favoritosIA } = useFavoritosGlobal();
 
   const receitasFiltradas = useMemo(() => {
+    // 1. Pegamos as receitas do banco que estão favoritadas
     let lista = receitasBanco.filter((r) => isFavorito(r.id));
-    lista = [...lista, ...favoritosIA];
+    
+    // 2. Adicionamos as receitas de IA (evitando duplicatas se já estiverem no receitasBanco)
+    favoritosIA.forEach(ia => {
+      if (!lista.some(r => String(r.id) === String(ia.id))) {
+        lista.push(ia);
+      }
+    });
 
     if (filtro === "IA") {
       lista = lista.filter((r) => r.tipo === "ia");

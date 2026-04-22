@@ -12,6 +12,7 @@ export const criarReceitaIA = (params: {
     calories: string;
     rawIngredients: string;
     rawSteps: string;
+    dicaIA?: string;
 }): Recipe => {
     return {
         id: params.id,
@@ -27,5 +28,6 @@ export const criarReceitaIA = (params: {
         rawSteps: params.rawSteps,
         tags: ["IA"],
         tipo: "ia",
+        dicaIA: params.dicaIA,
     };
 };

@@ -18,6 +18,7 @@ export interface Recipe {
   rawSteps: string;
   tags: string[];
   tipo?: string;
+  dicaIA?: string;
 }
 
 export function useReceitas() {

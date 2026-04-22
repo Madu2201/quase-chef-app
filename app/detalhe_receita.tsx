@@ -61,8 +61,12 @@ export default function DetalheReceitaScreen() {
 
   // CRIADO: Função que clica no coração e pega o novo ID gerado pelo banco
   const handleToggleFavorito = async () => {
-    // Usamos o 'as any' para forçar o TypeScript a aceitar que a função agora retorna algo
-    const savedId = await (toggleFavorito as any)(currentId, receitaFavoritoIA);
+    // Se for IA e tivermos uma imagem base64, atualizamos o objeto para salvar com a imagem
+    const receitaParaSalvar = isIA && aiImageBase64 
+      ? { ...receitaFavoritoIA, image: aiImageBase64 } 
+      : receitaFavoritoIA;
+
+    const savedId = await (toggleFavorito as any)(currentId, receitaParaSalvar);
     if (savedId) {
       setCurrentId(String(savedId)); // Atualiza pro ID real do Supabase
     }

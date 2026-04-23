@@ -84,7 +84,7 @@ export default function DispensaScreen() {
   return (
     <View style={styles.container}>
       <Header
-        title="Sua Dispensa"
+        title="Sua Despensa"
         centerTitle
         searchText={searchText}
         setSearchText={setSearchText}

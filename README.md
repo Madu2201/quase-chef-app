@@ -29,7 +29,7 @@ app/
 │   ├── home.tsx
 │   ├── receitas.tsx
 │   ├── favoritos.tsx
-│   ├── dispensa.tsx
+│   ├── despensa.tsx
 │   ├── lista.tsx
 │   └── _layout.tsx (Home e Receitas no menu inferior)
 ├── perfil/              # Tela acessada via header
@@ -101,7 +101,7 @@ npx expo start --web
 - 📝 Gerenciamento de receitas
 - ❤️ Sistema de favoritos
 - 🛒 Lista de compras (imprimir/exportar)
-- 📦 Controle de dispensa
+- 📦 Controle de despensa
 - 🤖 Integração com Gemini (seleção de IA)
 - 💾 Sincronização local com AsyncStorage
 
@@ -112,7 +112,7 @@ npx expo start --web
 O Smart Pantry é um **assistente inteligente de cozinha e compras**.
 
 Ele conecta:
-- 📦 Dispensa (estoque atual)
+- 📦 Despensa (estoque atual)
 - 🍳 Receitas (consumo)
 - 🛒 Lista de Compras (reposição)
 
@@ -122,7 +122,7 @@ Ele conecta:
 
 ## 🧑 Jornada do Usuário (Ciclo Completo)
 
-### 1. 🏁 Montando a Dispensa
+### 1. 🏁 Montando a Despensa
 
 O usuário cadastra itens e define metas:
 

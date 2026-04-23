@@ -78,7 +78,7 @@ export default function ListaScreen() {
                     style={styles.magicButton}
                 >
                     <Wand2 size={20} color={Colors.light} />
-                    <Text style={styles.magicButtonText}>Completar via Dispensa</Text>
+                    <Text style={styles.magicButtonText}>Completar via Despensa</Text>
                 </TouchableOpacity>
 
                 {isLoading ? (

@@ -61,9 +61,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="dispensa"
+        name="despensa"
         options={{
-          title: "Dispensa",
+          title: "Despensa",
           tabBarIcon: ({ color, focused }) => (
             <Refrigerator
               size={24}

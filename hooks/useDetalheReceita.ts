@@ -1,4 +1,4 @@
-﻿import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
 
 //Meus imports
@@ -46,39 +46,26 @@ export const useDetalheReceita = () => {
 
   const isIA = tipoParam === "ia" || receitaOrigem?.tipo === "ia";
 
-  const receitaDetalhada: ReceitaDetalhada = useMemo(() => {
-    const rawIngredients = receitaOrigem?.rawIngredients ?? preview.ingredients;
-    const rawSteps = receitaOrigem?.rawSteps ?? preview.steps;
+    const receitaDetalhada: ReceitaDetalhada = useMemo(() => {
+        const rawIngredients = receitaOrigem?.rawIngredients ?? preview.ingredients;
+        const rawSteps = receitaOrigem?.rawSteps ?? preview.steps;
 
-    const ingredientes = processarIngredientes(rawIngredients);
-    const preparo = processarPassosPreparo(rawSteps);
+        const ingredientes = processarIngredientes(rawIngredients);
+        const preparo = processarPassosPreparo(rawSteps);
 
-    return {
-      titulo:
-        receitaOrigem?.title ??
-        preview.title ??
-        RECEITA_STRINGS.RECEITA_DESCONHECIDA,
-      descricao:
-        receitaOrigem?.descStart ??
-        preview.description ??
-        RECEITA_STRINGS.DESCRICAO_INDISPONIVEL,
-      tempo: formatarTempo(
-        receitaOrigem?.time ??
-          preview.time ??
-          `${RECEITA_STRINGS.VALOR_PADRAO} min`,
-      ),
-      dificuldade:
-        receitaOrigem?.difficulty ??
-        preview.difficulty ??
-        RECEITA_STRINGS.VALOR_PADRAO,
-      calorias:
-        receitaOrigem?.calories ??
-        preview.calories ??
-        `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
-      imagem:
-        receitaOrigem?.image ?? preview.image ?? RECEITA_STRINGS.IMAGEM_PADRAO,
-      itensCount: ingredientes.length,
-      dicaIA: preview.dicaIA || RECEITA_STRINGS.DICA_IA_PADRAO,
+        // Se a receita vier do banco (receitaOrigem), usamos a imagem que está lá
+        // Se for uma receita nova da IA, usamos a imagem do preview (ou placeholder)
+        const imagemFinal = receitaOrigem?.image ?? preview.image ?? RECEITA_STRINGS.IMAGEM_PADRAO;
+
+        return {
+            titulo: receitaOrigem?.title ?? preview.title ?? RECEITA_STRINGS.RECEITA_DESCONHECIDA,
+            descricao: receitaOrigem?.descStart ?? preview.description ?? RECEITA_STRINGS.DESCRICAO_INDISPONIVEL,
+            tempo: formatarTempo(receitaOrigem?.time ?? preview.time ?? `${RECEITA_STRINGS.VALOR_PADRAO} min`),
+            dificuldade: receitaOrigem?.difficulty ?? preview.difficulty ?? RECEITA_STRINGS.VALOR_PADRAO,
+            calorias: receitaOrigem?.calories ?? preview.calories ?? `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
+            imagem: imagemFinal,
+            itensCount: ingredientes.length,
+            dicaIA: preview.dicaIA || RECEITA_STRINGS.DICA_IA_PADRAO,
       ingredientes:
         ingredientes.length > 0
           ? ingredientes

@@ -1,48 +1,68 @@
-const HF_TOKEN = process.env.EXPO_PUBLIC_HF_TOKEN;
-const MODEL_ID = "mrfakename/Z-Image-Turbo";
+import { InferenceClient } from "@huggingface/inference";
 
-export async function gerarImagemDaReceita(
-  nomeDaReceita: string,
-): Promise<string> {
-  // Dica de Engenharia de Prompt: Mesmo que o nome venha em PT-BR,
-  // colocar essas palavras-chave em inglês no final garante que a IA faça foto de comida e não um desenho.
-  const promptOtimizado = `Uma fotografia gastronômica ultra-realista de alta qualidade de um prato de restaurante chamado "${nomeDaReceita}", apresentação sofisticada e apetitosa, comida fresca e detalhada, textura visível e suculenta, servido em prato elegante, composição profissional, iluminação cinematográfica de restaurante (luz quente e suave), sombras naturais, reflexos sutis, fundo desfocado estilo bokeh, perspectiva de cima ou ângulo frontal, foco nítido no prato, profundidade de campo, estilo fotografia profissional, 4K, extremamente detalhado`;
+// Lembre-se: EXPO_PUBLIC_ para o lado do cliente
+const HF_TOKEN = process.env.EXPO_PUBLIC_HF_TOKEN;
+const client = new InferenceClient(HF_TOKEN);
+
+const MODEL_ID = "baidu/ERNIE-Image-Turbo";
+
+export async function gerarImagemDaReceita(nomeDaReceita: string): Promise<string> {
+  if (!HF_TOKEN) {
+    throw new Error("HF_TOKEN não configurado. Verifique seu arquivo .env");
+  }
+
+  const promptOtimizado = `Food photography, professional photo of ${nomeDaReceita}, gourmet presentation, highly detailed, cinematic lighting, 4k, bokeh background, appetizer, restaurant style`;
 
   try {
-    const response = await fetch(
-      `https://api-inference.huggingface.co/models/${MODEL_ID}`,
-      {
-        headers: {
-          Authorization: `Bearer ${HF_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({ inputs: promptOtimizado }),
+    // 1. Chamada do SDK
+    const response = await client.textToImage({
+      model: MODEL_ID,
+      inputs: promptOtimizado,
+      parameters: {
+        // Reduza de 30 para 20
+        num_inference_steps: 20, 
+        guidance_scale: 7.5,
       },
-    );
+    });
 
-    if (!response.ok) {
-      // O PULO DO GATO: Vamos ler a mensagem de erro que a API mandou!
-      const errorText = await response.text();
-      console.error("🔴 ERRO REAL DO HUGGING FACE:", errorText);
-
-      throw new Error("Erro na API do Hugging Face");
+    /**
+     * O PULO DO GATO:
+     * O SDK retorna um Blob. Em vez de confiar apenas no FileReader, 
+     * vamos garantir que temos um Blob válido e convertê-lo.
+     */
+    if (!(response instanceof Blob)) {
+      throw new Error("A resposta da IA não é um Blob válido.");
     }
 
-    // No React Native, pegamos a resposta como Blob (arquivo binário)
-    const blob = await response.blob();
-
-    // Convertemos o Blob para Base64 para poder mostrar na tela ou enviar pro Supabase
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
+      
       reader.onloadend = () => {
-        resolve(reader.result as string); // Retorna a string Base64 (data:image/jpeg;base64,...)
+        const base64data = reader.result as string;
+        if (base64data) {
+          resolve(base64data);
+        } else {
+          reject(new Error("Erro ao converter imagem para Base64"));
+        }
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+
+      reader.onerror = (e) => {
+        console.error("Erro no FileReader:", e);
+        reject(e);
+      };
+
+      // No React Native, é vital garantir que o blob seja lido assim
+      reader.readAsDataURL(response);
     });
-  } catch (error) {
-    console.error("Erro ao gerar imagem:", error);
+
+  } catch (error: any) {
+    // Tratamento específico de carregamento do modelo (Erro 503)
+    if (error.message?.includes("503") || error.message?.includes("loading")) {
+      console.warn("⚠️ O modelo está aquecendo no Hugging Face. Tentando novamente em breve...");
+      throw new Error("A IA está se preparando. Tente novamente em 20 segundos.");
+    }
+
+    console.error("🔴 Erro Hugging Face:", error.message || error);
     throw error;
   }
 }

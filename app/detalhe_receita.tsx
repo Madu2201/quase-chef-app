@@ -1,21 +1,22 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
-    AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart,
-    Lightbulb, PlayCircle, Share2,
+  AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart,
+  Lightbulb, PlayCircle, Share2,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator, Image, Pressable, ScrollView, Share,
-    StatusBar, Text, TouchableOpacity, View,
+  ActivityIndicator, Image, Pressable, ScrollView, Share,
+  StatusBar, Text, TouchableOpacity, View,
 } from "react-native";
 import Animated, {
-    FadeInDown, FadeInLeft, FadeInUp,
+  FadeInDown, FadeInLeft, FadeInUp,
 } from "react-native-reanimated";
 
 // Meus imports
 import { gerarImagemDaReceita } from "@/services/huggingFaceService";
 import { Header } from "../components/header";
+import { RECEITA_STRINGS } from "../constants/ingredients";
 import { Colors } from "../constants/theme";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
@@ -41,6 +42,15 @@ export default function DetalheReceitaScreen() {
   // --- EFFECT QUE CHAMA A FOTO ASSIM QUE A TELA ABRE ---
   useEffect(() => {
     async function fetchImage() {
+      // Se a receita já tem uma imagem válida (seja URL do Supabase ou Base64), não gera outra
+      const jaTemImagemValida = receitaDetalhada.imagem && 
+        receitaDetalhada.imagem !== RECEITA_STRINGS.IMAGEM_PADRAO;
+
+      if (jaTemImagemValida) {
+        setAiImageBase64(receitaDetalhada.imagem);
+        return;
+      }
+
       // Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
       if (isIA && receitaDetalhada.titulo && !aiImageBase64) {
         setIsLoadingImage(true);
@@ -57,7 +67,7 @@ export default function DetalheReceitaScreen() {
       }
     }
     fetchImage();
-  }, [isIA, receitaDetalhada.titulo]);
+  }, [isIA, receitaDetalhada.titulo, receitaDetalhada.imagem]);
 
   // CRIADO: Função que clica no coração e pega o novo ID gerado pelo banco
   const handleToggleFavorito = async () => {

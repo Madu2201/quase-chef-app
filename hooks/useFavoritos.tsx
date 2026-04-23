@@ -1,15 +1,36 @@
 import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    createContext,
+    ReactNode,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 import { supabase } from "../services/supabase";
 import { FavoritosContextData } from "../types/favoritos";
 import { useAuth } from "./useAuth";
 import { Recipe, useReceitas } from "./useReceitas";
+
+// Função auxiliar para upload de imagem
+const uploadImagemReceitaIA = async (base64Image: string, fileName: string): Promise<string | null> => {
+  try {
+    // Remover o prefixo data:image/...;base64,
+    const base64Data = base64Image.split(',')[1];
+    const { data, error } = await supabase.storage
+      .from('receitas-images')
+      .upload(fileName, Buffer.from(base64Data, 'base64'), {
+        contentType: 'image/jpeg',
+      });
+    if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage
+      .from('receitas-images')
+      .getPublicUrl(fileName);
+    return publicUrl;
+  } catch (error) {
+    console.error('Erro ao fazer upload da imagem:', error);
+    return null;
+  }
+};
 
 const FavoritosContext = createContext<FavoritosContextData>(
   {} as FavoritosContextData,

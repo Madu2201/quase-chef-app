@@ -1,81 +1,68 @@
-import { Check, CheckSquare, Trash2 } from "lucide-react-native";
+import { Check, FileDown, Share2, Trash2, Wand2 } from "lucide-react-native";
 import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+    ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View
+} from "react-native";
 
-// Componentes e Hooks
 import { AddItemCard } from "../../components/AddItemCard";
 import { Header } from "../../components/header";
-import { Colors, Spacing } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 import { useListaCompras } from "../../hooks/useListaCompras";
 import { listaStyles as styles } from "../../styles/lista_styles";
 import { exportarListaPendentes } from "../../utils/exportPdf";
 
 export default function ListaScreen() {
-    // Inicializamos o hook com um array vazio
     const {
-        pendentes,
-        comprados,
-        addItem,
-        toggleItem,
-        removerItem,
-        removerComprados,
-        marcarTodos,
-    } = useListaCompras([]);
+        pendentes, comprados, isLoading,
+        addItem, gerarListaDaDispensa, toggleItem, removerItem, limparComprados
+    } = useListaCompras();
 
-    // Estados locais para controle do formulário de adição
-    const [activeInput, setActiveInput] = useState<string | null>(null);
+    // Estados locais controlados
     const [nomeItem, setNomeItem] = useState("");
     const [quantidade, setQuantidade] = useState("");
     const [unidade, setUnidade] = useState("un");
     const [showUnitPicker, setShowUnitPicker] = useState(false);
+    const [activeInput, setActiveInput] = useState<string | null>(null);
 
-    // Lógica para adicionar item e limpar campos
-    const handleAdd = () => {
+    const handleAddManual = () => {
         if (!nomeItem.trim() || !quantidade.trim()) {
-            return Alert.alert("Atenção", "Preencha o nome e a quantidade do item.");
+            return Alert.alert("Atenção", "Preencha nome e quantidade.");
         }
-
         addItem(nomeItem, quantidade, unidade);
-
-        // Reset da UI
-        setNomeItem("");
-        setQuantidade("");
-        setUnidade("un");
-        setShowUnitPicker(false);
+        setNomeItem(""); setQuantidade(""); setUnidade("un");
         setActiveInput(null);
     };
 
-    // Exportação da lista atual para PDF
-    const handleExportPDF = async () => {
-        if (pendentes.length === 0) {
-            return Alert.alert("Aviso", "A lista de pendentes está vazia.");
-        }
-        await exportarListaPendentes(pendentes);
-    };
-
     return (
-        <View style={styles.container}>
-            <Header
-                title="Lista de Compras"
-                showExport
-                onExport={handleExportPDF}
+        <View style={{ flex: 1, backgroundColor: Colors.background }}>
+            <Header 
+                title="Lista de Compras" 
+                centerTitle 
+                // Alterado de rightIcons para rightElement conforme o padrão do projeto
+                rightElement={
+                    <View style={{ flexDirection: 'row', gap: 15 }}>
+                        <TouchableOpacity onPress={() => exportarListaPendentes(pendentes)}>
+                            <FileDown size={24} color={Colors.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {/* lógica de share */}}>
+                            <Share2 size={24} color={Colors.primary} />
+                        </TouchableOpacity>
+                    </View>
+                }
             />
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {/* Componente de Input de novo item */}
-                <AddItemCard
-                    label="Novo Item"
-                    placeholder="Ex: Arroz, Feijão..."
+            <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                
+                <AddItemCard 
+                    label="Adicionar item"
+                    placeholder="Ex: Tomate"
                     nameValue={nomeItem}
                     onNameChange={setNomeItem}
                     qtyValue={quantidade}
                     onQtyChange={setQuantidade}
                     unitValue={unidade}
                     onUnitChange={setUnidade}
-                    onAddPress={handleAdd}
+                    onAddPress={handleAddManual}
                     showUnitPicker={showUnitPicker}
                     onToggleUnitPicker={() => setShowUnitPicker(!showUnitPicker)}
                     activeInput={activeInput}
@@ -84,77 +71,54 @@ export default function ListaScreen() {
                     onQtyFocus={() => setActiveInput("qtd")}
                     onQtyBlur={() => setActiveInput(null)}
                     styles={styles}
-                    iconSize={16}
                 />
 
-                {/* Ações em Massa */}
-                {pendentes.length > 0 && (
-                    <TouchableOpacity style={styles.btnActionBulk} onPress={marcarTodos}>
-                        <CheckSquare size={18} color={Colors.secondary} />
-                        <Text style={styles.btnTextBulk}>Marcar todos como comprados</Text>
-                    </TouchableOpacity>
-                )}
+                <TouchableOpacity 
+                    onPress={gerarListaDaDispensa}
+                    style={styles.magicButton}
+                >
+                    <Wand2 size={20} color={Colors.light} />
+                    <Text style={styles.magicButtonText}>Completar via Dispensa</Text>
+                </TouchableOpacity>
 
-                {/* Listagem: Pendentes */}
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Itens pendentes</Text>
-                    <View style={styles.badgeCount}>
-                        <Text style={styles.badgeText}>{pendentes.length}</Text>
-                    </View>
-                </View>
-
-                {pendentes.length === 0 && !comprados.length && (
-                    <Text style={{ color: Colors.subtext, textAlign: 'center', marginTop: 20 }}>
-                        Sua lista está vazia. Adicione itens acima!
-                    </Text>
-                )}
-
-                {pendentes.map((item) => (
-                    <View key={item.id} style={styles.itemCard}>
-                        <Pressable
-                            onPress={() => toggleItem(item.id)}
-                            style={[styles.checkbox, item.comprado && styles.checkboxActive]}
-                        >
-                            {item.comprado && <Check size={14} color={Colors.light} strokeWidth={4} />}
-                        </Pressable>
-
-                        <View style={styles.itemInfo}>
-                            <Text style={styles.itemName}>{item.name}</Text>
-                            <Text style={styles.itemSub}>{item.info}</Text>
-                        </View>
-
-                        <TouchableOpacity onPress={() => removerItem(item.id)} style={styles.btnDelete}>
-                            <Trash2 size={18} color={Colors.errorDark} />
-                        </TouchableOpacity>
-                    </View>
-                ))}
-
-                {/* Listagem: Comprados */}
-                {comprados.length > 0 && (
-                    <View style={{ marginTop: Spacing.lg }}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: Colors.subtext }]}>Comprados</Text>
-                            <TouchableOpacity onPress={removerComprados}>
-                                <Text style={styles.clearText}>LIMPAR TUDO</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {comprados.map((item) => (
-                            <View key={item.id} style={[styles.itemCard, styles.itemCardComprado]}>
-                                <TouchableOpacity
-                                    onPress={() => toggleItem(item.id)}
-                                    style={[styles.checkbox, styles.checkboxActive, { opacity: 0.5 }]}
-                                >
-                                    <Check size={14} color={Colors.light} strokeWidth={4} />
-                                </TouchableOpacity>
-
+                {isLoading ? (
+                    <ActivityIndicator color={Colors.primary} style={{ marginTop: 20 }} />
+                ) : (
+                    <>
+                        <Text style={styles.sectionTitle}>Para Comprar ({pendentes.length})</Text>
+                        
+                        {pendentes.map((item) => (
+                            <View key={item.id} style={styles.itemCard}>
+                                <TouchableOpacity onPress={() => toggleItem(item.id)} style={styles.checkbox} />
                                 <View style={styles.itemInfo}>
-                                    <Text style={[styles.itemName, styles.nameComprado]}>{item.name}</Text>
-                                    <Text style={styles.itemSub}>{item.info}</Text>
+                                    <Text style={styles.itemName}>{item.nome}</Text>
+                                    <Text style={styles.itemSub}>{item.quantidade_comprar} {item.unidade}</Text>
                                 </View>
+                                <TouchableOpacity onPress={() => removerItem(item.id)}>
+                                    <Trash2 size={18} color={Colors.primary} />
+                                </TouchableOpacity>
                             </View>
                         ))}
-                    </View>
+
+                        {comprados.length > 0 && (
+                            <View style={{ marginTop: 30 }}>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.sectionTitleOff}>Histórico Comprado</Text>
+                                    <TouchableOpacity onPress={limparComprados}>
+                                        <Text style={styles.clearText}>LIMPAR TUDO</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {comprados.map((item) => (
+                                    <View key={item.id} style={[styles.itemCard, { opacity: 0.5 }]}>
+                                        <TouchableOpacity onPress={() => toggleItem(item.id)} style={styles.checkboxActive}>
+                                            <Check size={12} color={Colors.light} />
+                                        </TouchableOpacity>
+                                        <Text style={[styles.itemName, { textDecorationLine: 'line-through' }]}>{item.nome}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                    </>
                 )}
             </ScrollView>
         </View>

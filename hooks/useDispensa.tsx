@@ -1,25 +1,16 @@
-import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Alert } from "react-native";
 import { supabase } from "../services/supabase";
-import { DispensaContextData, EditField, Ingredient } from "../types/dispensa";
 import { useAuth } from "./useAuth";
 
-const DispensaContext = createContext<DispensaContextData>(
-  {} as DispensaContextData,
-);
+const DispensaContext = createContext<any>({});
 
 export function DispensaProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<any[]>([]);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Busca inicial do banco
   const buscarDispensa = async () => {
     if (!user?.id) return;
     try {
@@ -35,73 +26,56 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         data?.map((item) => ({
           id: item.id,
           name: item.nome_base,
-          qty: String(item.quantidade),
+          qty: item.quantidade, // mantemos como número para matemática
+          ideal_qty: item.quantidade_ideal || item.quantidade, // fallback de segurança
           unit: item.unidade,
           selected: item.selected,
-        })) || [],
+        })) || []
       );
-    } catch (e) {
-      console.error("Erro ao carregar dispensa:", e);
+    } catch (error) {
+      console.error("Erro ao buscar dispensa:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    user?.id ? buscarDispensa() : setIngredients([]);
-  }, [user?.id]);
+    buscarDispensa();
+  }, [user]);
 
-  // Filtro performático via Memo
-  const filteredIngredients = useMemo(() => {
-    const term = searchText.toLowerCase().trim();
-    return term
-      ? ingredients.filter((i) => i.name.toLowerCase().includes(term))
-      : ingredients;
-  }, [ingredients, searchText]);
+  const filteredIngredients = useMemo(
+    () =>
+      ingredients.filter((i) =>
+        i.name.toLowerCase().includes(searchText.toLowerCase())
+      ),
+    [ingredients, searchText]
+  );
 
-  const addIngredient = async (nome: string, qtd: string, unidade: string) => {
+  const addIngredient = async (name: string, qty: number, ideal_qty: number, unit: string) => {
     if (!user?.id) return;
-    const { data, error } = await supabase
-      .from("dispensa")
-      .insert([
-        {
-          user_id: user.id,
-          nome_base: nome.trim(),
-          quantidade: Number(qtd.replace(",", ".")),
-          unidade,
-          selected: true,
-        },
-      ])
-      .select()
-      .single();
+    const novo = {
+      user_id: user.id,
+      nome_base: name,
+      quantidade: qty,
+      quantidade_ideal: ideal_qty,
+      unidade: unit,
+      selected: true,
+    };
 
+    const { data, error } = await supabase.from("dispensa").insert(novo).select().single();
     if (error) throw error;
+
     setIngredients((prev) => [
-      {
-        id: data.id,
-        name: data.nome_base,
-        qty: String(data.quantidade),
-        unit: data.unidade,
-        selected: data.selected,
-      },
+      { id: data.id, name: data.nome_base, qty: data.quantidade, ideal_qty: data.quantidade_ideal, unit: data.unidade, selected: data.selected },
       ...prev,
     ]);
   };
 
-  // Alterna seleção (Update Otimista)
   const toggleIngredient = async (id: string) => {
-    const backup = [...ingredients];
     const item = ingredients.find((i) => i.id === id);
     if (!item) return;
-
-    setIngredients((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i)),
-    );
-    const { error } = await supabase
-      .from("dispensa")
-      .update({ selected: !item.selected })
-      .eq("id", id);
-    if (error) setIngredients(backup);
+    setIngredients((prev) => prev.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i)));
+    await supabase.from("dispensa").update({ selected: !item.selected }).eq("id", id);
   };
 
   const removeIngredient = async (id: string) => {
@@ -111,55 +85,32 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     if (error) setIngredients(backup);
   };
 
-  // Edição genérica (Qtd ou Unidade) com Rollback
-  const editIngredient = async (
-    id: string,
-    field: EditField,
-    value: string,
-  ) => {
+  // NOVA FUNÇÃO: Atualiza o card inteiro de uma vez
+  const updateIngredientFull = async (id: string, name: string, qty: number, ideal_qty: number, unit: string) => {
     const backup = [...ingredients];
-    const isQty = field === "quantidade";
-
     setIngredients((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              qty: isQty ? value : i.qty,
-              unit: !isQty ? value : i.unit,
-            }
-          : i,
-      ),
+      prev.map((i) => (i.id === id ? { ...i, name, qty, ideal_qty, unit } : i))
     );
 
-    const dbValue = isQty ? Number(value.replace(",", ".")) : value;
     const { error } = await supabase
       .from("dispensa")
-      .update({ [isQty ? "quantidade" : "unidade"]: dbValue })
+      .update({ nome_base: name, quantidade: qty, quantidade_ideal: ideal_qty, unidade: unit })
       .eq("id", id);
 
-    if (error) setIngredients(backup);
+    if (error) {
+      setIngredients(backup);
+      Alert.alert("Erro", "Falha ao salvar as edições do ingrediente.");
+    }
   };
 
-  const selectedCount = useMemo(
-    () => ingredients.filter((i) => i.selected).length,
-    [ingredients],
-  );
+  const selectedCount = useMemo(() => ingredients.filter((i) => i.selected).length, [ingredients]);
 
   return (
     <DispensaContext.Provider
       value={{
-        ingredients,
-        filteredIngredients,
-        searchText,
-        setSearchText,
-        addIngredient,
-        toggleIngredient,
-        removeIngredient,
-        editIngredient,
-        selectedCount,
-        isLoading,
-        buscarDispensa,
+        ingredients, filteredIngredients, searchText, setSearchText,
+        addIngredient, toggleIngredient, removeIngredient, updateIngredientFull,
+        selectedCount, isLoading, buscarDispensa,
       }}
     >
       {children}
@@ -167,4 +118,10 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useDispensa = () => useContext(DispensaContext);
+export const useDispensa = () => {
+  const context = useContext(DispensaContext);
+  if (!context) {
+    throw new Error("useDispensa must be used within a DispensaProvider");
+  }
+  return context;
+};

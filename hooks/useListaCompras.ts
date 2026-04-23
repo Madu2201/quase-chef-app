@@ -1,53 +1,111 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { Alert } from 'react-native';
+import { supabase } from '../services/supabase';
 import { CompraItem } from '../types/lista';
+import { useAuth } from './useAuth';
+import { useDispensa } from './useDispensa';
+import { Ingredient } from '../types/dispensa';
 
-export function useListaCompras(initialData: CompraItem[]) {
-    const [items, setItems] = useState<CompraItem[]>(initialData);
+export function useListaCompras() {
+    const { user } = useAuth();
+    const { ingredients } = useDispensa();
+    const [items, setItems] = useState<CompraItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Derivação de listas via useMemo para evitar re-cálculos inúteis
-    const pendentes = useMemo(() => items.filter(i => !i.comprado), [items]);
-    const comprados = useMemo(() => items.filter(i => i.comprado), [items]);
+    const buscarLista = async () => {
+        if (!user?.id) return;
+        try {
+            setIsLoading(true);
+            const { data, error } = await supabase
+                .from("lista_compras")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false });
 
-    // Adiciona novo item formatando a string de 'info'
-    const addItem = (nome: string, qtd: string, unidade: string) => {
-        const novo: CompraItem = {
-            id: Date.now().toString(), // ID temporário único
-            name: nome.trim(),
-            info: `${qtd} ${unidade}`,
+            if (error) throw error;
+            setItems(data || []);
+        } catch (e) {
+            console.error("Erro ao buscar lista:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => { buscarLista(); }, [user]);
+
+    const addItem = async (nome: string, qtd: string, unidade: string) => {
+        if (!user?.id) return;
+        const novoItem = {
+            user_id: user.id, // Enviando o ID igual aos Favoritos
+            nome: nome.trim(),
+            quantidade_comprar: parseFloat(qtd.replace(',', '.')),
+            unidade: unidade,
             comprado: false
         };
-        setItems(prev => [novo, ...prev]);
+
+        const { data, error } = await supabase.from("lista_compras").insert([novoItem]).select();
+        if (!error && data) {
+            setItems(prev => [data[0], ...prev]);
+        } else if (error) {
+            Alert.alert("Erro ao adicionar", error.message);
+        }
     };
 
-    // Alterna o status de compra (Update In-place)
-    const toggleItem = (id: string) => {
-        setItems(prev => prev.map(item =>
-            item.id === id ? { ...item, comprado: !item.comprado } : item
-        ));
+    const gerarListaDaDispensa = async () => {
+        if (!user?.id) return;
+
+        const itensFaltantes = ingredients.filter((ing: Ingredient) => {
+            const atual = parseFloat(String(ing.qty || 0).replace(',', '.'));
+            const ideal = parseFloat(String(ing.ideal_qty || 0).replace(',', '.'));
+            return atual < ideal;
+        });
+        
+        if (itensFaltantes.length === 0) {
+            return Alert.alert("Tudo em dia!", "Seu estoque está conforme as metas.");
+        }
+
+        const novosItens = itensFaltantes.map((ing: Ingredient) => ({
+            user_id: user.id, // Enviando o ID igual aos Favoritos
+            nome: ing.name,
+            quantidade_comprar: Math.max(0, parseFloat(String(ing.ideal_qty)) - parseFloat(String(ing.qty))),
+            unidade: ing.unit,
+            comprado: false
+        }));
+
+        const { error } = await supabase.from("lista_compras").insert(novosItens);
+        if (!error) {
+            buscarLista();
+        } else {
+            Alert.alert("Erro ao gerar", error.message);
+        }
     };
 
-    // Remove um item específico
-    const removerItem = (id: string) => {
-        setItems(prev => prev.filter(item => item.id !== id));
+    const toggleItem = async (id: string) => {
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+        const novoStatus = !item.comprado;
+        setItems(prev => prev.map(i => i.id === id ? { ...i, comprado: novoStatus } : i));
+        await supabase.from("lista_compras").update({ comprado: novoStatus }).eq("id", id);
     };
 
-    // Remove todos os itens marcados como comprados
-    const removerComprados = () => {
-        setItems(prev => prev.filter(item => !item.comprado));
+    const removerItem = async (id: string) => {
+        setItems(prev => prev.filter(i => i.id !== id));
+        await supabase.from("lista_compras").delete().eq("id", id);
     };
 
-    // Marca todos os itens pendentes como comprados de uma vez
-    const marcarTodos = () => {
-        setItems(prev => prev.map(item => ({ ...item, comprado: true })));
+    const limparComprados = async () => {
+        setItems(prev => prev.filter(i => !i.comprado));
+        await supabase.from("lista_compras").delete().eq("user_id", user?.id).eq("comprado", true);
     };
 
     return {
-        pendentes,
-        comprados,
+        pendentes: items.filter(i => !i.comprado),
+        comprados: items.filter(i => i.comprado),
+        isLoading,
         addItem,
+        gerarListaDaDispensa,
         toggleItem,
         removerItem,
-        removerComprados,
-        marcarTodos
+        limparComprados
     };
 }

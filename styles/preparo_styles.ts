@@ -153,7 +153,7 @@ export const preparoStyles = StyleSheet.create({
         ...Shadows.sm,
     },
     btnTimerControlDisabled: {
-        backgroundColor: Colors.gray,
+        backgroundColor: Colors.subtext,
         opacity: 0.6,
     },
     btnTimerControlText: {

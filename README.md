@@ -104,3 +104,169 @@ npx expo start --web
 - 📦 Controle de dispensa
 - 🤖 Integração com Gemini (seleção de IA)
 - 💾 Sincronização local com AsyncStorage
+
+# 🧠 Smart Pantry — Fluxo de Uso e Proposta de Valor
+
+## 📌 O que é isso?
+
+O Smart Pantry é um **assistente inteligente de cozinha e compras**.
+
+Ele conecta:
+- 📦 Dispensa (estoque atual)
+- 🍳 Receitas (consumo)
+- 🛒 Lista de Compras (reposição)
+
+> 🔥 Você não gerencia listas. Você mantém seu estoque sempre completo.
+
+---
+
+## 🧑 Jornada do Usuário (Ciclo Completo)
+
+### 1. 🏁 Montando a Dispensa
+
+O usuário cadastra itens e define metas:
+
+- Arroz → 2kg (Meta: 5kg)
+- Ovos → 12 un (Meta: 60 un)
+- Mel → 1 frasco (Meta: 0)
+
+📌 Itens com meta 0 não entram na reposição automática.
+
+---
+
+### 2. 🍳 Uso Diário (Automático)
+
+Ao finalizar uma receita:
+
+```ts
+quantidade_atual -= quantidade_usada
+```
+
+**Exemplo:**
+
+```ts
+ovos: 12 → 8
+arroz: 2kg → 1.5kg
+```
+
+---
+
+### 3. 🪄 Gerar Lista Inteligente
+
+Botão:
+
+> **"Completar Estoque"**
+
+Cálculo:
+
+```ts
+necessario = quantidade_ideal - quantidade_atual
+```
+
+**Exemplo:**
+
+```ts
+arroz: 5 - 1.5 = 3.5kg
+ovos: 60 - 8 = 52 unidades
+```
+
+Regra:
+
+```ts
+if (quantidade_ideal > 0) {
+  adicionar_item_lista(necessario)
+}
+```
+
+---
+
+### 4. 🛒 No Mercado
+
+- Marcar itens com `Check ✅`
+- Adicionar extras manualmente
+
+---
+
+### 5. 🔄 Atualização Pós-Compra
+
+```ts
+quantidade_atual += quantidade_comprada
+limpar_lista()
+```
+
+---
+
+## 🔁 Loop do Produto
+
+```txt
+Cadastrar → Consumir → Gerar Lista → Comprar → Atualizar → Repetir
+```
+
+---
+
+## ⚙️ Estrutura de Dados
+
+```ts
+type Item = {
+  nome: string
+  quantidade_atual: number
+  quantidade_ideal: number
+}
+```
+
+---
+
+## 🦸‍♂️ Valor para o Usuário
+
+### 🧠 Redução de carga mental
+- Não precisa lembrar o que falta
+- Não precisa montar lista
+
+### 💰 Economia
+- Evita compras duplicadas
+- Reduz desperdício
+
+### ⏱️ Tempo
+- Lista pronta em 1 clique
+
+### 📊 Controle
+- Visão total do estoque
+- Ajuste dinâmico de consumo
+
+---
+
+## 🚀 Diferencial
+
+Isso não é:
+
+```txt
+❌ Lista de compras
+```
+
+Isso é:
+
+```txt
+✅ Sistema inteligente de reposição
+```
+
+> 🧠 Um ERP de cozinha
+
+---
+
+## 🎯 Ideia Central
+
+O usuário nunca mais precisa pensar:
+
+```txt
+"O que eu tenho?"
+"O que falta?"
+"O que comprar?"
+```
+
+O sistema resolve tudo.
+
+---
+
+## 🔥 Em uma frase
+
+> Você cozinha. O app resolve o resto.

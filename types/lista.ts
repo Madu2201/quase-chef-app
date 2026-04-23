@@ -1,18 +1,17 @@
-// Tipos organizados para a funcionalidade de Lista de Compras
 export interface CompraItem {
     id: string;
-    name: string;
-    info: string;    // Combinação de quantidade + unidade (ex: "2 kg")
+    nome: string;
+    quantidade_comprar: number;
+    unidade: string;
     comprado: boolean;
 }
 
-// Contexto de Lista
 export interface ListaContextData {
     pendentes: CompraItem[];
     comprados: CompraItem[];
-    addItem: (nome: string, qtd: string, unidade: string) => void;
-    toggleItem: (id: string) => void;
-    removerItem: (id: string) => void;
-    removerComprados: () => void;
-    marcarTodos: () => void;
+    gerarListaDaDispensa: () => Promise<void>; // O BOTÃO MÁGICO
+    guardarNoEstoque: () => Promise<void>;     // O CICLO FINAL
+    toggleItem: (id: string) => Promise<void>;
+    removerItem: (id: string) => Promise<void>;
+    isLoading: boolean;
 }

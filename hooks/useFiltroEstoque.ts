@@ -1,7 +1,8 @@
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
-import { normalizarBase, normalizarTexto } from "../utils/normalization";
 import { useDispensa } from "../hooks/useDispensa";
 import { Recipe } from "../hooks/useReceitas";
+import { Ingredient } from "../types/dispensa";
+import { normalizarBase, normalizarTexto } from "../utils/normalization";
 
 export function useFiltroEstoque() {
   const { ingredients: dispensaIngredientes } = useDispensa();
@@ -27,7 +28,7 @@ export function useFiltroEstoque() {
           if (ehLivre) return true;
 
           // Regra B: Existe na dispensa (marcado como ativo)?
-          const itemNoEstoque = dispensaIngredientes.find((itemDispensa) => {
+          const itemNoEstoque = dispensaIngredientes.find((itemDispensa: Ingredient) => {
             if (!itemDispensa.selected) return false;
             const nomeDispNormalizado = normalizarTexto(itemDispensa.name);
             return (

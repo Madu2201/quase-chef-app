@@ -36,6 +36,23 @@ export const listaStyles = StyleSheet.create({
         fontSize: FontSizes.small,
         color: Colors.secondary,
     },
+    magicButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.primary,
+        borderRadius: Radius.lg,
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.lg,
+        gap: Spacing.sm,
+        marginBottom: Spacing.lg,
+        ...Shadows.sm,
+    },
+    magicButtonText: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.small,
+        color: Colors.light,
+    },
 
     // --- SEÇÕES ---
     sectionHeader: {
@@ -48,6 +65,11 @@ export const listaStyles = StyleSheet.create({
         fontFamily: Fonts.bold,
         fontSize: FontSizes.medium,
         color: Colors.dark,
+    },
+    sectionTitleOff: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.medium,
+        color: Colors.subtext,
     },
     badgeCount: {
         backgroundColor: Colors.primary + '15',

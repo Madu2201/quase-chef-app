@@ -1,29 +1,23 @@
-// Tipos relacionados à gestão da dispensa
 export interface Ingredient {
   id: string;
   name: string;
-  qty: string;
+  qty: number;        // Agora como número para facilitar cálculos
+  ideal_qty: number;  // A nossa META mensal
   unit: string;
   selected: boolean;
 }
 
-// Campos permitidos para edição rápida
-export type EditField = "quantidade" | "unidade";
+export type EditField = "quantidade" | "quantidade_ideal" | "unidade";
 
-// Tipos relacionados aos contextos da dispensa
 export interface DispensaContextData {
   ingredients: Ingredient[];
   filteredIngredients: Ingredient[];
   searchText: string;
   setSearchText: (text: string) => void;
-  addIngredient: (nome: string, qtd: string, unidade: string) => Promise<void>;
+  addIngredient: (nome: string, qtd: number, ideal_qtd: number, unidade: string) => Promise<void>;
   toggleIngredient: (id: string) => Promise<void>;
   removeIngredient: (id: string) => Promise<void>;
-  editIngredient: (
-    id: string,
-    field: EditField,
-    value: string,
-  ) => Promise<void>;
+  editIngredient: (id: string, field: EditField, value: any) => Promise<void>;
   selectedCount: number;
   isLoading: boolean;
   buscarDispensa: () => Promise<void>;

@@ -10,7 +10,7 @@ import { Header } from "../../components/header";
 import { UNIDADES_ACEITAS } from "../../constants/ingredients";
 import { Colors } from "../../constants/theme";
 import { useDispensa } from "../../hooks/useDispensa";
-import { dispensaStyles as styles } from "../../styles/dispensa_styles";
+import { dispensaStyles as styles } from "../../styles/despensa_styles";
 import { Ingredient } from "../../types/dispensa";
 
 export default function DispensaScreen() {

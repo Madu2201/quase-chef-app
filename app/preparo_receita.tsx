@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
+  AlertCircle,
   Heart,
   Lightbulb,
   Pause,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Pressable,
@@ -41,6 +43,10 @@ import { criarReceitaIAParaPreparo, processarParamsPreparo } from "../utils/prep
 import { formatTime } from "../utils/timeFormatter";
 
 export default function PreparoReceitaScreen() {
+  // ============================================
+  // REGRA 1: TODOS OS HOOKS NO TOPO
+  // ============================================
+  
   const params = useLocalSearchParams();
 
   // Processamento organizado dos parâmetros
@@ -49,7 +55,7 @@ export default function PreparoReceitaScreen() {
     ? JSON.parse(paramsProcessados.passosJson)
     : [];
 
-  // Hooks organizados
+  // Hooks - TODOS declarados no topo, sem early returns
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const {
     passoAtual,
@@ -62,18 +68,11 @@ export default function PreparoReceitaScreen() {
     resetarTimer,
     step,
     totalPassos,
-  } = usePreparoReceita(passosDinamicos);
+    isLoading,
+    erro,
+  } = usePreparoReceita(passosDinamicos, paramsProcessados.id, paramsProcessados.tipo);
 
-  // Função para controlar o timer com validação
-  const toggleTimer = () => {
-    if (!timerAtivo && tempo <= 0) {
-      // Não permite iniciar timer se não há tempo
-      return;
-    }
-    setTimerAtivo(!timerAtivo);
-  };
-
-  // Estado local organizado
+  // Estado local e Reanimated hooks
   const isIA = paramsProcessados.tipo === "ia";
   const iaRecipeData: Recipe | undefined = isIA
     ? criarReceitaIAParaPreparo(paramsProcessados)
@@ -81,6 +80,17 @@ export default function PreparoReceitaScreen() {
 
   const ehFav = isFavorito(paramsProcessados.id);
   const heartScale = useSharedValue(1);
+  const animatedHeartStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heartScale.value }],
+  }));
+
+  // Função para controlar o timer com validação
+  const toggleTimer = () => {
+    if (!timerAtivo && tempo <= 0) {
+      return;
+    }
+    setTimerAtivo(!timerAtivo);
+  };
 
   const handleToggleFavorito = () => {
     if (paramsProcessados.id) {
@@ -91,7 +101,6 @@ export default function PreparoReceitaScreen() {
     }
   };
 
-  // Função de compartilhamento
   const handleShare = async () => {
     try {
       await Share.share({
@@ -102,11 +111,48 @@ export default function PreparoReceitaScreen() {
     }
   };
 
-  const animatedHeartStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: heartScale.value }],
-  }));
+  // ============================================
+  // RENDERIZAÇÃO (após TODOS os hooks)
+  // ============================================
 
-  // VIEW: ESTADO CONCLUÍDO
+  // Loading ao buscar receita no banco
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.secondary} />
+          <Text style={{ marginTop: 12, color: Colors.subtext }}>Carregando receita...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // Erro ao buscar receita
+  if (erro) {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <AlertCircle size={48} color={Colors.secondary} style={{ marginBottom: 16 }} />
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.primary, textAlign: 'center', marginBottom: 8 }}>
+            Oops! Algo deu errado
+          </Text>
+          <Text style={{ fontSize: 14, color: Colors.subtext, textAlign: 'center', marginBottom: 20 }}>
+            {erro}
+          </Text>
+          <Pressable 
+            style={styles.btnLaranja}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.btnAcaoTexto, { color: Colors.light }]}>Voltar</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  // VIEW: ESTADO CONCLUÍDO (renderizado como JSX, não early return)
   if (isConcluido) {
     return (
       <ScrollView

@@ -21,6 +21,24 @@ export interface InfoCardProps {
     value: string;
 }
 
+/**
+ * Representa os dados brutos recebidos do Supabase
+ * Estrutura exata da tabela de receitas
+ */
+export interface ReceitaBancoDados {
+    id: number;
+    nome_receita: string;
+    descricao_simples_preparo: string;
+    tempo_preparo: string;
+    dificuldade: string;
+    calorias: string;
+    imagem_url: string;
+    ingredientes: any[];
+    passos_detalhados: any[];
+    tags?: string[];
+    dicaIA?: string;
+}
+
 // TIPOS PARA RECEITA DETALHADA
 export interface ReceitaDetalhada {
     titulo: string;

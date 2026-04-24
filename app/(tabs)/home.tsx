@@ -5,7 +5,7 @@ import {
   User2,
   Zap
 } from "lucide-react-native";
-import React, { useCallback, useState , useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -27,7 +27,6 @@ import { homeStyles as styles } from "../../styles/home_styles";
 // Hooks e bibliotecas para autenticação e armazenamento local
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { supabase } from "@/services/supabase";
 
 // Novo hook de sugestões
 import { useSugestoesHome } from "../../hooks/useSugestoesHome";
@@ -182,14 +181,7 @@ export default function HomeScreen() {
                 pathname: '/detalhe_receita',
                 params: {
                   id: receita.id,
-                  title: receita.title,
-                  time: receita.time,
-                  difficulty: receita.difficulty,
-                  image: receita.image,
-                  calories: receita.calories,
-                  description: receita.descStart,
-                  ingredients: receita.rawIngredients,
-                  steps: receita.rawSteps,
+                  tipo: receita.tipo,
                 }
               })}
             />

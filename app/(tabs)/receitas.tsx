@@ -19,12 +19,12 @@ import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 // Meus imports
 import { Header } from '../../components/header';
+import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
 import { Colors } from '../../constants/theme';
+import { useFavoritosGlobal } from '../../hooks/useFavoritos';
+import { useFiltroEstoque } from '../../hooks/useFiltroEstoque';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
-import { useFavoritosGlobal } from '../../hooks/useFavoritos';
-import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
-import { useFiltroEstoque } from '../../hooks/useFiltroEstoque';
 
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
@@ -140,14 +140,7 @@ export default function ReceitasScreen() {
               pathname: '/detalhe_receita',
               params: {
                 id: item.id,
-                title: item.title,
-                time: item.time,
-                difficulty: item.difficulty,
-                image: item.image,
-                calories: item.calories,
-                description: item.descStart,
-                ingredients: item.rawIngredients,
-                steps: item.rawSteps,
+                tipo: item.tipo,
                 restoreScroll: String(scrollY)
               }
             })}

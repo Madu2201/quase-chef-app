@@ -6,10 +6,12 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
+// Meus imports de serviço e tipos
 import { loginUser, registerUser } from "../services/authService";
 // Importe os tipos que criamos
-import { UserData, AuthResponse } from "../types/auth";
 import { supabase } from "@/services/supabase";
+import { AuthResponse, UserData } from "../types/auth";
 
 interface AuthContextData {
   user: UserData | null; // Tipado corretamente

@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useAuth } from "./useAuth";
-import {
-    validateName,
-    validateEmail,
-    isPasswordStrong
-} from "../utils/validation";
+
+// Meus imports
 import { CadastroErrors } from "../types/auth";
+import {
+    isPasswordStrong,
+    validateEmail,
+    validateName
+} from "../utils/validation";
+import { useAuth } from "./useAuth";
 
 export function useCadastroForm() {
     const { signUp, isLoading } = useAuth();

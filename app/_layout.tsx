@@ -10,8 +10,8 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AuthProvider } from "../hooks/useAuth";
-import { FavoritosProvider } from "../hooks/useFavoritos";
 import { DispensaProvider } from "../hooks/useDispensa";
+import { FavoritosProvider } from "../hooks/useFavoritos";
 
 SplashScreen.preventAutoHideAsync();
 

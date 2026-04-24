@@ -110,9 +110,6 @@ export default function DispensaScreen() {
         {/* --- Título da Seção de Itens Disponíveis --- */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Ingredientes Disponíveis</Text>
-          <View style={styles.badgeCount}>
-            <Text style={styles.badgeText}>{filteredIngredients.length}</Text>
-          </View>
         </View>
 
         {/* --- Lista de Ingredientes --- */}

@@ -1,34 +1,13 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  AlertCircle,
-  Heart,
-  Lightbulb,
-  Pause,
-  Play,
-  RotateCcw,
-  Share2,
-  Stars,
-  X,
+  AlertCircle, Heart, Lightbulb, Pause, Play, RotateCcw, Share2, Stars, X,
 } from "lucide-react-native";
 import React from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Share,
-  StatusBar,
-  Text,
-  View,
+  ActivityIndicator, Alert, Image, Pressable, ScrollView, Share, StatusBar, Text, View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInLeft,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+  FadeIn, FadeInLeft, FadeInUp, useAnimatedStyle, useSharedValue, withSpring,
 } from "react-native-reanimated";
 
 // Meus imports organizados

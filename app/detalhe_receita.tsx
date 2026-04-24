@@ -1,32 +1,16 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
-  AlertCircle,
-  BarChart3,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Heart,
-  Lightbulb,
-  PlayCircle,
-  Share2,
+  AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart,
+  Lightbulb, PlayCircle, Share2,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  Share,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+  ActivityIndicator, Image, Pressable, ScrollView, Share,
+  StatusBar, Text, TouchableOpacity, View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
-  FadeInLeft,
-  FadeInUp,
+  FadeInDown, FadeInLeft, FadeInUp,
 } from "react-native-reanimated";
 
 // Meus imports

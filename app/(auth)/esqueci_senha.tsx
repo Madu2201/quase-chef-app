@@ -1,15 +1,22 @@
-import React, { useState } from "react";
-import {
-  View, Text, TextInput, Pressable, Image, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator
-} from "react-native";
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView, Platform,
+  Pressable,
+  ScrollView,
+  Text, TextInput,
+  View
+} from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 
 // Meus imports
-import { authStyles as styles } from "../../styles/auth_styles";
+import { supabase } from "@/services/supabase";
 import { Colors } from "../../constants/theme";
-import { supabase } from "@/services/supabase"; 
+import { authStyles as styles } from "../../styles/auth_styles";
 
 export default function EsqueciSenhaScreen() {
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
@@ -123,7 +130,7 @@ export default function EsqueciSenhaScreen() {
 
           <Text style={styles.welcomeTitle}>Recuperar Conta</Text>
           <Text style={styles.welcomeSubtitle}>
-            Insira seu e-mail para receber um código de segurança
+            Insira seu e-mail para receber um código de segurança.
           </Text>
         </Animated.View>
 
@@ -178,9 +185,7 @@ export default function EsqueciSenhaScreen() {
           </Text>
 
           <Text style={styles.legalText}>
-            Ao continuar, você concorda com nossos{" "}
-            <Text style={styles.linkUnderline}>Termos de Serviço</Text> e{" "}
-            <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
+            Ao entrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
           </Text>
         </Animated.View>
       </ScrollView>

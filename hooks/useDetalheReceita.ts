@@ -1,5 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
+
+//Meus imports
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import { buscarReceitaPorId } from "../services/receitaService";
 import type { ReceitaBancoDados, ReceitaDetalhada } from "../types/detalhe_receita";

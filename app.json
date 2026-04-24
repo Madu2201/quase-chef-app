@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "quasechef",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.dudasillvar.quasechefapp"
@@ -17,7 +16,6 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFF3E8"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.dudasillvar.quasechefapp"
     },

@@ -1,4 +1,3 @@
-import { FontAwesome5 } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
   AlertTriangle, CheckCircle, ChefHat, ChevronDown, ChevronUp,

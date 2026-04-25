@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Check, ChevronDown, Trash2 } from "lucide-react-native";
+import { Check, ChevronDown, Edit2, HelpCircle, Trash2, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -11,14 +11,12 @@ import {
   View,
 } from "react-native";
 
-import { AddItemCard } from "../../components/AddItemCard";
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
 import { UNIDADES_ACEITAS } from "../../constants/ingredients";
 import { Colors } from "../../constants/theme";
 import { useDispensa } from "../../hooks/useDispensa";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
-import { validarQuantidade } from "../../utils/validation";
 
 export default function DispensaScreen() {
   const {
@@ -28,48 +26,129 @@ export default function DispensaScreen() {
     addIngredient,
     toggleIngredient,
     removeIngredient,
-    editIngredient,
+    updateIngredientFull,
     selectedCount,
     isLoading,
   } = useDispensa();
 
-  // Estados locais para criação e UI de edição
+  // Estados de Criação
   const [nomeNovo, setNomeNovo] = useState("");
   const [qtdNova, setQtdNova] = useState("");
+  const [metaNova, setMetaNova] = useState("");
   const [unidadeNova, setUnidadeNova] = useState("un");
-  const [showUnitPicker, setShowUnitPicker] = useState(false);
-  const [activeInput, setActiveInput] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
+  const [showUnitPickerNew, setShowUnitPickerNew] = useState(false);
+
+  // Estados de Edição em Lote
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    qty: "",
+    ideal_qty: "",
+    unit: "un",
+  });
+  const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
 
   // Adicionar ingrediente
   const handleAdd = async () => {
-    if (!nomeNovo.trim() || !qtdNova.trim()) {
-      return Alert.alert("Atenção", "Preencha o nome e a quantidade.");
+    if (!nomeNovo.trim() || !qtdNova.trim() || !metaNova.trim()) {
+      return Alert.alert(
+        "Atenção",
+        "Preencha o nome, a quantidade atual e a meta."
+      );
     }
-
-    const valid = validarQuantidade(qtdNova);
-    if (!valid.valido) return Alert.alert("Atenção", valid.erro);
-
     try {
-      await addIngredient(nomeNovo, qtdNova, unidadeNova);
+      await addIngredient(
+        nomeNovo,
+        Number(qtdNova.replace(",", ".")),
+        Number(metaNova.replace(",", ".")),
+        unidadeNova
+      );
       setNomeNovo("");
       setQtdNova("");
-      setUnidadeNova("un");
-      setShowUnitPicker(false);
+      setMetaNova("");
+      setShowUnitPickerNew(false);
     } catch (e) {
       Alert.alert("Erro", "Falha ao adicionar ingrediente.");
     }
   };
 
-  // Salvar edição de quantidade
-  const handleSaveQty = (id: string) => {
-    if (editValue.trim() === "") return setActiveInput(null);
-    const valid = validarQuantidade(editValue);
-    if (!valid.valido) return Alert.alert("Atenção", valid.erro);
-
-    editIngredient(id, "quantidade", editValue);
-    setActiveInput(null);
+  // Iniciar edição
+  const startEditing = (item: any) => {
+    setEditingId(item.id);
+    setEditForm({
+      name: item.name,
+      qty: String(item.qty),
+      ideal_qty: String(item.ideal_qty),
+      unit: item.unit,
+    });
   };
+
+  // Salvar edição
+  const saveEdit = () => {
+    if (
+      !editForm.name.trim() ||
+      !editForm.qty.trim() ||
+      !editForm.ideal_qty.trim()
+    ) {
+      return Alert.alert("Atenção", "Nenhum campo pode ficar vazio.");
+    }
+    updateIngredientFull(
+      editingId!,
+      editForm.name,
+      Number(editForm.qty.replace(",", ".")),
+      Number(editForm.ideal_qty.replace(",", ".")),
+      editForm.unit
+    );
+    setEditingId(null);
+  };
+
+  // Mostrar ajuda sobre Meta
+  const showMetaHelp = () => {
+    Alert.alert(
+      "O que é a Meta?",
+      "É a quantidade que você sempre quer ter na dispensa (ex: 5kg de Arroz). Nossa IA usará isso para gerar sua Lista de Compras automaticamente quando o estoque baixar!"
+    );
+  };
+
+  // Determinar cor da barra de progresso
+  const getProgressBarColor = (pct: number) => {
+    if (pct <= 25) return styles.progressBarRed;
+    if (pct <= 50) return styles.progressBarOrange;
+    return styles.progressBarGreen;
+  };
+
+  // Renderizar picker de unidades
+  const renderUnitPicker = (
+    units: string[],
+    activeUnit: string,
+    onSelect: (unit: string) => void,
+    onClose: () => void
+  ) => (
+    <View style={styles.unitPickerContainer}>
+      {units.map((u) => (
+        <TouchableOpacity
+          key={u}
+          onPress={() => {
+            onSelect(u);
+            onClose();
+          }}
+          style={[
+            styles.unitChip,
+            activeUnit === u && styles.unitChipActive,
+          ]}
+        >
+          <Text
+            style={[
+              styles.unitChipText,
+              activeUnit === u && styles.unitChipTextActive,
+            ]}
+          >
+            {u}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -78,41 +157,82 @@ export default function DispensaScreen() {
         centerTitle
         searchText={searchText}
         setSearchText={setSearchText}
-        searchPlaceholder="Buscar na dispensa..."
+        searchPlaceholder="Buscar ingredientes..."
       />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* --- Card de Adição --- */}
-        <AddItemCard
-          label="Novo Ingrediente"
-          placeholder="Ex: Tomate, Arroz..."
-          nameValue={nomeNovo}
-          onNameChange={setNomeNovo}
-          qtyValue={qtdNova}
-          onQtyChange={setQtdNova}
-          unitValue={unidadeNova}
-          onUnitChange={setUnidadeNova}
-          onAddPress={handleAdd}
-          showUnitPicker={showUnitPicker}
-          onToggleUnitPicker={() => setShowUnitPicker(!showUnitPicker)}
-          activeInput={activeInput}
-          onNameFocus={() => setActiveInput("nome")}
-          onNameBlur={() => setActiveInput(null)}
-          onQtyFocus={() => setActiveInput("qtd")}
-          onQtyBlur={() => setActiveInput(null)}
-          styles={styles}
-          iconSize={18}
-        />
+        {/* === PAINEL DE ADIÇÃO INTELIGENTE === */}
+        <View style={styles.addPanel}>
+          <Text style={styles.addPanelTitle}>Adicionar Ingrediente</Text>
 
-        {/* --- Título da Seção de Itens Disponíveis --- */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Ingredientes Disponíveis</Text>
+          <View style={styles.addPanelRow}>
+            <TextInput
+              style={[styles.addPanelNameInput, { fontFamily: "System" }]}
+              placeholder="Ex: Tomate, Arroz..."
+              placeholderTextColor={Colors.subtext}
+              value={nomeNovo}
+              onChangeText={setNomeNovo}
+            />
+            <TouchableOpacity
+              style={styles.addPanelUnitButton}
+              onPress={() => setShowUnitPickerNew(!showUnitPickerNew)}
+            >
+              <Text style={styles.addPanelUnitText}>{unidadeNova}</Text>
+              <ChevronDown size={16} color={Colors.subtext} />
+            </TouchableOpacity>
+          </View>
+
+          {showUnitPickerNew &&
+            renderUnitPicker(
+              UNIDADES_ACEITAS,
+              unidadeNova,
+              setUnidadeNova,
+              () => setShowUnitPickerNew(false)
+            )}
+
+          <View style={styles.addPanelFieldsRow}>
+            <View style={styles.addPanelField}>
+              <Text style={styles.addPanelFieldLabel}>ESTOQUE ATUAL</Text>
+              <TextInput
+                style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
+                placeholder="0"
+                keyboardType="numeric"
+                value={qtdNova}
+                onChangeText={setQtdNova}
+              />
+            </View>
+            <View style={styles.addPanelField}>
+              <View style={styles.addPanelFieldHeader}>
+                <Text style={styles.addPanelFieldLabel}>META IDEAL</Text>
+                <TouchableOpacity onPress={showMetaHelp}>
+                  <HelpCircle size={14} color={Colors.secondary} />
+                </TouchableOpacity>
+              </View>
+              <TextInput
+                style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
+                placeholder="0"
+                keyboardType="numeric"
+                value={metaNova}
+                onChangeText={setMetaNova}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={handleAdd}
+              style={styles.addPanelButton}
+            >
+              <Check size={20} color={Colors.light} />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* --- Lista de Ingredientes --- */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Seu Estoque</Text>
+        </View>
+
+        {/* === LISTA DE INGREDIENTES VIVA === */}
         {isLoading ? (
           <ActivityIndicator
             size="large"
@@ -121,109 +241,171 @@ export default function DispensaScreen() {
           />
         ) : filteredIngredients.length === 0 ? (
           <Text style={styles.emptyText}>
-            {searchText
-              ? "Nenhum resultado para a busca."
-              : "Sua dispensa está vazia."}
+            {searchText ? "Nenhum resultado." : "Sua dispensa está vazia."}
           </Text>
         ) : (
-          filteredIngredients.map((item) => (
-            <View key={item.id} style={{ marginBottom: 8 }}>
+          filteredIngredients.map((item) => {
+            // Lógica Inteligente da Barra
+            const pct =
+              item.ideal_qty > 0
+                ? Math.min(100, Math.max(0, (item.qty / item.ideal_qty) * 100))
+                : 100;
+
+            const isEditing = editingId === item.id;
+
+            return (
               <View
+                key={item.id}
                 style={[
-                  styles.ingredientItem,
-                  !item.selected && { opacity: 0.6 },
+                  styles.ingredientCard,
+                  !item.selected && styles.ingredientCardInactive,
                 ]}
               >
-                <TouchableOpacity
-                  onPress={() => toggleIngredient(item.id)}
-                  style={[
-                    styles.checkbox,
-                    item.selected && styles.checkboxActive,
-                  ]}
-                >
-                  {item.selected && (
-                    <Check size={14} color={Colors.light} strokeWidth={3} />
-                  )}
-                </TouchableOpacity>
-
-                <View style={styles.ingredientInfo}>
-                  <Text style={styles.ingredientName}>{item.name}</Text>
-                  <View style={styles.controlsRow}>
-                    {activeInput === `${item.id}-qty` ? (
-                      <TextInput
-                        style={styles.inlineInput}
-                        value={editValue}
-                        onChangeText={setEditValue}
-                        keyboardType="numeric"
-                        autoFocus
-                        onBlur={() => handleSaveQty(item.id)}
-                        onSubmitEditing={() => handleSaveQty(item.id)}
-                      />
-                    ) : (
+                {/* --- MODO EXPANDIDO (EDIÇÃO) --- */}
+                {isEditing ? (
+                  <View style={styles.editingContainer}>
+                    <View style={styles.editingHeader}>
+                      <Text style={styles.editingTitle}>Editar Ingrediente</Text>
                       <TouchableOpacity
-                        style={styles.listInputQtyWrap}
-                        onPress={() => {
-                          setEditValue(item.qty);
-                          setActiveInput(`${item.id}-qty`);
-                        }}
+                        onPress={() => setEditingId(null)}
+                        style={styles.editingCloseButton}
                       >
-                        <Text style={styles.listInputQtyText}>{item.qty}</Text>
+                        <X size={20} color={Colors.subtext} />
                       </TouchableOpacity>
-                    )}
+                    </View>
 
-                    <TouchableOpacity
-                      style={styles.listPickerUnit}
-                      onPress={() =>
-                        setActiveInput(
-                          activeInput === `${item.id}-unit`
-                            ? null
-                            : `${item.id}-unit`,
-                        )
+                    <TextInput
+                      style={[styles.editingNameInput, { fontFamily: "System" }]}
+                      value={editForm.name}
+                      onChangeText={(t) =>
+                        setEditForm({ ...editForm, name: t })
                       }
-                    >
-                      <Text style={styles.unitText}>{item.unit}</Text>
-                      <ChevronDown size={12} color={Colors.subtext} />
-                    </TouchableOpacity>
-                  </View>
+                    />
 
-                  {/* Seletor de Unidade Inline - Dentro do Card */}
-                  {activeInput === `${item.id}-unit` && (
-                    <View style={styles.inlineUnitPanel}>
-                      {UNIDADES_ACEITAS.map((u) => (
+                    <View style={styles.editingFieldsRow}>
+                      <View style={styles.editingField}>
+                        <Text style={styles.editingFieldLabel}>Atual</Text>
+                        <TextInput
+                          style={[styles.editingFieldInput, { fontFamily: "System" }]}
+                          keyboardType="numeric"
+                          value={editForm.qty}
+                          onChangeText={(t) =>
+                            setEditForm({ ...editForm, qty: t })
+                          }
+                        />
+                      </View>
+                      <View style={styles.editingField}>
+                        <Text style={styles.editingFieldLabel}>Meta</Text>
+                        <TextInput
+                          style={[styles.editingFieldInput, { fontFamily: "System" }]}
+                          keyboardType="numeric"
+                          value={editForm.ideal_qty}
+                          onChangeText={(t) =>
+                            setEditForm({ ...editForm, ideal_qty: t })
+                          }
+                        />
+                      </View>
+                      <View style={styles.editingField}>
+                        <Text style={styles.editingFieldLabel}>Unid.</Text>
                         <TouchableOpacity
-                          key={u}
                           style={[
-                            styles.inlineUnitChip,
-                            item.unit === u && styles.inlineUnitChipActive,
+                            styles.editingFieldInput,
+                            { alignItems: "center" },
                           ]}
-                          onPress={() => {
-                            editIngredient(item.id, "unidade", u);
-                            setActiveInput(null);
-                          }}
+                          onPress={() =>
+                            setShowUnitPickerEdit(!showUnitPickerEdit)
+                          }
                         >
-                          <Text
-                            style={[
-                              styles.inlineUnitText,
-                              item.unit === u && styles.inlineUnitTextActive,
-                            ]}
-                          >
-                            {u}
+                          <Text style={{ color: Colors.dark }}>
+                            {editForm.unit}
                           </Text>
                         </TouchableOpacity>
-                      ))}
+                      </View>
                     </View>
-                  )}
-                </View>
 
-                <TouchableOpacity
-                  onPress={() => removeIngredient(item.id)}
-                  style={styles.deleteButton}
-                >
-                  <Trash2 size={20} color={"#E53E3E"} />
-                </TouchableOpacity>
+                    {showUnitPickerEdit &&
+                      renderUnitPicker(
+                        UNIDADES_ACEITAS,
+                        editForm.unit,
+                        (unit) =>
+                          setEditForm({ ...editForm, unit }),
+                        () => setShowUnitPickerEdit(false)
+                      )}
+
+                    <TouchableOpacity
+                      onPress={saveEdit}
+                      style={styles.editingSaveButton}
+                    >
+                      <Text style={styles.editingSaveButtonText}>
+                        Salvar Alterações
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  /* --- MODO VISUALIZAÇÃO (DASHBOARD) --- */
+                  <View style={styles.viewContainer}>
+                    <View style={styles.viewHeader}>
+                      <View style={styles.viewNameSection}>
+                        <TouchableOpacity
+                          onPress={() => toggleIngredient(item.id)}
+                          style={[
+                            styles.checkbox,
+                            item.selected && styles.checkboxActive,
+                            { marginRight: 12 },
+                          ]}
+                        >
+                          {item.selected && (
+                            <Check
+                              size={14}
+                              color={Colors.light}
+                              strokeWidth={3}
+                            />
+                          )}
+                        </TouchableOpacity>
+                        <Text
+                          style={styles.viewNameText}
+                          numberOfLines={1}
+                        >
+                          {item.name}
+                        </Text>
+                      </View>
+
+                      <View style={styles.viewActions}>
+                        <TouchableOpacity onPress={() => startEditing(item)}>
+                          <Edit2 size={18} color={Colors.subtext} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => removeIngredient(item.id)}
+                        >
+                          <Trash2 size={18} color="#C53030" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {/* Resumo de Dados e Barra de Progresso */}
+                    <View style={styles.viewStatsRow}>
+                      <Text style={styles.viewStatsLeft}>
+                        Temos: {item.qty} {item.unit}
+                      </Text>
+                      <Text style={styles.viewStatsRight}>
+                        Meta: {item.ideal_qty} {item.unit} ({Math.round(pct)}%)
+                      </Text>
+                    </View>
+
+                    <View style={styles.progressBarContainer}>
+                      <View
+                        style={[
+                          styles.progressBar,
+                          getProgressBarColor(pct),
+                          { width: `${pct}%` },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                )}
               </View>
-            </View>
-          ))
+            );
+          })
         )}
       </ScrollView>
 

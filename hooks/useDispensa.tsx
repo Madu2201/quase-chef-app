@@ -1,10 +1,11 @@
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
+import { Alert } from "react-native";
 import { supabase } from "../services/supabase";
 import { DispensaContextData, EditField, Ingredient } from "../types/dispensa";
 import { useAuth } from "./useAuth";
@@ -19,7 +20,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Busca inicial do banco
+  // Busca inicial do banco (Agora com quantidade_ideal)
   const buscarDispensa = async () => {
     if (!user?.id) return;
     try {
@@ -31,11 +32,13 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
+      
       setIngredients(
         data?.map((item) => ({
           id: item.id,
           name: item.nome_base,
-          qty: String(item.quantidade),
+          qty: Number(item.quantidade),
+          ideal_qty: Number(item.quantidade_ideal || 0), 
           unit: item.unidade,
           selected: item.selected,
         })) || [],
@@ -51,7 +54,6 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     user?.id ? buscarDispensa() : setIngredients([]);
   }, [user?.id]);
 
-  // Filtro performático via Memo
   const filteredIngredients = useMemo(() => {
     const term = searchText.toLowerCase().trim();
     return term
@@ -59,7 +61,8 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
       : ingredients;
   }, [ingredients, searchText]);
 
-  const addIngredient = async (nome: string, qtd: string, unidade: string) => {
+  // Adiciona ingrediente com Meta definida
+  const addIngredient = async (nome: string, qtd: number, ideal_qtd: number, unidade: string) => {
     if (!user?.id) return;
     const { data, error } = await supabase
       .from("dispensa")
@@ -67,7 +70,8 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         {
           user_id: user.id,
           nome_base: nome.trim(),
-          quantidade: Number(qtd.replace(",", ".")),
+          quantidade: qtd,
+          quantidade_ideal: ideal_qtd,
           unidade,
           selected: true,
         },
@@ -76,11 +80,13 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
       .single();
 
     if (error) throw error;
+    
     setIngredients((prev) => [
       {
         id: data.id,
         name: data.nome_base,
-        qty: String(data.quantidade),
+        qty: Number(data.quantidade),
+        ideal_qty: Number(data.quantidade_ideal),
         unit: data.unidade,
         selected: data.selected,
       },
@@ -88,7 +94,6 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     ]);
   };
 
-  // Alterna seleção (Update Otimista)
   const toggleIngredient = async (id: string) => {
     const backup = [...ingredients];
     const item = ingredients.find((i) => i.id === id);
@@ -111,34 +116,67 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     if (error) setIngredients(backup);
   };
 
-  // Edição genérica (Qtd ou Unidade) com Rollback
+  // Edição genérica (Qtd, Meta ou Unidade)
   const editIngredient = async (
     id: string,
     field: EditField,
-    value: string,
+    value: any,
   ) => {
     const backup = [...ingredients];
-    const isQty = field === "quantidade";
+    
+    // Mapeamento campos da interface -> colunas do banco
+    const fieldMap: Record<EditField, string> = {
+        quantidade: "quantidade",
+        quantidade_ideal: "quantidade_ideal",
+        unidade: "unidade"
+    };
 
+    // Update Otimista no Estado
     setIngredients((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              qty: isQty ? value : i.qty,
-              unit: !isQty ? value : i.unit,
-            }
-          : i,
-      ),
+      prev.map((i) => {
+        if (i.id !== id) return i;
+        if (field === "quantidade") return { ...i, qty: Number(value) };
+        if (field === "quantidade_ideal") return { ...i, ideal_qty: Number(value) };
+        if (field === "unidade") return { ...i, unit: value };
+        return i;
+      }),
     );
 
-    const dbValue = isQty ? Number(value.replace(",", ".")) : value;
+    // Tratamento do valor para o Supabase
+    const dbValue = (field === "quantidade" || field === "quantidade_ideal") 
+        ? Number(String(value).replace(",", ".")) 
+        : value;
+
     const { error } = await supabase
       .from("dispensa")
-      .update({ [isQty ? "quantidade" : "unidade"]: dbValue })
+      .update({ [fieldMap[field]]: dbValue })
       .eq("id", id);
 
     if (error) setIngredients(backup);
+  };
+
+  // NOVA FUNÇÃO: Atualiza o card inteiro de uma vez
+  const updateIngredientFull = async (
+    id: string,
+    name: string,
+    qty: number,
+    ideal_qty: number,
+    unit: string
+  ) => {
+    const backup = [...ingredients];
+    setIngredients((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, name, qty, ideal_qty, unit } : i))
+    );
+
+    const { error } = await supabase
+      .from("dispensa")
+      .update({ nome_base: name, quantidade: qty, quantidade_ideal: ideal_qty, unidade: unit })
+      .eq("id", id);
+
+    if (error) {
+      setIngredients(backup);
+      Alert.alert("Erro", "Falha ao salvar as edições do ingrediente.");
+    }
   };
 
   const selectedCount = useMemo(
@@ -157,6 +195,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         toggleIngredient,
         removeIngredient,
         editIngredient,
+        updateIngredientFull,
         selectedCount,
         isLoading,
         buscarDispensa,

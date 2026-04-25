@@ -150,4 +150,291 @@ export const dispensaStyles = StyleSheet.create({
             default: {},
         }),
     } as TextStyle,
+
+    // === PAINEL DE ADIÇÃO INTELIGENTE ===
+    addPanel: {
+        backgroundColor: Colors.light,
+        borderRadius: 16,
+        padding: Spacing.lg,
+        marginBottom: 24,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+    },
+
+    addPanelTitle: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: Colors.dark,
+        marginBottom: Spacing.md,
+    },
+
+    addPanelRow: {
+        flexDirection: "row",
+        gap: Spacing.sm,
+        marginBottom: Spacing.md,
+    },
+
+    addPanelNameInput: {
+        flex: 1,
+        backgroundColor: Colors.background,
+        borderRadius: Radius.md,
+        paddingHorizontal: Spacing.md,
+        height: 39,
+        color: Colors.dark,
+    },
+
+    addPanelUnitButton: {
+        backgroundColor: Colors.background,
+        borderRadius: Radius.md,
+        paddingHorizontal: Spacing.md,
+        height: 39,
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+    },
+
+    addPanelUnitText: {
+        color: Colors.dark,
+        marginRight: Spacing.xs,
+    },
+
+    unitPickerContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 6,
+        marginBottom: Spacing.md,
+    },
+
+    unitChip: {
+        backgroundColor: Colors.background,
+        paddingVertical: 6,
+        paddingHorizontal: Spacing.md,
+        borderRadius: 12,
+    },
+
+    unitChipActive: {
+        backgroundColor: Colors.secondary,
+    },
+
+    unitChipText: {
+        color: Colors.dark,
+        fontSize: FontSizes.small,
+    },
+
+    unitChipTextActive: {
+        color: Colors.light,
+    },
+
+    addPanelFieldsRow: {
+        flexDirection: "row",
+        gap: Spacing.sm,
+        alignItems: "center",
+    },
+
+    addPanelField: {
+        flex: 1,
+    },
+
+    addPanelFieldLabel: {
+        fontSize: 11,
+        color: Colors.subtext,
+        marginBottom: 4,
+        fontWeight: "bold",
+    },
+
+    addPanelFieldInput: {
+        backgroundColor: Colors.background,
+        borderRadius: Radius.md,
+        paddingHorizontal: Spacing.md,
+        height: 39,
+        color: Colors.dark,
+    },
+
+    addPanelFieldHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 4,
+        gap: Spacing.xs,
+    },
+
+    addPanelButton: {
+        backgroundColor: Colors.secondary,
+        height: 39,
+        width: 39,
+        borderRadius: Radius.md,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 25,
+    },
+
+    // === CARD DE INGREDIENTE ===
+    ingredientCard: {
+        backgroundColor: Colors.light,
+        borderRadius: 12,
+        padding: Spacing.lg,
+        marginBottom: Spacing.md,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+    },
+
+    ingredientCardInactive: {
+        opacity: 0.6,
+    },
+
+    // === MODO EDIÇÃO ===
+    editingContainer: {
+        marginTop: 0,
+    },
+
+    editingHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: Spacing.lg,
+    },
+
+    editingTitle: {
+        fontWeight: "bold",
+        fontSize: 16,
+        color: Colors.secondary,
+    },
+
+    editingCloseButton: {
+        padding: Spacing.xs,
+    },
+
+    editingNameInput: {
+        backgroundColor: Colors.background,
+        borderRadius: Radius.md,
+        padding: Spacing.sm,
+        marginBottom: Spacing.sm,
+        color: Colors.dark,
+        height: 39,
+    },
+
+    editingFieldsRow: {
+        flexDirection: "row",
+        gap: Spacing.sm,
+        marginBottom: Spacing.lg,
+    },
+
+    editingField: {
+        flex: 1,
+    },
+
+    editingFieldLabel: {
+        fontSize: 10,
+        color: Colors.subtext,
+        marginBottom: 2,
+    },
+
+    editingFieldInput: {
+        backgroundColor: Colors.background,
+        borderRadius: Radius.md,
+        padding: Spacing.sm,
+        paddingHorizontal: Spacing.md,
+        height: 39,
+        color: Colors.dark,
+    },
+
+    editingUnitPickerRow: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 6,
+        marginBottom: Spacing.lg,
+    },
+
+    editingSaveButton: {
+        backgroundColor: Colors.secondary,
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.lg,
+        borderRadius: Radius.md,
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 44,
+    },
+
+    editingSaveButtonText: {
+        color: Colors.light,
+        fontWeight: "bold",
+    },
+
+    // === MODO VISUALIZAÇÃO (DASHBOARD) ===
+    viewContainer: {
+        marginTop: 0,
+    },
+
+    viewHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: Spacing.lg,
+    },
+
+    viewNameSection: {
+        flexDirection: "row",
+        alignItems: "center",
+        flex: 1,
+    },
+
+    viewNameText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: Colors.dark,
+        flex: 1,
+    },
+
+    viewActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 16,
+    },
+
+    viewStatsRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 6,
+    },
+
+    viewStatsLeft: {
+        fontSize: 13,
+        color: Colors.dark,
+        fontWeight: "600",
+    },
+
+    viewStatsRight: {
+        fontSize: 12,
+        color: Colors.subtext,
+    },
+
+    progressBarContainer: {
+        height: 8,
+        backgroundColor: Colors.background,
+        borderRadius: Radius.sm,
+        overflow: "hidden",
+    },
+
+    progressBar: {
+        height: "100%",
+        borderRadius: Radius.sm,
+    },
+
+    // === CORES PARA BARRA DE PROGRESSO ===
+    progressBarGreen: {
+        backgroundColor: "#38A169",
+    },
+
+    progressBarOrange: {
+        backgroundColor: "#ffba0a",
+    },
+
+    progressBarRed: {
+        backgroundColor: "#C53030",
+    },
 });

@@ -1,12 +1,12 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
-import { Colors, Spacing } from '../constants/theme';
+import { Colors } from '../constants/theme';
 
 export const exportarListaPendentes = async (itens: any[]) => {
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // Gera as linhas da lista
+    // Gera as linhas da lista - CORRIGIDO: usar nome, quantidade_comprar, unidade
     const rows = itens.map(item => `
         <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0F0F0; align-items: center;">
             <div style="display: flex; align-items: center;">
@@ -19,9 +19,9 @@ export const exportarListaPendentes = async (itens: any[]) => {
                     background-color: white;
                 "></div>
                 
-                <span style="font-size: 16px; font-weight: 500; color: ${Colors.dark};">${item.name}</span>
+                <span style="font-size: 16px; font-weight: 500; color: ${Colors.dark};">${item.nome}</span>
             </div>
-            <span style="font-size: 13px; color: ${Colors.subtext}; font-style: italic;">${item.info || ''}</span>
+            <span style="font-size: 13px; color: ${Colors.subtext}; font-style: italic;">${item.quantidade_comprar} ${item.unidade}</span>
         </div>
     `).join('');
 

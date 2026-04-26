@@ -1,18 +1,37 @@
-// Tipos organizados para a funcionalidade de Lista de Compras
+/**
+ * Tipos para o módulo de Lista de Compras
+ * Define interfaces para estrutura de dados e contexto de operações
+ */
+
+/**
+ * Tipo principal representando um item da lista de compras
+ */
 export interface CompraItem {
     id: string;
-    name: string;
-    info: string;    // Combinação de quantidade + unidade (ex: "2 kg")
+    user_id: string;
+    nome: string;
+    quantidade_comprar: number;
+    unidade: string;
     comprado: boolean;
+    created_at?: string;
 }
 
-// Contexto de Lista
+/**
+ * Interface pública do contexto de lista
+ * Expõe operações CRUD e funções avançadas para consumidores do hook
+ */
 export interface ListaContextData {
+    // Estado
     pendentes: CompraItem[];
     comprados: CompraItem[];
-    addItem: (nome: string, qtd: string, unidade: string) => void;
-    toggleItem: (id: string) => void;
-    removerItem: (id: string) => void;
-    removerComprados: () => void;
-    marcarTodos: () => void;
+    isLoading: boolean;
+    // Operações básicas
+    addItem: (nome: string, qtd: string, unidade: string) => Promise<void>;
+    toggleItem: (id: string) => Promise<void>;
+    removerItem: (id: string) => Promise<void>;
+    limparComprados: () => Promise<void>;
+    // Operações avançadas
+    gerarListaDaDispensa: () => Promise<void>;
+    atualizarQuantidade: (id: string, novaQuantidade: number) => Promise<void>;
+    compartilharLista: () => Promise<void>;
 }

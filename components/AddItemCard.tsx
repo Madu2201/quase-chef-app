@@ -1,5 +1,5 @@
 import { ChevronDown, Plus } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 // Meus imports
@@ -26,6 +26,7 @@ interface AddItemCardProps {
     onQtyBlur: () => void;
     styles: any;
     iconSize?: number;
+    useAddPanelStyle?: boolean; // Nova prop para usar estilo do addPanel
 }
 
 // Componente Principal
@@ -48,7 +49,98 @@ export function AddItemCard({
     onQtyBlur,
     styles,
     iconSize = 18,
+    useAddPanelStyle = false,
 }: AddItemCardProps) {
+    const [isButtonPressed, setIsButtonPressed] = useState(false);
+
+    // Se o estilo do addPanel está disponível, usa; senão usa o padrão
+    const hasAddPanelStyles = useAddPanelStyle && styles.addPanel;
+
+    if (hasAddPanelStyles) {
+        return (
+            <View style={styles.addPanel}>
+                {/* Título da Seção */}
+                <Text style={styles.addPanelTitle}>{label}</Text>
+
+                {/* Primeira linha: Nome do Item + Seletor de Unidade */}
+                <View style={styles.addPanelRow}>
+                    <TextInput
+                        style={[styles.addPanelNameInput, { fontFamily: "System" }]}
+                        placeholder={placeholder}
+                        placeholderTextColor={Colors.subtext}
+                        value={nameValue}
+                        onChangeText={onNameChange}
+                        onFocus={onNameFocus}
+                        onBlur={onNameBlur}
+                    />
+                    <TouchableOpacity
+                        style={styles.addPanelUnitButton}
+                        onPress={onToggleUnitPicker}
+                    >
+                        <Text style={styles.addPanelUnitText}>{unitValue}</Text>
+                        <ChevronDown size={16} color={Colors.subtext} />
+                    </TouchableOpacity>
+                </View>
+
+                {/* Dropdown de Unidades */}
+                {showUnitPicker && (
+                    <View style={styles.unitPickerContainer}>
+                        {UNIDADES_ACEITAS.map((u) => (
+                            <TouchableOpacity
+                                key={u}
+                                onPress={() => {
+                                    onUnitChange(u);
+                                    onToggleUnitPicker();
+                                }}
+                                style={[
+                                    styles.unitChip,
+                                    unitValue === u && styles.unitChipActive,
+                                ]}
+                            >
+                                <Text
+                                    style={[
+                                        styles.unitChipText,
+                                        unitValue === u && styles.unitChipTextActive,
+                                    ]}
+                                >
+                                    {u}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+
+                {/* Linha final: Campo de Quantidade + Botão de Adição */}
+                <View style={styles.addPanelFieldsRow}>
+                    <View style={styles.addPanelField}>
+                        <Text style={styles.addPanelFieldLabel}>QTD</Text>
+                        <TextInput
+                            style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
+                            placeholder="0"
+                            keyboardType="numeric"
+                            value={qtyValue}
+                            onChangeText={onQtyChange}
+                            onFocus={onQtyFocus}
+                            onBlur={onQtyBlur}
+                        />
+                    </View>
+                    <TouchableOpacity
+                        onPress={onAddPress}
+                        onPressIn={() => setIsButtonPressed(true)}
+                        onPressOut={() => setIsButtonPressed(false)}
+                        style={[
+                            styles.addPanelButton,
+                            isButtonPressed && { backgroundColor: Colors.primary },
+                        ]}
+                    >
+                        <Plus size={20} color={Colors.light} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
+    // Estilo padrão (compatível com lista)
     return (
         <View style={styles.addCard}>
             {/* Título da Seção */}
@@ -99,8 +191,13 @@ export function AddItemCard({
 
                 {/* Botão de Adição Final */}
                 <TouchableOpacity
-                    style={styles.btnAdd}
+                    style={[
+                        styles.btnAdd,
+                        isButtonPressed && styles.btnAddPressed,
+                    ]}
                     activeOpacity={0.7}
+                    onPressIn={() => setIsButtonPressed(true)}
+                    onPressOut={() => setIsButtonPressed(false)}
                     onPress={onAddPress}
                 >
                     <Plus size={iconSize + 4} color={Colors.light} />

@@ -1,11 +1,11 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
 import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Radius,
-  Shadows,
-  Spacing,
+    Colors,
+    Fonts,
+    FontSizes,
+    Radius,
+    Shadows,
+    Spacing,
 } from "../constants/theme";
 
 // CONTAINERS E LAYOUTS BÁSICOS
@@ -193,6 +193,9 @@ export const ITEM_LIST_BUTTONS = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     ...Shadows.sm,
+  },
+  btnAddPressed: {
+    backgroundColor: Colors.primary,
   },
 });
 

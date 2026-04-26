@@ -1,81 +1,183 @@
-import { Check, CheckSquare, Trash2 } from "lucide-react-native";
-import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Check, Edit2, FileDown, Share2, Trash2, Wand2 } from "lucide-react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+    ActivityIndicator, Alert, ScrollView, Text,
+    TextInput,
+    TouchableOpacity, View
+} from "react-native";
 
-// Componentes e Hooks
 import { AddItemCard } from "../../components/AddItemCard";
 import { Header } from "../../components/header";
-import { Colors, Spacing } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 import { useListaCompras } from "../../hooks/useListaCompras";
 import { listaStyles as styles } from "../../styles/lista_styles";
 import { exportarListaPendentes } from "../../utils/exportPdf";
 
+/**
+ * Tela Principal de Lista de Compras (ListaScreen)
+ * 
+ * Responsabilidades:
+ * - Renderizar interface para gerenciar lista de compras
+ * - Permitir adição, edição, remoção e compartilhamento de itens
+ * - Sincronizar com Dispensa para gerar lista automática
+ * - Oferecer mecanismo de desfazer (undo) ao marcar como comprado
+ * 
+ * Dependências:
+ * - useListaCompras: Hook para todas as operações de negócio
+ * - listaStyles: Stylesheet centralizado
+ * - exportarListaPendentes: Utilitário para export em PDF
+ */
 export default function ListaScreen() {
-    // Inicializamos o hook com um array vazio
+    // ============ HOOK DE LISTA ============
     const {
-        pendentes,
-        comprados,
-        addItem,
-        toggleItem,
-        removerItem,
-        removerComprados,
-        marcarTodos,
-    } = useListaCompras([]);
+        pendentes, comprados, isLoading,
+        addItem, gerarListaDaDispensa, toggleItem, removerItem, 
+        limparComprados, atualizarQuantidade, compartilharLista
+    } = useListaCompras();
 
-    // Estados locais para controle do formulário de adição
-    const [activeInput, setActiveInput] = useState<string | null>(null);
+    // ============ ESTADOS DE FORMULÁRIO ============
+    // Controle do painel de adição de itens
     const [nomeItem, setNomeItem] = useState("");
     const [quantidade, setQuantidade] = useState("");
     const [unidade, setUnidade] = useState("un");
     const [showUnitPicker, setShowUnitPicker] = useState(false);
+    
+    // ============ ESTADOS DE UI ============
+    // Controle de foco de inputs
+    const [activeInput, setActiveInput] = useState<string | null>(null);
+    
+    // Undo toast para desfazer marcação como comprado
+    const [undoVisible, setUndoVisible] = useState(false);
+    const [lastRemovedItem, setLastRemovedItem] = useState<string | null>(null);
+    
+    // Edição inline de quantidade
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editQuantidade, setEditQuantidade] = useState("");
+    
+    // ============ REFERÊNCIAS ============
+    // Timeout para limpar undo toast automaticamente
+    const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Lógica para adicionar item e limpar campos
-    const handleAdd = () => {
-        if (!nomeItem.trim() || !quantidade.trim()) {
-            return Alert.alert("Atenção", "Preencha o nome e a quantidade do item.");
+    /**
+     * Marca item como comprado com suporte a undo
+     * Mostra toast informativo por 3 segundos
+     */
+    const handleToggleWithUndo = async (itemId: string) => {
+        const item = comprados.find((i) => i.id === itemId);
+        
+        if (item) {
+            if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+            
+            setLastRemovedItem(itemId);
+            setUndoVisible(true);
+            
+            undoTimeoutRef.current = setTimeout(() => {
+                setUndoVisible(false);
+                setLastRemovedItem(null);
+            }, 3000);
         }
+        
+        await toggleItem(itemId);
+    };
 
+    /**
+     * Desfaz a última marcação como comprado
+     */
+    const handleUndoClick = async () => {
+        if (lastRemovedItem) {
+            if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+            await toggleItem(lastRemovedItem);
+            setUndoVisible(false);
+            setLastRemovedItem(null);
+        }
+    };
+
+    /**
+     * Adiciona novo item à lista
+     * Validação básica: nome e quantidade obrigatórios
+     */
+    const handleAddItem = () => {
+        if (!nomeItem.trim() || !quantidade.trim()) {
+            Alert.alert("Atenção", "Preencha nome e quantidade.");
+            return;
+        }
         addItem(nomeItem, quantidade, unidade);
-
-        // Reset da UI
         setNomeItem("");
         setQuantidade("");
         setUnidade("un");
-        setShowUnitPicker(false);
         setActiveInput(null);
     };
 
-    // Exportação da lista atual para PDF
-    const handleExportPDF = async () => {
-        if (pendentes.length === 0) {
-            return Alert.alert("Aviso", "A lista de pendentes está vazia.");
-        }
-        await exportarListaPendentes(pendentes);
+    /**
+     * Inicia modo de edição de quantidade de um item
+     */
+    const handleEditarQuantidade = (itemId: string, quantidade: number) => {
+        setEditingId(itemId);
+        setEditQuantidade(String(quantidade));
     };
 
+    /**
+     * Salva a edição de quantidade e fecha modo de edição
+     */
+    const handleSalvarQuantidade = async () => {
+        if (!editingId) return;
+        
+        const novaQtd = parseFloat(editQuantidade.replace(',', '.'));
+        if (isNaN(novaQtd) || novaQtd < 0) {
+            Alert.alert("Erro", "Quantidade inválida");
+            return;
+        }
+
+        await atualizarQuantidade(editingId, novaQtd);
+        setEditingId(null);
+        setEditQuantidade("");
+    };
+
+    /**
+     * Compartilha a lista com outros usuários via Share API nativa
+     */
+    const handleCompartilhar = async () => {
+        await compartilharLista();
+    };
+
+    /**
+     * Limpeza de timeouts ao desmontar componente
+     */
+    useEffect(() => {
+        return () => {
+            if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+        };
+    }, []);
+
     return (
-        <View style={styles.container}>
-            <Header
-                title="Lista de Compras"
-                showExport
-                onExport={handleExportPDF}
+        <View style={styles.containerFlex}>
+            <Header 
+                title="Lista de Compras" 
+                centerTitle 
+                rightElement={
+                    <View style={styles.headerRightContainer}>
+                        <TouchableOpacity onPress={() => exportarListaPendentes(pendentes)}>
+                            <FileDown size={24} color={Colors.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleCompartilhar}>
+                            <Share2 size={24} color={Colors.primary} />
+                        </TouchableOpacity>
+                    </View>
+                }
             />
 
-            <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {/* Componente de Input de novo item */}
-                <AddItemCard
-                    label="Novo Item"
-                    placeholder="Ex: Arroz, Feijão..."
+            <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                
+                <AddItemCard 
+                    label="Adicionar item"
+                    placeholder="Ex: Tomate"
                     nameValue={nomeItem}
                     onNameChange={setNomeItem}
                     qtyValue={quantidade}
                     onQtyChange={setQuantidade}
                     unitValue={unidade}
                     onUnitChange={setUnidade}
-                    onAddPress={handleAdd}
+                    onAddPress={handleAddItem}
                     showUnitPicker={showUnitPicker}
                     onToggleUnitPicker={() => setShowUnitPicker(!showUnitPicker)}
                     activeInput={activeInput}
@@ -84,79 +186,107 @@ export default function ListaScreen() {
                     onQtyFocus={() => setActiveInput("qtd")}
                     onQtyBlur={() => setActiveInput(null)}
                     styles={styles}
-                    iconSize={16}
+                    useAddPanelStyle={true}
                 />
 
-                {/* Ações em Massa */}
-                {pendentes.length > 0 && (
-                    <TouchableOpacity style={styles.btnActionBulk} onPress={marcarTodos}>
-                        <CheckSquare size={18} color={Colors.secondary} />
-                        <Text style={styles.btnTextBulk}>Marcar todos como comprados</Text>
-                    </TouchableOpacity>
-                )}
+                <TouchableOpacity 
+                    onPress={gerarListaDaDispensa}
+                    style={styles.magicButton}
+                >
+                    <Wand2 size={20} color={Colors.light} />
+                    <Text style={styles.magicButtonText}>Completar via Dispensa</Text>
+                </TouchableOpacity>
 
-                {/* Listagem: Pendentes */}
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Itens pendentes</Text>
-                    <View style={styles.badgeCount}>
-                        <Text style={styles.badgeText}>{pendentes.length}</Text>
-                    </View>
-                </View>
-
-                {pendentes.length === 0 && !comprados.length && (
-                    <Text style={{ color: Colors.subtext, textAlign: 'center', marginTop: 20 }}>
-                        Sua lista está vazia. Adicione itens acima!
-                    </Text>
-                )}
-
-                {pendentes.map((item) => (
-                    <View key={item.id} style={styles.itemCard}>
-                        <Pressable
-                            onPress={() => toggleItem(item.id)}
-                            style={[styles.checkbox, item.comprado && styles.checkboxActive]}
-                        >
-                            {item.comprado && <Check size={14} color={Colors.light} strokeWidth={4} />}
-                        </Pressable>
-
-                        <View style={styles.itemInfo}>
-                            <Text style={styles.itemName}>{item.name}</Text>
-                            <Text style={styles.itemSub}>{item.info}</Text>
-                        </View>
-
-                        <TouchableOpacity onPress={() => removerItem(item.id)} style={styles.btnDelete}>
-                            <Trash2 size={18} color={Colors.errorDark} />
-                        </TouchableOpacity>
-                    </View>
-                ))}
-
-                {/* Listagem: Comprados */}
-                {comprados.length > 0 && (
-                    <View style={{ marginTop: Spacing.lg }}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: Colors.subtext }]}>Comprados</Text>
-                            <TouchableOpacity onPress={removerComprados}>
-                                <Text style={styles.clearText}>LIMPAR TUDO</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {comprados.map((item) => (
-                            <View key={item.id} style={[styles.itemCard, styles.itemCardComprado]}>
-                                <TouchableOpacity
-                                    onPress={() => toggleItem(item.id)}
-                                    style={[styles.checkbox, styles.checkboxActive, { opacity: 0.5 }]}
-                                >
-                                    <Check size={14} color={Colors.light} strokeWidth={4} />
-                                </TouchableOpacity>
-
-                                <View style={styles.itemInfo}>
-                                    <Text style={[styles.itemName, styles.nameComprado]}>{item.name}</Text>
-                                    <Text style={styles.itemSub}>{item.info}</Text>
+                {isLoading ? (
+                    <ActivityIndicator color={Colors.primary} style={styles.activityIndicatorContainer} />
+                ) : (
+                    <>
+                        <Text style={styles.sectionTitle}>Para Comprar ({pendentes.length})</Text>
+                        
+                        {pendentes.map((item) => (
+                            editingId === item.id ? (
+                                // Modo de edição de quantidade
+                                <View key={item.id} style={[styles.itemCard, styles.itemCardEditing]}>
+                                    <View style={styles.itemEditContainer}>
+                                        <View style={styles.itemEditHeader}>
+                                            <Text style={styles.itemEditLabel}>Editar Quantidade</Text>
+                                            <TouchableOpacity onPress={() => setEditingId(null)}>
+                                                <Text style={styles.itemEditClose}>✕</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={styles.itemEditRow}>
+                                            <TextInput
+                                                style={styles.itemEditInput}
+                                                placeholder="0"
+                                                keyboardType="decimal-pad"
+                                                value={editQuantidade}
+                                                onChangeText={setEditQuantidade}
+                                                placeholderTextColor={Colors.subtext}
+                                            />
+                                            <Text style={styles.itemEditUnit}>{item.unidade}</Text>
+                                            <TouchableOpacity 
+                                                onPress={handleSalvarQuantidade}
+                                                style={styles.itemEditSaveBtn}
+                                            >
+                                                <Text style={styles.itemEditSaveText}>OK</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
                                 </View>
-                            </View>
+                            ) : (
+                                // Modo de visualização normal
+                                <View key={item.id} style={styles.itemCard}>
+                                    <TouchableOpacity 
+                                        onPress={() => handleToggleWithUndo(item.id)} 
+                                        style={styles.checkbox} 
+                                    />
+                                    <View style={styles.itemInfo}>
+                                        <Text style={styles.itemName}>{item.nome}</Text>
+                                        <Text style={styles.itemSub}>{item.quantidade_comprar} {item.unidade}</Text>
+                                    </View>
+                                    <View style={styles.itemActions}>
+                                        <TouchableOpacity onPress={() => handleEditarQuantidade(item.id, item.quantidade_comprar)}>
+                                            <Edit2 size={18} color={Colors.subtext} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => removerItem(item.id)}>
+                                            <Trash2 size={18} color={Colors.primary} />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            )
                         ))}
-                    </View>
+
+                        {comprados.length > 0 && (
+                            <View style={styles.historicoCompradoContainer}>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.sectionTitleOff}>Histórico Comprado</Text>
+                                    <TouchableOpacity onPress={limparComprados}>
+                                        <Text style={styles.clearText}>LIMPAR TUDO</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {comprados.map((item) => (
+                                    <View key={item.id} style={[styles.itemCard, styles.itemCardComprado]}>
+                                        <TouchableOpacity onPress={() => toggleItem(item.id)} style={styles.checkboxActive}>
+                                            <Check size={12} color={Colors.light} />
+                                        </TouchableOpacity>
+                                        <Text style={styles.itemNameStrikethrough}>{item.nome}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                    </>
                 )}
             </ScrollView>
+
+            {/* Toast de Undo - Minimalista */}
+            {undoVisible && (
+                <View style={styles.undoToast}>
+                    <Text style={styles.undoText}>Item marcado como comprado</Text>
+                    <TouchableOpacity onPress={handleUndoClick}>
+                        <Text style={styles.undoButton}>DESFAZER</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 }

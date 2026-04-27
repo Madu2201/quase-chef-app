@@ -3,24 +3,9 @@ import { Alert, Share } from 'react-native';
 import { supabase } from '../services/supabase';
 import { Ingredient } from '../types/dispensa';
 import { CompraItem } from '../types/lista';
+import { normalizarNome, parseNumero } from '../utils/validation';
 import { useAuth } from './useAuth';
 import { useDispensa } from './useDispensa';
-
-/**
- * Função auxiliar para parsing seguro de números com suporte a vírgula decimal
- * @param valor - Valor a ser convertido (string ou number)
- * @returns Número parseado ou 0 se inválido
- */
-const parseNumero = (valor: string | number): number => {
-    return parseFloat(String(valor).replace(',', '.')) || 0;
-};
-
-/**
- * Função auxiliar para normalizar nome case-insensitive
- * @param nome - Nome a ser normalizado
- * @returns Nome em minúsculas e sem espaços extras
- */
-const normalizarNome = (nome: string): string => nome.trim().toLowerCase();
 
 /**
  * Hook gerenciador de Lista de Compras

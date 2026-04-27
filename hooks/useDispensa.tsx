@@ -1,13 +1,13 @@
 import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 import { Alert } from "react-native";
 import { supabase } from "../services/supabase";
-import { DispensaContextData, EditField, Ingredient } from "../types/dispensa";
+import { DispensaContextData, Ingredient } from "../types/dispensa";
 import { useAuth } from "./useAuth";
 
 const DispensaContext = createContext<DispensaContextData>(
@@ -116,46 +116,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     if (error) setIngredients(backup);
   };
 
-  // Edição genérica (Qtd, Meta ou Unidade)
-  const editIngredient = async (
-    id: string,
-    field: EditField,
-    value: any,
-  ) => {
-    const backup = [...ingredients];
-    
-    // Mapeamento campos da interface -> colunas do banco
-    const fieldMap: Record<EditField, string> = {
-        quantidade: "quantidade",
-        quantidade_ideal: "quantidade_ideal",
-        unidade: "unidade"
-    };
-
-    // Update Otimista no Estado
-    setIngredients((prev) =>
-      prev.map((i) => {
-        if (i.id !== id) return i;
-        if (field === "quantidade") return { ...i, qty: Number(value) };
-        if (field === "quantidade_ideal") return { ...i, ideal_qty: Number(value) };
-        if (field === "unidade") return { ...i, unit: value };
-        return i;
-      }),
-    );
-
-    // Tratamento do valor para o Supabase
-    const dbValue = (field === "quantidade" || field === "quantidade_ideal") 
-        ? Number(String(value).replace(",", ".")) 
-        : value;
-
-    const { error } = await supabase
-      .from("dispensa")
-      .update({ [fieldMap[field]]: dbValue })
-      .eq("id", id);
-
-    if (error) setIngredients(backup);
-  };
-
-  // NOVA FUNÇÃO: Atualiza o card inteiro de uma vez
+  // Atualiza o card inteiro de uma vez
   const updateIngredientFull = async (
     id: string,
     name: string,
@@ -194,7 +155,6 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         addIngredient,
         toggleIngredient,
         removeIngredient,
-        editIngredient,
         updateIngredientFull,
         selectedCount,
         isLoading,

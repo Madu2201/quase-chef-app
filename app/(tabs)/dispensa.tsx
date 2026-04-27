@@ -17,6 +17,7 @@ import { UNIDADES_ACEITAS } from "../../constants/ingredients";
 import { Colors } from "../../constants/theme";
 import { useDispensa } from "../../hooks/useDispensa";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
+import { validateQuantity } from "../../utils/validation";
 
 export default function DispensaScreen() {
   const {
@@ -56,13 +57,19 @@ export default function DispensaScreen() {
         "Preencha o nome, a quantidade atual e a meta."
       );
     }
-    try {
-      await addIngredient(
-        nomeNovo,
-        Number(qtdNova.replace(",", ".")),
-        Number(metaNova.replace(",", ".")),
-        unidadeNova
+
+    const qty = validateQuantity(qtdNova);
+    const ideal = validateQuantity(metaNova);
+
+    if (qty === null || ideal === null) {
+      return Alert.alert(
+        "Erro",
+        "Quantidade deve ser um número entre 0 e 99999."
       );
+    }
+
+    try {
+      await addIngredient(nomeNovo, qty, ideal, unidadeNova);
       setNomeNovo("");
       setQtdNova("");
       setMetaNova("");
@@ -92,13 +99,18 @@ export default function DispensaScreen() {
     ) {
       return Alert.alert("Atenção", "Nenhum campo pode ficar vazio.");
     }
-    updateIngredientFull(
-      editingId!,
-      editForm.name,
-      Number(editForm.qty.replace(",", ".")),
-      Number(editForm.ideal_qty.replace(",", ".")),
-      editForm.unit
-    );
+
+    const qty = validateQuantity(editForm.qty);
+    const ideal = validateQuantity(editForm.ideal_qty);
+
+    if (qty === null || ideal === null) {
+      return Alert.alert(
+        "Erro",
+        "Quantidade deve ser um número entre 0 e 99999."
+      );
+    }
+
+    updateIngredientFull(editingId!, editForm.name, qty, ideal, editForm.unit);
     setEditingId(null);
   };
 

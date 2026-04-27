@@ -77,3 +77,58 @@ export const validarUnidade = (unidade: string, unidadesAceitas: string[]): { va
     }
     return { valido: true };
   };
+
+/**
+ * Parse seguro de números com suporte a vírgula decimal (padrão brasileiro)
+ * @param valor - Valor a ser convertido (string ou number)
+ * @param defaultValue - Valor padrão se inválido (default: 0)
+ * @returns Número parseado ou valor padrão se inválido
+ */
+export const parseNumero = (
+  valor: string | number | undefined | null,
+  defaultValue: number = 0
+): number => {
+  if (valor === null || valor === undefined) return defaultValue;
+
+  const str = String(valor).trim();
+  if (str === "") return defaultValue;
+
+  const parsed = parseFloat(str.replace(",", "."));
+  return isNaN(parsed) ? defaultValue : parsed;
+};
+
+/**
+ * Normaliza nome para comparação case-insensitive
+ * @param nome - Nome a ser normalizado
+ * @returns Nome em minúsculas, trimmed e com espaços únicos
+ */
+export const normalizarNome = (nome: string): string =>
+  nome.trim().toLowerCase().replace(/\s+/g, " ");
+
+/**
+ * Valida quantidade com limites (não permite negativo ou muito grande)
+ * @param valor - Valor a validar
+ * @param max - Valor máximo permitido (default: 99999)
+ * @returns Número validado ou null se inválido
+ */
+export const validateQuantity = (
+  valor: string | number,
+  max: number = 99999
+): number | null => {
+  const num = parseNumero(valor);
+
+  if (num < 0) return null;
+  if (num > max) return null;
+  if (!Number.isFinite(num)) return null;
+
+  return num;
+};
+
+/**
+ * Valida se string é vazia ou contém apenas espaços
+ * @param str - String a validar
+ * @returns true se válida (não vazia), false caso contrário
+ */
+export const isValidString = (str: string | null | undefined): boolean => {
+  return typeof str === "string" && str.trim().length > 0;
+};

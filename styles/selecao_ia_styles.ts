@@ -134,7 +134,7 @@ export const styles = StyleSheet.create({
   },
   chip: {
     ...GLOBAL_CHIPS_FILTERS.chip,
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.md,
     borderColor: Colors.primary,
   },
 

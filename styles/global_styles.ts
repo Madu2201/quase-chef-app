@@ -241,7 +241,6 @@ export const GLOBAL_CHIPS_FILTERS = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.primary + "30",
     gap: 6,
-    ...Shadows.sm,
   },
   chipActive: {
     backgroundColor: Colors.secondary,

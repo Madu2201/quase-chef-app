@@ -2,6 +2,8 @@
 
 Aplicativo mobile inteligente de receitas desenvolvido com **React Native** + **Expo SDK 55** + **TypeScript**.
 
+O Quase Chef moderniza a gestão da cozinha doméstica através de um **Ciclo de Estoque Inteligente**: gerencia inventário com base em metas, gera listas de compras automáticas, atualiza estoque em tempo real e sugere receitas personalizadas com IA (Google Gemini) baseada nos ingredientes disponíveis.
+
 ## 🚀 Tecnologias Principais
 
 | Tecnologia                  | Descrição                        |
@@ -24,6 +26,7 @@ app/
 │   ├── login.tsx
 │   ├── cadastro.tsx
 │   ├── esqueci_senha.tsx
+│   ├── nova_senha.tsx
 │   └── _layout.tsx
 ├── (tabs)/              # Fluxo principal (pós-login)
 │   ├── home.tsx
@@ -31,8 +34,8 @@ app/
 │   ├── favoritos.tsx
 │   ├── dispensa.tsx
 │   ├── lista.tsx
-│   └── _layout.tsx (Home e Receitas no menu inferior)
-├── perfil/              # Tela acessada via header
+│   └── _layout.tsx
+├── perfil/              # Tela acessada via header no home
 ├── detalhe_receita.tsx
 ├── preparo_receita.tsx
 ├── selecao_ia.tsx
@@ -47,60 +50,36 @@ styles/                 # Estilos globais
 utils/                  # Funções auxiliares
 ```
 
-## 🔄 Fluxos de Navegação
+## 👥 Equipe
 
-### (auth) - Autenticação
-- **Telas**: login, cadastro, esqueci_senha, loading
-- Sem abas na parte inferior
-- Redireciona para `/(tabs)/home` após sucesso
-
-### (tabs) - Principal
-- **Menu inferior**: Home e Receitas
-- **Perfil**: Acessado via header (fora das abas)
-- Redirecionamento: baseado em sessão do Supabase
-
-### Telas Secundárias
-- `detalhe_receita` - Detalhes da receita
-- `preparo_receita` - Modo de preparo
-- `selecao_ia` - Seleção de IA
-- `perfil` - Perfil do usuário
-
-## ⚙️ Instalação e Uso
-
-```bash
-# 1. Instalar as dependências do projeto
-npm install
-
-# 2. Corrigir e atualizar versões de pacotes do Expo (Recomendado)
-# Digite "y" quando solicitado para confirmar as atualizações
-npx expo install --check
-
-# 3. Rodar o projeto em desenvolvimento (Gera o QR Code)
-npx expo start
-
-# 4. Rodar com túnel (Para testar no 4G ou redes diferentes)
-npx expo start --tunnel
-
-# 5. Limpar o cache e reiniciar o Metro Bundler
-# Útil quando o app apresenta erros estranhos após instalar pacotes
-npx expo start --clear
-
-# 6. Rodar a versão para navegador
-npx expo start --web
-```
-
-## 🎨 Tema e Estilos
-
-- Paleta personalizada em `constants/theme.ts`
-- Fonte: Plus Jakarta Sans (Regular, Medium, Bold)
-- Design tokens: cores, espaçamentos, tamanhos de fonte, bordas
+| Integrante | Papel | Contribuições |
+|-----------|-------|----------------|
+| **Maria Eduarda Almeida** | Coordenação + Front-End | Estrutura de pastas, telas principais (Login, Home, Favoritos, Dispensa, Lista), centralização de estilos |
+| **Marcus Vinicius** | Back-End | Supabase, autenticação, APIs (Gemini/Hugging Face), edição de perfil |
+| **Kauã de Almeida** | Backend + Prototipagem | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes |
+| **Maria Eduarda Rodrigues** | Front-End | Cadastro com validação, perfil, receitas, telas de IA |
 
 ## 📝 Funcionalidades Principais
 
-- 🔐 Autenticação com Supabase
-- 📝 Gerenciamento de receitas
-- ❤️ Sistema de favoritos
-- 🛒 Lista de compras (imprimir/exportar)
-- 📦 Controle de dispensa
-- 🤖 Integração com Gemini (seleção de IA)
+### 🍽️ Ciclo de Estoque Inteligente
+- **Gerenciamento de Dispensa**: Acompanha estoque em tempo real com metas personalizadas
+- **Lista de Compras Automática**: Gera listas otimizadas cruzando despensa com metas
+- **Reabastecimento Dinâmico**: Atualiza automaticamente saldos ao guardar compras
+- **Baixa Automática**: Reduz automaticamente ingredientes ao preparar receitas
+
+### 🤖 IA e Receitas
+- **Geração com Gemini**: Receitas personalizadas baseadas em ingredientes da despensa
+- **Motor de Refinamento**: Pipeline de dados (scraper → IA → estruturação)
+- **Receitas Filtradas**: "Cozinhar com meu estoque" mostra receitas com ingredientes disponíveis
+- **Dicas do Chef**: Sugestões de IA e substituições de ingredientes
+
+### 👤 Autenticação e Perfil
+- 🔐 Login/Cadastro com Supabase
+- 📝 Gerenciamento de perfil com preferências alimentares e alergias
+- 🔑 Recuperação de senha segura
+
+### ❤️ Organização
+- Favoritos de receitas
+- Modo de preparo interativo com temporizador
+- Exportar lista de compras em PDF
 - 💾 Sincronização local com AsyncStorage

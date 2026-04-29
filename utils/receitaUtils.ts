@@ -21,7 +21,7 @@ export const processarIngredientes = (rawIngredients: string | undefined): Ingre
             status: "ok" as const,
         }));
     } catch (e) {
-        console.log("Erro ao processar ingredientes:", e);
+        console.error("Erro ao processar ingredientes:", e);
         return [];
     }
 };
@@ -40,7 +40,7 @@ export const processarPassosPreparo = (rawSteps: string | undefined): PassoPrepa
             tempoTimer: (passo.tempo_timer_minutos || 0) * 60,
         }));
     } catch (e) {
-        console.log("Erro ao processar passos:", e);
+        console.error("Erro ao processar passos:", e);
         return [];
     }
 };

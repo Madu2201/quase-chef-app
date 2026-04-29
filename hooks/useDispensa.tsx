@@ -8,6 +8,8 @@ import React, {
 import { Alert } from "react-native";
 import { supabase } from "../services/supabase";
 import { DispensaContextData, Ingredient } from "../types/dispensa";
+import { normalizarTexto } from "../utils/normalization";
+import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
 
 const DispensaContext = createContext<DispensaContextData>(
@@ -38,75 +40,89 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
           id: item.id,
           name: item.nome_base,
           qty: Number(item.quantidade),
-          ideal_qty: Number(item.quantidade_ideal || 0), 
+          ideal_qty: Number(item.quantidade_ideal || item.quantidade),
           unit: item.unidade,
           selected: item.selected,
-        })) || [],
+        })) || []
       );
-    } catch (e) {
-      console.error("Erro ao carregar dispensa:", e);
+    } catch (error) {
+      console.error("Erro ao buscar dispensa:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    user?.id ? buscarDispensa() : setIngredients([]);
-  }, [user?.id]);
+    buscarDispensa();
+  }, [user]);
 
-  const filteredIngredients = useMemo(() => {
-    const term = searchText.toLowerCase().trim();
-    return term
-      ? ingredients.filter((i) => i.name.toLowerCase().includes(term))
-      : ingredients;
-  }, [ingredients, searchText]);
+  const filteredIngredients = useMemo(
+    () =>
+      ingredients.filter((i) =>
+        i.name.toLowerCase().includes(searchText.toLowerCase()),
+      ),
+    [ingredients, searchText],
+  );
 
-  // Adiciona ingrediente com Meta definida
-  const addIngredient = async (nome: string, qtd: number, ideal_qtd: number, unidade: string) => {
+  const addIngredient = async (
+    nome: string,
+    qtd: number,
+    ideal_qtd: number,
+    unidade: string,
+  ) => {
     if (!user?.id) return;
+
     const { data, error } = await supabase
       .from("dispensa")
       .insert([
         {
           user_id: user.id,
-          nome_base: nome.trim(),
+          nome_base: nome,
           quantidade: qtd,
-          quantidade_ideal: ideal_qtd,
-          unidade,
-          selected: true,
+          quantidade_ideal: ideal_qtd, // Novo campo
+          unidade: unidade,
+          selected: false,
         },
       ])
       .select()
       .single();
 
-    if (error) throw error;
-    
-    setIngredients((prev) => [
-      {
-        id: data.id,
-        name: data.nome_base,
-        qty: Number(data.quantidade),
-        ideal_qty: Number(data.quantidade_ideal),
-        unit: data.unidade,
-        selected: data.selected,
-      },
-      ...prev,
-    ]);
+    if (error) {
+      console.error("Erro ao inserir:", error);
+      Alert.alert("Erro", "Não foi possível adicionar o ingrediente.");
+    } else if (data) {
+      setIngredients((prev) => [
+        {
+          id: data.id,
+          name: data.nome_base,
+          qty: Number(data.quantidade),
+          ideal_qty: Number(data.quantidade_ideal),
+          unit: data.unidade,
+          selected: data.selected,
+        },
+        ...prev,
+      ]);
+    }
   };
 
   const toggleIngredient = async (id: string) => {
-    const backup = [...ingredients];
     const item = ingredients.find((i) => i.id === id);
     if (!item) return;
 
     setIngredients((prev) =>
       prev.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i)),
     );
+
     const { error } = await supabase
       .from("dispensa")
       .update({ selected: !item.selected })
       .eq("id", id);
-    if (error) setIngredients(backup);
+
+    if (error) {
+      setIngredients((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, selected: item.selected } : i)),
+      );
+    }
   };
 
   const removeIngredient = async (id: string) => {
@@ -140,6 +156,76 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // NOVA FUNÇÃO (FASE 2): Integração do Upsert para Listas de Compras
+  const upsertIngredientFromCompra = async (nome: string, qtyComprada: number, unidadeComprada: string): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    const nomeNorm = normalizarTexto(nome);
+    const existente = ingredients.find((ing) => normalizarTexto(ing.name) === nomeNorm);
+
+    // Mock para usar a nossa função pura
+    const itemCompradoMock = {
+      nome,
+      quantidade_comprar: qtyComprada,
+      unidade: unidadeComprada,
+    } as any;
+
+    const decision = calcularUpsertDecision(itemCompradoMock, existente);
+
+    if (decision.acao === 'INSERT') {
+      const { data, error } = await supabase
+        .from("dispensa")
+        .insert([{
+          user_id: user.id,
+          nome_base: nome,
+          quantidade: decision.novoValor,
+          quantidade_ideal: decision.novoValor, // A primeira compra vira a meta
+          unidade: decision.unidadeFinal,
+          selected: false
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Erro ao inserir novo item no estoque:", error);
+        return false;
+      }
+
+      if (data) {
+        setIngredients((prev) => [{
+          id: data.id,
+          name: data.nome_base,
+          qty: Number(data.quantidade),
+          ideal_qty: Number(data.quantidade_ideal || data.quantidade),
+          unit: data.unidade,
+          selected: data.selected
+        }, ...prev]);
+      }
+      return true;
+    } else {
+      if (!existente) return false;
+      
+      const { error } = await supabase
+        .from("dispensa")
+        .update({ quantidade: decision.novoValor, unidade: decision.unidadeFinal })
+        .eq("id", existente.id);
+
+      if (error) {
+        console.error("Erro ao atualizar estoque:", error);
+        return false;
+      }
+
+      setIngredients((prev) =>
+        prev.map((i) =>
+          i.id === existente.id
+            ? { ...i, qty: decision.novoValor, unit: decision.unidadeFinal }
+            : i
+        )
+      );
+      return true;
+    }
+  };
+
   const selectedCount = useMemo(
     () => ingredients.filter((i) => i.selected).length,
     [ingredients],
@@ -156,6 +242,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         toggleIngredient,
         removeIngredient,
         updateIngredientFull,
+        upsertIngredientFromCompra,
         selectedCount,
         isLoading,
         buscarDispensa,

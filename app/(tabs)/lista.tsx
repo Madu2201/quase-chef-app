@@ -1,4 +1,4 @@
-import { Check, Edit2, FileDown, Share2, Trash2, Wand2 } from "lucide-react-native";
+import { Check, Edit2, FileDown, PackagePlus, Share2, Trash2, Wand2 } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator, Alert, ScrollView, Text,
@@ -9,6 +9,7 @@ import {
 import { AddItemCard } from "../../components/AddItemCard";
 import { Header } from "../../components/header";
 import { Colors } from "../../constants/theme";
+import { useDispensa } from "../../hooks/useDispensa";
 import { useListaCompras } from "../../hooks/useListaCompras";
 import { listaStyles as styles } from "../../styles/lista_styles";
 import { exportarListaPendentes } from "../../utils/exportPdf";
@@ -30,10 +31,13 @@ import { exportarListaPendentes } from "../../utils/exportPdf";
 export default function ListaScreen() {
     // ============ HOOK DE LISTA ============
     const {
-        pendentes, comprados, isLoading,
+        pendentes, comprados, isLoading, isGeneratingList,
         addItem, gerarListaDaDispensa, toggleItem, removerItem, 
-        limparComprados, atualizarQuantidade, compartilharLista
+        limparComprados, atualizarQuantidade, compartilharLista, guardarNoEstoque
     } = useListaCompras();
+
+    // ============ HOOK DE DISPENSA ============
+    const { upsertIngredientFromCompra } = useDispensa();
 
     // ============ ESTADOS DE FORMULÁRIO ============
     // Controle do painel de adição de itens
@@ -123,8 +127,14 @@ export default function ListaScreen() {
         if (!editingId) return;
         
         const novaQtd = parseFloat(editQuantidade.replace(',', '.'));
-        if (isNaN(novaQtd) || novaQtd < 0) {
-            Alert.alert("Erro", "Quantidade inválida");
+        
+        // 1. Mudamos a verificação de < 0 para <= 0
+        // 2. Trocamos o título de "Erro" para "Atenção" para ser mais amigável
+        if (isNaN(novaQtd) || novaQtd <= 0) {
+            Alert.alert(
+                "Atenção", 
+                "A quantidade deve ser maior que zero. Se deseja remover o item, utilize o ícone de lixeira."
+            );
             return;
         }
 
@@ -138,6 +148,28 @@ export default function ListaScreen() {
      */
     const handleCompartilhar = async () => {
         await compartilharLista();
+    };
+
+    /**
+     * Salva itens comprados na dispensa com confirmação
+     */
+    const handleGuardarEstoque = async () => {
+        Alert.alert(
+            "Guardar no Estoque",
+            `Deseja salvar ${comprados.length} item(s) comprado(s) na dispensa?`,
+            [
+                { text: "Cancelar", style: "cancel" },
+                {
+                    text: "Guardar",
+                    style: "default",
+                    onPress: async () => {
+                        await guardarNoEstoque(async (nome, qtd, unit) => {
+                            return await upsertIngredientFromCompra(nome, qtd, unit);
+                        });
+                    },
+                },
+            ]
+        );
     };
 
     /**
@@ -191,7 +223,8 @@ export default function ListaScreen() {
 
                 <TouchableOpacity 
                     onPress={gerarListaDaDispensa}
-                    style={styles.magicButton}
+                    style={[styles.magicButton, isGeneratingList && { opacity: 0.5 }]}
+                    disabled={isGeneratingList}
                 >
                     <Wand2 size={20} color={Colors.light} />
                     <Text style={styles.magicButtonText}>Completar via Dispensa</Text>
@@ -201,7 +234,9 @@ export default function ListaScreen() {
                     <ActivityIndicator color={Colors.primary} style={styles.activityIndicatorContainer} />
                 ) : (
                     <>
-                        <Text style={styles.sectionTitle}>Para Comprar ({pendentes.length})</Text>
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.sectionTitle}>Para Comprar ({pendentes.length})</Text>
+                        </View>
                         
                         {pendentes.map((item) => (
                             editingId === item.id ? (
@@ -234,24 +269,30 @@ export default function ListaScreen() {
                                     </View>
                                 </View>
                             ) : (
-                                // Modo de visualização normal
-                                <View key={item.id} style={styles.itemCard}>
-                                    <TouchableOpacity 
-                                        onPress={() => handleToggleWithUndo(item.id)} 
-                                        style={styles.checkbox} 
-                                    />
-                                    <View style={styles.itemInfo}>
-                                        <Text style={styles.itemName}>{item.nome}</Text>
-                                        <Text style={styles.itemSub}>{item.quantidade_comprar} {item.unidade}</Text>
+                                // Modo de visualização normal (reformatado como dashboard)
+                                <View key={item.id} style={styles.itemCardView}>
+                                    <View style={styles.itemViewHeader}>
+                                        <View style={styles.itemViewNameSection}>
+                                            <TouchableOpacity 
+                                                onPress={() => handleToggleWithUndo(item.id)} 
+                                                style={[styles.checkbox, { marginRight: 12 }]}
+                                            />
+                                            <Text style={styles.itemViewNameText} numberOfLines={1}>
+                                                {item.nome}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.itemViewActions}>
+                                            <TouchableOpacity onPress={() => handleEditarQuantidade(item.id, item.quantidade_comprar)}>
+                                                <Edit2 size={18} color={Colors.subtext} />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => removerItem(item.id)}>
+                                                <Trash2 size={18} color={Colors.primary} />
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
-                                    <View style={styles.itemActions}>
-                                        <TouchableOpacity onPress={() => handleEditarQuantidade(item.id, item.quantidade_comprar)}>
-                                            <Edit2 size={18} color={Colors.subtext} />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => removerItem(item.id)}>
-                                            <Trash2 size={18} color={Colors.primary} />
-                                        </TouchableOpacity>
-                                    </View>
+                                    <Text style={styles.itemViewStats}>
+                                        {item.quantidade_comprar} {item.unidade}
+                                    </Text>
                                 </View>
                             )
                         ))}
@@ -264,6 +305,15 @@ export default function ListaScreen() {
                                         <Text style={styles.clearText}>LIMPAR TUDO</Text>
                                     </TouchableOpacity>
                                 </View>
+                                <TouchableOpacity
+                                    onPress={handleGuardarEstoque}
+                                    style={styles.btnGuardarEstoque}
+                                >
+                                    <PackagePlus size={20} color={Colors.light} />
+                                    <Text style={styles.btnGuardarEstoqueText}>
+                                        Guardar no Estoque
+                                    </Text>
+                                </TouchableOpacity>
                                 {comprados.map((item) => (
                                     <View key={item.id} style={[styles.itemCard, styles.itemCardComprado]}>
                                         <TouchableOpacity onPress={() => toggleItem(item.id)} style={styles.checkboxActive}>

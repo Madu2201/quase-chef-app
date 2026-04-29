@@ -43,14 +43,44 @@ export const normalizarBase = (qtd: number, unidade: string): BaseDePeso => {
     return { valor: qtd, tipo: 'massa_volume' };
   }
 
-  // Conversões aproximadas para medidas culinárias
-  if (['xícara', 'xicara'].includes(uni)) {
-    return { valor: qtd * 240, tipo: 'massa_volume' };
-  }
-  if (['colher', 'colheres'].includes(uni)) {
-    return { valor: qtd * 15, tipo: 'massa_volume' };
-  }
-
-  // Unidades contáveis (ex: 2 cebolas, 3 tomates)
+  // Fallback para unidades contáveis
   return { valor: qtd, tipo: 'unidade' };
 };
+
+// ============================================================================
+// --- NOVAS CONSTANTES E FUNÇÕES (FASE 1: GUARDA ESTOQUE / UPSERT) ---
+// ============================================================================
+
+export const CATEGORIA_UNIDADE = {
+    PESO: ['g', 'kg', 'quilo', 'quilos', 'grama', 'gramas'],
+    VOLUME: ['ml', 'l', 'litro', 'litros', 'mililitro', 'mililitros'],
+    UNIDADE: ['un', 'pct', 'dz']
+};
+
+export const UNIDADE_EQUIVALENCIAS: Record<string, number> = {
+    'kg': 1000, 'quilo': 1000, 'quilos': 1000,
+    'g': 1, 'grama': 1, 'gramas': 1,
+    'l': 1000, 'litro': 1000, 'litros': 1000,
+    'ml': 1, 'mililitro': 1, 'mililitros': 1,
+    'un': 1,
+    'pct': 1,
+    'dz': 12
+};
+
+/**
+ * Converte um valor e sua unidade para a unidade base da sua categoria para permitir somas exatas.
+ * Ex: (2, 'kg') -> { valor: 2000, unidadeBase: 'g' }
+ */
+export function converterParaUnidadeBase(valor: number, unidade: string) {
+    const unid = unidade.toLowerCase().trim();
+    
+    if (CATEGORIA_UNIDADE.PESO.includes(unid)) {
+        return { valor: valor * (UNIDADE_EQUIVALENCIAS[unid] || 1), unidadeBase: 'g' };
+    }
+    if (CATEGORIA_UNIDADE.VOLUME.includes(unid)) {
+        return { valor: valor * (UNIDADE_EQUIVALENCIAS[unid] || 1), unidadeBase: 'ml' };
+    }
+    
+    // Se for unidade genérica ou não reconhecida, mantém
+    return { valor: valor * (UNIDADE_EQUIVALENCIAS[unid] || 1), unidadeBase: unid };
+}

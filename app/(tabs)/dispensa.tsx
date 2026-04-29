@@ -38,6 +38,7 @@ export default function DispensaScreen() {
   const [metaNova, setMetaNova] = useState("");
   const [unidadeNova, setUnidadeNova] = useState("un");
   const [showUnitPickerNew, setShowUnitPickerNew] = useState(false);
+  const [isAddingIngredient, setIsAddingIngredient] = useState(false);
 
   // Estados de Edição em Lote
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,6 +52,8 @@ export default function DispensaScreen() {
 
   // Adicionar ingrediente
   const handleAdd = async () => {
+    if (isAddingIngredient) return; // Previne cliques duplos
+
     if (!nomeNovo.trim() || !qtdNova.trim() || !metaNova.trim()) {
       return Alert.alert(
         "Atenção",
@@ -68,7 +71,15 @@ export default function DispensaScreen() {
       );
     }
 
+    if (qty === 0 || ideal === 0) {
+      return Alert.alert(
+        "Atenção",
+        "Quantidade não pode ser zero. Defina um valor maior que zero."
+      );
+    }
+
     try {
+      setIsAddingIngredient(true);
       await addIngredient(nomeNovo, qty, ideal, unidadeNova);
       setNomeNovo("");
       setQtdNova("");
@@ -76,7 +87,10 @@ export default function DispensaScreen() {
       setShowUnitPickerNew(false);
     } catch (e) {
       Alert.alert("Erro", "Falha ao adicionar ingrediente.");
+    } finally {
+      setIsAddingIngredient(false);
     }
+    return;
   };
 
   // Iniciar edição
@@ -270,7 +284,7 @@ export default function DispensaScreen() {
                 key={item.id}
                 style={[
                   styles.ingredientCard,
-                  !item.selected && styles.ingredientCardInactive,
+                  item.qty === 0 && !isEditing && styles.ingredientCardEmpty
                 ]}
               >
                 {/* --- MODO EXPANDIDO (EDIÇÃO) --- */}

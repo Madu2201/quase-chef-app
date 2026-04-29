@@ -88,6 +88,6 @@ const handleMobileExport = async (html: string) => {
             UTI: 'com.adobe.pdf'
         });
     } catch (error) {
-        console.error('Erro no Mobile:', error);
+        // Erro ao gerar PDF no mobile - usuário será notificado pela UX nativa
     }
 };

@@ -25,6 +25,7 @@ export interface ListaContextData {
     pendentes: CompraItem[];
     comprados: CompraItem[];
     isLoading: boolean;
+    isGeneratingList: boolean;
     // Operações básicas
     addItem: (nome: string, qtd: string, unidade: string) => Promise<void>;
     toggleItem: (id: string) => Promise<void>;
@@ -32,6 +33,7 @@ export interface ListaContextData {
     limparComprados: () => Promise<void>;
     // Operações avançadas
     gerarListaDaDispensa: () => Promise<void>;
+    guardarNoEstoque: (onUpsert: (nome: string, qtd: number, unit: string) => Promise<boolean>) => Promise<void>;
     atualizarQuantidade: (id: string, novaQuantidade: number) => Promise<void>;
     compartilharLista: () => Promise<void>;
 }

@@ -62,40 +62,6 @@ export const dispensaStyles = StyleSheet.create({
         alignItems: "center",
         gap: 8,
     },
-    listInputQtyWrap: {
-        minWidth: 45,
-        height: 30,
-        borderRadius: Radius.full,
-        borderWidth: 1,
-        borderColor: Colors.subtext + "20",
-        backgroundColor: Colors.background,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    listInputQtyText: {
-        fontFamily: Fonts.medium,
-        fontSize: FontSizes.small - 1,
-        color: Colors.dark,
-    },
-    listPickerUnit: {
-        minWidth: 55,
-        height: 30,
-        borderRadius: Radius.full,
-        borderWidth: 1,
-        borderColor: Colors.subtext + "20",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: Spacing.sm,
-        backgroundColor: Colors.background,
-        gap: 4,
-    },
-    unitText: {
-        fontSize: FontSizes.small - 1,
-        fontFamily: Fonts.regular,
-        color: Colors.dark,
-    },
-
     emptyText: {
         textAlign: "center",
         color: Colors.subtext,
@@ -283,7 +249,7 @@ export const dispensaStyles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
     },
 
-    ingredientCardInactive: {
+    ingredientCardEmpty: {
         opacity: 0.6,
     },
 

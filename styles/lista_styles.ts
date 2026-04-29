@@ -96,6 +96,51 @@ export const listaStyles = StyleSheet.create({
         color: Colors.subtext,
     },
 
+    // --- CARD REFORMATADO (ESTILO DASHBOARD) ---
+    itemCardView: {
+        backgroundColor: Colors.light,
+        borderRadius: 12,
+        padding: Spacing.lg,
+        marginBottom: Spacing.md,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+    },
+
+    itemViewHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: Spacing.md,
+    },
+
+    itemViewNameSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+
+    itemViewNameText: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.medium,
+        color: Colors.dark,
+        flex: 1,
+    },
+
+    itemViewActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+    },
+
+    itemViewStats: {
+        fontFamily: Fonts.regular,
+        fontSize: FontSizes.small,
+        color: Colors.subtext,
+    },
+
     // --- ESTADOS ESPECIAIS ---
     itemCardComprado: {
         opacity: 0.65,
@@ -122,8 +167,8 @@ export const listaStyles = StyleSheet.create({
         paddingHorizontal: Spacing.lg,
         borderRadius: Radius.lg,
         gap: Spacing.sm,
-        marginBottom: Spacing.lg,
-        marginTop: Spacing.md,
+        marginBottom: Spacing.xs,
+        marginTop: Spacing.xs,
         elevation: 3,
         shadowColor: "#000",
         shadowOpacity: 0.15,
@@ -143,6 +188,24 @@ export const listaStyles = StyleSheet.create({
         fontSize: FontSizes.medium + 1,
         color: Colors.subtext,
         letterSpacing: 0.3,
+    },
+
+    // --- GUARDAR NO ESTOQUE BUTTON ---
+    btnGuardarEstoque: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.primary,
+        height: 48,
+        borderRadius: Radius.lg,
+        gap: Spacing.sm,
+        marginBottom: Spacing.lg,
+        ...Shadows.sm,
+    },
+    btnGuardarEstoqueText: {
+        fontFamily: Fonts.bold,
+        fontSize: FontSizes.medium,
+        color: Colors.light,
     },
 
     // --- UNDO TOAST ---

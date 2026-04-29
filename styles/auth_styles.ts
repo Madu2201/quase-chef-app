@@ -223,12 +223,10 @@ export const authStyles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.subtext + "22",
     backgroundColor: Colors.light,
-    ...Shadows.sm,
   },
   chipButtonSelected: {
     borderColor: Colors.primary + "55",
     backgroundColor: Colors.primary + "10",
-    ...Shadows.md,
   },
   chipIconWrap: {
     width: 25,

@@ -345,7 +345,7 @@ export default function CadastroScreen() {
           </Text>
 
           <Text style={styles.legalText}>
-            Ao se cadastrar, você aceita nossos <Text style={styles.linkUnderline}>Termos</Text> e <Text style={styles.linkUnderline}>Privacidade</Text>.
+            Ao se cadastrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
           </Text>
         </Animated.View>
       </ScrollView>

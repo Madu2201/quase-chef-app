@@ -52,7 +52,8 @@ export function useReceitas() {
             calories: item.calorias || "0 kcal",
             rawIngredients: JSON.stringify(item.ingredientes || []),
             rawSteps: JSON.stringify(item.passos_detalhados || []),
-            tags: item.tags || [], // <-- Puxando as tags do banco!
+            tags: item.tags || (item.eh_ia ? ["IA"] : []),
+            tipo: item.eh_ia ? "ia" : undefined,
           };
         });
         setReceitasBanco(receitasTraduzidas);

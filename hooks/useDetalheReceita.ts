@@ -146,7 +146,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
           receitaBancoDados.calorias || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
         imagem: receitaBancoDados.imagem_url || RECEITA_STRINGS.IMAGEM_PADRAO,
         itensCount: ingredientes.length,
-        dicaIA: receitaBancoDados.dicaIA || RECEITA_STRINGS.DICA_IA_PADRAO,
+        dica_rapida: receitaBancoDados.dica_rapida || "",
         ingredientes:
           ingredientes.length > 0
             ? ingredientes
@@ -190,7 +190,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
           (params.calories as string) || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
         imagem: (params.image as string) || RECEITA_STRINGS.IMAGEM_PADRAO,
         itensCount: ingredientes.length,
-        dicaIA: (params.dicaIA as string) || RECEITA_STRINGS.DICA_IA_PADRAO,
+        dica_rapida: (params.dica_rapida as string) || "",
         ingredientes:
           ingredientes.length > 0
             ? ingredientes

@@ -274,7 +274,7 @@ export default function PreparoReceitaScreen() {
                   <Pressable
                     style={[
                       styles.btnTimerControl,
-                      (!timerAtivo && tempo <= 0) && styles.btnTimerControlDisabled
+                      (!timerAtivo && tempo <= 0) && styles.btnTimerControlDisabled // Adicione esta linha
                     ]}
                     onPress={toggleTimer}
                     disabled={!timerAtivo && tempo <= 0}
@@ -293,18 +293,21 @@ export default function PreparoReceitaScreen() {
             )}
           </View>
 
-          <Animated.View
-            entering={FadeInLeft.duration(600).delay(200)}
-            style={styles.dicaBox}
-          >
-            <View style={styles.dicaIconCircle}>
-              <Lightbulb size={20} color={Colors.primary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.dicaTitle}>DICA DO CHEF</Text>
-              <Text style={styles.dicaText}>{step?.dica}</Text>
-            </View>
-          </Animated.View>
+          {/* Renderiza apenas se houver uma dica no passo atual */}
+          {!!step?.dica && (
+            <Animated.View
+              entering={FadeInLeft.duration(600).delay(200)}
+              style={styles.dicaBox}
+            >
+              <View style={styles.dicaIconCircle}>
+                <Lightbulb size={20} color={Colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.dicaTitle}>DICA DO CHEF</Text>
+                <Text style={styles.dicaText}>{step.dica}</Text>
+              </View>
+            </Animated.View>
+          )}
         </Animated.View>
       </ScrollView>
 

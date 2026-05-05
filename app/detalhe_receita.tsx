@@ -213,18 +213,17 @@ export default function DetalheReceitaScreen() {
                   </Animated.View>
                 ))}
 
-                {isIA && (
-                  <Animated.View
-                    entering={FadeInDown.delay(300)}
-                    style={styles.aiTipContainer}
-                  >
+                {receitaDetalhada.dica_rapida ? (
+                  <Animated.View entering={FadeInDown.delay(300)} style={styles.aiTipContainer}>
                     <View style={styles.aiTipHeader}>
                       <Lightbulb size={18} color={Colors.secondary} />
-                      <Text style={styles.aiTipTitle}>Dica da IA!</Text>
+                      <Text style={styles.aiTipTitle}>
+                        {isIA ? "Dica da IA!" : "Dica Rápida"}
+                      </Text>
                     </View>
-                    <Text style={styles.aiTipText}>{receitaDetalhada.dicaIA}</Text>
+                    <Text style={styles.aiTipText}>{receitaDetalhada.dica_rapida}</Text>
                   </Animated.View>
-                )}
+                ) : null}
 
                 <Text style={styles.preparoTitle}>Modo de preparo</Text>
 

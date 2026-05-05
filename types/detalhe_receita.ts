@@ -36,7 +36,7 @@ export interface ReceitaBancoDados {
   ingredientes: any[];
   passos_detalhados: any[];
   tags?: string[];
-  dicaIA?: string;
+  dica_rapida?: string;
   eh_ia?: boolean;
 }
 
@@ -49,7 +49,7 @@ export interface ReceitaDetalhada {
   calorias: string;
   imagem: string;
   itensCount: number;
-  dicaIA: string;
+  dica_rapida: string;
   ingredientes: Ingrediente[];
   preparo: PassoPreparo[];
 }

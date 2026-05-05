@@ -7,7 +7,7 @@ import {
     validateEmail,
     validateName
 } from "../utils/validation";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 export function useCadastroForm() {
     const { signUp, isLoading } = useAuth();
@@ -51,7 +51,14 @@ export function useCadastroForm() {
 
         if (Object.keys(newErrors).length === 0) {
             try {
-                const result = await signUp(nome, email, senha);
+                const result = await signUp(
+                    nome,
+                    email,
+                    senha,
+                    foodPreferences,
+                    allergies,
+                    otherRestrictions
+                );
 
                 if (result.success) {
                     setIsSuccess(true);

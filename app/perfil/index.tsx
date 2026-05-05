@@ -1,7 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { AlertCircle, Camera, CheckCircle, ChevronRight, Leaf, Lightbulb, LogOut, Pencil, Settings, User as UserIcon } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 // Meus imports
@@ -113,7 +113,7 @@ export default function PerfilScreen() {
             <View style={styles.editorContainer}>
               <PreferenceSelector
                 title="Estilo alimentar"
-                options={FOOD_PREFERENCE_OPTIONS.map(o => o.label)}
+                options={FOOD_PREFERENCE_OPTIONS}
                 selected={preferences.lifestyle}
                 onToggle={(v: string) => toggleOption('lifestyle', v)}
                 icon={<Leaf size={18} color={Colors.success} />}
@@ -121,7 +121,7 @@ export default function PerfilScreen() {
 
               <PreferenceSelector
                 title="Alergias"
-                options={ALLERGY_OPTIONS.map(o => o.label)}
+                options={ALLERGY_OPTIONS}
                 selected={preferences.allergies}
                 onToggle={(v: string) => toggleOption('allergies', v)}
                 icon={<AlertCircle size={18} color={Colors.secondary} />}
@@ -179,13 +179,13 @@ const InputField = ({ label, value, onChange }: { label: string, value: string, 
   </View>
 );
 
-const PreferenceSelector = ({ title, options, selected, onToggle, icon }: { title: string, options: string[], selected: string[], onToggle: (v: string) => void, icon: any }) => (
+const PreferenceSelector = ({ title, options, selected, onToggle, icon }: { title: string, options: OptionItem[], selected: string[], onToggle: (v: string) => void, icon: any }) => (
   <View style={styles.editorSection}>
     <View style={styles.editorSectionHeader}>{icon}<Text style={styles.editorSectionTitle}>{title}</Text></View>
     <View style={styles.chipsContainer}>
-      {options.map((opt: string) => (
-        <TouchableOpacity key={opt} onPress={() => onToggle(opt)} style={[styles.selectableChip, selected.includes(opt) && styles.selectableChipActive]}>
-          <Text style={[styles.selectableChipText, selected.includes(opt) && styles.selectableChipTextActive]}>{opt}</Text>
+      {options.map((opt) => (
+        <TouchableOpacity key={opt.key} onPress={() => onToggle(opt.key)} style={[styles.selectableChip, selected.includes(opt.key) && styles.selectableChipActive]}>
+          <Text style={[styles.selectableChipText, selected.includes(opt.key) && styles.selectableChipTextActive]}>{opt.label}</Text>
         </TouchableOpacity>
       ))}
     </View>

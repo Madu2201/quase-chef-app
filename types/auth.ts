@@ -29,6 +29,9 @@ export interface UserData {
     full_name: string | null;
     email: string | null;
     avatar_url: string | null;
+    food_preferences?: string[] | null;
+    allergies?: string[] | null;
+    other_restrictions?: string | null;
 }
 
 // Tipagem para o retorno das funções do Auth

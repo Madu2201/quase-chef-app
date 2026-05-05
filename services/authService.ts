@@ -1,12 +1,15 @@
 import { supabase } from "@/services/supabase";
-import * as FileSystem from "expo-file-system/legacy";
 import { File } from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 // 1. Cadastro Simples
 export const registerUser = async (
   fullName: string,
   email: string,
   password: string,
+  foodPreferences: string[] = [],
+  allergies: string[] = [],
+  otherRestrictions: string = "",
 ) => {
   // Inserimos direto na tabela sem passar pela RPC que hasha
   const { data, error } = await supabase
@@ -16,6 +19,9 @@ export const registerUser = async (
         full_name: fullName,
         email: email,
         password_hash: password,
+        food_preferences: foodPreferences,
+        allergies: allergies,
+        other_restrictions: otherRestrictions,
       },
     ])
     .select("id")
@@ -95,14 +101,24 @@ export const updateUserProfile = async (
   userId: string,
   novoNome: string,
   novoEmail: string,
+  foodPreferences?: string[],
+  allergies?: string[],
+  otherRestrictions?: string,
 ) => {
   try {
+    const updateData: any = {
+      full_name: novoNome,
+      email: novoEmail,
+    };
+
+    if (foodPreferences) updateData.food_preferences = foodPreferences;
+    if (allergies) updateData.allergies = allergies;
+    if (otherRestrictions !== undefined)
+      updateData.other_restrictions = otherRestrictions;
+
     const { data, error } = await supabase
       .from("users")
-      .update({
-        full_name: novoNome,
-        email: novoEmail,
-      })
+      .update(updateData)
       .eq("id", userId)
       .select() // Pede pro Supabase devolver a linha atualizada
       .single();

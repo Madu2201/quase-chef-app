@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
+import {
+    createContext,
+    ReactNode,
+    useContext,
+    useEffect,
+    useState,
 } from "react";
 
 // Meus imports de serviço e tipos
@@ -21,6 +21,9 @@ interface AuthContextData {
     nome: string,
     email: string,
     senha: string,
+    foodPreferences?: string[],
+    allergies?: string[],
+    otherRestrictions?: string,
   ) => Promise<{ success: boolean; userId?: string; error?: string }>;
   signOut: () => Promise<void>;
 }
@@ -101,10 +104,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const signUp = async (nome: string, email: string, senha: string) => {
+  const signUp = async (
+    nome: string,
+    email: string,
+    senha: string,
+    foodPreferences: string[] = [],
+    allergies: string[] = [],
+    otherRestrictions: string = "",
+  ) => {
     setIsLoading(true);
     try {
-      const userId = await registerUser(nome, email, senha);
+      const userId = await registerUser(
+        nome,
+        email,
+        senha,
+        foodPreferences,
+        allergies,
+        otherRestrictions,
+      );
       return { success: true, userId };
     } catch (error: any) {
       return { success: false, error: error.message };

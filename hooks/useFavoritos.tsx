@@ -178,12 +178,19 @@ export const useFavoritosGlobal = () => useContext(FavoritosContext);
 
 /** Lógica Unificada de Filtro para a Screen de Favoritos (SEM ESTOQUE AQUI) */
 export function useFavoritosLogic(searchText: string, filtro: string) {
-  const { receitasBanco, filtrarPorCategoria, filtrarPorBusca } = useReceitas();
+  const { receitasBanco, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil } = useReceitas();
   const { isFavorito, favoritosIA } = useFavoritosGlobal();
+  const { user } = useAuth();
 
   const receitasFiltradas = useMemo(() => {
     // 1. Unifica Receitas Fixas Favoritadas + IA Salvas
     let lista = receitasBanco.filter((r) => isFavorito(r.id));
+    lista = filtrarPorPerfil(
+      lista,
+      user?.food_preferences,
+      user?.allergies,
+      user?.temporaryMode,
+    );
     lista = [...lista, ...favoritosIA];
 
     // 2. Filtra por Categoria (Trata "IA" como categoria especial)
@@ -197,7 +204,7 @@ export function useFavoritosLogic(searchText: string, filtro: string) {
     lista = filtrarPorBusca(lista, searchText);
 
     return lista;
-  }, [receitasBanco, favoritosIA, isFavorito, filtro, searchText]);
+  }, [receitasBanco, favoritosIA, isFavorito, filtro, searchText, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil, user?.food_preferences, user?.allergies, user?.temporaryMode]);
 
   return { receitasFiltradas };
 }

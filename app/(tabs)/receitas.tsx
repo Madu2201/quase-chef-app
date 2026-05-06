@@ -2,18 +2,18 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { BarChart, Clock, Heart, IceCream, Package } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList, Image,
-  ListRenderItemInfo,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    FlatList, Image,
+    ListRenderItemInfo,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
@@ -21,6 +21,7 @@ import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { Header } from '../../components/header';
 import { BASE_CHIPS as CHIPS } from '../../constants/filtros';
 import { Colors } from '../../constants/theme';
+import { useAuth } from '../../hooks/useAuth';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
 import { useFiltroEstoque } from '../../hooks/useFiltroEstoque';
 import { Recipe, useReceitas } from '../../hooks/useReceitas';
@@ -36,13 +37,22 @@ export default function ReceitasScreen() {
   const [scrollY, setScrollY] = useState(0);
   const [hasMounted, setHasMounted] = useState(false);
   
-  const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca } = useReceitas();
+  const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil } = useReceitas();
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { filtrarPorEstoque } = useFiltroEstoque();
+  const { user } = useAuth();
 
   // 🔥 LÓGICA DE FILTRAGEM INTEGRADA
   const receitasFiltradas = useMemo(() => {
     let filtradas = receitasBanco;
+
+    // 0. Filtragem por perfil do usuário (preferências e alergias)
+    filtradas = filtrarPorPerfil(
+      filtradas,
+      user?.food_preferences,
+      user?.allergies,
+      user?.temporaryMode,
+    );
 
     // 1. Filtro por Categoria (Chips)
     filtradas = filtrarPorCategoria(filtradas, filtro);
@@ -56,7 +66,7 @@ export default function ReceitasScreen() {
     }
 
     return filtradas;
-  }, [receitasBanco, busca, filtro, usarEstoque, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque]);
+  }, [receitasBanco, busca, filtro, usarEstoque, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque, filtrarPorPerfil, user?.food_preferences, user?.allergies, user?.temporaryMode]);
 
   // Restaura a posição de scroll ao voltar da tela de detalhes
   useEffect(() => {

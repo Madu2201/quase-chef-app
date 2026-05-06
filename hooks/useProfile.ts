@@ -8,6 +8,7 @@ import {
     TemporaryMode,
     UserProfileData,
 } from "../types/perfil";
+import { useAuth } from "./useAuth";
 
 const STORAGE_KEYS = {
   lifestyle: "@perfil_food_lifestyle",
@@ -18,6 +19,7 @@ const STORAGE_KEYS = {
 };
 
 export const useProfile = (userFromAuth: any) => {
+  const { user, updateUser } = useAuth();
   const [profile, setProfile] = useState<UserProfileData>({
     id: null,
     nome: "Carregando...",
@@ -143,6 +145,14 @@ export const useProfile = (userFromAuth: any) => {
       ]);
 
       setPreferences((prev) => ({ ...prev, updatedAt: timestamp }));
+      if (user) {
+        updateUser({
+          ...user,
+          food_preferences: preferences.lifestyle,
+          allergies: preferences.allergies,
+          temporaryMode: preferences.temporaryMode,
+        });
+      }
       Alert.alert("Sucesso", "Preferências alimentares atualizadas!");
       return true;
     } catch (e) {
@@ -180,6 +190,14 @@ export const useProfile = (userFromAuth: any) => {
       ]);
 
       setProfile((prev) => ({ ...prev, fotoUrl: finalFotoUrl }));
+      if (user) {
+        updateUser({
+          ...user,
+          full_name: profile.nome,
+          email: profile.email,
+          avatar_url: finalFotoUrl,
+        });
+      }
       Alert.alert("Sucesso", "Dados do perfil salvos!");
     } catch (e) {
       console.error(e);

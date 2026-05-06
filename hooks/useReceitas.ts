@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
 import { Ingredient } from "../types/dispensa";
+import { TemporaryMode } from "../types/perfil";
 import { normalizarBase, normalizarTexto } from "../utils/normalization";
 
 export interface Recipe {
@@ -17,8 +18,30 @@ export interface Recipe {
   rawIngredients: string;
   rawSteps: string;
   tags: string[];
+  preferences?: string[];
+  recipeAllergies?: string[];
   tipo?: string;
 }
+
+const normalizarLista = (valor: unknown): string[] => {
+  if (Array.isArray(valor)) {
+    return valor.filter(Boolean).map((item) => String(item).trim());
+  }
+
+  if (typeof valor === "string") {
+    try {
+      const parsed = JSON.parse(valor);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean).map((item) => String(item).trim());
+      }
+    } catch {
+      const texto = valor.trim();
+      return texto ? [texto] : [];
+    }
+  }
+
+  return [];
+};
 
 export function useReceitas() {
   const [receitasBanco, setReceitasBanco] = useState<Recipe[]>([]);
@@ -53,6 +76,8 @@ export function useReceitas() {
             rawIngredients: JSON.stringify(item.ingredientes || []),
             rawSteps: JSON.stringify(item.passos_detalhados || []),
             tags: item.tags || (item.eh_ia ? ["IA"] : []),
+            preferences: normalizarLista(item.preferencias),
+            recipeAllergies: normalizarLista(item.alergias_presentes),
             tipo: item.eh_ia ? "ia" : undefined,
           };
         });
@@ -85,6 +110,59 @@ export function useReceitas() {
         normalizarTexto(r.title).includes(termoBusca) ||
         normalizarTexto(r.rawIngredients).includes(termoBusca),
     );
+  };
+
+  const shouldApplyPreferences = (modo?: TemporaryMode | null) => {
+    if (modo === "paused") return false;
+
+    if (modo === "weekends_only") {
+      const dia = new Date().getDay();
+      return dia === 0 || dia === 6;
+    }
+
+    return true;
+  };
+
+  const filtrarPorPerfil = (
+    receitas: Recipe[],
+    foodPreferences?: string[] | null,
+    allergies?: string[] | null,
+    temporaryMode?: TemporaryMode | null,
+  ): Recipe[] => {
+    if (!receitas || receitas.length === 0) return receitas;
+
+    const aplicarPreferencias = shouldApplyPreferences(temporaryMode);
+
+    const preferenciasUsuario = aplicarPreferencias
+      ? (foodPreferences || []).filter(Boolean).map((item) => normalizarTexto(String(item)))
+      : [];
+
+    const alergiasUsuario = (allergies || [])
+      .filter(Boolean)
+      .map((item) => normalizarTexto(String(item)));
+
+    return receitas.filter((receita) => {
+      const preferenciasReceita = normalizarLista(receita.preferences);
+      const alergiasReceita = normalizarLista(receita.recipeAllergies);
+
+      if (alergiasUsuario.length > 0) {
+        const temAlergia = alergiasUsuario.some((alergiaUsuario) =>
+          alergiasReceita.some(
+            (alergiaReceita) => normalizarTexto(alergiaReceita) === alergiaUsuario,
+          ),
+        );
+        if (temAlergia) return false;
+      }
+
+      if (preferenciasUsuario.length === 0) return true;
+      if (preferenciasReceita.length === 0) return false;
+
+      return preferenciasUsuario.every((prefUsuario) =>
+        preferenciasReceita.some(
+          (prefReceita) => normalizarTexto(prefReceita) === prefUsuario,
+        ),
+      );
+    });
   };
 
   /**
@@ -165,6 +243,7 @@ export function useReceitas() {
     carregando,
     filtrarPorCategoria,
     filtrarPorBusca,
+    filtrarPorPerfil,
     filtrarPorEstoque,
   };
 }

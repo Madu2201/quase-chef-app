@@ -24,6 +24,8 @@ export interface CadastroErrors {
 }
 
 // Tipagem para os dados do usuário
+import { TemporaryMode } from "./perfil";
+
 export interface UserData {
     id: string;
     full_name: string | null;
@@ -31,6 +33,7 @@ export interface UserData {
     avatar_url: string | null;
     food_preferences?: string[] | null;
     allergies?: string[] | null;
+    temporaryMode?: TemporaryMode;
     other_restrictions?: string | null;
 }
 

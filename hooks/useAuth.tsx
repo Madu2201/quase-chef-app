@@ -12,6 +12,7 @@ import { loginUser, registerUser } from "../services/authService";
 // Importe os tipos que criamos
 import { supabase } from "@/services/supabase";
 import { AuthResponse, UserData } from "../types/auth";
+import { TemporaryMode } from "../types/perfil";
 
 interface AuthContextData {
   user: UserData | null; // Tipado corretamente
@@ -26,6 +27,7 @@ interface AuthContextData {
     otherRestrictions?: string,
   ) => Promise<{ success: boolean; userId?: string; error?: string }>;
   signOut: () => Promise<void>;
+  updateUser: (user: UserData | null) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -36,17 +38,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     // 1. Mantém a sua lógica de carregar rápido do AsyncStorage (Não quebra nada que você já fez)
+    const parseArrayString = (value: string | null): string[] => {
+      if (!value) return [];
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed)
+          ? parsed.filter(Boolean).map((item) => String(item))
+          : [];
+      } catch {
+        return [];
+      }
+    };
+
     const loadUser = async () => {
       try {
-        const [id, name, email, avatar] = await Promise.all([
+        const [id, name, email, avatar, foodPreferences, allergies, temporaryMode] = await Promise.all([
           AsyncStorage.getItem("@user_id"),
           AsyncStorage.getItem("@user_full_name"),
           AsyncStorage.getItem("@user_email"),
           AsyncStorage.getItem("@user_foto"),
+          AsyncStorage.getItem("@user_food_preferences"),
+          AsyncStorage.getItem("@user_allergies"),
+          AsyncStorage.getItem("@user_temporary_mode"),
         ]);
 
         if (id) {
-          setUser({ id, full_name: name, email, avatar_url: avatar });
+          setUser({
+            id,
+            full_name: name,
+            email,
+            avatar_url: avatar,
+            food_preferences: parseArrayString(foodPreferences),
+            allergies: parseArrayString(allergies),
+            temporaryMode: temporaryMode as TemporaryMode | undefined,
+          });
         }
       } catch (error) {
         console.error("Erro ao carregar usuário:", error);
@@ -130,6 +155,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateUser = (nextUser: UserData | null) => {
+    setUser(nextUser);
+    if (nextUser) {
+      AsyncStorage.multiSet([
+        ["@user_id", nextUser.id],
+        ["@user_full_name", nextUser.full_name || ""],
+        ["@user_email", nextUser.email || ""],
+        ["@user_foto", nextUser.avatar_url || ""],
+        ["@user_food_preferences", JSON.stringify(nextUser.food_preferences || [])],
+        ["@user_allergies", JSON.stringify(nextUser.allergies || [])],
+        ["@user_temporary_mode", nextUser.temporaryMode || "always_on"],
+      ]).catch((error) => {
+        console.error("Erro ao salvar usuário local:", error);
+      });
+    }
+  };
+
   const signIn = async (
     email: string,
     senha: string,
@@ -139,10 +181,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const userData = await loginUser(email, senha);
 
       // Persistência
-      await AsyncStorage.setItem("@user_id", userData.id);
-      await AsyncStorage.setItem("@user_full_name", userData.full_name || "");
-      await AsyncStorage.setItem("@user_foto", userData.avatar_url || "");
-      await AsyncStorage.setItem("@user_email", userData.email || "");
+      await AsyncStorage.multiSet([
+        ["@user_id", userData.id],
+        ["@user_full_name", userData.full_name || ""],
+        ["@user_foto", userData.avatar_url || ""],
+        ["@user_email", userData.email || ""],
+        ["@user_food_preferences", JSON.stringify(userData.food_preferences || [])],
+        ["@user_allergies", JSON.stringify(userData.allergies || [])],
+      ]);
 
       setUser(userData);
       return { success: true, user: userData };
@@ -170,6 +216,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         "@user_full_name",
         "@user_foto",
         "@user_email",
+        "@user_food_preferences",
+        "@user_allergies",
       ]);
 
       // 3. Limpa o estado do app
@@ -182,7 +230,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, isLoading, signIn, signUp, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

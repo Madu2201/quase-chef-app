@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "quase-chef-app",
+    "name": "Quase Chef!",
     "slug": "quase-chef-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/iconApp.png",
     "scheme": "quasechef",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
+        "foregroundImage": "./assets/images/iconApp.png",
         "backgroundColor": "#FFF3E8"
       },
       "predictiveBackGestureEnabled": false,
@@ -27,7 +27,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash.png",
+          "image": "./assets/images/splash.png", 
           "resizeMode": "contain",
           "backgroundColor": "#FF8B3D"
         }
@@ -41,6 +41,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "44b18610-7781-44b4-858c-5e9492600e42"
+      }
     }
   }
 }

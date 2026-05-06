@@ -22,9 +22,13 @@ export default function RootLayout() {
     "PlusJakartaSans-Bold": PlusJakartaSans_700Bold,
   });
 
-  useEffect(() => {
+useEffect(() => {
     if (loaded || error) {
-      SplashScreen.hideAsync();
+      // Adicionamos um fôlego de 500ms para o React Native renderizar
+      // a sua primeira tela (LoadingScreen) antes de remover o fundo laranja nativo
+      setTimeout(async () => {
+        await SplashScreen.hideAsync();
+      }, 500);
     }
   }, [loaded, error]);
 

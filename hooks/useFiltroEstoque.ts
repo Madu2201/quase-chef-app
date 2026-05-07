@@ -1,7 +1,7 @@
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
-import { normalizarBase, normalizarTexto } from "../utils/normalization";
 import { useDispensa } from "../hooks/useDispensa";
 import { Recipe } from "../hooks/useReceitas";
+import { normalizarBase, normalizarTexto } from "../utils/normalization";
 
 export function useFiltroEstoque() {
   const { ingredients: dispensaIngredientes } = useDispensa();
@@ -26,9 +26,10 @@ export function useFiltroEstoque() {
           );
           if (ehLivre) return true;
 
-          // Regra B: Existe na dispensa (marcado como ativo)?
+          // Regra B: Existe na dispensa?
+          // O checkbox da dispensa é usado apenas para selecionar ingredientes para IA,
+          // não deve afetar o filtro de receitas por estoque.
           const itemNoEstoque = dispensaIngredientes.find((itemDispensa) => {
-            if (!itemDispensa.selected) return false;
             const nomeDispNormalizado = normalizarTexto(itemDispensa.name);
             return (
               ingRecNormalizado.includes(nomeDispNormalizado) ||

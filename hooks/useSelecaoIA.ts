@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { CATEGORIAS_DISPENSA } from "../constants/ingredients";
 import { perguntarAoGemini } from "../services/geminiService";
+import { gerarImagemDaReceita } from "../services/huggingFaceService";
 import { ReceitaIAResponse } from "../types/ia";
 import { limparJSONIA, verificarCorrespondencia } from "../utils/iaUtils";
 import { useDispensa } from "./useDispensa";
@@ -98,54 +99,66 @@ export function useSelecaoIA() {
     // Cria um prompt com os ingredientes selecionados
     try {
       const prompt = `
-        Atue como um Chef de Cozinha, sem precisar dar um nome enorme para a receita, mande dicas bem explicatívas. 
-        Crie uma receita focando nestes ingredientes: ${selecionados.join(", ")}. 
-        Considere que o usuário tem: água, sal e óleo.
+        Atue como um Chef de Cozinha profissional. Crie uma receita criativa focando nestes ingredientes da dispensa do usuário: ${selecionados.join(", ")}. 
+        Considere que o usuário sempre tem: água, sal e óleo.
 
-        REGRAS OBRIGATÓRIAS DE FORMATO:
-        1. TITULO: Máximo 4 palavras. Seja breve (Ex: "Arroz com Carne Moída").
-        2. TIMERS: O campo 'tempo_timer_minutos' deve ser > 0 APENAS para processos de cozimento, fogo ou espera. Para picar, misturar ou montar, use 0.
-        3. DICAS: Se a 'dicaIA' não for realmente útil ou essencial, retorne uma string vazia "".
-        4. JSON: Retorne APENAS o JSON, sem textos antes ou depois.
+        REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON APENAS):
+        1. nome_receita: Título da receita (Máximo 4 palavras).
+        2. tempo_preparo: Formato padrão colado (ex: "20min", "1h30min"). SEM ESPAÇOS.
+        3. dificuldade: Escolha entre "Fácil", "Média" ou "Difícil".
+        4. calorias: Estime o valor. RETORNE APENAS O NÚMERO E A SIGLA (ex: "500 kcal").
+        5. dica_rapida: Dica técnica curta e útil (OBRIGATÓRIO).
+        6. descricao_simples_preparo: Resumo TÉCNICO do preparo em 1 ou 2 frases. Evite tom de marketing.
+        7. pre_visualizacao_passos: Lista de strings com 3 a 5 passos NUMERADOS resumidos (OBRIGATÓRIO).
+        8. ingredientes: Lista de objetos { 
+           "unidade": string (ex: "unidade", "g", "ml", "colher (sopa)"),
+           "nome_base": string (nome limpo do ingrediente),
+           "quantidade": number (VALOR NUMÉRICO APENAS),
+           "texto_original": string (A frase completa: ex: "2 colheres de sopa de açúcar"),
+           "quantidade_gramas_ml": number (Valor convertido para g ou ml)
+        }.
+        9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }.
+           REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.
+        10. tags: Lista de strings. Escolha APENAS entre: ["Salgadas", "Doces", "Rápidas", "Saudáveis", "Econômicas", "Lanches", "Jantar", "Almoço"].
+        11. preferencias: Lista de strings. Escolha APENAS entre: ["vegano", "vegetariano", "sem_gluten", "sem_lactose", "baixo_carboidrato", "sem_acucar"]. Retorne [] se não aplicar.
+        12. alergias_presentes: Lista de strings. Escolha APENAS entre: ["amendoim", "nozes", "leite", "ovo", "soja", "trigo", "gergelim", "frutos_do_mar"]. Retorne [] se for livre de alérgenos.
 
-        Estrutura:
-        {
-          "titulo": "Nome Curto",
-          "descricao": "Frase breve",
-          "tempo": "XX min",
-          "dificuldade": "Fácil/Média",
-          "calorias": "xx kcal",
-          "dicaIA": "",
-          "ingredientes": ["quantidade e nome"],
-          "passos": [
-            {
-              "titulo": "Preparar",
-              "descricao": "Instrução",
-              "dica_do_chef": "",
-              "tempo_timer_minutos": 0
-            }
-          ]
-        }`
-        ;
+        Retorne APENAS o JSON puro, sem markdown ou explicações.`;
 
       // Envia o prompt para a IA e processa a resposta
       const respostaIA = await perguntarAoGemini(prompt);
       const textoLimpo = limparJSONIA(respostaIA);
       const receitaGerada: ReceitaIAResponse = JSON.parse(textoLimpo);
 
+      // Gera a imagem e já salva em Base64
+      let imagemBase64 = "";
+      try {
+        imagemBase64 = await gerarImagemDaReceita(receitaGerada.nome_receita);
+      } catch (imgError) {
+        console.error("Erro ao gerar imagem para receita IA:", imgError);
+      }
+
       router.push({
         pathname: "/detalhe_receita",
         params: {
           id: `ia-${Date.now()}`,
           tipo: "ia",
-          title: receitaGerada.titulo || "Receita Surpresa",
-          description: receitaGerada.descricao || "Sem descrição",
-          time: receitaGerada.tempo || "30 min",
+          title: receitaGerada.nome_receita || "Receita Surpresa",
+          description:
+            receitaGerada.descricao_simples_preparo || "Sem descrição",
+          time: receitaGerada.tempo_preparo || "30min",
           difficulty: receitaGerada.dificuldade || "Média",
           calories: receitaGerada.calorias || "N/A",
-          dicaIA: receitaGerada.dicaIA || "",
+          dica_rapida: receitaGerada.dica_rapida || "",
           ingredients: JSON.stringify(receitaGerada.ingredientes || []),
-          steps: JSON.stringify(receitaGerada.passos || []),
+          steps: JSON.stringify(receitaGerada.passos_detalhados || []),
+          pre_visualizacao: JSON.stringify(
+            receitaGerada.pre_visualizacao_passos || [],
+          ),
+          image: imagemBase64, // Enviando o Base64 da imagem
+          tags: JSON.stringify(receitaGerada.tags || []),
+          preferencias: JSON.stringify(receitaGerada.preferencias || []),
+          alergias: JSON.stringify(receitaGerada.alergias_presentes || []),
         },
       });
     } catch (error) {

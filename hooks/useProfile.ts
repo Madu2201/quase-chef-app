@@ -4,9 +4,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import {
-    FoodPreferences,
-    TemporaryMode,
-    UserProfileData,
+  FoodPreferences,
+  TemporaryMode,
+  UserProfileData,
 } from "../types/perfil";
 import { useAuth } from "./useAuth";
 
@@ -64,6 +64,27 @@ export const useProfile = (userFromAuth: any) => {
         const data = Object.fromEntries(stored);
 
         if (isMounted) {
+          // Formata a data de criação (Membro desde...)
+          let membroDesde = "Recente";
+          if (userData?.created_at) {
+            const dataCriacao = new Date(userData.created_at);
+            const meses = [
+              "Janeiro",
+              "Fevereiro",
+              "Março",
+              "Abril",
+              "Maio",
+              "Junho",
+              "Julho",
+              "Agosto",
+              "Setembro",
+              "Outubro",
+              "Novembro",
+              "Dezembro",
+            ];
+            membroDesde = `Membro desde ${meses[dataCriacao.getMonth()]} de ${dataCriacao.getFullYear()}`;
+          }
+
           // Atualiza Perfil
           setProfile({
             id: currentId,
@@ -82,6 +103,7 @@ export const useProfile = (userFromAuth: any) => {
               userFromAuth?.avatar_url ||
               (await AsyncStorage.getItem("@user_foto")) ||
               "",
+            membroDesde,
           });
 
           // Atualiza Preferências (Dá prioridade ao que vem do Supabase se o AsyncStorage estiver vazio)

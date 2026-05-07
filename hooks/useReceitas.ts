@@ -21,6 +21,8 @@ export interface Recipe {
   preferences?: string[];
   recipeAllergies?: string[];
   tipo?: string;
+  dica_rapida?: string;
+  pre_visualizacao?: string[];
 }
 
 const normalizarLista = (valor: unknown): string[] => {
@@ -79,6 +81,8 @@ export function useReceitas() {
             preferences: normalizarLista(item.preferencias),
             recipeAllergies: normalizarLista(item.alergias_presentes),
             tipo: item.eh_ia ? "ia" : undefined,
+            dica_rapida: item.dica_rapida,
+            pre_visualizacao: item.pre_visualizacao_passos,
           };
         });
         setReceitasBanco(receitasTraduzidas);
@@ -134,7 +138,9 @@ export function useReceitas() {
     const aplicarPreferencias = shouldApplyPreferences(temporaryMode);
 
     const preferenciasUsuario = aplicarPreferencias
-      ? (foodPreferences || []).filter(Boolean).map((item) => normalizarTexto(String(item)))
+      ? (foodPreferences || [])
+          .filter(Boolean)
+          .map((item) => normalizarTexto(String(item)))
       : [];
 
     const alergiasUsuario = (allergies || [])
@@ -148,7 +154,8 @@ export function useReceitas() {
       if (alergiasUsuario.length > 0) {
         const temAlergia = alergiasUsuario.some((alergiaUsuario) =>
           alergiasReceita.some(
-            (alergiaReceita) => normalizarTexto(alergiaReceita) === alergiaUsuario,
+            (alergiaReceita) =>
+              normalizarTexto(alergiaReceita) === alergiaUsuario,
           ),
         );
         if (temAlergia) return false;

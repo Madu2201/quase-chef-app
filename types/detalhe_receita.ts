@@ -35,9 +35,12 @@ export interface ReceitaBancoDados {
   imagem_url: string;
   ingredientes: any[];
   passos_detalhados: any[];
+  pre_visualizacao_passos?: string[];
   tags?: string[];
   dica_rapida?: string;
   eh_ia?: boolean;
+  preferencias?: string[];
+  alergias_presentes?: string[];
 }
 
 // TIPOS PARA RECEITA DETALHADA
@@ -50,6 +53,7 @@ export interface ReceitaDetalhada {
   imagem: string;
   itensCount: number;
   dica_rapida: string;
+  pre_visualizacao?: string[];
   ingredientes: Ingrediente[];
   preparo: PassoPreparo[];
 }

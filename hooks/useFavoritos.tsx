@@ -117,6 +117,8 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
             rawIngredients: receitaData.rawIngredients,
             rawSteps: receitaData.rawSteps,
             tags: receitaData.tags,
+            dica_rapida: receitaData.dica_rapida,
+            pre_visualizacao: receitaData.pre_visualizacao,
           });
 
           if (!savedId) return;

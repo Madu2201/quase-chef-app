@@ -55,7 +55,7 @@ export default function PerfilScreen() {
             <View style={styles.cameraBadge}><Camera size={16} color="white" /></View>
           </TouchableOpacity>
           <Text style={styles.userNameDisplay}>{profile.nome}</Text>
-          <Text style={styles.memberSince}>Membro desde Março 2026</Text>
+          <Text style={styles.memberSince}>{profile.membroDesde || "Membro desde 2026"}</Text>
         </View>
 
         {/* Dados Pessoais */}

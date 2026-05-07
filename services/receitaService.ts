@@ -70,6 +70,8 @@ export interface ReceitaIASalvarParams {
   rawIngredients: string;
   rawSteps: string;
   tags?: string[];
+  dica_rapida?: string;
+  pre_visualizacao?: string[];
 }
 
 export async function salvarReceitaIAParaFavorito(
@@ -92,6 +94,8 @@ export async function salvarReceitaIAParaFavorito(
           imagem_url: receita.image,
           ingredientes,
           passos_detalhados: passos,
+          dica_rapida: receita.dica_rapida,
+          pre_visualizacao_passos: receita.pre_visualizacao,
           tags: receita.tags || ["IA"],
           eh_ia: true,
           user_id: userId,

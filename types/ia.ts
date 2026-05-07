@@ -6,16 +6,29 @@ export interface PassoIA {
   tempo_timer_minutos: number;
 }
 
+export interface IngredienteIA {
+  nome_base: string;
+  quantidade: number;
+  unidade: string;
+  texto_original: string;
+  quantidade_gramas_ml: number;
+}
+
 // Define o formato exato que esperamos do JSON da IA
 export interface ReceitaIAResponse {
-  titulo: string;
-  descricao: string;
-  tempo: string;
+  nome_receita: string;
+  tempo_preparo: string;
   dificuldade: string;
   calorias: string;
-  dicaIA: string;
-  ingredientes: string[];
-  passos: PassoIA[];
+  dica_rapida: string;
+  descricao_simples_preparo: string;
+  pre_visualizacao_passos: string[];
+  ingredientes: IngredienteIA[];
+  passos_detalhados: PassoIA[];
+  tags: string[];
+  preferencias: string[];
+  alergias_presentes: string[];
+  imagem_base64?: string;
 }
 
 // Define a estrutura das categorias para a listagem

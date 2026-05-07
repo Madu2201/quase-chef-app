@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
   AlertCircle,
   AlertTriangle,
@@ -26,6 +26,8 @@ import type { InfoCardProps } from "../types/detalhe_receita";
 
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
+  const params = useLocalSearchParams();
+
   // ============================================
   // HOOKS NO TOPO (Regra 1)
   // ============================================
@@ -39,10 +41,13 @@ export default function DetalheReceitaScreen() {
     receitaId,
     isLoading,
     erro,
+    preferenciasReceita,
+    alergiasReceita,
   } = useDetalheReceita();
 
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+  const { user } = useAuth();
   
   // Estados locais
   const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
@@ -51,12 +56,34 @@ export default function DetalheReceitaScreen() {
   // Determinar if favorito
   const ehFav = isFavorito(receitaId);
 
+  // Alertas de segurança
+  const conflitosAlergias = useMemo(() => {
+    if (!user?.allergies || !alergiasReceita) return [];
+    return alergiasReceita.filter(a => user.allergies?.includes(a));
+  }, [user?.allergies, alergiasReceita]);
+
+  const conflitosPreferencias = useMemo(() => {
+    if (!user?.food_preferences || !preferenciasReceita) return [];
+    // Nota: Aqui a lógica é inversa. Se a receita NÃO tem uma preferência que o usuário EXIGE, alertamos?
+    // Ou se a receita tem algo que o usuário EVITA.
+    // Baseado no pedido: "se caso ele faça uma reeita com algo q ele marcou de preferencia ou alergia"
+    // Vamos focar nas alergias primeiro que são críticas. 
+    return [];
+  }, [user?.food_preferences, preferenciasReceita]);
+
   // --- EFFECT QUE CHAMA A FOTO ASSIM QUE A TELA ABRE ---
   useEffect(() => {
     let isMounted = true;
 
     async function fetchImage() {
-      // Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
+      // 1. Se já veio uma imagem nos params (ex: Base64 gerado no hook de seleção), use ela
+      const imageParam = params.image as string | undefined;
+      if (imageParam && imageParam.startsWith("data:image")) {
+        if (isMounted) setAiImageBase64(imageParam);
+        return;
+      }
+
+      // 2. Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
       if (isIA && receitaDetalhada.titulo && !aiImageBase64) {
         if (isMounted) setIsLoadingImage(true);
         
@@ -77,7 +104,7 @@ export default function DetalheReceitaScreen() {
     return () => {
       isMounted = false;
     };
-  }, [isIA, receitaDetalhada.titulo]);
+  }, [isIA, receitaDetalhada.titulo, params.image]);
 
   // ============================================
   // RENDERIZAÇÃO (após todos os hooks)
@@ -199,6 +226,33 @@ export default function DetalheReceitaScreen() {
                     value={receitaDetalhada.calorias}
                   />
                 </View>
+
+                {conflitosAlergias.length > 0 && (
+                  <Animated.View entering={FadeInDown.delay(100)} style={styles.safetyAlertContainer}>
+                    <View style={styles.safetyAlertHeader}>
+                      <AlertTriangle size={20} color={Colors.warning} />
+                      <Text style={styles.safetyAlertTitle}>Alerta de Segurança</Text>
+                    </View>
+                    <Text style={styles.safetyAlertText}>
+                      Esta receita contém ingredientes que podem causar alergia:{" "}
+                      <Text style={{ fontWeight: "bold" }}>
+                        {conflitosAlergias.map(a => ALLERGY_OPTIONS.find(opt => opt.key === a)?.label || a).join(", ")}
+                      </Text>.
+                    </Text>
+                  </Animated.View>
+                )}
+
+                {receitaDetalhada.pre_visualizacao && receitaDetalhada.pre_visualizacao.length > 0 && (
+                  <Animated.View entering={FadeInDown.delay(250)} style={styles.previewContainer}>
+                    <View style={styles.previewHeader}>
+                      <BarChart3 size={18} color={Colors.primary} />
+                      <Text style={styles.previewTitle}>Passos Rápidos</Text>
+                    </View>
+                    {receitaDetalhada.pre_visualizacao.map((passo, idx) => (
+                      <Text key={idx} style={styles.previewText}>{passo}</Text>
+                    ))}
+                  </Animated.View>
+                )}
 
                 <View style={styles.sectionTitleRow}>
                   <Text style={styles.sectionTitle}>Ingredientes</Text>

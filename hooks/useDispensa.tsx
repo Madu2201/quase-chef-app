@@ -1,13 +1,13 @@
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
 import { Alert } from "react-native";
-import { supabase } from "../services/supabase";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
+import { supabase } from "../services/supabase";
 import { AbatimentoResultado, DispensaContextData, Ingredient } from "../types/dispensa";
 import {
   converterDaBaseParaUnidade,
@@ -346,10 +346,15 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
       const novoValorUnidadeOriginal = Number(
         converterDaBaseParaUnidade(novoValorBase, itemDispensa.unit).toFixed(3)
       );
+      
+      // Regra: se chegar a 0, desativa o item (selected: false)
+      const novoStatusSelected = novoValorUnidadeOriginal > 0 ? itemDispensa.selected : false;
+
       const itemAtualizado = {
         ...itemDispensa,
         qty: novoValorUnidadeOriginal,
         unit: itemDispensa.unit,
+        selected: novoStatusSelected,
       };
 
       estoqueAtualizado[indexDispensa] = itemAtualizado;
@@ -357,6 +362,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         id: itemDispensa.id,
         quantidade: novoValorUnidadeOriginal,
         unidade: itemDispensa.unit,
+        selected: novoStatusSelected,
       });
     }
 
@@ -374,7 +380,11 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     for (const item of alteracoes) {
       const { error } = await supabase
         .from("dispensa")
-        .update({ quantidade: item.quantidade, unidade: item.unidade })
+        .update({ 
+          quantidade: item.quantidade, 
+          unidade: item.unidade,
+          selected: item.selected 
+        })
         .eq("id", item.id);
 
       if (error) {

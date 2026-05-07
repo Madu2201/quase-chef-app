@@ -1,7 +1,14 @@
-import { StyleSheet, Dimensions } from "react-native";
-import { Colors, Fonts, FontSizes, Spacing, Radius, Shadows } from "../constants/theme";
+import { Dimensions, StyleSheet } from "react-native";
+import {
+    Colors,
+    Fonts,
+    FontSizes,
+    Radius,
+    Shadows,
+    Spacing,
+} from "../constants/theme";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export const detalheReceitaStyles = StyleSheet.create({
   /* --- ESTRUTURA PRINCIPAL --- */
@@ -11,7 +18,7 @@ export const detalheReceitaStyles = StyleSheet.create({
   },
   mainContentWrapper: {
     flex: 1,
-    position: 'relative',
+    position: "relative",
   },
   scrollContent: {
     paddingBottom: Spacing.lg,
@@ -19,30 +26,30 @@ export const detalheReceitaStyles = StyleSheet.create({
 
   /* --- HEADER E BADGE --- */
   imageHeader: {
-    width: '100%',
+    width: "100%",
     height: width * 0.7,
   },
   image: {
-    width: '100%',
-    height: '100%'
+    width: "100%",
+    height: "100%",
   },
   badgePopular: {
-    position: 'absolute',
+    position: "absolute",
     bottom: Spacing.lg,
     left: Spacing.lg,
     backgroundColor: Colors.secondary,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
     borderRadius: Radius.full,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     ...Shadows.sm,
   },
   badgeText: {
     color: Colors.light,
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small - 1,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
 
   /* --- CARD DE CONTEÚDO --- */
@@ -70,20 +77,75 @@ export const detalheReceitaStyles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
 
+  /* --- PREVISUALIZAÇÃO DE PASSOS --- */
+  previewContainer: {
+    backgroundColor: Colors.secondary + "05",
+    padding: Spacing.md,
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    borderColor: Colors.secondary + "20",
+    marginBottom: Spacing.xl,
+  },
+  previewHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: Spacing.sm,
+  },
+  previewTitle: {
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    fontSize: FontSizes.medium - 1,
+  },
+  previewText: {
+    fontFamily: Fonts.regular,
+    color: Colors.subtitle,
+    fontSize: FontSizes.small - 1,
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+
+  /* --- ALERTA DE SEGURANÇA --- */
+  safetyAlertContainer: {
+    backgroundColor: Colors.warninglight,
+    padding: Spacing.md,
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    borderColor: Colors.warning,
+    marginBottom: Spacing.lg,
+  },
+  safetyAlertHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 6,
+  },
+  safetyAlertTitle: {
+    fontFamily: Fonts.bold,
+    color: Colors.warning,
+    fontSize: FontSizes.medium - 1,
+  },
+  safetyAlertText: {
+    fontFamily: Fonts.regular,
+    color: Colors.dark,
+    fontSize: FontSizes.small,
+    lineHeight: 18,
+  },
+
   /* --- SEÇÃO DE INFO (ESTILO PILL) --- */
   infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: Spacing.xl,
     gap: Spacing.sm,
   },
   infoCard: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: Colors.secondary + '10',
+    flexDirection: "row",
+    backgroundColor: Colors.secondary + "10",
     paddingVertical: Spacing.sm,
     borderRadius: Radius.xl,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.secondary,
   },
@@ -94,7 +156,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small - 1,
     color: Colors.primary,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   infoValue: {
     fontFamily: Fonts.bold,
@@ -104,9 +166,9 @@ export const detalheReceitaStyles = StyleSheet.create({
 
   /* --- INGREDIENTES --- */
   sectionTitleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: Spacing.md,
   },
   sectionTitle: {
@@ -115,7 +177,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     color: Colors.dark,
   },
   itemsCount: {
-    backgroundColor: Colors.secondary + '20',
+    backgroundColor: Colors.secondary + "20",
     paddingHorizontal: Spacing.sm,
     borderRadius: Radius.sm,
     color: Colors.secondary,
@@ -123,13 +185,13 @@ export const detalheReceitaStyles = StyleSheet.create({
     fontSize: FontSizes.small - 1,
   },
   ingredientItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.light,
     padding: Spacing.md,
     borderRadius: Radius.xl,
     marginBottom: Spacing.sm,
-    borderWidth: 0.2, 
+    borderWidth: 0.2,
     borderColor: Colors.subtext,
   },
   ingredientMissing: {
@@ -147,18 +209,18 @@ export const detalheReceitaStyles = StyleSheet.create({
 
   /* --- DICA DA IA --- */
   aiTipContainer: {
-    backgroundColor: Colors.primary + '20',
+    backgroundColor: Colors.primary + "20",
     padding: Spacing.md,
     borderEndEndRadius: Radius.xl * 2,
     borderTopEndRadius: Radius.xl * 2,
     borderTopStartRadius: Radius.xl * 2,
     borderWidth: 1,
-    borderColor: Colors.primary + '70',
+    borderColor: Colors.primary + "70",
     marginVertical: Spacing.md,
   },
   aiTipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: Spacing.sm,
   },
@@ -183,19 +245,19 @@ export const detalheReceitaStyles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   stepItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingBottom: Spacing.lg + 6, // Usando padding em vez de margin para a linha atravessar o espaço
     gap: Spacing.md,
-    alignItems: 'flex-start',
-    position: 'relative', // Garante que a linha se posicione em relação a este item
+    alignItems: "flex-start",
+    position: "relative", // Garante que a linha se posicione em relação a este item
   },
   stepLine: {
-    position: 'absolute',
+    position: "absolute",
     left: 12,
     top: 32,
     bottom: Spacing.xs,
     width: 2,
-    backgroundColor: Colors.secondary + '35',
+    backgroundColor: Colors.secondary + "35",
   },
 
   stepNumber: {
@@ -203,8 +265,8 @@ export const detalheReceitaStyles = StyleSheet.create({
     height: 26,
     borderRadius: Radius.full,
     backgroundColor: Colors.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 2,
   },
   stepNumberText: {
@@ -222,7 +284,7 @@ export const detalheReceitaStyles = StyleSheet.create({
 
   /* --- FADE E FOOTER --- */
   fadeGradient: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
@@ -230,13 +292,13 @@ export const detalheReceitaStyles = StyleSheet.create({
     zIndex: 1,
   },
   footer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.md,
     backgroundColor: Colors.light,
     borderTopWidth: 1,
-    borderTopColor: Colors.subtext + '10',
+    borderTopColor: Colors.subtext + "10",
     gap: Spacing.md,
     zIndex: 2,
   },
@@ -246,18 +308,18 @@ export const detalheReceitaStyles = StyleSheet.create({
     borderRadius: Radius.full,
     borderColor: Colors.secondary,
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.secondary + '10',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.secondary + "10",
   },
   mainButton: {
     flex: 1,
     height: 56,
     backgroundColor: Colors.primary,
     borderRadius: Radius.full,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: Spacing.sm,
     ...Shadows.sm,
   },

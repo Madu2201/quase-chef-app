@@ -25,6 +25,8 @@ interface UseDetalheReceitaReturn {
   receitaId: string;
   isLoading: boolean;
   erro: string | null;
+  preferenciasReceita: string[];
+  alergiasReceita: string[];
 }
 
 /**
@@ -149,8 +151,10 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
         calorias:
           receitaBancoDados.calorias || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
         imagem: receitaBancoDados.imagem_url || RECEITA_STRINGS.IMAGEM_PADRAO,
-        itensCount: ingredientes.filter((item) => item.status === "faltando").length,
+        itensCount: ingredientes.filter((item) => item.status === "faltando")
+          .length,
         dica_rapida: receitaBancoDados.dica_rapida || "",
+        pre_visualizacao: receitaBancoDados.pre_visualizacao_passos || [],
         ingredientes:
           ingredientes.length > 0
             ? ingredientes
@@ -176,7 +180,10 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
       };
     } else {
       // Fallback: dados dos params (para recepção diretas ou navegação com dados)
-      const ingredientes = processarIngredientes(params.ingredients as string, dispensa);
+      const ingredientes = processarIngredientes(
+        params.ingredients as string,
+        dispensa,
+      );
       const preparo = processarPassosPreparo(params.steps as string);
 
       return {
@@ -193,8 +200,12 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
         calorias:
           (params.calories as string) || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
         imagem: (params.image as string) || RECEITA_STRINGS.IMAGEM_PADRAO,
-        itensCount: ingredientes.filter((item) => item.status === "faltando").length,
+        itensCount: ingredientes.filter((item) => item.status === "faltando")
+          .length,
         dica_rapida: (params.dica_rapida as string) || "",
+        pre_visualizacao: params.pre_visualizacao
+          ? JSON.parse(params.pre_visualizacao as string)
+          : [],
         ingredientes:
           ingredientes.length > 0
             ? ingredientes
@@ -242,6 +253,10 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
       calories: receitaDetalhada.calorias,
       rawIngredients,
       rawSteps,
+      tags: (params.tags ? JSON.parse(params.tags as string) : []) ||
+        receitaBancoDados?.tags || ["IA"],
+      dica_rapida: receitaDetalhada.dica_rapida,
+      pre_visualizacao: receitaDetalhada.pre_visualizacao,
     });
   }, [
     isIA,
@@ -249,8 +264,10 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     receitaDetalhada,
     receitaBancoDados?.ingredientes,
     receitaBancoDados?.passos_detalhados,
+    receitaBancoDados?.tags,
     params.ingredients,
     params.steps,
+    params.tags,
   ]);
 
   const rawIngredientsPreparo = useMemo(() => {
@@ -260,6 +277,20 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
 
     return (params.ingredients as string) || "[]";
   }, [receitaBancoDados?.ingredientes, params.ingredients]);
+
+  const preferenciasReceita = useMemo(() => {
+    if (receitaBancoDados) {
+      return receitaBancoDados.preferencias || [];
+    }
+    return params.preferencias ? JSON.parse(params.preferencias as string) : [];
+  }, [receitaBancoDados, params.preferencias]);
+
+  const alergiasReceita = useMemo(() => {
+    if (receitaBancoDados) {
+      return receitaBancoDados.alergias_presentes || [];
+    }
+    return params.alergias ? JSON.parse(params.alergias as string) : [];
+  }, [receitaBancoDados, params.alergias]);
 
   // ============================================
   // RETORNO (sem early returns antes daqui)
@@ -272,5 +303,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     receitaId,
     isLoading,
     erro,
+    preferenciasReceita,
+    alergiasReceita,
   };
 };

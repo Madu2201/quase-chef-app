@@ -26,6 +26,26 @@ export interface BaseDePeso {
   tipo: 'massa_volume' | 'unidade';
 }
 
+const UNIDADES_CONTAVEIS = [
+  'un',
+  'und',
+  'unidade',
+  'unidades',
+  'unit',
+  'media',
+  'medio',
+  'média',
+  'médio',
+  'picado',
+  'picada',
+  'picados',
+  'picadas',
+  'dente',
+  'dentes',
+  'folha',
+  'folhas',
+];
+
 export const normalizarBase = (qtd: number, unidade: string): BaseDePeso => {
   const uni = unidade.toLowerCase().trim();
 
@@ -80,7 +100,56 @@ export function converterParaUnidadeBase(valor: number, unidade: string) {
     if (CATEGORIA_UNIDADE.VOLUME.includes(unid)) {
         return { valor: valor * (UNIDADE_EQUIVALENCIAS[unid] || 1), unidadeBase: 'ml' };
     }
+
+    if (UNIDADES_CONTAVEIS.includes(unid)) {
+        return { valor, unidadeBase: 'un' };
+    }
     
     // Se for unidade genérica ou não reconhecida, mantém
     return { valor: valor * (UNIDADE_EQUIVALENCIAS[unid] || 1), unidadeBase: unid };
 }
+
+/**
+ * Converte um valor em unidade base de volta para a unidade desejada.
+ * Ex: (460, 'kg') -> 0.46
+ */
+export function converterDaBaseParaUnidade(valorBase: number, unidadeDestino: string): number {
+    const unid = unidadeDestino.toLowerCase().trim();
+    const fator = UNIDADE_EQUIVALENCIAS[unid] || 1;
+    return valorBase / fator;
+}
+
+const STOPWORDS_INGREDIENTE = new Set(['de', 'da', 'do', 'das', 'dos', 'e']);
+
+/**
+ * Reduz o texto para facilitar o match semântico entre ingredientes.
+ * Ex: "Farinha de Trigo" -> "farinha trigo"
+ */
+export const normalizarNomeIngredienteParaMatch = (texto: string): string => {
+    const normalizado = normalizarTexto(texto)
+        .replace(/[^\w\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    if (!normalizado) return '';
+
+    return normalizado
+        .split(' ')
+        .filter((token) => token && !STOPWORDS_INGREDIENTE.has(token))
+        .join(' ');
+};
+
+/**
+ * Match tolerante entre nomes de ingredientes:
+ * - igualdade exata normalizada
+ * - substring bilateral após limpeza de texto
+ */
+export const nomesIngredientesCompativeis = (nomeA: string, nomeB: string): boolean => {
+    const a = normalizarNomeIngredienteParaMatch(nomeA);
+    const b = normalizarNomeIngredienteParaMatch(nomeB);
+
+    if (!a || !b) return false;
+    if (a === b) return true;
+
+    return a.includes(b) || b.includes(a);
+};

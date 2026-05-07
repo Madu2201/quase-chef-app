@@ -1,7 +1,12 @@
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import type { Ingrediente, PassoPreparo } from "../types/detalhe_receita";
 import type { Ingredient } from "../types/dispensa";
-import { converterParaUnidadeBase, normalizarBase, normalizarTexto } from "./normalization";
+import {
+    converterParaUnidadeBase,
+    nomesIngredientesCompativeis,
+    normalizarBase,
+    normalizarTexto,
+} from "./normalization";
 
 // Formata tempo de minutos/horas para exibição
 export const formatarTempo = (tempo: string): string =>
@@ -28,7 +33,7 @@ export const calcularStatusIngrediente = (
         return "ok";
     }
 
-    const itemDispensa = dispensa.find((item) => normalizarTexto(item.name) === nomeReceita);
+    const itemDispensa = encontrarItemDispensaPorNome(ingredienteReceita.nome_base, dispensa);
 
     if (!itemDispensa) {
         return "faltando";
@@ -36,7 +41,8 @@ export const calcularStatusIngrediente = (
 
     if (
         ingredienteReceita.quantidade_gramas_ml &&
-        Number(ingredienteReceita.quantidade_gramas_ml) > 0
+        Number(ingredienteReceita.quantidade_gramas_ml) > 0 &&
+        !ingredienteReceita.baixa_confianca
     ) {
         const quantidadeNecessaria = Number(ingredienteReceita.quantidade_gramas_ml);
         const { valor: estoqueNormalizado } = converterParaUnidadeBase(
@@ -61,6 +67,15 @@ export const calcularStatusIngrediente = (
 
     // Se uma é massa/volume e outra não, não consegue comparar
     return "faltando";
+};
+
+export const encontrarItemDispensaPorNome = (
+    nomeIngredienteReceita: string,
+    dispensa: Ingredient[],
+): Ingredient | undefined => {
+    return dispensa.find((item) =>
+        nomesIngredientesCompativeis(nomeIngredienteReceita, item.name),
+    );
 };
 
 export const processarIngredientes = (

@@ -20,6 +20,7 @@ import type { Recipe } from "./useReceitas";
 interface UseDetalheReceitaReturn {
   receitaDetalhada: ReceitaDetalhada;
   receitaFavoritoIA: Recipe | undefined;
+  rawIngredientsPreparo: string;
   isIA: boolean;
   receitaId: string;
   isLoading: boolean;
@@ -252,12 +253,21 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     params.steps,
   ]);
 
+  const rawIngredientsPreparo = useMemo(() => {
+    if (receitaBancoDados?.ingredientes) {
+      return JSON.stringify(receitaBancoDados.ingredientes);
+    }
+
+    return (params.ingredients as string) || "[]";
+  }, [receitaBancoDados?.ingredientes, params.ingredients]);
+
   // ============================================
   // RETORNO (sem early returns antes daqui)
   // ============================================
   return {
     receitaDetalhada,
     receitaFavoritoIA,
+    rawIngredientsPreparo,
     isIA,
     receitaId,
     isLoading,

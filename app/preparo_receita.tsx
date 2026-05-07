@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   AlertCircle, Heart, Lightbulb, Pause, Play, RotateCcw, Share2, Stars, X,
 } from "lucide-react-native";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator, Alert, Image, Pressable, ScrollView, Share, StatusBar, Text, View,
 } from "react-native";
@@ -14,6 +14,7 @@ import Animated, {
 import { Colors } from "../constants/theme";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
+import { useDispensa } from "../hooks/useDispensa";
 import type { Recipe } from "../hooks/useReceitas";
 import { preparoStyles as styles } from "../styles/preparo_styles";
 import type { PassoPreparo } from "../types/detalhe_receita";
@@ -36,6 +37,7 @@ export default function PreparoReceitaScreen() {
 
   // Hooks - TODOS declarados no topo, sem early returns
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+  const { abaterIngredientesDaReceita } = useDispensa();
   const {
     passoAtual,
     isConcluido,
@@ -59,6 +61,8 @@ export default function PreparoReceitaScreen() {
 
   const ehFav = isFavorito(paramsProcessados.id);
   const heartScale = useSharedValue(1);
+  const estoqueAbatidoRef = useRef(false);
+  const [resumoAbatimento, setResumoAbatimento] = useState("");
   const animatedHeartStyle = useAnimatedStyle(() => ({
     transform: [{ scale: heartScale.value }],
   }));
@@ -89,6 +93,41 @@ export default function PreparoReceitaScreen() {
       Alert.alert("Erro", "Não foi possível compartilhar.");
     }
   };
+
+  useEffect(() => {
+    const executarAbatimento = async () => {
+      if (
+        !isConcluido ||
+        estoqueAbatidoRef.current ||
+        !paramsProcessados.rawIngredients
+      ) {
+        return;
+      }
+
+      estoqueAbatidoRef.current = true;
+      const resultado = await abaterIngredientesDaReceita(paramsProcessados.rawIngredients);
+      const totalIgnorados =
+        resultado.ignoradosIncompativeis +
+        resultado.ignoradosNaoEncontrados +
+        resultado.ignoradosBaixaConfianca;
+      const resumo = `${resultado.abatidos} ingrediente(s) abatido(s)${
+        totalIgnorados > 0 ? `, ${totalIgnorados} ignorado(s)` : ""
+      }.`;
+      setResumoAbatimento(resumo);
+
+      if (!resultado.sucesso) {
+        Alert.alert(
+          "Atenção",
+          resultado.mensagem ||
+            "A receita foi concluída, mas não foi possível atualizar sua despensa agora."
+        );
+      } else {
+        Alert.alert("Despensa atualizada", resumo);
+      }
+    };
+
+    executarAbatimento();
+  }, [isConcluido, paramsProcessados.rawIngredients, abaterIngredientesDaReceita]);
 
   // ============================================
   // RENDERIZAÇÃO (após TODOS os hooks)
@@ -156,6 +195,11 @@ export default function PreparoReceitaScreen() {
           <Text style={styles.congratsSub}>
             Você concluiu sua receita com sucesso.
           </Text>
+          {!!resumoAbatimento && (
+            <Text style={[styles.congratsSub, { marginTop: 4 }]}>
+              {resumoAbatimento}
+            </Text>
+          )}
         </Animated.View>
 
         <Animated.View

@@ -31,7 +31,15 @@ export default function DetalheReceitaScreen() {
   // ============================================
   
   // Hook principal com lógica de busca
-  const { receitaDetalhada, receitaFavoritoIA, isIA, receitaId, isLoading, erro } = useDetalheReceita();
+  const {
+    receitaDetalhada,
+    receitaFavoritoIA,
+    rawIngredientsPreparo,
+    isIA,
+    receitaId,
+    isLoading,
+    erro,
+  } = useDetalheReceita();
 
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
@@ -278,7 +286,7 @@ export default function DetalheReceitaScreen() {
                     difficulty: receitaDetalhada.dificuldade,
                     calories: receitaDetalhada.calorias,
                     description: receitaDetalhada.descricao,
-                    rawIngredients: JSON.stringify(receitaDetalhada.ingredientes),
+                    rawIngredients: rawIngredientsPreparo,
                     passosJson: JSON.stringify(receitaDetalhada.preparo),
                   },
                 })

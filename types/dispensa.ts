@@ -7,6 +7,16 @@ export interface Ingredient {
   selected: boolean;
 }
 
+export interface AbatimentoResultado {
+  sucesso: boolean;
+  abatidos: number;
+  ignoradosIncompativeis: number;
+  ignoradosNaoEncontrados: number;
+  ignoradosBaixaConfianca: number;
+  ignoradosLivres: number;
+  mensagem?: string;
+}
+
 export interface DispensaContextData {
   ingredients: Ingredient[];
   filteredIngredients: Ingredient[];
@@ -17,6 +27,7 @@ export interface DispensaContextData {
   removeIngredient: (id: string) => Promise<void>;
   updateIngredientFull: (id: string, name: string, qty: number, ideal_qty: number, unit: string) => Promise<void>;
   upsertIngredientFromCompra: (nome: string, qtd: number, unidade: string) => Promise<boolean>;
+  abaterIngredientesDaReceita: (rawIngredients: string) => Promise<AbatimentoResultado>;
   selectedCount: number;
   isLoading: boolean;
   buscarDispensa: () => Promise<void>;

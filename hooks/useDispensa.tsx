@@ -7,8 +7,14 @@ import React, {
 } from "react";
 import { Alert } from "react-native";
 import { supabase } from "../services/supabase";
-import { DispensaContextData, Ingredient } from "../types/dispensa";
-import { normalizarTexto } from "../utils/normalization";
+import { INGREDIENTES_LIVRES } from "../constants/ingredients";
+import { AbatimentoResultado, DispensaContextData, Ingredient } from "../types/dispensa";
+import {
+  converterDaBaseParaUnidade,
+  converterParaUnidadeBase,
+  nomesIngredientesCompativeis,
+  normalizarTexto,
+} from "../utils/normalization";
 import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
 
@@ -231,6 +237,172 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     [ingredients],
   );
 
+  const abaterIngredientesDaReceita = async (
+    rawIngredients: string
+  ): Promise<AbatimentoResultado> => {
+    if (!user?.id || !rawIngredients) {
+      return {
+        sucesso: false,
+        abatidos: 0,
+        ignoradosIncompativeis: 0,
+        ignoradosNaoEncontrados: 0,
+        ignoradosBaixaConfianca: 0,
+        ignoradosLivres: 0,
+        mensagem: "Usuário não autenticado ou ingredientes inválidos.",
+      };
+    }
+
+    let ingredientesReceita: any[] = [];
+    try {
+      ingredientesReceita = JSON.parse(rawIngredients);
+    } catch (error) {
+      console.error("Erro ao parsear ingredientes da receita para abatimento:", error);
+      return {
+        sucesso: false,
+        abatidos: 0,
+        ignoradosIncompativeis: 0,
+        ignoradosNaoEncontrados: 0,
+        ignoradosBaixaConfianca: 0,
+        ignoradosLivres: 0,
+        mensagem: "Não foi possível interpretar os ingredientes da receita.",
+      };
+    }
+
+    if (!Array.isArray(ingredientesReceita) || ingredientesReceita.length === 0) {
+      return {
+        sucesso: true,
+        abatidos: 0,
+        ignoradosIncompativeis: 0,
+        ignoradosNaoEncontrados: 0,
+        ignoradosBaixaConfianca: 0,
+        ignoradosLivres: 0,
+      };
+    }
+
+    const estoqueAtualizado = [...ingredients];
+    const alteracoes: Array<{ id: string; quantidade: number; unidade: string }> = [];
+    let ignoradosIncompativeis = 0;
+    let ignoradosNaoEncontrados = 0;
+    let ignoradosBaixaConfianca = 0;
+    let ignoradosLivres = 0;
+
+    for (const ingredienteReceita of ingredientesReceita) {
+      const nomeReceita = ingredienteReceita?.nome_base || ingredienteReceita?.texto_original || "";
+      if (!nomeReceita) continue;
+
+      const ehLivre = INGREDIENTES_LIVRES.some((livre) =>
+        nomesIngredientesCompativeis(nomeReceita, livre),
+      );
+      if (ehLivre) {
+        ignoradosLivres += 1;
+        continue;
+      }
+
+      const nomeReceitaNormalizado = normalizarTexto(nomeReceita);
+      const indexDispensaExato = estoqueAtualizado.findIndex(
+        (item) => normalizarTexto(item.name) === nomeReceitaNormalizado,
+      );
+      const indexDispensaCompativel =
+        indexDispensaExato >= 0
+          ? indexDispensaExato
+          : estoqueAtualizado.findIndex((item) =>
+              nomesIngredientesCompativeis(nomeReceita, item.name),
+            );
+
+      const indexDispensa = indexDispensaCompativel;
+      if (indexDispensa < 0) {
+        ignoradosNaoEncontrados += 1;
+        continue;
+      }
+
+      const itemDispensa = estoqueAtualizado[indexDispensa];
+      const estoqueBase = converterParaUnidadeBase(itemDispensa.qty, itemDispensa.unit);
+
+      let quantidadeConsumir = 0;
+
+      const quantidadeGramasMl = Number(ingredienteReceita?.quantidade_gramas_ml) || 0;
+      const baixaConfianca = Boolean(ingredienteReceita?.baixa_confianca);
+      if (baixaConfianca && quantidadeGramasMl > 0) {
+        ignoradosBaixaConfianca += 1;
+        continue;
+      }
+
+      if (quantidadeGramasMl > 0 && ["g", "ml"].includes(estoqueBase.unidadeBase)) {
+        quantidadeConsumir = quantidadeGramasMl;
+      } else {
+        const quantidadeReceita = Number(ingredienteReceita?.quantidade) || 0;
+        const unidadeReceita = ingredienteReceita?.unidade || "un";
+        const receitaBase = converterParaUnidadeBase(quantidadeReceita, unidadeReceita);
+
+        if (receitaBase.unidadeBase !== estoqueBase.unidadeBase) {
+          ignoradosIncompativeis += 1;
+          continue;
+        }
+
+        quantidadeConsumir = receitaBase.valor;
+      }
+
+      const novoValorBase = Math.max(0, estoqueBase.valor - quantidadeConsumir);
+      const novoValorUnidadeOriginal = Number(
+        converterDaBaseParaUnidade(novoValorBase, itemDispensa.unit).toFixed(3)
+      );
+      const itemAtualizado = {
+        ...itemDispensa,
+        qty: novoValorUnidadeOriginal,
+        unit: itemDispensa.unit,
+      };
+
+      estoqueAtualizado[indexDispensa] = itemAtualizado;
+      alteracoes.push({
+        id: itemDispensa.id,
+        quantidade: novoValorUnidadeOriginal,
+        unidade: itemDispensa.unit,
+      });
+    }
+
+    if (alteracoes.length === 0) {
+      return {
+        sucesso: true,
+        abatidos: 0,
+        ignoradosIncompativeis,
+        ignoradosNaoEncontrados,
+        ignoradosBaixaConfianca,
+        ignoradosLivres,
+      };
+    }
+
+    for (const item of alteracoes) {
+      const { error } = await supabase
+        .from("dispensa")
+        .update({ quantidade: item.quantidade, unidade: item.unidade })
+        .eq("id", item.id);
+
+      if (error) {
+        console.error("Erro ao abater ingredientes da despensa:", error);
+        await buscarDispensa();
+        return {
+          sucesso: false,
+          abatidos: 0,
+          ignoradosIncompativeis,
+          ignoradosNaoEncontrados,
+          ignoradosBaixaConfianca,
+          ignoradosLivres,
+          mensagem: "Falha ao atualizar a despensa no banco de dados.",
+        };
+      }
+    }
+
+    setIngredients(estoqueAtualizado);
+    return {
+      sucesso: true,
+      abatidos: alteracoes.length,
+      ignoradosIncompativeis,
+      ignoradosNaoEncontrados,
+      ignoradosBaixaConfianca,
+      ignoradosLivres,
+    };
+  };
+
   return (
     <DispensaContext.Provider
       value={{
@@ -243,6 +415,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         removeIngredient,
         updateIngredientFull,
         upsertIngredientFromCompra,
+        abaterIngredientesDaReceita,
         selectedCount,
         isLoading,
         buscarDispensa,

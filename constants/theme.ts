@@ -12,6 +12,7 @@ export const Colors = {
   errorDark: "#EF4444", // vermelho escuro
   errorLight: "#FEE2E2", // vermelho claro
   warning: "#F59E0B", // amarelo
+  warninglight: "#FFF2E2", // amarelo claro
   success: "#22C55E", // verde
   brown: "#A16A45", // marrom
   light: "#FFFFFF", // branco

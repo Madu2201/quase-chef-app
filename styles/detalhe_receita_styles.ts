@@ -57,10 +57,10 @@ export const detalheReceitaStyles = StyleSheet.create({
   },
   title: {
     fontFamily: Fonts.bold,
-    fontSize: FontSizes.large + 2,
+    fontSize: FontSizes.large + 4,
     color: Colors.dark,
-    marginBottom: Spacing.xs,
-    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   description: {
     fontFamily: Fonts.regular,
@@ -80,7 +80,7 @@ export const detalheReceitaStyles = StyleSheet.create({
   infoCard: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: Colors.secondary + '15',
+    backgroundColor: Colors.secondary + '10',
     paddingVertical: Spacing.sm,
     borderRadius: Radius.xl,
     alignItems: 'center',
@@ -111,7 +111,7 @@ export const detalheReceitaStyles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: Fonts.bold,
-    fontSize: FontSizes.medium,
+    fontSize: FontSizes.medium + 1,
     color: Colors.dark,
   },
   itemsCount: {
@@ -127,20 +127,21 @@ export const detalheReceitaStyles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.light,
     padding: Spacing.md,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     marginBottom: Spacing.sm,
-    ...Shadows.sm,
+    borderWidth: 0.2, 
+    borderColor: Colors.subtext,
   },
   ingredientMissing: {
-    backgroundColor: Colors.errorLight + '90',
-    borderColor: Colors.errorDark,
-    borderWidth: 1,
+    backgroundColor: Colors.warninglight,
+    borderColor: Colors.warning,
+    borderWidth: 0.7,
   },
   ingredientText: {
     flex: 1,
     marginLeft: Spacing.sm,
     fontFamily: Fonts.medium,
-    fontSize: FontSizes.small,
+    fontSize: FontSizes.small + 1.5,
     color: Colors.dark,
   },
 
@@ -176,17 +177,27 @@ export const detalheReceitaStyles = StyleSheet.create({
   /* --- MODO DE PREPARO (ALINHADO AO TOPO) --- */
   preparoTitle: {
     fontFamily: Fonts.bold,
-    fontSize: FontSizes.medium,
+    fontSize: FontSizes.medium + 2,
     color: Colors.dark,
     marginTop: Spacing.lg,
     marginBottom: Spacing.md,
   },
   stepItem: {
     flexDirection: 'row',
-    marginBottom: Spacing.md,
+    paddingBottom: Spacing.lg + 6, // Usando padding em vez de margin para a linha atravessar o espaço
     gap: Spacing.md,
     alignItems: 'flex-start',
+    position: 'relative', // Garante que a linha se posicione em relação a este item
   },
+  stepLine: {
+    position: 'absolute',
+    left: 12,
+    top: 32,
+    bottom: Spacing.xs,
+    width: 2,
+    backgroundColor: Colors.secondary + '35',
+  },
+
   stepNumber: {
     width: 26,
     height: 26,

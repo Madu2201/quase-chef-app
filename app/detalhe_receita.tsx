@@ -1,7 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import {
-  AlertCircle, BarChart3, CheckCircle2, Clock, Flame, Heart,
+  AlertCircle,
+  AlertTriangle,
+  BarChart3, CheckCircle2, Clock, Flame, Heart,
   Lightbulb, PlayCircle, Share2,
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -205,7 +207,7 @@ export default function DetalheReceitaScreen() {
                     ]}
                   >
                     {item.status === "faltando" ? (
-                      <AlertCircle size={20} color={Colors.errorDark} />
+                      <AlertTriangle size={20} color={Colors.warning} />
                     ) : (
                       <CheckCircle2 size={20} color={Colors.success} />
                     )}
@@ -228,13 +230,19 @@ export default function DetalheReceitaScreen() {
                 <Text style={styles.preparoTitle}>Modo de preparo</Text>
 
                 {receitaDetalhada.preparo.map((passo, index) => (
-                  <View key={index} style={styles.stepItem}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>{index + 1}</Text>
-                    </View>
-                    <Text style={styles.stepText}>{passo.titulo}</Text>
+                <View key={index} style={styles.stepItem}> 
+                  {/* A linha só aparece se não for o último item */}
+                  {index !== receitaDetalhada.preparo.length - 1 && (
+                    <View style={styles.stepLine} />
+                  )}
+                  
+                  <View style={styles.stepNumber}>
+                    <Text style={styles.stepNumberText}>{index + 1}</Text>
                   </View>
-                ))}
+                  
+                  <Text style={styles.stepText}>{passo.titulo}</Text>
+                </View>
+              ))}
               </View>
             </ScrollView>
             <LinearGradient

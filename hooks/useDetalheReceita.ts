@@ -5,15 +5,16 @@ import { useEffect, useMemo, useState } from "react";
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import { buscarReceitaPorId } from "../services/receitaService";
 import type {
-    ReceitaBancoDados,
-    ReceitaDetalhada,
+  ReceitaBancoDados,
+  ReceitaDetalhada,
 } from "../types/detalhe_receita";
 import { criarReceitaIA } from "../utils/receitaIAUtils";
 import {
-    formatarTempo,
-    processarIngredientes,
-    processarPassosPreparo,
+  formatarTempo,
+  processarIngredientes,
+  processarPassosPreparo,
 } from "../utils/receitaUtils";
+import { useDispensa } from "./useDispensa";
 import type { Recipe } from "./useReceitas";
 
 interface UseDetalheReceitaReturn {
@@ -44,6 +45,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     useState<ReceitaBancoDados | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const { ingredients: dispensa } = useDispensa();
 
   // ============================================
   // REGRA 3: Fetch com isMounted tracking
@@ -124,6 +126,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
       // Dados do banco de dados
       const ingredientes = processarIngredientes(
         JSON.stringify(receitaBancoDados.ingredientes || []),
+        dispensa,
       );
       const preparo = processarPassosPreparo(
         JSON.stringify(receitaBancoDados.passos_detalhados || []),
@@ -145,7 +148,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
         calorias:
           receitaBancoDados.calorias || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
         imagem: receitaBancoDados.imagem_url || RECEITA_STRINGS.IMAGEM_PADRAO,
-        itensCount: ingredientes.length,
+        itensCount: ingredientes.filter((item) => item.status === "faltando").length,
         dica_rapida: receitaBancoDados.dica_rapida || "",
         ingredientes:
           ingredientes.length > 0
@@ -172,7 +175,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
       };
     } else {
       // Fallback: dados dos params (para recepção diretas ou navegação com dados)
-      const ingredientes = processarIngredientes(params.ingredients as string);
+      const ingredientes = processarIngredientes(params.ingredients as string, dispensa);
       const preparo = processarPassosPreparo(params.steps as string);
 
       return {
@@ -189,7 +192,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
         calorias:
           (params.calories as string) || `${RECEITA_STRINGS.VALOR_PADRAO} kcal`,
         imagem: (params.image as string) || RECEITA_STRINGS.IMAGEM_PADRAO,
-        itensCount: ingredientes.length,
+        itensCount: ingredientes.filter((item) => item.status === "faltando").length,
         dica_rapida: (params.dica_rapida as string) || "",
         ingredientes:
           ingredientes.length > 0
@@ -215,7 +218,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
               ],
       };
     }
-  }, [receitaBancoDados, params]);
+  }, [receitaBancoDados, params, dispensa]);
 
   // Dados para receita de IA (se aplicável)
   const receitaFavoritoIA: Recipe | undefined = useMemo(() => {

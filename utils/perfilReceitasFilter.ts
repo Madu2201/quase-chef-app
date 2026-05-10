@@ -143,6 +143,7 @@ export function alergiasReceitaQueColidemComUsuario(
   return [...new Set(hits)];
 }
 
+/**
  * União: a receita entra se atender pelo menos UMA preferência do usuário.
  * Se o usuário não marcou preferências, não restringe por este critério.
  */

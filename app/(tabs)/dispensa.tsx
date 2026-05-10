@@ -1,16 +1,17 @@
 import { router } from "expo-router";
-import { Check, ChevronDown, Edit2, HelpCircle, Trash2, X } from "lucide-react-native";
+import { Check, Edit2, Trash2, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
+import { AddItemCard } from "../../components/AddItemCard";
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
 import { UNIDADES_ACEITAS } from "../../constants/ingredients";
@@ -39,6 +40,7 @@ export default function DispensaScreen() {
   const [unidadeNova, setUnidadeNova] = useState("un");
   const [showUnitPickerNew, setShowUnitPickerNew] = useState(false);
   const [isAddingIngredient, setIsAddingIngredient] = useState(false);
+  const [activeInput, setActiveInput] = useState<string | null>(null);
 
   // Estados de Edição em Lote
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -191,68 +193,32 @@ export default function DispensaScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* === PAINEL DE ADIÇÃO INTELIGENTE === */}
-        <View style={styles.addPanel}>
-          <Text style={styles.addPanelTitle}>Adicionar Ingrediente</Text>
-
-          <View style={styles.addPanelRow}>
-            <TextInput
-              style={[styles.addPanelNameInput, { fontFamily: "System" }]}
-              placeholder="Ex: Tomate, Arroz..."
-              placeholderTextColor={Colors.subtext}
-              value={nomeNovo}
-              onChangeText={setNomeNovo}
-            />
-            <TouchableOpacity
-              style={styles.addPanelUnitButton}
-              onPress={() => setShowUnitPickerNew(!showUnitPickerNew)}
-            >
-              <Text style={styles.addPanelUnitText}>{unidadeNova}</Text>
-              <ChevronDown size={16} color={Colors.subtext} />
-            </TouchableOpacity>
-          </View>
-
-          {showUnitPickerNew &&
-            renderUnitPicker(
-              UNIDADES_ACEITAS,
-              unidadeNova,
-              setUnidadeNova,
-              () => setShowUnitPickerNew(false)
-            )}
-
-          <View style={styles.addPanelFieldsRow}>
-            <View style={styles.addPanelField}>
-              <Text style={styles.addPanelFieldLabel}>ESTOQUE ATUAL</Text>
-              <TextInput
-                style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
-                placeholder="0"
-                keyboardType="numeric"
-                value={qtdNova}
-                onChangeText={setQtdNova}
-              />
-            </View>
-            <View style={styles.addPanelField}>
-              <View style={styles.addPanelFieldHeader}>
-                <Text style={styles.addPanelFieldLabel}>META IDEAL</Text>
-                <TouchableOpacity onPress={showMetaHelp}>
-                  <HelpCircle size={14} color={Colors.secondary} />
-                </TouchableOpacity>
-              </View>
-              <TextInput
-                style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
-                placeholder="0"
-                keyboardType="numeric"
-                value={metaNova}
-                onChangeText={setMetaNova}
-              />
-            </View>
-            <TouchableOpacity
-              onPress={handleAdd}
-              style={styles.addPanelButton}
-            >
-              <Check size={20} color={Colors.light} />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <AddItemCard
+          label="Adicionar Ingrediente"
+          placeholder="Ex: Tomate, Arroz..."
+          nameValue={nomeNovo}
+          onNameChange={setNomeNovo}
+          qtyValue={qtdNova}
+          onQtyChange={setQtdNova}
+          unitValue={unidadeNova}
+          onUnitChange={setUnidadeNova}
+          onAddPress={handleAdd}
+          showUnitPicker={showUnitPickerNew}
+          onToggleUnitPicker={() => setShowUnitPickerNew(!showUnitPickerNew)}
+          activeInput={activeInput}
+          onNameFocus={() => setActiveInput("nome")}
+          onNameBlur={() => setActiveInput(null)}
+          onQtyFocus={() => setActiveInput("qtd")}
+          onQtyBlur={() => setActiveInput(null)}
+          metaValue={metaNova}
+          onMetaChange={setMetaNova}
+          onMetaFocus={() => setActiveInput("meta")}
+          onMetaBlur={() => setActiveInput(null)}
+          qtyLabel="ESTOQUE ATUAL"
+          onMetaHelp={showMetaHelp}
+          styles={styles}
+          useAddPanelStyle={true}
+        />
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Seu Estoque</Text>

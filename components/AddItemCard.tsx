@@ -1,4 +1,4 @@
-import { ChevronDown, Plus } from "lucide-react-native";
+import { Check, ChevronDown, HelpCircle, Plus } from "lucide-react-native";
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -27,6 +27,13 @@ interface AddItemCardProps {
     styles: any;
     iconSize?: number;
     useAddPanelStyle?: boolean; // Nova prop para usar estilo do addPanel
+    metaValue?: string;
+    onMetaChange?: (text: string) => void;
+    onMetaFocus?: () => void;
+    onMetaBlur?: () => void;
+    qtyLabel?: string;
+    metaLabel?: string;
+    onMetaHelp?: () => void;
 }
 
 // Componente Principal
@@ -50,6 +57,13 @@ export function AddItemCard({
     styles,
     iconSize = 18,
     useAddPanelStyle = false,
+    metaValue,
+    onMetaChange,
+    onMetaFocus,
+    onMetaBlur,
+    qtyLabel = "QTD",
+    metaLabel = "META IDEAL",
+    onMetaHelp,
 }: AddItemCardProps) {
     const [isButtonPressed, setIsButtonPressed] = useState(false);
 
@@ -110,10 +124,10 @@ export function AddItemCard({
                     </View>
                 )}
 
-                {/* Linha final: Campo de Quantidade + Botão de Adição */}
+                {/* Linha final: Campo de Quantidade + Campo Meta (se aplicável) + Botão de Adição */}
                 <View style={styles.addPanelFieldsRow}>
                     <View style={styles.addPanelField}>
-                        <Text style={styles.addPanelFieldLabel}>QTD</Text>
+                        <Text style={styles.addPanelFieldLabel}>{qtyLabel}</Text>
                         <TextInput
                             style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
                             placeholder="0"
@@ -124,6 +138,27 @@ export function AddItemCard({
                             onBlur={onQtyBlur}
                         />
                     </View>
+                    {metaValue !== undefined && (
+                        <View style={styles.addPanelField}>
+                            <View style={styles.addPanelFieldHeader}>
+                                <Text style={styles.addPanelFieldLabel}>{metaLabel}</Text>
+                                {onMetaHelp && (
+                                    <TouchableOpacity onPress={onMetaHelp}>
+                                        <HelpCircle size={14} color={Colors.secondary} />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                            <TextInput
+                                style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
+                                placeholder="0"
+                                keyboardType="numeric"
+                                value={metaValue}
+                                onChangeText={onMetaChange}
+                                onFocus={onMetaFocus}
+                                onBlur={onMetaBlur}
+                            />
+                        </View>
+                    )}
                     <TouchableOpacity
                         onPress={onAddPress}
                         onPressIn={() => setIsButtonPressed(true)}
@@ -133,7 +168,7 @@ export function AddItemCard({
                             isButtonPressed && { backgroundColor: Colors.primary },
                         ]}
                     >
-                        <Plus size={20} color={Colors.light} />
+                        <Check size={20} color={Colors.light} />
                     </TouchableOpacity>
                 </View>
             </View>

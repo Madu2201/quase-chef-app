@@ -77,26 +77,7 @@ export const detalheReceitaStyles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
 
-  /* --- PREVISUALIZAÇÃO DE PASSOS --- */
-  previewContainer: {
-    backgroundColor: Colors.secondary + "05",
-    padding: Spacing.md,
-    borderRadius: Radius.xl,
-    borderWidth: 1,
-    borderColor: Colors.secondary + "20",
-    marginBottom: Spacing.xl,
-  },
-  previewHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: Spacing.sm,
-  },
-  previewTitle: {
-    fontFamily: Fonts.bold,
-    color: Colors.primary,
-    fontSize: FontSizes.medium - 1,
-  },
+  /* --- Resumo de passos (pre_visualizacao) dentro de Modo de preparo --- */
   previewText: {
     fontFamily: Fonts.regular,
     color: Colors.subtitle,
@@ -243,6 +224,13 @@ export const detalheReceitaStyles = StyleSheet.create({
     color: Colors.dark,
     marginTop: Spacing.lg,
     marginBottom: Spacing.md,
+  },
+  /** Resumo (pre_visualizacao_passos) dentro da mesma seção que o passo a passo numerado */
+  preparoResumoBlock: {
+    marginBottom: Spacing.lg,
+    paddingBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.subtext + "22",
   },
   stepItem: {
     flexDirection: "row",

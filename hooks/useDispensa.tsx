@@ -237,6 +237,16 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     [ingredients],
   );
 
+  const selectedIngredients = useMemo(
+    () => ingredients.filter((i) => i.selected).map((i) => i.name),
+    [ingredients],
+  );
+
+  const selectedIngredientIds = useMemo(
+    () => ingredients.filter((i) => i.selected).map((i) => i.id),
+    [ingredients],
+  );
+
   const abaterIngredientesDaReceita = async (
     rawIngredients: string
   ): Promise<AbatimentoResultado> => {
@@ -280,7 +290,12 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     }
 
     const estoqueAtualizado = [...ingredients];
-    const alteracoes: Array<{ id: string; quantidade: number; unidade: string }> = [];
+    const alteracoes: Array<{
+      id: string;
+      quantidade: number;
+      unidade: string;
+      selected: boolean;
+    }> = [];
     let ignoradosIncompativeis = 0;
     let ignoradosNaoEncontrados = 0;
     let ignoradosBaixaConfianca = 0;
@@ -427,6 +442,8 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         upsertIngredientFromCompra,
         abaterIngredientesDaReceita,
         selectedCount,
+        selectedIngredients,
+        selectedIngredientIds,
         isLoading,
         buscarDispensa,
       }}

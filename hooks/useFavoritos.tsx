@@ -4,6 +4,7 @@ import React, {
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from "react";
 import {
@@ -22,6 +23,7 @@ const FavoritosContext = createContext<FavoritosContextData>(
 
 export function FavoritosProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const iaFavoritoSalvandoRef = useRef<Set<string>>(new Set());
   const [favoritosIds, setFavoritosIds] = useState<string[]>([]);
   const [favoritosIA, setFavoritosIA] = useState<Recipe[]>([]);
   const [savedIAReceitaMap, setSavedIAReceitaMap] = useState<
@@ -107,35 +109,47 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
         });
       } else if (receitaData) {
         if (isNaN(idNum)) {
-          const savedId = await salvarReceitaIAParaFavorito(user.id, {
-            title: receitaData.title,
-            time: receitaData.time,
-            difficulty: receitaData.difficulty,
-            description: receitaData.descStart,
-            image: receitaData.image,
-            calories: receitaData.calories,
-            rawIngredients: receitaData.rawIngredients,
-            rawSteps: receitaData.rawSteps,
-            tags: receitaData.tags,
-            dica_rapida: receitaData.dica_rapida,
-            pre_visualizacao: receitaData.pre_visualizacao,
-          });
+          if (iaFavoritoSalvandoRef.current.has(idStr)) return;
+          iaFavoritoSalvandoRef.current.add(idStr);
+          try {
+            const savedId = await salvarReceitaIAParaFavorito(user.id, {
+              title: receitaData.title,
+              time: receitaData.time,
+              difficulty: receitaData.difficulty,
+              description: receitaData.descStart,
+              image: receitaData.image,
+              calories: receitaData.calories,
+              rawIngredients: receitaData.rawIngredients,
+              rawSteps: receitaData.rawSteps,
+              tags: receitaData.tags,
+              dica_rapida: receitaData.dica_rapida,
+              pre_visualizacao: receitaData.pre_visualizacao,
+            });
 
-          if (!savedId) return;
+            if (!savedId) return;
 
-          setFavoritosIds((prev) => [...prev, String(savedId)]);
-          setFavoritosIA((prev) => [
-            ...prev,
-            {
-              ...receitaData,
-              id: idStr,
-              tipo: "ia",
-            },
-          ]);
-          setSavedIAReceitaMap((prev) => ({
-            ...prev,
-            [idStr]: String(savedId),
-          }));
+            setFavoritosIds((prev) =>
+              prev.includes(String(savedId)) ? prev : [...prev, String(savedId)],
+            );
+            setFavoritosIA((prev) =>
+              prev.some((item) => item.id === idStr)
+                ? prev
+                : [
+                    ...prev,
+                    {
+                      ...receitaData,
+                      id: idStr,
+                      tipo: "ia",
+                    },
+                  ],
+            );
+            setSavedIAReceitaMap((prev) => ({
+              ...prev,
+              [idStr]: String(savedId),
+            }));
+          } finally {
+            iaFavoritoSalvandoRef.current.delete(idStr);
+          }
         } else {
           const success = await adicionarFavorito(idNum, user.id);
           if (success) {
@@ -163,6 +177,7 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
       value={{
         favoritosIds,
         favoritosIA,
+        savedIAReceitaMap,
         isFavorito,
         toggleFavorito,
         carregandoFavoritos,
@@ -181,7 +196,7 @@ export const useFavoritosGlobal = () => useContext(FavoritosContext);
 /** Lógica Unificada de Filtro para a Screen de Favoritos (SEM ESTOQUE AQUI) */
 export function useFavoritosLogic(searchText: string, filtro: string) {
   const { receitasBanco, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil } = useReceitas();
-  const { isFavorito, favoritosIA } = useFavoritosGlobal();
+  const { isFavorito, favoritosIA, savedIAReceitaMap } = useFavoritosGlobal();
   const { user } = useAuth();
 
   const receitasFiltradas = useMemo(() => {
@@ -193,7 +208,15 @@ export function useFavoritosLogic(searchText: string, filtro: string) {
       user?.allergies,
       user?.temporaryMode,
     );
-    lista = [...lista, ...favoritosIA];
+    const idsJaNaLista = new Set(lista.map((r) => String(r.id)));
+    const iaSemDuplicarPersistidos = favoritosIA.filter((ia) => {
+      const idPersistido = savedIAReceitaMap[ia.id];
+      if (idPersistido && idsJaNaLista.has(String(idPersistido))) {
+        return false;
+      }
+      return true;
+    });
+    lista = [...lista, ...iaSemDuplicarPersistidos];
 
     // 2. Filtra por Categoria (Trata "IA" como categoria especial)
     if (filtro === "IA") {
@@ -206,7 +229,7 @@ export function useFavoritosLogic(searchText: string, filtro: string) {
     lista = filtrarPorBusca(lista, searchText);
 
     return lista;
-  }, [receitasBanco, favoritosIA, isFavorito, filtro, searchText, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil, user?.food_preferences, user?.allergies, user?.temporaryMode]);
+  }, [receitasBanco, favoritosIA, savedIAReceitaMap, isFavorito, filtro, searchText, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil, user?.food_preferences, user?.allergies, user?.temporaryMode]);
 
   return { receitasFiltradas };
 }

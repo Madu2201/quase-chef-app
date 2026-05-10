@@ -11,6 +11,8 @@ export interface ChipItem {
 export interface FavoritosContextData {
     favoritosIds: string[];         // IDs das receitas do banco (Supabase)
     favoritosIA: Recipe[];          // Objetos completos das receitas geradas por IA
+    /** id efêmero (ex. ia-…) → id numérico persistido em `receitas` */
+    savedIAReceitaMap: Record<string, string>;
     isFavorito: (id: string | number) => boolean;
     toggleFavorito: (id: string | number, receitaData?: Recipe) => Promise<void>;
     carregandoFavoritos: boolean;

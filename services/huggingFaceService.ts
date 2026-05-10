@@ -21,27 +21,38 @@ export async function gerarImagemDaReceita(
       },
     );
 
-    if (response.status === 503) {
-      throw new Error(
-        "O modelo está carregando, tente novamente em 30 segundos.",
-      );
-    }
-
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Erro na API");
+      const text = await response.text();
+      try {
+        const parsed = JSON.parse(text) as { error?: string };
+        console.warn(
+          "[huggingFaceService] API error:",
+          parsed?.error ?? response.status,
+        );
+      } catch {
+        console.warn(
+          "[huggingFaceService] API returned non-JSON body (status",
+          response.status,
+          "); skipping image.",
+        );
+      }
+      return "";
     }
 
     const blob = await response.blob();
 
-    return new Promise((resolve, reject) => {
+    return await new Promise<string>((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error("Erro ao converter imagem"));
+      reader.onloadend = () => resolve((reader.result as string) ?? "");
+      reader.onerror = () => {
+        console.warn("[huggingFaceService] Falha ao converter imagem para Base64.");
+        resolve("");
+      };
       reader.readAsDataURL(blob);
     });
-  } catch (error: any) {
-    console.error("🔴 Erro:", error.message);
-    throw error;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("[huggingFaceService]", message);
+    return "";
   }
 }

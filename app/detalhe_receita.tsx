@@ -6,7 +6,7 @@ import {
   BarChart3, CheckCircle2, Clock, Flame, Heart,
   Lightbulb, PlayCircle, Share2,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator, Image, Pressable, ScrollView, Share,
   StatusBar, Text, TouchableOpacity, View,
@@ -16,13 +16,16 @@ import Animated, {
 } from "react-native-reanimated";
 
 // Meus imports
+import { useAuth } from "@/hooks/useAuth";
 import { gerarImagemDaReceita } from "@/services/huggingFaceService";
 import { Header } from "../components/header";
+import { ALLERGY_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 import type { InfoCardProps } from "../types/detalhe_receita";
+import { alergiasReceitaQueColidemComUsuario } from "../utils/perfilReceitasFilter";
 
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
@@ -41,7 +44,6 @@ export default function DetalheReceitaScreen() {
     receitaId,
     isLoading,
     erro,
-    preferenciasReceita,
     alergiasReceita,
   } = useDetalheReceita();
 
@@ -56,20 +58,12 @@ export default function DetalheReceitaScreen() {
   // Determinar if favorito
   const ehFav = isFavorito(receitaId);
 
-  // Alertas de segurança
   const conflitosAlergias = useMemo(() => {
-    if (!user?.allergies || !alergiasReceita) return [];
-    return alergiasReceita.filter(a => user.allergies?.includes(a));
+    const u = user?.allergies?.filter(Boolean).map(String) ?? [];
+    const r = alergiasReceita ?? [];
+    if (!u.length || !r.length) return [];
+    return alergiasReceitaQueColidemComUsuario(u, r);
   }, [user?.allergies, alergiasReceita]);
-
-  const conflitosPreferencias = useMemo(() => {
-    if (!user?.food_preferences || !preferenciasReceita) return [];
-    // Nota: Aqui a lógica é inversa. Se a receita NÃO tem uma preferência que o usuário EXIGE, alertamos?
-    // Ou se a receita tem algo que o usuário EVITA.
-    // Baseado no pedido: "se caso ele faça uma reeita com algo q ele marcou de preferencia ou alergia"
-    // Vamos focar nas alergias primeiro que são críticas. 
-    return [];
-  }, [user?.food_preferences, preferenciasReceita]);
 
   // --- EFFECT QUE CHAMA A FOTO ASSIM QUE A TELA ABRE ---
   useEffect(() => {
@@ -242,18 +236,6 @@ export default function DetalheReceitaScreen() {
                   </Animated.View>
                 )}
 
-                {receitaDetalhada.pre_visualizacao && receitaDetalhada.pre_visualizacao.length > 0 && (
-                  <Animated.View entering={FadeInDown.delay(250)} style={styles.previewContainer}>
-                    <View style={styles.previewHeader}>
-                      <BarChart3 size={18} color={Colors.primary} />
-                      <Text style={styles.previewTitle}>Passos Rápidos</Text>
-                    </View>
-                    {receitaDetalhada.pre_visualizacao.map((passo, idx) => (
-                      <Text key={idx} style={styles.previewText}>{passo}</Text>
-                    ))}
-                  </Animated.View>
-                )}
-
                 <View style={styles.sectionTitleRow}>
                   <Text style={styles.sectionTitle}>Ingredientes</Text>
                   <Text style={styles.itemsCount}>{receitaDetalhada.itensCount} itens</Text>
@@ -290,7 +272,6 @@ export default function DetalheReceitaScreen() {
                 ) : null}
 
                 <Text style={styles.preparoTitle}>Modo de preparo</Text>
-
                 {receitaDetalhada.preparo.map((passo, index) => (
                 <View key={index} style={styles.stepItem}> 
                   {/* A linha só aparece se não for o último item */}

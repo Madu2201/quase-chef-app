@@ -1,9 +1,22 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles } from 'lucide-react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import Animated, {
+    cancelAnimation,
+    Easing,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 
 // Meus imports
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from '../constants/theme';
+
+/** Largura da faixa luminosa (onda). Subir = onda mais “grossa”. */
+const SHIMMER_BAND_WIDTH = 124;
 
 // Componente de botão de gerar receitas
 interface GenerateButtonProps {
@@ -17,6 +30,8 @@ interface GenerateButtonProps {
     iconColor?: string;
     disabled?: boolean;
     forceEnabled?: boolean;
+    /** Onda clara contínua — “em progresso” */
+    loading?: boolean;
 }
 
 export const GenerateButton = ({
@@ -29,7 +44,8 @@ export const GenerateButton = ({
     alwaysVisible = false,   
     iconColor = Colors.light,
     disabled = false,
-    forceEnabled = false
+    forceEnabled = false,
+    loading = false,
 }: GenerateButtonProps) => {
 
     if (!alwaysVisible && selectedCount === 0) return null;
@@ -38,20 +54,58 @@ export const GenerateButton = ({
     const isDisabled = forceEnabled ? disabled : (disabled || (alwaysVisible && selectedCount === 0));
     const shouldReduceOpacity = forceEnabled ? false : (alwaysVisible && selectedCount === 0);
 
+    const buttonW = useSharedValue(220);
+    const shimmerPhase = useSharedValue(0);
+
+    useEffect(() => {
+        if (loading) {
+            shimmerPhase.value = withRepeat(
+                withTiming(1, { duration: 1600, easing: Easing.linear }),
+                -1,
+                false,
+            );
+        } else {
+            cancelAnimation(shimmerPhase);
+            shimmerPhase.value = 0;
+        }
+    }, [loading]);
+
+    const shimmerStyle = useAnimatedStyle(() => ({
+        transform: [
+            {
+                translateX: interpolate(
+                    shimmerPhase.value,
+                    [0, 1],
+                    [
+                        -SHIMMER_BAND_WIDTH,
+                        Math.max(buttonW.value, 120) + SHIMMER_BAND_WIDTH,
+                    ],
+                ),
+            },
+            { rotate: '-14deg' },
+        ],
+    }));
+
+    const effectiveIconColor = loading ? Colors.light : iconColor;
+
     // Renderiza o botão
     return (
         <TouchableOpacity
             style={[
                 styles.button,
                 style,
-                shouldReduceOpacity && { opacity: 0.6 } 
+                shouldReduceOpacity && { opacity: 0.6 },
+                loading && styles.buttonLoading,
             ]}
             onPress={onPress}
             activeOpacity={0.8}
-            disabled={isDisabled} 
+            disabled={isDisabled}
+            onLayout={(e) => {
+                buttonW.value = e.nativeEvent.layout.width;
+            }}
         >
             <View style={styles.content}>
-                <Sparkles size={20} color={iconColor} fill={iconColor} />
+                <Sparkles size={20} color={effectiveIconColor} fill={effectiveIconColor} />
                 <Text style={styles.text}>{label}</Text>
             </View>
 
@@ -59,6 +113,27 @@ export const GenerateButton = ({
                 <View style={[styles.badgeContainer, badgeContainerStyle]}>
                     <Text style={styles.badgeText}>{selectedCount}</Text>
                 </View>
+            )}
+
+            {loading && (
+                <Animated.View
+                    pointerEvents="none"
+                    style={[styles.shimmerStripe, shimmerStyle]}
+                >
+                    <LinearGradient
+                        colors={[
+                            'transparent',
+                            'rgba(255,255,255,0.12)',
+                            'rgba(255,255,255,0.45)',
+                            'rgba(255,255,255,0.12)',
+                            'transparent',
+                        ]}
+                        locations={[0, 0.28, 0.5, 0.72, 1]}
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        style={StyleSheet.absoluteFill}
+                    />
+                </Animated.View>
             )}
         </TouchableOpacity>
     );
@@ -75,6 +150,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center', 
         ...Shadows.md,
+    },
+    buttonLoading: {
+        overflow: 'hidden',
+        opacity: 0.96,
+    },
+    shimmerStripe: {
+        position: 'absolute',
+        left: 0,
+        top: -10,
+        bottom: -10,
+        width: SHIMMER_BAND_WIDTH,
+        zIndex: 2,
     },
     content: {
         flexDirection: 'row',

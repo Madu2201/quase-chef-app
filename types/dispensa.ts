@@ -29,6 +29,10 @@ export interface DispensaContextData {
   upsertIngredientFromCompra: (nome: string, qtd: number, unidade: string) => Promise<boolean>;
   abaterIngredientesDaReceita: (rawIngredients: string) => Promise<AbatimentoResultado>;
   selectedCount: number;
+  /** Nomes dos ingredientes marcados no checkbox (para IA / prompts). */
+  selectedIngredients: string[];
+  /** IDs dos itens marcados — preferir para geração IA (estoque inequívoco). */
+  selectedIngredientIds: string[];
   isLoading: boolean;
   buscarDispensa: () => Promise<void>;
 }

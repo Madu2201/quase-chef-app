@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "../hooks/useAuth";
 import { DispensaProvider } from "../hooks/useDispensa";
 import { FavoritosProvider } from "../hooks/useFavoritos";
+import { ReceitasProvider } from "../hooks/useReceitas";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,16 +41,21 @@ useEffect(() => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <DispensaProvider>
-          <FavoritosProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="selecao_ia" options={{ presentation: 'modal' }} />
-              <Stack.Screen name="detalhe_receita" />
-              <Stack.Screen name="preparo_receita" />
-              <Stack.Screen name="perfil" />
-            </Stack>
-          </FavoritosProvider>
+          <ReceitasProvider>
+            <FavoritosProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen
+                  name="selecao_ia"
+                  options={{ presentation: "modal" }}
+                />
+                <Stack.Screen name="detalhe_receita" />
+                <Stack.Screen name="preparo_receita" />
+                <Stack.Screen name="perfil" />
+              </Stack>
+            </FavoritosProvider>
+          </ReceitasProvider>
         </DispensaProvider>
       </AuthProvider>
     </GestureHandlerRootView>

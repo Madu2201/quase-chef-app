@@ -1,4 +1,3 @@
-import { router } from "expo-router";
 import { Check, Edit2, Trash2, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
@@ -17,6 +16,7 @@ import { Header } from "../../components/header";
 import { UNIDADES_ACEITAS } from "../../constants/ingredients";
 import { Colors } from "../../constants/theme";
 import { useDispensa } from "../../hooks/useDispensa";
+import { useSelecaoIA } from "../../hooks/useSelecaoIA";
 import { dispensaStyles as styles } from "../../styles/dispensa_styles";
 import { validateQuantity } from "../../utils/validation";
 
@@ -30,8 +30,11 @@ export default function DispensaScreen() {
     removeIngredient,
     updateIngredientFull,
     selectedCount,
+    selectedIngredientIds,
     isLoading,
   } = useDispensa();
+
+  const { handleGerarReceita, isGenerating } = useSelecaoIA();
 
   // Estados de Criação
   const [nomeNovo, setNomeNovo] = useState("");
@@ -403,9 +406,14 @@ export default function DispensaScreen() {
 
       <GenerateButton
         selectedCount={selectedCount}
+        disabled={isGenerating}
+        loading={isGenerating}
+        label={
+          isGenerating ? "Cozinhando ideias... 🍳" : "Gerar receitas"
+        }
         onPress={() =>
           selectedCount > 0
-            ? router.push("/selecao_ia")
+            ? void handleGerarReceita(selectedIngredientIds)
             : Alert.alert("Atenção", "Selecione ingredientes!")
         }
         style={styles.floatingBtn}

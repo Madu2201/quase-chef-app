@@ -7,10 +7,9 @@ import {
   Shadows,
   Spacing,
 } from "../constants/theme";
-import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from "./global_styles";
+import { GLOBAL_ACTION_BUTTONS } from "./global_styles";
 
 export const styles = StyleSheet.create({
-  ...GLOBAL_CHIPS_FILTERS,
   ...GLOBAL_ACTION_BUTTONS,
   container: {
     flex: 1,
@@ -126,16 +125,60 @@ export const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  /* --- CHIPS DE INGREDIENTES --- */
+  /* --- CHIPS DE INGREDIENTES (altura flexível; não cortar texto — cf. filtros em favoritos) --- */
   chipsWrapper: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
   chip: {
-    ...GLOBAL_CHIPS_FILTERS.chip,
-    paddingVertical: Spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    minHeight: 36,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.light,
+    borderWidth: 1.5,
     borderColor: Colors.primary,
+    gap: 6,
+    alignSelf: "flex-start",
+    maxWidth: "100%",
+  },
+  chipActive: {
+    backgroundColor: Colors.secondary,
+    borderColor: Colors.secondary,
+  },
+  chipTextBlock: {
+    flexShrink: 1,
+    maxWidth: "100%",
+  },
+  chipText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.small,
+    color: Colors.primary,
+    flexShrink: 1,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+      default: {},
+    }),
+  },
+  chipTextActive: {
+    fontSize: FontSizes.small,
+    color: Colors.light,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+      default: {},
+    }),
+  },
+  chipMeta: {
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.small - 2,
+    color: Colors.subtitle,
+    marginTop: 2,
+  },
+  chipMetaActive: {
+    color: Colors.light + "CC",
   },
 
   /* --- ESTADOS VAZIOS --- */

@@ -129,9 +129,12 @@ export default function FavoritosScreen() {
 
 /** Componente de Card Individual */
 const RecipeCard = ({ item, index, hasMounted }: { item: Recipe; index: number; hasMounted: boolean }) => {
-  const { isFavorito, toggleFavorito } = useFavoritosGlobal();
+  const { isFavorito, toggleFavorito, savedIAReceitaMap } = useFavoritosGlobal();
   const scale = useSharedValue(1);
   const ehFav = isFavorito(item.id);
+
+  const idParaDetalhe =
+    savedIAReceitaMap[String(item.id)] ?? String(item.id);
 
   const animatedHeartStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -147,7 +150,17 @@ const RecipeCard = ({ item, index, hasMounted }: { item: Recipe; index: number; 
       entering={!hasMounted ? FadeInDown.delay(index * 150).springify() : undefined}
       style={styles.card}
     >
-      <Pressable onPress={() => router.push({ pathname: "/detalhe_receita", params: { id: item.id, tipo: item.tipo } })}>
+      <Pressable
+        onPress={() =>
+          router.push({
+            pathname: "/detalhe_receita",
+            params: {
+              id: idParaDetalhe,
+              tipo: item.tipo === "ia" ? "ia" : "regular",
+            },
+          })
+        }
+      >
         <View style={styles.imageContainer}>
           <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
 

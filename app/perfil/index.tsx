@@ -7,6 +7,7 @@ import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, ScrollView, T
 // Meus imports
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import type { OptionItem } from "@/types/auth";
 import { TemporaryMode } from "@/types/perfil";
 import { Header } from "../../components/header";
 import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../../constants/OpcaoAlimentar";
@@ -24,12 +25,12 @@ export default function PerfilScreen() {
   // Descrições dinâmicas que você tinha originalmente
   const modeDescription = useMemo(() => {
     if (preferences.temporaryMode === "paused") {
-      return "Modo “Pausado” desativa temporariamente apenas os filtros de estilo alimentar. As alergias permanecem sempre ativas para sua segurança.";
+      return "Modo “Pausado”: as preferências de estilo deixam de filtrar a lista (mais receitas). As alergias continuam sempre ativas.";
     }
     if (preferences.temporaryMode === "weekends_only") {
-      return "No modo “Final de Semana”, suas preferências de estilo ficam flexíveis aos sábados e domingos. Alergias continuam ativas.";
+      return "Modo “Final de Semana”: aos sábados e domingos vale pausa só nas preferências de estilo; nos outros dias aplicam-se normalmente. Alergias continuam sempre ativas.";
     }
-    return "No modo “Ativo”, suas preferências alimentares são aplicadas normalmente em todas as buscas.";
+    return "Modo “Ativo”: preferências de estilo (união) e alergias (exclusão) filtram a lista.";
   }, [preferences.temporaryMode]);
 
   const toggleOption = (list: 'lifestyle' | 'allergies', val: string) => {

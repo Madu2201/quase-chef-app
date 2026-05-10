@@ -11,17 +11,32 @@ import { useSelecaoIA } from "../hooks/useSelecaoIA";
 import { styles } from "../styles/selecao_ia_styles";
 import { getCategoriaIcon } from "../utils/iaUtils";
 
+// Formata qty como na dispensa (evita ruído em decimais)
+function formatQuantidadeEUnidade(qty: number, unit: string): string {
+  const q = Number(qty);
+  if (!Number.isFinite(q)) {
+    return unit || "";
+  }
+  const arredondado = Math.round(q * 1000) / 1000;
+  const texto =
+    arredondado % 1 === 0
+      ? String(arredondado)
+      : arredondado.toFixed(2).replace(/\.?0+$/, "");
+  return `${texto} ${unit}`.trim();
+}
+
 // Tela de Seleção de Ingredientes para IA
 export default function SelecaoIAScreen() {
   const {
     busca,
     setBusca,
-    selecionados,
+    selecionadosCount,
     isGenerating,
     categoriasFiltradas,
     toggleIngrediente,
     limparSelecao,
     handleGerarReceita,
+    selecionadosIds,
   } = useSelecaoIA();
 
   // Renderiza a tela
@@ -74,10 +89,10 @@ export default function SelecaoIAScreen() {
         {/* Linha de Ação (Contador e Limpar) */}
         <View style={styles.actionRow}>
           <Text style={styles.countText}>
-            {selecionados.length}{" "}
-            {selecionados.length === 1 ? "selecionado" : "selecionados"}
+            {selecionadosCount}{" "}
+            {selecionadosCount === 1 ? "selecionado" : "selecionados"}
           </Text>
-          {selecionados.length > 0 && (
+          {selecionadosCount > 0 && (
             <TouchableOpacity
               style={styles.clearButton}
               onPress={limparSelecao}
@@ -112,22 +127,32 @@ export default function SelecaoIAScreen() {
               </View>
 
               <View style={styles.chipsWrapper}>
-                {cat.itens.map((item) => {
-                  const isSelected = selecionados.includes(item);
+                {cat.itens.map((ing) => {
+                  const isSelected = selecionadosIds.includes(ing.id);
                   return (
                     <Pressable
-                      key={item}
-                      onPress={() => toggleIngrediente(item)}
+                      key={ing.id}
+                      onPress={() => toggleIngrediente(ing.id)}
                       style={[styles.chip, isSelected && styles.chipActive]}
                     >
-                      <Text
-                        style={[
-                          styles.chipText,
-                          isSelected && styles.chipTextActive,
-                        ]}
-                      >
-                        {item}
-                      </Text>
+                      <View style={styles.chipTextBlock}>
+                        <Text
+                          style={[
+                            styles.chipText,
+                            isSelected && styles.chipTextActive,
+                          ]}
+                        >
+                          {ing.name}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.chipMeta,
+                            isSelected && styles.chipMetaActive,
+                          ]}
+                        >
+                          {formatQuantidadeEUnidade(ing.qty, ing.unit)}
+                        </Text>
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -143,11 +168,10 @@ export default function SelecaoIAScreen() {
           label={
             isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"
           }
-          selectedCount={selecionados.length}
-          onPress={handleGerarReceita}
+          selectedCount={selecionadosCount}
+          onPress={() => handleGerarReceita()}
           disabled={isGenerating}
-          style={isGenerating ? { opacity: 0.7 } : null}
-          iconColor={isGenerating ? Colors.primary : Colors.light}
+          loading={isGenerating}
           alwaysVisible={true}
           showBadge={false}
         />

@@ -190,8 +190,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         ["@user_allergies", JSON.stringify(userData.allergies || [])],
       ]);
 
-      setUser(userData);
-      return { success: true, user: userData };
+      const modoSalvo = await AsyncStorage.getItem("@user_temporary_mode");
+
+      const mergedUser: UserData = {
+        ...userData,
+        temporaryMode: (modoSalvo as TemporaryMode | undefined) ?? undefined,
+      };
+
+      setUser(mergedUser);
+      return { success: true, user: mergedUser };
     } catch (error: any) {
       return {
         success: false,
@@ -218,6 +225,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         "@user_email",
         "@user_food_preferences",
         "@user_allergies",
+        "@user_temporary_mode",
       ]);
 
       // 3. Limpa o estado do app

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { useDispensa } from "../hooks/useDispensa";
 import { Recipe } from "../hooks/useReceitas";
@@ -6,7 +7,7 @@ import { normalizarBase, normalizarTexto } from "../utils/normalization";
 export function useFiltroEstoque() {
   const { ingredients: dispensaIngredientes } = useDispensa();
 
-  const filtrarPorEstoque = (receitas: Recipe[]): Recipe[] => {
+  const filtrarPorEstoque = useCallback((receitas: Recipe[]): Recipe[] => {
     if (dispensaIngredientes.length === 0) return [];
 
     return receitas.filter((receita) => {
@@ -65,7 +66,7 @@ export function useFiltroEstoque() {
         return false;
       }
     });
-  };
+  }, [dispensaIngredientes]);
 
   return { filtrarPorEstoque };
 }

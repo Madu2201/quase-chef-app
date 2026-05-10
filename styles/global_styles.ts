@@ -248,18 +248,33 @@ export const GLOBAL_CHIPS_FILTERS = StyleSheet.create({
   },
   chipText: {
     fontFamily: Fonts.bold,
+    fontSize: FontSizes.small,
     color: Colors.primary,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+      default: {},
+    }),
   },
   chipTextActive: {
+    fontSize: FontSizes.small,
     color: Colors.light,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+      default: {},
+    }),
   },
   chipSelected: {
     backgroundColor: Colors.secondary,
     borderColor: Colors.secondary,
   },
   chipTextSelected: {
+    fontSize: FontSizes.small,
     color: Colors.light,
     fontFamily: Fonts.bold,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+      default: {},
+    }),
   },
 });
 

@@ -9,6 +9,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { supabase } from "@/services/supabase";
 
 // Meus imports
+import AuthHeader from "../../components/AuthHeader";
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 
@@ -86,22 +87,11 @@ export default function NovaSenhaScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View
-          entering={FadeInUp.delay(100).duration(600)}
-          style={styles.header}
-        >
-          <Image
-            source={require("../../assets/images/icon.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.brandName}>Quase Chef!</Text>
-
-          <Text style={styles.welcomeTitle}>Criar Nova Senha</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Digite o código de 6 dígitos que enviamos para {email}
-          </Text>
-        </Animated.View>
+        <AuthHeader
+          title="Criar Nova Senha"
+          subtitle="Digite o código de 6 dígitos que enviamos para {email}"
+          email={typeof email === 'string' ? email : ''}
+        />
 
         <Animated.View
           entering={FadeInDown.delay(300).duration(600)}

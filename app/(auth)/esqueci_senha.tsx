@@ -14,13 +14,14 @@ import {
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 
 // Meus imports
+import AuthHeader from "../../components/AuthHeader";
 import { supabase } from "@/services/supabase";
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 
 export default function EsqueciSenhaScreen() {
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
-  
+
   // Nossos novos estados
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -90,10 +91,10 @@ export default function EsqueciSenhaScreen() {
       }
 
       Alert.alert(
-        "Código Enviado! 🚀", 
+        "Código Enviado! 🚀",
         "Dê uma olhada na sua caixa de entrada (e na pasta de spam). Enviamos um código de 6 dígitos para lá."
       );
-      
+
       // 5. Redireciona para a tela de digitar o código, passando o e-mail
       router.push({
         pathname: "/(auth)/nova_senha",
@@ -117,22 +118,10 @@ export default function EsqueciSenhaScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View
-          entering={FadeInUp.delay(100).duration(600)}
-          style={styles.header}
-        >
-          <Image
-            source={require("../../assets/images/icon.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.brandName}>Quase Chef!</Text>
-
-          <Text style={styles.welcomeTitle}>Recuperar Conta</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Insira seu e-mail para receber um código de segurança.
-          </Text>
-        </Animated.View>
+        <AuthHeader
+          title="Recuperar Conta"
+          subtitle="Insira seu e-mail para receber um código de segurança."
+        />
 
         <Animated.View
           entering={FadeInDown.delay(300).duration(600)}

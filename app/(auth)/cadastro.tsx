@@ -5,15 +5,16 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable,
+  ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
   ScrollView, Text, TextInput, View
 } from "react-native";
 import Animated, {
-  FadeInDown, FadeInUp, FadeOut, useAnimatedStyle, useSharedValue,
+  FadeInDown, FadeOut, useAnimatedStyle, useSharedValue,
   withSpring
 } from "react-native-reanimated";
 
 // Meus imports
+import AuthHeader from "../../components/AuthHeader";
 import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../../constants/OpcaoAlimentar";
 import { Colors } from "../../constants/theme";
 import { useCadastroForm } from "../../hooks/useCadastro";
@@ -125,16 +126,10 @@ export default function CadastroScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Cabeçalho */}
-        <Animated.View entering={FadeInUp.delay(100).duration(600)} style={styles.header}>
-          <Image
-            source={require("../../assets/images/icon.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.brandName}>Quase Chef!</Text>
-          <Text style={styles.welcomeTitle}>Criar Conta</Text>
-          <Text style={styles.welcomeSubtitle}>Sua jornada para evitar o desperdício começa aqui.</Text>
-        </Animated.View>
+        <AuthHeader
+          title="Criar Conta"
+          subtitle="Sua jornada para evitar o desperdício começa aqui."
+        />
 
         {/* Alertas de Feedback */}
         {isSuccess && (

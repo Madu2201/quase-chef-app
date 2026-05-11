@@ -2,19 +2,21 @@ import { router } from "expo-router";
 import { CheckCircle, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Image, KeyboardAvoidingView, Platform, Pressable,
+  ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
   ScrollView, Text, TextInput, View
 } from "react-native";
-import Animated, { FadeInDown, FadeInUp, FadeOut } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 
 // Imports de Configuração e Estilo
+import AuthHeader from "../../components/AuthHeader";
 import { useAuth } from "@/hooks/useAuth";
 import * as WebBrowser from 'expo-web-browser';
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 import { LoginErrors } from "../../types/auth";
 import { validateEmail } from "../../utils/validation";
+
+
 //Avisa ao Expo para fechar o navegador assim que o usuário autenticar
 WebBrowser.maybeCompleteAuthSession();
 export default function LoginScreen() {
@@ -63,18 +65,10 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Header - Identidade Visual */}
-        <Animated.View entering={FadeInUp.delay(100).duration(600)} style={styles.header}>
-          <Image
-            source={require("../../assets/images/icon.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.brandName}>Quase Chef!</Text>
-          <Text style={styles.welcomeTitle}>Bem-vindo de volta!</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Faça login para acessar suas receitas e favoritos.
-          </Text>
-        </Animated.View>
+        <AuthHeader
+          title="Bem-vindo de volta!"
+          subtitle="Faça login para acessar suas receitas e favoritos."
+        />
 
         {/* Feedback de Sucesso */}
         {isSuccess && (

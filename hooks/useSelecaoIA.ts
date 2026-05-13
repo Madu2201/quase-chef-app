@@ -1,7 +1,6 @@
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
-import { CATEGORIAS_DISPENSA } from "../constants/ingredients";
 import { perguntarAoGemini } from "../services/geminiService";
 import { gerarImagemDaReceita } from "../services/huggingFaceService";
 import type { Ingredient } from "../types/dispensa";
@@ -11,81 +10,90 @@ import {
   limparJSONIA,
   montarListaIngredientesPorIds,
   montarPromptGeracaoReceitaIA,
-  verificarCorrespondencia,
 } from "../utils/iaUtils";
 import { useAuth } from "./useAuth";
 import { useDispensa } from "./useDispensa";
 
-/** Categoria com objetos completos da Dispensa (qty/unit corretos no prompt). */
+/** Estrutura de categoria para a listagem alfabética */
 export type CategoriaIngredienteIA = {
   titulo: string;
-  icon: string;
   itens: Ingredient[];
 };
 
-// Hook para a tela de seleção de ingredientes para geração de receita via IA
+/**
+ * Hook para gerenciar a lógica da tela de Seleção IA.
+ * Responsável pela filtragem, agrupamento alfabético e integração com serviços de IA.
+ */
 export function useSelecaoIA() {
   const [busca, setBusca] = useState("");
-  /** IDs dos ingredientes da dispensa selecionados para a IA */
   const [selecionadosIds, setSelecionadosIds] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [categoriasColapsadas, setCategoriasColapsadas] = useState<string[]>([]);
 
-  // Lista completa da Context API da Dispensa (fonte única de qty/unidade)
   const { ingredients } = useDispensa();
   const { user } = useAuth();
 
-  const toggleIngrediente = (id: string) => {
+  // --- AÇÕES DO USUÁRIO ---
+
+  const toggleIngrediente = useCallback((id: string) => {
     setSelecionadosIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-  };
+  }, []);
 
-  const limparSelecao = () => setSelecionadosIds([]);
+  const limparSelecao = useCallback(() => setSelecionadosIds([]), []);
+
+  const toggleCategoria = useCallback((titulo: string) => {
+    setCategoriasColapsadas((prev) =>
+      prev.includes(titulo)
+        ? prev.filter((t) => t !== titulo)
+        : [...prev, titulo],
+    );
+  }, []);
+
+  // --- DADOS DERIVADOS (MEMOIZADOS) ---
+
+  const ingredientesSelecionados = useMemo(() => {
+    if (!ingredients) return [];
+    return ingredients.filter((ing) => selecionadosIds.includes(ing.id));
+  }, [ingredients, selecionadosIds]);
 
   const categoriasComItens = useMemo((): CategoriaIngredienteIA[] => {
     if (!ingredients?.length) return [];
 
-    const ingredientesAtribuidos = new Set<string>();
+    const grupos: Record<string, Ingredient[]> = {};
 
-    const categorias = CATEGORIAS_DISPENSA.map((cat) => {
-      const itensFiltrados = ingredients.filter((ing) => {
-        if (ingredientesAtribuidos.has(ing.id)) return false;
-
-        const temCorrespondencia = cat.itens.some((item) =>
-          verificarCorrespondencia(ing.name, item),
-        );
-
-        if (temCorrespondencia) {
-          ingredientesAtribuidos.add(ing.id);
-        }
-
-        return temCorrespondencia;
-      });
-
-      return {
-        titulo: cat.titulo,
-        icon: cat.icon,
-        itens: itensFiltrados,
-      };
-    });
-
-    const outrosItens = ingredients.filter(
-      (ing) => !ingredientesAtribuidos.has(ing.id),
+    // Ordenação alfabética global dos ingredientes
+    const ingredientesOrdenados = [...ingredients].sort((a, b) =>
+      a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
     );
 
-    if (outrosItens.length > 0) {
-      categorias.push({
-        titulo: "OUTROS",
-        icon: "RotateCcw",
-        itens: outrosItens,
-      });
-    }
+    ingredientesOrdenados.forEach((ing) => {
+      const primeiraLetra = ing.name.charAt(0).toUpperCase();
+      const categoria = /^[A-ZÀ-Ú]$/.test(primeiraLetra) ? primeiraLetra : "#";
 
-    return categorias.filter((cat) => cat.itens.length > 0);
+      if (!grupos[categoria]) {
+        grupos[categoria] = [];
+      }
+      grupos[categoria].push(ing);
+    });
+
+    return Object.keys(grupos)
+      .sort((a, b) => {
+        if (a === "#") return 1;
+        if (b === "#") return -1;
+        return a.localeCompare(b, "pt-BR");
+      })
+      .map((letra) => ({
+        titulo: letra,
+        itens: grupos[letra],
+      }));
   }, [ingredients]);
 
   const categoriasFiltradas = useMemo(() => {
     const termo = busca.toLowerCase().trim();
+    if (!termo) return categoriasComItens;
+
     return categoriasComItens
       .map((cat) => ({
         ...cat,
@@ -96,107 +104,89 @@ export function useSelecaoIA() {
       .filter((cat) => cat.itens.length > 0);
   }, [busca, categoriasComItens]);
 
-  const gerarReceitaComIngredientes = async (
-    idsIngredientes: string[],
-  ): Promise<void> => {
-    const lista = Array.isArray(idsIngredientes)
-      ? idsIngredientes.filter(Boolean)
-      : [];
-    if (lista.length === 0) {
-      Alert.alert(
-        "Atenção",
-        "Selecione pelo menos um ingrediente da sua dispensa!",
-      );
-      return;
-    }
+  // --- GERAÇÃO DE RECEITA ---
 
-    setIsGenerating(true);
-    try {
-      const comEstoque = montarListaIngredientesPorIds(lista, ingredients);
-
-      let contextoPerfil: ContextoSegurancaPrompt | null = null;
-      const alerg = user?.allergies?.filter(Boolean) as string[] | undefined;
-      const prefs = user?.food_preferences?.filter(Boolean) as
-        | string[]
-        | undefined;
-      if (
-        (alerg && alerg.length > 0) ||
-        (prefs && prefs.length > 0)
-      ) {
-        contextoPerfil = {
-          chavesAlergiaUsuario: alerg ?? [],
-          chavesPreferenciaUsuario: prefs ?? [],
-        };
+  const gerarReceitaComIngredientes = useCallback(
+    async (idsIngredientes: string[]): Promise<void> => {
+      const lista = idsIngredientes.filter(Boolean);
+      if (lista.length === 0) {
+        Alert.alert("Atenção", "Selecione pelo menos um ingrediente!");
+        return;
       }
 
-      const prompt = montarPromptGeracaoReceitaIA(
-        comEstoque,
-        contextoPerfil,
-      );
-      const respostaIA = await perguntarAoGemini(prompt);
-      const textoLimpo = limparJSONIA(respostaIA);
-      const receitaGerada: ReceitaIAResponse = JSON.parse(textoLimpo);
-
-      let imagemBase64 = "";
+      setIsGenerating(true);
       try {
-        imagemBase64 = await gerarImagemDaReceita(receitaGerada.nome_receita);
-      } catch (imgError) {
-        console.error("Erro ao gerar imagem para receita IA:", imgError);
+        const comEstoque = montarListaIngredientesPorIds(lista, ingredients);
+
+        let contextoPerfil: ContextoSegurancaPrompt | null = null;
+        const alerg = user?.allergies?.filter(Boolean) as string[] | undefined;
+        const prefs = user?.food_preferences?.filter(Boolean) as string[] | undefined;
+
+        if ((alerg && alerg.length > 0) || (prefs && prefs.length > 0)) {
+          contextoPerfil = {
+            chavesAlergiaUsuario: alerg ?? [],
+            chavesPreferenciaUsuario: prefs ?? [],
+          };
+        }
+
+        const prompt = montarPromptGeracaoReceitaIA(comEstoque, contextoPerfil);
+        const respostaIA = await perguntarAoGemini(prompt);
+        const textoLimpo = limparJSONIA(respostaIA);
+        const receitaGerada: ReceitaIAResponse = JSON.parse(textoLimpo);
+
+        let imagemBase64 = "";
+        try {
+          imagemBase64 = await gerarImagemDaReceita(receitaGerada.nome_receita);
+        } catch (imgError) {
+          console.error("Erro ao gerar imagem:", imgError);
+        }
+
+        router.push({
+          pathname: "/detalhe_receita",
+          params: {
+            id: `ia-${Date.now()}`,
+            tipo: "ia",
+            title: receitaGerada.nome_receita || "Receita Surpresa",
+            description: receitaGerada.descricao_simples_preparo || "Sem descrição",
+            time: receitaGerada.tempo_preparo || "30min",
+            difficulty: receitaGerada.dificuldade || "Média",
+            calories: receitaGerada.calorias || "N/A",
+            dica_rapida: receitaGerada.dica_rapida || "",
+            ingredients: JSON.stringify(receitaGerada.ingredientes || []),
+            steps: JSON.stringify(receitaGerada.passos_detalhados || []),
+            pre_visualizacao: JSON.stringify(receitaGerada.pre_visualizacao_passos || []),
+            image: imagemBase64,
+            tags: JSON.stringify(receitaGerada.tags || []),
+            preferencias: JSON.stringify(receitaGerada.preferencias || []),
+            alergias: JSON.stringify(receitaGerada.alergias_presentes || []),
+          },
+        });
+      } catch (error) {
+        console.error("Erro IA:", error);
+        Alert.alert("Erro", "Não foi possível gerar a receita. Tente novamente.");
+      } finally {
+        setIsGenerating(false);
       }
+    },
+    [ingredients, user],
+  );
 
-      router.push({
-        pathname: "/detalhe_receita",
-        params: {
-          id: `ia-${Date.now()}`,
-          tipo: "ia",
-          title: receitaGerada.nome_receita || "Receita Surpresa",
-          description:
-            receitaGerada.descricao_simples_preparo || "Sem descrição",
-          time: receitaGerada.tempo_preparo || "30min",
-          difficulty: receitaGerada.dificuldade || "Média",
-          calories: receitaGerada.calorias || "N/A",
-          dica_rapida: receitaGerada.dica_rapida || "",
-          ingredients: JSON.stringify(receitaGerada.ingredientes || []),
-          steps: JSON.stringify(receitaGerada.passos_detalhados || []),
-          pre_visualizacao: JSON.stringify(
-            receitaGerada.pre_visualizacao_passos || [],
-          ),
-          image: imagemBase64,
-          tags: JSON.stringify(receitaGerada.tags || []),
-          preferencias: JSON.stringify(receitaGerada.preferencias || []),
-          alergias: JSON.stringify(receitaGerada.alergias_presentes || []),
-        },
-      });
-    } catch (error) {
-      console.error("Erro no processamento da IA:", error);
-      Alert.alert("Erro", "Nossa panela queimou! Tente gerar novamente.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  /**
-   * Sem argumentos: usa chips da seleção IA.
-   * Com argumento: IDs vindos da dispensa (`selectedIngredientIds`).
-   */
-  const handleGerarReceita = async (
-    idsOverride?: string[],
-  ): Promise<void> => {
-    const ids =
-      idsOverride !== undefined ? idsOverride : selecionadosIds;
-    await gerarReceitaComIngredientes(ids);
-  };
+  const handleGerarReceita = useCallback(async () => {
+    await gerarReceitaComIngredientes(selecionadosIds);
+  }, [selecionadosIds, gerarReceitaComIngredientes]);
 
   return {
     busca,
     setBusca,
     selecionadosIds,
     selecionadosCount: selecionadosIds.length,
+    ingredientesSelecionados,
+    categoriasColapsadas,
+    toggleCategoria,
     isGenerating,
     categoriasFiltradas,
     toggleIngrediente,
     limparSelecao,
     handleGerarReceita,
-    gerarReceitaComIngredientes,
   };
 }

@@ -16,35 +16,34 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.xl * 3,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xl * 4,
   },
 
-  /* --- CABEÇALHO DE AÇÕES --- */
-  actionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Spacing.lg,
+  /* --- BANDEJA DE SELECIONADOS (TRAY) --- */
+  trayWrapper: {
+    paddingBottom: Spacing.md,
     marginBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primary + "15",
   },
-  countText: {
-    fontFamily: Fonts.bold,
-    fontSize: FontSizes.small,
-    color: Colors.brown,
+  trayScrollContent: {
+    paddingHorizontal: Spacing.lg,
+    gap: 8,
   },
-  clearButton: {
+  trayItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.primary + "10",
-    borderRadius: Radius.md,
+    paddingVertical: 8,
+    borderRadius: Radius.full,
+    gap: 6,
+    ...Shadows.sm,
   },
-  clearButtonText: {
+  trayItemText: {
     fontFamily: Fonts.bold,
-    color: Colors.primary,
+    color: Colors.light,
     fontSize: FontSizes.small,
   },
 
@@ -53,7 +52,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.light,
     overflow: "hidden",
     marginHorizontal: Spacing.sm,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.primary + "10",
     borderEndEndRadius: Radius.xl * 2,
@@ -98,8 +97,8 @@ export const styles = StyleSheet.create({
   /* --- TÍTULO DA SEÇÃO --- */
   sectionTitleContainer: {
     paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
-    marginTop: Spacing.md,
+    paddingVertical: Spacing.sm - 8,
+    marginBottom: Spacing.xs,
   },
   sectionTitleText: {
     fontFamily: Fonts.bold,
@@ -107,29 +106,95 @@ export const styles = StyleSheet.create({
     color: Colors.dark,
   },
 
-  /* --- SEÇÕES E CATEGORIAS --- */
+  /* --- LINHA DE AÇÃO (CONTADOR E LIMPAR) --- */
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm - 8,
+    marginBottom: Spacing.sm,
+  },
+  countText: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.small,
+    color: Colors.brown,
+  },
+  clearButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.primary + "10",
+    borderRadius: Radius.md,
+  },
+  clearButtonText: {
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
+    fontSize: FontSizes.small,
+  },
+
+  /* --- SEÇÕES E CATEGORIAS (ACCORDION) --- */
   categoryContainer: {
     paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    marginBottom: Spacing.sm,
+    justifyContent: "space-between",
+    paddingVertical: Spacing.sm,
   },
-  categoryTitle: {
-    fontFamily: Fonts.bold,
-    fontSize: FontSizes.small,
-    color: Colors.dark,
-    letterSpacing: 2,
+  categoryHeaderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
   },
 
-  /* --- CHIPS DE INGREDIENTES (altura flexível; não cortar texto — cf. filtros em favoritos) --- */
+  /* --- CABEÇALHOS ALFABÉTICOS ESTILIZADOS --- */
+  alphabetBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.primary + "10",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  alphabetLetter: {
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.medium,
+    color: Colors.brown,
+  },
+  quantityPill: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.primary + "05",
+    borderWidth: 1,
+    borderColor: Colors.primary + "10",
+  },
+  quantityText: {
+    fontFamily: Fonts.bold,
+    fontSize: 10,
+    color: Colors.brown,
+    opacity: 0.7,
+  },
+  headerDivider: {
+    flex: 0.9,
+    height: 1.05,
+    backgroundColor: Colors.brown + "20",
+    marginLeft: Spacing.sm,
+  },
+
+  /* --- CHIPS DE INGREDIENTES --- */
   chipsWrapper: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
+    marginTop: Spacing.xs,
+    paddingBottom: Spacing.sm,
   },
   chip: {
     flexDirection: "row",
@@ -140,10 +205,9 @@ export const styles = StyleSheet.create({
     borderRadius: Radius.full,
     backgroundColor: Colors.light,
     borderWidth: 1.5,
-    borderColor: Colors.primary,
+    borderColor: Colors.primary + "20",
     gap: 6,
     alignSelf: "flex-start",
-    maxWidth: "100%",
   },
   chipActive: {
     backgroundColor: Colors.secondary,
@@ -151,31 +215,20 @@ export const styles = StyleSheet.create({
   },
   chipTextBlock: {
     flexShrink: 1,
-    maxWidth: "100%",
   },
   chipText: {
     fontFamily: Fonts.bold,
     fontSize: FontSizes.small,
     color: Colors.primary,
-    flexShrink: 1,
-    ...Platform.select({
-      android: { includeFontPadding: false },
-      default: {},
-    }),
   },
   chipTextActive: {
-    fontSize: FontSizes.small,
     color: Colors.light,
-    ...Platform.select({
-      android: { includeFontPadding: false },
-      default: {},
-    }),
   },
   chipMeta: {
     fontFamily: Fonts.regular,
     fontSize: FontSizes.small - 2,
     color: Colors.subtitle,
-    marginTop: 2,
+    marginTop: 1,
   },
   chipMetaActive: {
     color: Colors.light + "CC",
@@ -208,18 +261,7 @@ export const styles = StyleSheet.create({
     paddingTop: Spacing.xs,
     backgroundColor: Colors.background,
   },
-  generateButton: {
-    ...GLOBAL_ACTION_BUTTONS.btn,
-    height: 58,
-    gap: 12,
-    ...Shadows.md,
-  },
-  generateButtonText: {
-    ...GLOBAL_ACTION_BUTTONS.btnText,
-    fontSize: 16,
-  },
-  btnDisabled: {
-    backgroundColor: Colors.subtitle,
-    opacity: 0.5,
+    chevronIcon: {
+    color: Colors.brown, // Definindo a cor aqui
   },
 });

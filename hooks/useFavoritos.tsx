@@ -1,16 +1,17 @@
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
+import { solicitarAtualizacaoCatalogoReceitas } from "../services/receitaEvents";
 import {
-    adicionarFavorito,
-    removerFavorito,
-    salvarReceitaIAParaFavorito,
+  adicionarFavorito,
+  removerFavorito,
+  salvarReceitaIAParaFavorito,
 } from "../services/receitaService";
 import { supabase } from "../services/supabase";
 import { FavoritosContextData } from "../types/favoritos";
@@ -87,17 +88,30 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
 
     if (isIA) {
       if (existeLocalIA || existePersistido || existePersistidoPeloMap) {
-        if (!isNaN(idNum)) {
-          const success = await removerFavorito(idNum, user.id);
-          if (success) {
-            setFavoritosIds((prev) => prev.filter((id) => id !== idStr));
-          }
-        } else if (!isNaN(mappedSavedIdNum)) {
-          const success = await removerFavorito(mappedSavedIdNum, user.id);
-          if (success) {
-            setFavoritosIds((prev) =>
-              prev.filter((id) => id !== String(mappedSavedIdNum)),
-            );
+        // Se a receita for IA e estiver sendo desfavoritada, 
+        // excluímos ela fisicamente do banco de dados para evitar lixo.
+        const idParaExcluir = !isNaN(idNum) ? idNum : mappedSavedIdNum;
+
+        if (!isNaN(idParaExcluir)) {
+          // 1. Remove da tabela de favoritos (removerFavorito já faz isso no banco)
+          const successRemover = await removerFavorito(idParaExcluir, user.id);
+          
+          if (successRemover) {
+            // 2. Exclui a receita física da tabela 'receitas'
+            // Somente se for uma receita gerada por IA e pertencer ao usuário
+            const { error: deleteError } = await supabase
+              .from("receitas")
+              .delete()
+              .match({ id: idParaExcluir, eh_ia: true, user_id: user.id });
+
+            if (deleteError) {
+              console.error("Erro ao excluir receita física da IA:", deleteError.message);
+            }
+
+            setFavoritosIds((prev) => prev.filter((id) => id !== String(idParaExcluir)));
+            
+            // Forçamos a atualização do catálogo global para que a receita suma da lista useReceitas
+            solicitarAtualizacaoCatalogoReceitas();
           }
         }
 
@@ -123,7 +137,9 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
               rawSteps: receitaData.rawSteps,
               tags: receitaData.tags,
               dica_rapida: receitaData.dica_rapida,
-              pre_visualizacao: receitaData.pre_visualizacao,
+              pre_visualizacao_passos: receitaData.pre_visualizacao,
+              preferencias: receitaData.preferences,
+              alergias_presentes: receitaData.recipeAllergies,
             });
 
             if (!savedId) return;
@@ -166,6 +182,7 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     if (existeNoBanco) {
       setFavoritosIds((prev) => prev.filter((id) => id !== idStr));
       await removerFavorito(idNum, user.id);
+      solicitarAtualizacaoCatalogoReceitas();
     } else {
       setFavoritosIds((prev) => [...prev, idStr]);
       await adicionarFavorito(idNum, user.id);

@@ -79,7 +79,9 @@ export interface ReceitaIASalvarParams {
   rawSteps: string;
   tags?: string[];
   dica_rapida?: string;
-  pre_visualizacao?: string[];
+  pre_visualizacao_passos?: string[];
+  preferencias?: string[];
+  alergias_presentes?: string[];
 }
 
 export async function salvarReceitaIAParaFavorito(
@@ -118,10 +120,12 @@ export async function salvarReceitaIAParaFavorito(
             ingredientes,
             passos_detalhados: passos,
             dica_rapida: receita.dica_rapida,
-            pre_visualizacao_passos: receita.pre_visualizacao,
+            pre_visualizacao_passos: receita.pre_visualizacao_passos,
             tags: receita.tags || ["IA"],
             eh_ia: true,
             user_id: userId,
+            preferencias: receita.preferencias || [],
+            alergias_presentes: receita.alergias_presentes || [],
           },
         ])
         .select("id")
@@ -145,8 +149,7 @@ export async function salvarReceitaIAParaFavorito(
     if (favoritarError) {
       const msg = favoritarError.message ?? "";
       const dup =
-        favoritarError.code === "23505" ||
-        /duplicate|unique/i.test(msg);
+        favoritarError.code === "23505" || /duplicate|unique/i.test(msg);
       if (!dup) {
         console.error("❌ Erro ao favoritar receita IA:", msg);
         return null;

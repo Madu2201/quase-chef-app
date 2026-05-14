@@ -240,8 +240,8 @@ REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON APENAS):
       "nome_base": string (deve ser exatamente um dos ingredientes permitidos: selecionados ou da lista livre),
       "quantidade": number,
       "texto_original": string,
-      "quantidade_gramas_ml": number (use coerente com a unidade; se a receita usa unidades, pode ser 0 ou proporcional conforme sua convenção, sem violar o teto do estoque. JAMAIS RETORNE 0 em casos que envolvam peso (kg, g), volume (l, ml) ou medidas caseiras (xícara, colher, copo, pitada). O valor 0.0 é exclusivo para contagem de unidades inteiras (ex: 2 limões, 4 fatias de pão)
-    }.
+      "quantidade_gramas_ml": number (use coerente com a unidade; se a receita usa unidades, pode ser 0 ou proporcional conforme sua convenção, sem violar o teto do estoque. JAMAIS use pontos finais após números como "0." ou "1.", use sempre ".0").
+   }.
 9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }. No campo "descricao" evite textos muitos longos para evitar desinteresse no usuário.
     REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.
 10. tags: Lista de strings. Escolha APENAS entre: ["Salgadas", "Doces", "Rápidas", "Saudáveis", "Econômicas", "Lanches", "Jantar", "Almoço"].

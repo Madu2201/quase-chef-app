@@ -263,11 +263,9 @@ export default function SelecaoIAScreen() {
       {/* Rodapé Fixo */}
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <GenerateButton
-          label={
-            isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"
-          }
+          label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"}
           selectedCount={selecionadosCount}
-          onPress={handleGerarReceita}
+          onPress={() => handleGerarReceita()}
           disabled={isGenerating}
           loading={isGenerating}
           alwaysVisible={true}

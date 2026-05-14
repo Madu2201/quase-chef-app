@@ -181,11 +181,13 @@ export function useSelecaoIA() {
     [ingredients, user],
   );
 
+  // --- RETORNO DO HOOK ---
   const handleGerarReceita = useCallback(
-    async (idsOpcionais?: string[]) => {
-      // Se vierem IDs por parâmetro (ex: da Despensa), usamos eles.
-      // Caso contrário, usamos o estado interno selecionadosIds (ex: da tela Seleção IA).
-      const idsParaGerar = idsOpcionais || selecionadosIds;
+    async (idsOpcionais?: any) => {
+      const idsParaGerar = Array.isArray(idsOpcionais)
+        ? idsOpcionais
+        : selecionadosIds;
+
       await gerarReceitaComIngredientes(idsParaGerar);
     },
     [selecionadosIds, gerarReceitaComIngredientes],

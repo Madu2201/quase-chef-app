@@ -251,7 +251,7 @@ export function useListaCompras() {
       return;
     }
 
-    let sucessoCount = 0;
+    const idsGuardadosComSucesso: string[] = [];
 
     for (const item of itensParaGuardar) {
       const sucesso = await onUpsert(
@@ -260,15 +260,29 @@ export function useListaCompras() {
         item.unidade,
       );
       if (sucesso) {
-        sucessoCount++;
+        idsGuardadosComSucesso.push(item.id);
       }
     }
 
-    if (sucessoCount > 0) {
-      await limparComprados();
+    const total = itensParaGuardar.length;
+    const ok = idsGuardadosComSucesso.length;
+
+    if (ok > 0) {
+      for (const id of idsGuardadosComSucesso) {
+        await supabase.from("lista_compras").delete().eq("id", id);
+      }
+      setItems((prev) => prev.filter((i) => !idsGuardadosComSucesso.includes(i.id)));
+    }
+
+    if (ok === total) {
       Alert.alert(
         "Sucesso!",
-        `${sucessoCount} itens guardados na sua despensa.`,
+        `${ok} ${ok === 1 ? "item guardado" : "itens guardados"} na sua despensa.`,
+      );
+    } else if (ok > 0) {
+      Alert.alert(
+        "Parcialmente guardado",
+        `${ok} de ${total} ${total === 1 ? "item" : "itens"} na despensa. Os restantes permanecem na lista para tentar de novo.`,
       );
     } else {
       Alert.alert(

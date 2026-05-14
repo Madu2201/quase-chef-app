@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { Alert } from "react-native";
@@ -29,8 +30,13 @@ const DespensaContext = createContext<DespensaContextData>(
 export function DespensaProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const ingredientsRef = useRef<Ingredient[]>([]);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    ingredientsRef.current = ingredients;
+  }, [ingredients]);
 
   // Busca inicial do banco (Agora com quantidade_ideal)
   const buscarDespensa = async () => {
@@ -180,7 +186,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     if (!user?.id) return false;
 
     const nomeNorm = normalizarTexto(nome);
-    const existente = ingredients.find(
+    const existente = ingredientsRef.current.find(
       (ing) => normalizarTexto(ing.name) === nomeNorm,
     );
 
@@ -214,19 +220,20 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      if (data) {
-        setIngredients((prev) => [
-          {
-            id: data.id,
-            name: data.nome_base,
-            qty: Number(data.quantidade),
-            ideal_qty: Number(data.quantidade_ideal || data.quantidade),
-            unit: data.unidade,
-            selected: data.selected,
-          },
-          ...prev,
-        ]);
+      if (!data) {
+        return false;
       }
+
+      const novoIngrediente: Ingredient = {
+        id: data.id,
+        name: data.nome_base,
+        qty: Number(data.quantidade),
+        ideal_qty: Number(data.quantidade_ideal || data.quantidade),
+        unit: data.unidade,
+        selected: data.selected,
+      };
+      ingredientsRef.current = [novoIngrediente, ...ingredientsRef.current];
+      setIngredients(ingredientsRef.current);
       return true;
     } else {
       if (!existente) return false;
@@ -244,13 +251,12 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      setIngredients((prev) =>
-        prev.map((i) =>
-          i.id === existente.id
-            ? { ...i, qty: decision.novoValor, unit: decision.unidadeFinal }
-            : i,
-        ),
+      ingredientsRef.current = ingredientsRef.current.map((i) =>
+        i.id === existente.id
+          ? { ...i, qty: decision.novoValor, unit: decision.unidadeFinal }
+          : i,
       );
+      setIngredients(ingredientsRef.current);
       return true;
     }
   };

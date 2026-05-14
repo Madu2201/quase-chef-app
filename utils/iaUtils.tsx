@@ -159,8 +159,8 @@ function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
       .join(", ");
     linhas.push(
       `SEGURANÇA — ALERGIAS DO USUÁRIO (BLACKLIST ABSOLUTA): ${texto}. ` +
-        `É PROIBIDO usar qualquer ingrediente ou derivado associado a estes alérgenos (incluindo óleo de amendoim, leite em pó, tofu/soja se alérgico a soja, etc.). ` +
-        `O campo "alergias_presentes" no JSON deve listar apenas alérgenos que AINDA estejam presentes no prato final; se a receita for segura para o usuário, use [].`,
+      `É PROIBIDO usar qualquer ingrediente ou derivado associado a estes alérgenos (incluindo óleo de amendoim, leite em pó, tofu/soja se alérgico a soja, etc.). ` +
+      `O campo "alergias_presentes" no JSON deve listar apenas alérgenos que AINDA estejam presentes no prato final; se a receita for segura para o usuário, use [].`,
     );
   }
 
@@ -175,7 +175,7 @@ function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
       .join(", ");
     linhas.push(
       `PREFERÊNCIAS DO USUÁRIO (pelo menos UMA deve ser refletida no campo "preferencias" quando fizer sentido): ${texto}. ` +
-        `Ex.: vegano OU sem_gluten — não é necessário atender todas simultaneamente; escolha o melhor encaixe para os ingredientes disponíveis.`,
+      `Ex.: vegano OU sem_gluten — não é necessário atender todas simultaneamente; escolha o melhor encaixe para os ingredientes disponíveis.`,
     );
   }
 
@@ -236,14 +236,14 @@ REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON APENAS):
 6. descricao_simples_preparo: Resumo TÉCNICO do preparo em 1 ou 2 frases. Evite tom de marketing.
 7. pre_visualizacao_passos: Lista de strings com 3 a 5 passos NUMERADOS resumidos (OBRIGATÓRIO). Deve ser compatível com o passo a passo detalhado (visão geral).
 8. ingredientes: Lista de objetos {
-     "unidade": string,
-     "nome_base": string (deve ser exatamente um dos ingredientes permitidos: selecionados ou da lista livre),
-     "quantidade": number,
-     "texto_original": string,
-     "quantidade_gramas_ml": number (use coerente com a unidade; se a receita usa unidades, pode ser 0 ou proporcional conforme sua convenção, sem violar o teto do estoque. JAMAIS RETORNE 0 em casos que envolvam peso (kg, g), volume (l, ml) ou medidas caseiras (xícara, colher, copo, pitada). O valor 0.0 é exclusivo para contagem de unidades inteiras (ex: 2 limões, 4 fatias de pão)
-   }.
-9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }.
-   REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.
+      "unidade": string,
+      "nome_base": string (deve ser exatamente um dos ingredientes permitidos: selecionados ou da lista livre),
+      "quantidade": number,
+      "texto_original": string,
+      "quantidade_gramas_ml": number (use coerente com a unidade; se a receita usa unidades, pode ser 0 ou proporcional conforme sua convenção, sem violar o teto do estoque. JAMAIS RETORNE 0 em casos que envolvam peso (kg, g), volume (l, ml) ou medidas caseiras (xícara, colher, copo, pitada). O valor 0.0 é exclusivo para contagem de unidades inteiras (ex: 2 limões, 4 fatias de pão)
+    }.
+9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }. No campo "descricao" evite textos muitos longos para evitar desinteresse no usuário.
+    REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.
 10. tags: Lista de strings. Escolha APENAS entre: ["Salgadas", "Doces", "Rápidas", "Saudáveis", "Econômicas", "Lanches", "Jantar", "Almoço"].
 11. preferencias: Lista de strings. Escolha APENAS entre: ["vegano", "vegetariano", "sem_gluten", "sem_lactose", "baixo_carboidrato", "sem_acucar"]. Retorne [] se não aplicar.
 12. alergias_presentes: Lista de strings. Escolha APENAS entre: ["amendoim", "nozes", "leite", "ovo", "soja", "trigo", "gergelim", "frutos_do_mar"]. Retorne [] se for livre de alérgenos.

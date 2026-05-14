@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AuthProvider } from "../hooks/useAuth";
-import { DispensaProvider } from "../hooks/useDispensa";
+import { DespensaProvider } from "../hooks/useDespensa";
 import { FavoritosProvider } from "../hooks/useFavoritos";
 import { ReceitasProvider } from "../hooks/useReceitas";
 
@@ -23,7 +23,7 @@ export default function RootLayout() {
     "PlusJakartaSans-Bold": PlusJakartaSans_700Bold,
   });
 
-useEffect(() => {
+  useEffect(() => {
     if (loaded || error) {
       // Adicionamos um fôlego de 500ms para o React Native renderizar
       // a sua primeira tela (LoadingScreen) antes de remover o fundo laranja nativo
@@ -40,7 +40,7 @@ useEffect(() => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <DispensaProvider>
+        <DespensaProvider>
           <ReceitasProvider>
             <FavoritosProvider>
               <Stack screenOptions={{ headerShown: false }}>
@@ -56,7 +56,7 @@ useEffect(() => {
               </Stack>
             </FavoritosProvider>
           </ReceitasProvider>
-        </DispensaProvider>
+        </DespensaProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );

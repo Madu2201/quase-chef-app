@@ -32,7 +32,7 @@ app/
 │   ├── home.tsx
 │   ├── receitas.tsx
 │   ├── favoritos.tsx
-│   ├── dispensa.tsx
+│   ├── despensa.tsx
 │   ├── lista.tsx
 │   └── _layout.tsx
 ├── perfil/              # Tela acessada via header no home
@@ -52,33 +52,37 @@ utils/                  # Funções auxiliares
 
 ## 👥 Equipe
 
-| Integrante | Papel | Contribuições |
-|-----------|-------|----------------|
-| **Maria Eduarda Almeida** | Coordenação + Front-End | Estrutura de pastas, telas principais (Login, Home, Favoritos, Dispensa, Lista), centralização de estilos |
-| **Marcus Vinicius** | Back-End | Supabase, autenticação, APIs (Gemini/Hugging Face), edição de perfil |
-| **Kauã de Almeida** | Backend + Prototipagem | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes |
-| **Maria Eduarda Rodrigues** | Front-End | Cadastro com validação, perfil, receitas, telas de IA |
+| Integrante                  | Papel                   | Contribuições                                                                                             |
+| --------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Maria Eduarda Almeida**   | Coordenação + Front-End | Estrutura de pastas, telas principais (Login, Home, Favoritos, Despensa, Lista), centralização de estilos |
+| **Marcus Vinicius**         | Back-End                | Supabase, autenticação, APIs (Gemini/Hugging Face), edição de perfil                                      |
+| **Kauã de Almeida**         | Backend + Prototipagem  | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes                              |
+| **Maria Eduarda Rodrigues** | Front-End               | Cadastro com validação, perfil, receitas, telas de IA                                                     |
 
 ## 📝 Funcionalidades Principais
 
 ### 🍽️ Ciclo de Estoque Inteligente
-- **Gerenciamento de Dispensa**: Acompanha estoque em tempo real com metas personalizadas
+
+- **Gerenciamento de Despensa**: Acompanha estoque em tempo real com metas personalizadas
 - **Lista de Compras Automática**: Gera listas otimizadas cruzando despensa com metas
 - **Reabastecimento Dinâmico**: Atualiza automaticamente saldos ao guardar compras
 - **Baixa Automática**: Reduz automaticamente ingredientes ao preparar receitas
 
 ### 🤖 IA e Receitas
+
 - **Geração com Gemini**: Receitas personalizadas baseadas em ingredientes da despensa
 - **Motor de Refinamento**: Pipeline de dados (scraper → IA → estruturação)
 - **Receitas Filtradas**: "Cozinhar com meu estoque" mostra receitas com ingredientes disponíveis
 - **Dicas do Chef**: Sugestões de IA e substituições de ingredientes
 
 ### 👤 Autenticação e Perfil
+
 - 🔐 Login/Cadastro com Supabase
 - 📝 Gerenciamento de perfil com preferências alimentares e alergias
 - 🔑 Recuperação de senha segura
 
 ### ❤️ Organização
+
 - Favoritos de receitas
 - Modo de preparo interativo com temporizador
 - Exportar lista de compras em PDF

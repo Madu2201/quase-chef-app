@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { perguntarAoGemini } from "../services/geminiService";
 import { gerarImagemDaReceita } from "../services/huggingFaceService";
-import type { Ingredient } from "../types/dispensa";
+import type { Ingredient } from "../types/despensa";
 import { ReceitaIAResponse } from "../types/ia";
 import {
   ContextoSegurancaPrompt,
@@ -12,7 +12,7 @@ import {
   montarPromptGeracaoReceitaIA,
 } from "../utils/iaUtils";
 import { useAuth } from "./useAuth";
-import { useDispensa } from "./useDispensa";
+import { useDespensa } from "./useDespensa";
 
 /** Estrutura de categoria para a listagem alfabética */
 export type CategoriaIngredienteIA = {
@@ -28,9 +28,11 @@ export function useSelecaoIA() {
   const [busca, setBusca] = useState("");
   const [selecionadosIds, setSelecionadosIds] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [categoriasColapsadas, setCategoriasColapsadas] = useState<string[]>([]);
+  const [categoriasColapsadas, setCategoriasColapsadas] = useState<string[]>(
+    [],
+  );
 
-  const { ingredients } = useDispensa();
+  const { ingredients } = useDespensa();
   const { user } = useAuth();
 
   // --- AÇÕES DO USUÁRIO ---
@@ -120,7 +122,9 @@ export function useSelecaoIA() {
 
         let contextoPerfil: ContextoSegurancaPrompt | null = null;
         const alerg = user?.allergies?.filter(Boolean) as string[] | undefined;
-        const prefs = user?.food_preferences?.filter(Boolean) as string[] | undefined;
+        const prefs = user?.food_preferences?.filter(Boolean) as
+          | string[]
+          | undefined;
 
         if ((alerg && alerg.length > 0) || (prefs && prefs.length > 0)) {
           contextoPerfil = {
@@ -147,14 +151,17 @@ export function useSelecaoIA() {
             id: `ia-${Date.now()}`,
             tipo: "ia",
             title: receitaGerada.nome_receita || "Receita Surpresa",
-            description: receitaGerada.descricao_simples_preparo || "Sem descrição",
+            description:
+              receitaGerada.descricao_simples_preparo || "Sem descrição",
             time: receitaGerada.tempo_preparo || "30min",
             difficulty: receitaGerada.dificuldade || "Média",
             calories: receitaGerada.calorias || "N/A",
             dica_rapida: receitaGerada.dica_rapida || "",
             ingredients: JSON.stringify(receitaGerada.ingredientes || []),
             steps: JSON.stringify(receitaGerada.passos_detalhados || []),
-            pre_visualizacao: JSON.stringify(receitaGerada.pre_visualizacao_passos || []),
+            pre_visualizacao: JSON.stringify(
+              receitaGerada.pre_visualizacao_passos || [],
+            ),
             image: imagemBase64,
             tags: JSON.stringify(receitaGerada.tags || []),
             preferencias: JSON.stringify(receitaGerada.preferencias || []),
@@ -163,7 +170,10 @@ export function useSelecaoIA() {
         });
       } catch (error) {
         console.error("Erro IA:", error);
-        Alert.alert("Erro", "Não foi possível gerar a receita. Tente novamente.");
+        Alert.alert(
+          "Erro",
+          "Não foi possível gerar a receita. Tente novamente.",
+        );
       } finally {
         setIsGenerating(false);
       }

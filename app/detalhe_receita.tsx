@@ -3,17 +3,33 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   AlertCircle,
   AlertTriangle,
-  BarChart3, CheckCircle2, Clock, Flame, Heart,
-  Lightbulb, PlayCircle, Share2,
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Heart,
+  Lightbulb,
+  PlayCircle,
+  Share2,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator, Image, Pressable, ScrollView, Share,
-  StatusBar, Text, TouchableOpacity, View,
+  ActivityIndicator,
+  Image,
+  Pressable,
+  ScrollView,
+  Share,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-  FadeInDown, FadeInLeft, FadeInUp,
+  FadeInDown,
+  FadeInLeft,
+  FadeInUp,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports
 import { useAuth } from "@/hooks/useAuth";
@@ -30,11 +46,12 @@ import { alergiasReceitaQueColidemComUsuario } from "../utils/perfilReceitasFilt
 // Tela de detalhes da receita
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
   // ============================================
   // HOOKS NO TOPO (Regra 1)
   // ============================================
-  
+
   // Hook principal com lógica de busca
   const {
     receitaDetalhada,
@@ -50,7 +67,7 @@ export default function DetalheReceitaScreen() {
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { user } = useAuth();
-  
+
   // Estados locais
   const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
@@ -80,7 +97,7 @@ export default function DetalheReceitaScreen() {
       // 2. Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
       if (isIA && receitaDetalhada.titulo && !aiImageBase64) {
         if (isMounted) setIsLoadingImage(true);
-        
+
         try {
           const base64 = await gerarImagemDaReceita(receitaDetalhada.titulo);
           if (base64 && isMounted) {
@@ -93,7 +110,7 @@ export default function DetalheReceitaScreen() {
         }
       }
     }
-    
+
     fetchImage();
     return () => {
       isMounted = false;
@@ -125,24 +142,55 @@ export default function DetalheReceitaScreen() {
 
       {/* Loading inicial ao buscar receita no banco */}
       {isLoading && (
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <View
+          style={[
+            styles.container,
+            { justifyContent: "center", alignItems: "center" },
+          ]}
+        >
           <ActivityIndicator size="large" color={Colors.secondary} />
-          <Text style={{ marginTop: 12, color: Colors.subtext }}>Carregando receita...</Text>
+          <Text style={{ marginTop: 12, color: Colors.subtext }}>
+            Carregando receita...
+          </Text>
         </View>
       )}
 
       {/* Erro ao buscar receita */}
       {erro && !isLoading && (
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 20 }]}>
-          <AlertCircle size={48} color={Colors.secondary} style={{ marginBottom: 16 }} />
-          <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.primary, textAlign: 'center', marginBottom: 8 }}>
+        <View
+          style={[
+            styles.container,
+            { justifyContent: "center", alignItems: "center", padding: 20 },
+          ]}
+        >
+          <AlertCircle
+            size={48}
+            color={Colors.secondary}
+            style={{ marginBottom: 16 }}
+          />
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "bold",
+              color: Colors.primary,
+              textAlign: "center",
+              marginBottom: 8,
+            }}
+          >
             Oops! Algo deu errado
           </Text>
-          <Text style={{ fontSize: 14, color: Colors.subtext, textAlign: 'center', marginBottom: 20 }}>
+          <Text
+            style={{
+              fontSize: 14,
+              color: Colors.subtext,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
             {erro}
           </Text>
-          <TouchableOpacity 
-            onPress={() => router.back()} 
+          <TouchableOpacity
+            onPress={() => router.back()}
             style={[styles.mainButton, { marginTop: 0 }]}
           >
             <Text style={styles.mainButtonText}>Voltar</Text>
@@ -156,18 +204,34 @@ export default function DetalheReceitaScreen() {
           <View style={styles.mainContentWrapper}>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
+              contentContainerStyle={[
+                styles.scrollContent,
+                { paddingBottom: insets.bottom + 140 },
+              ]}
             >
               {/* BLOCO DA IMAGEM ATUALIZADO */}
 
               {/* 1. Mostra LOADING se for IA e estiver carregando */}
-              {(isIA && isLoadingImage) && (
+              {isIA && isLoadingImage && (
                 <Animated.View
                   entering={FadeInUp.duration(600)}
-                  style={[styles.imageHeader, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#E2E8F0' }]}
+                  style={[
+                    styles.imageHeader,
+                    {
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor: "#E2E8F0",
+                    },
+                  ]}
                 >
                   <ActivityIndicator size="large" color={Colors.primary} />
-                  <Text style={{ marginTop: 12, color: Colors.primary, fontWeight: 'bold' }}>
+                  <Text
+                    style={{
+                      marginTop: 12,
+                      color: Colors.primary,
+                      fontWeight: "bold",
+                    }}
+                  >
                     Cozinhando a foto perfeita...
                   </Text>
                 </Animated.View>
@@ -180,7 +244,9 @@ export default function DetalheReceitaScreen() {
                   style={styles.imageHeader}
                 >
                   <Image
-                    source={{ uri: isIA ? (aiImageBase64 || "") : receitaDetalhada.imagem }}
+                    source={{
+                      uri: isIA ? aiImageBase64 || "" : receitaDetalhada.imagem,
+                    }}
                     style={styles.image}
                   />
 
@@ -188,7 +254,11 @@ export default function DetalheReceitaScreen() {
                     entering={FadeInLeft.delay(500)}
                     style={[
                       styles.badgePopular,
-                      { backgroundColor: isIA ? Colors.secondary : Colors.primary },
+                      {
+                        backgroundColor: isIA
+                          ? Colors.secondary
+                          : Colors.primary,
+                      },
                     ]}
                   >
                     <Text style={styles.badgeText}>
@@ -205,10 +275,16 @@ export default function DetalheReceitaScreen() {
                 >
                   {receitaDetalhada.titulo}
                 </Animated.Text>
-                <Text style={styles.description}>{receitaDetalhada.descricao}</Text>
+                <Text style={styles.description}>
+                  {receitaDetalhada.descricao}
+                </Text>
 
                 <View style={styles.infoContainer}>
-                  <InfoCard icon={Clock} label="Tempo" value={receitaDetalhada.tempo} />
+                  <InfoCard
+                    icon={Clock}
+                    label="Tempo"
+                    value={receitaDetalhada.tempo}
+                  />
                   <InfoCard
                     icon={BarChart3}
                     label="Nível"
@@ -222,23 +298,37 @@ export default function DetalheReceitaScreen() {
                 </View>
 
                 {conflitosAlergias.length > 0 && (
-                  <Animated.View entering={FadeInDown.delay(100)} style={styles.safetyAlertContainer}>
+                  <Animated.View
+                    entering={FadeInDown.delay(100)}
+                    style={styles.safetyAlertContainer}
+                  >
                     <View style={styles.safetyAlertHeader}>
                       <AlertTriangle size={20} color={Colors.warning} />
-                      <Text style={styles.safetyAlertTitle}>Alerta de Segurança</Text>
+                      <Text style={styles.safetyAlertTitle}>
+                        Alerta de Segurança
+                      </Text>
                     </View>
                     <Text style={styles.safetyAlertText}>
                       Esta receita contém ingredientes que podem causar alergia:{" "}
                       <Text style={{ fontWeight: "bold" }}>
-                        {conflitosAlergias.map(a => ALLERGY_OPTIONS.find(opt => opt.key === a)?.label || a).join(", ")}
-                      </Text>.
+                        {conflitosAlergias
+                          .map(
+                            (a) =>
+                              ALLERGY_OPTIONS.find((opt) => opt.key === a)
+                                ?.label || a,
+                          )
+                          .join(", ")}
+                      </Text>
+                      .
                     </Text>
                   </Animated.View>
                 )}
 
                 <View style={styles.sectionTitleRow}>
                   <Text style={styles.sectionTitle}>Ingredientes</Text>
-                  <Text style={styles.itemsCount}>{receitaDetalhada.itensCount} itens</Text>
+                  <Text style={styles.itemsCount}>
+                    {receitaDetalhada.itensCount} itens
+                  </Text>
                 </View>
 
                 {receitaDetalhada.ingredientes.map((item, index) => (
@@ -260,32 +350,37 @@ export default function DetalheReceitaScreen() {
                 ))}
 
                 {receitaDetalhada.dica_rapida ? (
-                  <Animated.View entering={FadeInDown.delay(300)} style={styles.aiTipContainer}>
+                  <Animated.View
+                    entering={FadeInDown.delay(300)}
+                    style={styles.aiTipContainer}
+                  >
                     <View style={styles.aiTipHeader}>
                       <Lightbulb size={18} color={Colors.secondary} />
                       <Text style={styles.aiTipTitle}>
                         {isIA ? "Dica da IA!" : "Dica Rápida"}
                       </Text>
                     </View>
-                    <Text style={styles.aiTipText}>{receitaDetalhada.dica_rapida}</Text>
+                    <Text style={styles.aiTipText}>
+                      {receitaDetalhada.dica_rapida}
+                    </Text>
                   </Animated.View>
                 ) : null}
 
                 <Text style={styles.preparoTitle}>Modo de preparo</Text>
                 {receitaDetalhada.preparo.map((passo, index) => (
-                <View key={index} style={styles.stepItem}> 
-                  {/* A linha só aparece se não for o último item */}
-                  {index !== receitaDetalhada.preparo.length - 1 && (
-                    <View style={styles.stepLine} />
-                  )}
-                  
-                  <View style={styles.stepNumber}>
-                    <Text style={styles.stepNumberText}>{index + 1}</Text>
+                  <View key={index} style={styles.stepItem}>
+                    {/* A linha só aparece se não for o último item */}
+                    {index !== receitaDetalhada.preparo.length - 1 && (
+                      <View style={styles.stepLine} />
+                    )}
+
+                    <View style={styles.stepNumber}>
+                      <Text style={styles.stepNumberText}>{index + 1}</Text>
+                    </View>
+
+                    <Text style={styles.stepText}>{passo.titulo}</Text>
                   </View>
-                  
-                  <Text style={styles.stepText}>{passo.titulo}</Text>
-                </View>
-              ))}
+                ))}
               </View>
             </ScrollView>
             <LinearGradient
@@ -295,7 +390,7 @@ export default function DetalheReceitaScreen() {
             />
           </View>
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
             <Pressable
               onPress={() => toggleFavorito(receitaId, receitaFavoritoIA)}
               style={styles.favButton}

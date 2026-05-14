@@ -8,7 +8,11 @@ import React, {
 import { Alert } from "react-native";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
-import { AbatimentoResultado, DispensaContextData, Ingredient } from "../types/dispensa";
+import {
+  AbatimentoResultado,
+  DespensaContextData,
+  Ingredient,
+} from "../types/despensa";
 import {
   converterDaBaseParaUnidade,
   converterParaUnidadeBase,
@@ -18,18 +22,18 @@ import {
 import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
 
-const DispensaContext = createContext<DispensaContextData>(
-  {} as DispensaContextData,
+const DespensaContext = createContext<DespensaContextData>(
+  {} as DespensaContextData,
 );
 
-export function DispensaProvider({ children }: { children: React.ReactNode }) {
+export function DespensaProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   // Busca inicial do banco (Agora com quantidade_ideal)
-  const buscarDispensa = async () => {
+  const buscarDespensa = async () => {
     if (!user?.id) return;
     try {
       setIsLoading(true);
@@ -40,7 +44,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       setIngredients(
         data?.map((item) => ({
           id: item.id,
@@ -49,17 +53,17 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
           ideal_qty: Number(item.quantidade_ideal || item.quantidade),
           unit: item.unidade,
           selected: item.selected,
-        })) || []
+        })) || [],
       );
     } catch (error) {
-      console.error("Erro ao buscar dispensa:", error);
+      console.error("Erro ao buscar despensa:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    buscarDispensa();
+    buscarDespensa();
   }, [user]);
 
   const filteredIngredients = useMemo(
@@ -144,16 +148,21 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     name: string,
     qty: number,
     ideal_qty: number,
-    unit: string
+    unit: string,
   ) => {
     const backup = [...ingredients];
     setIngredients((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, name, qty, ideal_qty, unit } : i))
+      prev.map((i) => (i.id === id ? { ...i, name, qty, ideal_qty, unit } : i)),
     );
 
     const { error } = await supabase
       .from("dispensa")
-      .update({ nome_base: name, quantidade: qty, quantidade_ideal: ideal_qty, unidade: unit })
+      .update({
+        nome_base: name,
+        quantidade: qty,
+        quantidade_ideal: ideal_qty,
+        unidade: unit,
+      })
       .eq("id", id);
 
     if (error) {
@@ -163,11 +172,17 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
   };
 
   // NOVA FUNÇÃO (FASE 2): Integração do Upsert para Listas de Compras
-  const upsertIngredientFromCompra = async (nome: string, qtyComprada: number, unidadeComprada: string): Promise<boolean> => {
+  const upsertIngredientFromCompra = async (
+    nome: string,
+    qtyComprada: number,
+    unidadeComprada: string,
+  ): Promise<boolean> => {
     if (!user?.id) return false;
 
     const nomeNorm = normalizarTexto(nome);
-    const existente = ingredients.find((ing) => normalizarTexto(ing.name) === nomeNorm);
+    const existente = ingredients.find(
+      (ing) => normalizarTexto(ing.name) === nomeNorm,
+    );
 
     // Mock para usar a nossa função pura
     const itemCompradoMock = {
@@ -178,17 +193,19 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
 
     const decision = calcularUpsertDecision(itemCompradoMock, existente);
 
-    if (decision.acao === 'INSERT') {
+    if (decision.acao === "INSERT") {
       const { data, error } = await supabase
         .from("dispensa")
-        .insert([{
-          user_id: user.id,
-          nome_base: nome,
-          quantidade: decision.novoValor,
-          quantidade_ideal: decision.novoValor, // A primeira compra vira a meta
-          unidade: decision.unidadeFinal,
-          selected: false
-        }])
+        .insert([
+          {
+            user_id: user.id,
+            nome_base: nome,
+            quantidade: decision.novoValor,
+            quantidade_ideal: decision.novoValor, // A primeira compra vira a meta
+            unidade: decision.unidadeFinal,
+            selected: false,
+          },
+        ])
         .select()
         .single();
 
@@ -198,22 +215,28 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
-        setIngredients((prev) => [{
-          id: data.id,
-          name: data.nome_base,
-          qty: Number(data.quantidade),
-          ideal_qty: Number(data.quantidade_ideal || data.quantidade),
-          unit: data.unidade,
-          selected: data.selected
-        }, ...prev]);
+        setIngredients((prev) => [
+          {
+            id: data.id,
+            name: data.nome_base,
+            qty: Number(data.quantidade),
+            ideal_qty: Number(data.quantidade_ideal || data.quantidade),
+            unit: data.unidade,
+            selected: data.selected,
+          },
+          ...prev,
+        ]);
       }
       return true;
     } else {
       if (!existente) return false;
-      
+
       const { error } = await supabase
         .from("dispensa")
-        .update({ quantidade: decision.novoValor, unidade: decision.unidadeFinal })
+        .update({
+          quantidade: decision.novoValor,
+          unidade: decision.unidadeFinal,
+        })
         .eq("id", existente.id);
 
       if (error) {
@@ -225,8 +248,8 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         prev.map((i) =>
           i.id === existente.id
             ? { ...i, qty: decision.novoValor, unit: decision.unidadeFinal }
-            : i
-        )
+            : i,
+        ),
       );
       return true;
     }
@@ -248,7 +271,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
   );
 
   const abaterIngredientesDaReceita = async (
-    rawIngredients: string
+    rawIngredients: string,
   ): Promise<AbatimentoResultado> => {
     if (!user?.id || !rawIngredients) {
       return {
@@ -266,7 +289,10 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     try {
       ingredientesReceita = JSON.parse(rawIngredients);
     } catch (error) {
-      console.error("Erro ao parsear ingredientes da receita para abatimento:", error);
+      console.error(
+        "Erro ao parseredientes da receita para abatimento:",
+        error,
+      );
       return {
         sucesso: false,
         abatidos: 0,
@@ -278,7 +304,10 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    if (!Array.isArray(ingredientesReceita) || ingredientesReceita.length === 0) {
+    if (
+      !Array.isArray(ingredientesReceita) ||
+      ingredientesReceita.length === 0
+    ) {
       return {
         sucesso: true,
         abatidos: 0,
@@ -290,19 +319,22 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     }
 
     const estoqueAtualizado = [...ingredients];
-    const alteracoes: Array<{
+    const alteracoes: {
       id: string;
       quantidade: number;
       unidade: string;
       selected: boolean;
-    }> = [];
+    }[] = [];
     let ignoradosIncompativeis = 0;
     let ignoradosNaoEncontrados = 0;
     let ignoradosBaixaConfianca = 0;
     let ignoradosLivres = 0;
 
     for (const ingredienteReceita of ingredientesReceita) {
-      const nomeReceita = ingredienteReceita?.nome_base || ingredienteReceita?.texto_original || "";
+      const nomeReceita =
+        ingredienteReceita?.nome_base ||
+        ingredienteReceita?.texto_original ||
+        "";
       if (!nomeReceita) continue;
 
       const ehLivre = INGREDIENTES_LIVRES.some((livre) =>
@@ -314,40 +346,50 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
       }
 
       const nomeReceitaNormalizado = normalizarTexto(nomeReceita);
-      const indexDispensaExato = estoqueAtualizado.findIndex(
+      const indexDespensaExato = estoqueAtualizado.findIndex(
         (item) => normalizarTexto(item.name) === nomeReceitaNormalizado,
       );
-      const indexDispensaCompativel =
-        indexDispensaExato >= 0
-          ? indexDispensaExato
+      const indexDespensaCompativel =
+        indexDespensaExato >= 0
+          ? indexDespensaExato
           : estoqueAtualizado.findIndex((item) =>
               nomesIngredientesCompativeis(nomeReceita, item.name),
             );
 
-      const indexDispensa = indexDispensaCompativel;
-      if (indexDispensa < 0) {
+      const indexDespensa = indexDespensaCompativel;
+      if (indexDespensa < 0) {
         ignoradosNaoEncontrados += 1;
         continue;
       }
 
-      const itemDispensa = estoqueAtualizado[indexDispensa];
-      const estoqueBase = converterParaUnidadeBase(itemDispensa.qty, itemDispensa.unit);
+      const itemDespensa = estoqueAtualizado[indexDespensa];
+      const estoqueBase = converterParaUnidadeBase(
+        itemDespensa.qty,
+        itemDespensa.unit,
+      );
 
       let quantidadeConsumir = 0;
 
-      const quantidadeGramasMl = Number(ingredienteReceita?.quantidade_gramas_ml) || 0;
+      const quantidadeGramasMl =
+        Number(ingredienteReceita?.quantidade_gramas_ml) || 0;
       const baixaConfianca = Boolean(ingredienteReceita?.baixa_confianca);
       if (baixaConfianca && quantidadeGramasMl > 0) {
         ignoradosBaixaConfianca += 1;
         continue;
       }
 
-      if (quantidadeGramasMl > 0 && ["g", "ml"].includes(estoqueBase.unidadeBase)) {
+      if (
+        quantidadeGramasMl > 0 &&
+        ["g", "ml"].includes(estoqueBase.unidadeBase)
+      ) {
         quantidadeConsumir = quantidadeGramasMl;
       } else {
         const quantidadeReceita = Number(ingredienteReceita?.quantidade) || 0;
         const unidadeReceita = ingredienteReceita?.unidade || "un";
-        const receitaBase = converterParaUnidadeBase(quantidadeReceita, unidadeReceita);
+        const receitaBase = converterParaUnidadeBase(
+          quantidadeReceita,
+          unidadeReceita,
+        );
 
         if (receitaBase.unidadeBase !== estoqueBase.unidadeBase) {
           ignoradosIncompativeis += 1;
@@ -359,24 +401,25 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
 
       const novoValorBase = Math.max(0, estoqueBase.valor - quantidadeConsumir);
       const novoValorUnidadeOriginal = Number(
-        converterDaBaseParaUnidade(novoValorBase, itemDispensa.unit).toFixed(3)
+        converterDaBaseParaUnidade(novoValorBase, itemDespensa.unit).toFixed(3),
       );
-      
+
       // Regra: se chegar a 0, desativa o item (selected: false)
-      const novoStatusSelected = novoValorUnidadeOriginal > 0 ? itemDispensa.selected : false;
+      const novoStatusSelected =
+        novoValorUnidadeOriginal > 0 ? itemDespensa.selected : false;
 
       const itemAtualizado = {
-        ...itemDispensa,
+        ...itemDespensa,
         qty: novoValorUnidadeOriginal,
-        unit: itemDispensa.unit,
+        unit: itemDespensa.unit,
         selected: novoStatusSelected,
       };
 
-      estoqueAtualizado[indexDispensa] = itemAtualizado;
+      estoqueAtualizado[indexDespensa] = itemAtualizado;
       alteracoes.push({
-        id: itemDispensa.id,
+        id: itemDespensa.id,
         quantidade: novoValorUnidadeOriginal,
-        unidade: itemDispensa.unit,
+        unidade: itemDespensa.unit,
         selected: novoStatusSelected,
       });
     }
@@ -395,16 +438,16 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
     for (const item of alteracoes) {
       const { error } = await supabase
         .from("dispensa")
-        .update({ 
-          quantidade: item.quantidade, 
+        .update({
+          quantidade: item.quantidade,
           unidade: item.unidade,
-          selected: item.selected 
+          selected: item.selected,
         })
         .eq("id", item.id);
 
       if (error) {
         console.error("Erro ao abater ingredientes da despensa:", error);
-        await buscarDispensa();
+        await buscarDespensa();
         return {
           sucesso: false,
           abatidos: 0,
@@ -429,7 +472,7 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <DispensaContext.Provider
+    <DespensaContext.Provider
       value={{
         ingredients,
         filteredIngredients,
@@ -445,12 +488,12 @@ export function DispensaProvider({ children }: { children: React.ReactNode }) {
         selectedIngredients,
         selectedIngredientIds,
         isLoading,
-        buscarDispensa,
+        buscarDespensa,
       }}
     >
       {children}
-    </DispensaContext.Provider>
+    </DespensaContext.Provider>
   );
 }
 
-export const useDispensa = () => useContext(DispensaContext);
+export const useDespensa = () => useContext(DespensaContext);

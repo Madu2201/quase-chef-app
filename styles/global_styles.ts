@@ -1,11 +1,11 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
 import {
-    Colors,
-    Fonts,
-    FontSizes,
-    Radius,
-    Shadows,
-    Spacing,
+  Colors,
+  Fonts,
+  FontSizes,
+  Radius,
+  Shadows,
+  Spacing,
 } from "../constants/theme";
 
 // CONTAINERS E LAYOUTS BÁSICOS
@@ -16,7 +16,7 @@ export const ITEM_LIST_CONTAINERS = StyleSheet.create({
   },
 });
 
-// CARDS E SEÇÕES - DISPENSA, LISTA
+// CARDS E SEÇÕES - DESPENSA, LISTA
 export const ITEM_LIST_CARDS = StyleSheet.create({
   addCard: {
     backgroundColor: Colors.light,
@@ -59,7 +59,7 @@ export const ITEM_LIST_CARDS = StyleSheet.create({
   },
 });
 
-// INPUTS E CAMPOS DE TEXTO - DISPENSA, LISTA
+// INPUTS E CAMPOS DE TEXTO - DESPENSA, LISTA
 export const ITEM_LIST_INPUTS = StyleSheet.create({
   inputBase: {
     backgroundColor: Colors.background,
@@ -85,7 +85,7 @@ export const ITEM_LIST_INPUTS = StyleSheet.create({
   },
 });
 
-// LAYOUTS FLEX - DISPENSA, LISTA
+// LAYOUTS FLEX - DESPENSA, LISTA
 export const ITEM_LIST_FLEX = StyleSheet.create({
   row: {
     flexDirection: "row",
@@ -97,7 +97,7 @@ export const ITEM_LIST_FLEX = StyleSheet.create({
   },
 });
 
-// PICKERS E SELETORES DE UNIDADES - DISPENSA, LISTA
+// PICKERS E SELETORES DE UNIDADES - DESPENSA, LISTA
 export const ITEM_LIST_PICKERS = StyleSheet.create({
   pickerMock: {
     backgroundColor: Colors.background,
@@ -183,7 +183,7 @@ export const ITEM_LIST_PICKERS = StyleSheet.create({
   },
 });
 
-// BOTÕES AÇÃO E INTERAÇÃO - DISPENSA, LISTA
+// BOTÕES AÇÃO E INTERAÇÃO - DESPENSA, LISTA
 export const ITEM_LIST_BUTTONS = StyleSheet.create({
   btnAdd: {
     backgroundColor: Colors.secondary,
@@ -216,7 +216,7 @@ export const ITEM_LIST_CHECKBOX = StyleSheet.create({
   },
 });
 
-// AÇÕES - DELETAR/REMOVER - DISPENSA, LISTA
+// AÇÕES - DELETAR/REMOVER - DESPENSA, LISTA
 export const ITEM_LIST_ACTIONS = StyleSheet.create({
   btnDelete: {
     padding: Spacing.xs,
@@ -400,7 +400,7 @@ export const PERFIL_INPUTS = StyleSheet.create({
   },
 });
 
-// ACTION BUTTONS - HOME, DISPENSA, LISTA, SELECAO_IA
+// ACTION BUTTONS - HOME, DESPENSA, LISTA, SELECAO_IA
 export const GLOBAL_ACTION_BUTTONS = StyleSheet.create({
   btn: {
     flexDirection: "row",

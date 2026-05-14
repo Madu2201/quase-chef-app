@@ -1,4 +1,4 @@
-import { CompraItem } from '../types/lista';
+import { CompraItem } from "../types/lista";
 
 /**
  * 🛠️ Lógica de Validação do Quase Chef
@@ -11,37 +11,37 @@ import { CompraItem } from '../types/lista';
  * 3. Pelo menos um símbolo especial
  */
 export const getPasswordRequirements = (password: string) => {
-    return {
-        // Verifica se o comprimento é exatamente 8
-        exactLength: password.length === 8,
-        // Verifica se existe ao menos uma letra usando Regex
-        hasLetter: /[a-zA-Z]/.test(password),
-        // Verifica se existe ao menos um símbolo especial
-        hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-    };
+  return {
+    // Verifica se o comprimento é exatamente 8
+    exactLength: password.length === 8,
+    // Verifica se existe ao menos uma letra usando Regex
+    hasLetter: /[a-zA-Z]/.test(password),
+    // Verifica se existe ao menos um símbolo especial
+    hasSymbol: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
 };
 
 /**
  * Retorna true apenas se todos os requisitos forem atendidos
  */
 export const isPasswordStrong = (password: string): boolean => {
-    const req = getPasswordRequirements(password);
-    return req.exactLength && req.hasLetter && req.hasSymbol;
+  const req = getPasswordRequirements(password);
+  return req.exactLength && req.hasLetter && req.hasSymbol;
 };
 
 /**
  * Validação de E-mail padrão
  */
 export const validateEmail = (email: string): boolean => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email.trim());
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email.trim());
 };
 
 /**
  * Validação de Nome (mínimo 3 caracteres)
  */
 export const validateName = (name: string): boolean => {
-    return name.trim().length >= 3;
+  return name.trim().length >= 3;
 };
 
 /**
@@ -53,7 +53,7 @@ export const validateName = (name: string): boolean => {
  */
 export const parseNumero = (
   valor: string | number | undefined | null,
-  defaultValue: number = 0
+  defaultValue: number = 0,
 ): number => {
   if (valor === null || valor === undefined) return defaultValue;
 
@@ -83,7 +83,7 @@ export const normalizarNome = (nome: string): string => {
  */
 export const validateQuantity = (
   valor: string | number,
-  max: number = 99999
+  max: number = 99999,
 ): number | null => {
   const num = parseNumero(valor);
 
@@ -99,15 +99,15 @@ export const validateQuantity = (
 // ============================================================================
 
 /**
- * Garante que o item comprado tem os dados mínimos e válidos antes de ser enviado para a dispensa.
+ * Garante que o item comprado tem os dados mínimos e válidos antes de ser enviado para a despensa.
  */
 export function validarParaUpsert(item: CompraItem): boolean {
-    if (!item || !item.nome || item.nome.trim() === "") return false;
-    
-    const qtd = Number(item.quantidade_comprar);
-    if (isNaN(qtd) || qtd <= 0) return false;
-    
-    if (!item.unidade || item.unidade.trim() === "") return false;
-    
-    return true;
+  if (!item || !item.nome || item.nome.trim() === "") return false;
+
+  const qtd = Number(item.quantidade_comprar);
+  if (isNaN(qtd) || qtd <= 0) return false;
+
+  if (!item.unidade || item.unidade.trim() === "") return false;
+
+  return true;
 }

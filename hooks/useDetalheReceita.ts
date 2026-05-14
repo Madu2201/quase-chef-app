@@ -14,7 +14,7 @@ import {
   processarIngredientes,
   processarPassosPreparo,
 } from "../utils/receitaUtils";
-import { useDispensa } from "./useDispensa";
+import { useDespensa } from "./useDespensa";
 import type { Recipe } from "./useReceitas";
 
 interface UseDetalheReceitaReturn {
@@ -48,7 +48,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     useState<ReceitaBancoDados | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const { ingredients: dispensa } = useDispensa();
+  const { ingredients: despensa } = useDespensa();
 
   // ============================================
   // REGRA 3: Fetch com isMounted tracking
@@ -129,7 +129,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
       // Dados do banco de dados
       const ingredientes = processarIngredientes(
         JSON.stringify(receitaBancoDados.ingredientes || []),
-        dispensa,
+        despensa,
       );
       const preparo = processarPassosPreparo(
         JSON.stringify(receitaBancoDados.passos_detalhados || []),
@@ -182,7 +182,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
       // Fallback: dados dos params (para recepção diretas ou navegação com dados)
       const ingredientes = processarIngredientes(
         params.ingredients as string,
-        dispensa,
+        despensa,
       );
       const preparo = processarPassosPreparo(params.steps as string);
 
@@ -230,7 +230,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
               ],
       };
     }
-  }, [receitaBancoDados, params, dispensa]);
+  }, [receitaBancoDados, params, despensa]);
 
   // Dados para receita de IA (se aplicável)
   const receitaFavoritoIA: Recipe | undefined = useMemo(() => {

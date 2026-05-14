@@ -8,9 +8,12 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
-import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlimentar";
+import {
+  ALLERGY_OPTIONS,
+  FOOD_PREFERENCE_OPTIONS,
+} from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
-import type { Ingredient } from "../types/dispensa";
+import type { Ingredient } from "../types/despensa";
 
 /**
  * Mapeia uma string para o componente de ícone correspondente
@@ -37,7 +40,7 @@ export const getCategoriaIcon = (iconName: string, size = 14) => {
 
 /**
  * Lógica de correspondência inteligente (Sinônimos e Variações)
- * Verifica se o nome de um ingrediente da dispensa pertence a uma categoria
+ * Verifica se o nome de um ingrediente da despensa pertence a uma categoria
  */
 export const verificarCorrespondencia = (
   ingName: string,
@@ -104,7 +107,7 @@ export const limparJSONIA = (rawString: string): string => {
     .trim();
 };
 
-/** Ingredientes selecionados com quantidade/unidade reais da dispensa (para regras de limite no prompt). */
+/** Ingredientes selecionados com quantidade/unidade reais da despensa (para regras de limite no prompt). */
 export type IngredienteSelecionadoParaPrompt = {
   nome: string;
   quantidadeDisponivel: number;
@@ -112,13 +115,13 @@ export type IngredienteSelecionadoParaPrompt = {
 };
 
 /**
- * Monta o estoque para o prompt a partir dos IDs da dispensa (evita ambiguidade com nomes duplicados).
+ * Monta o estoque para o prompt a partir dos IDs da despensa (evita ambiguidade com nomes duplicados).
  */
 export function montarListaIngredientesPorIds(
   idsSelecionados: string[],
-  estoqueDispensa: Ingredient[],
+  estoqueDespensa: Ingredient[],
 ): IngredienteSelecionadoParaPrompt[] {
-  const map = new Map(estoqueDispensa.map((i) => [i.id, i]));
+  const map = new Map(estoqueDespensa.map((i) => [i.id, i]));
   return idsSelecionados
     .filter(Boolean)
     .map((id) => map.get(id))
@@ -165,8 +168,9 @@ function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
     const texto = ctx.chavesPreferenciaUsuario
       .map(
         (k) =>
-          FOOD_PREFERENCE_OPTIONS.find((o) => o.key === k)?.label?.toLowerCase() ||
-          k,
+          FOOD_PREFERENCE_OPTIONS.find(
+            (o) => o.key === k,
+          )?.label?.toLowerCase() || k,
       )
       .join(", ");
     linhas.push(
@@ -200,7 +204,7 @@ export function montarPromptGeracaoReceitaIA(
       return (
         `- "${ing.nome}": DISPONÍVEL no máximo ${limite} ${u}. ` +
         `Na lista "ingredientes" do JSON, a "quantidade" deste item deve ser estritamente ≤ ${limite}. ` +
-        `O campo "unidade" para este ingrediente deve ser exatamente "${u}" (mesma unidade da dispensa; se o estoque está em unidades, não use gramas/ml para este item).`
+        `O campo "unidade" para este ingrediente deve ser exatamente "${u}" (mesma unidade da despensa; se o estoque está em unidades, não use gramas/ml para este item).`
       );
     })
     .join("\n");
@@ -219,8 +223,8 @@ ESTOQUE DO USUÁRIO (teto máximo por item — a quantidade na receita NUNCA pod
 ${blocoEstoque}
 
 REGRAS DE QUANTIDADE E UNIDADE:
-- Para cada ingrediente da dispensa, a quantidade sugerida na receita deve ser no máximo igual ao disponível e tipicamente uma parte dele (ex.: 500g de 4kg), nunca o total obrigatório nem um valor acima do estoque.
-- Respeite fidelidade à unidade da dispensa: se o item está em "un", use unidades na receita; não converta batatas em gramas se o estoque foi em unidades.
+- Para cada ingrediente da despensa, a quantidade sugerida na receita deve ser no máximo igual ao disponível e tipicamente uma parte dele (ex.: 500g de 4kg), nunca o total obrigatório nem um valor acima do estoque.
+- Respeite fidelidade à unidade da despensa: se o item está em "un", use unidades na receita; não converta batatas em gramas se o estoque foi em unidades.
 - Garanta que nenhuma linha de ingrediente implique falta no estoque do usuário (nada de quantidades > disponível).
 
 REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON APENAS):

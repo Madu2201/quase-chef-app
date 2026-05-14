@@ -1,6 +1,6 @@
 /**
  * Ingredientes que se presume o usuário sempre tem em casa
- * Não precisa estar adicionado na dispensa
+ * Não precisa estar adicionado na despensa
  */
 export const INGREDIENTES_LIVRES = [
   "agua",
@@ -20,7 +20,8 @@ export const INGREDIENTES_LIVRES = [
  * Strings padrão para receitas
  */
 export const RECEITA_STRINGS = {
-  IMAGEM_PADRAO: "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000",
+  IMAGEM_PADRAO:
+    "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000",
   DICA_IA_PADRAO: "Que tal adicionar seu toque especial a essa receita?",
   SEM_INGREDIENTES: "Sem ingredientes cadastrados.",
   SEM_PASSOS: "Sem passos cadastrados",
@@ -43,10 +44,10 @@ export const UNIDADES_ACEITAS = [
 ];
 
 /**
- * Categorias de ingredientes para a dispensa e seleção IA
+ * Categorias de ingredientes para a despensa e seleção IA
  * IMPORTANTE: Cada categoria tem prioridade - ingredientes serão atribuídos à primeira categoria correspondente
  */
-export const CATEGORIAS_DISPENSA = [
+export const CATEGORIAS_DESPENSA = [
   {
     titulo: "PROTEÍNAS",
     icon: "Flame",

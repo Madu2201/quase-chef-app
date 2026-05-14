@@ -1,5 +1,11 @@
 import { Tabs } from "expo-router";
-import { Home, Utensils, Heart, Refrigerator, ListTodo } from "lucide-react-native";
+import {
+  Heart,
+  Home,
+  ListTodo,
+  Refrigerator,
+  Utensils,
+} from "lucide-react-native";
 
 // Meu import
 import { Colors, FontSizes } from "../../constants/theme";
@@ -14,8 +20,8 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: Colors.subtitle,
         tabBarLabelStyle: {
           fontSize: FontSizes.small,
-          marginTop: - 4,
-        }
+          marginTop: -4,
+        },
       }}
     >
       <Tabs.Screen
@@ -29,7 +35,7 @@ export default function TabsLayout() {
               fill={focused ? color : "transparent"}
               fillOpacity={0.4}
             />
-          )
+          ),
         }}
       />
       <Tabs.Screen
@@ -43,7 +49,7 @@ export default function TabsLayout() {
               fill={focused ? color : "transparent"}
               fillOpacity={0.4}
             />
-          )
+          ),
         }}
       />
       <Tabs.Screen
@@ -57,13 +63,13 @@ export default function TabsLayout() {
               fill={focused ? color : "transparent"}
               fillOpacity={focused ? 1 : 0}
             />
-          )
+          ),
         }}
       />
       <Tabs.Screen
-        name="dispensa"
+        name="despensa"
         options={{
-          title: "Dispensa",
+          title: "Despensa",
           tabBarIcon: ({ color, focused }) => (
             <Refrigerator
               size={24}
@@ -71,7 +77,7 @@ export default function TabsLayout() {
               fill={focused ? color : "transparent"}
               fillOpacity={0.4}
             />
-          )
+          ),
         }}
       />
       <Tabs.Screen
@@ -85,7 +91,7 @@ export default function TabsLayout() {
               fill={focused ? color : "transparent"}
               fillOpacity={focused ? 1 : 0}
             />
-          )
+          ),
         }}
       />
     </Tabs>

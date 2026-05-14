@@ -1,43 +1,70 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  AlertCircle, Heart, Lightbulb, Pause, Play, RotateCcw, Share2, Stars, X,
+  AlertCircle,
+  Heart,
+  Lightbulb,
+  Pause,
+  Play,
+  RotateCcw,
+  Share2,
+  Stars,
+  X,
 } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator, Alert, Image, Pressable, ScrollView, Share, StatusBar, Text, View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  Share,
+  StatusBar,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-  FadeIn, FadeInLeft, FadeInUp, useAnimatedStyle, useSharedValue, withSpring,
+  FadeIn,
+  FadeInLeft,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports organizados
 import { Colors } from "../constants/theme";
+import { useDespensa } from "../hooks/useDespensa";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
-import { useDispensa } from "../hooks/useDispensa";
 import type { Recipe } from "../hooks/useReceitas";
 import { preparoStyles as styles } from "../styles/preparo_styles";
 import type { PassoPreparo } from "../types/detalhe_receita";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
-import { criarReceitaIAParaPreparo, processarParamsPreparo } from "../utils/preparoUtils";
+import {
+  criarReceitaIAParaPreparo,
+  processarParamsPreparo,
+} from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 
 export default function PreparoReceitaScreen() {
   // ============================================
   // REGRA 1: TODOS OS HOOKS NO TOPO
   // ============================================
-  
+
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
   // Processamento organizado dos parâmetros
-  const paramsProcessados: PreparoReceitaParams = processarParamsPreparo(params);
+  const paramsProcessados: PreparoReceitaParams =
+    processarParamsPreparo(params);
   const passosDinamicos: PassoPreparo[] = paramsProcessados.passosJson
     ? JSON.parse(paramsProcessados.passosJson)
     : [];
 
   // Hooks - TODOS declarados no topo, sem early returns
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
-  const { abaterIngredientesDaReceita } = useDispensa();
+  const { abaterIngredientesDaReceita } = useDespensa();
   const {
     passoAtual,
     isConcluido,
@@ -51,7 +78,11 @@ export default function PreparoReceitaScreen() {
     totalPassos,
     isLoading,
     erro,
-  } = usePreparoReceita(passosDinamicos, paramsProcessados.id, paramsProcessados.tipo);
+  } = usePreparoReceita(
+    passosDinamicos,
+    paramsProcessados.id,
+    paramsProcessados.tipo,
+  );
 
   // Estado local e Reanimated hooks
   const isIA = paramsProcessados.tipo === "ia";
@@ -105,7 +136,9 @@ export default function PreparoReceitaScreen() {
       }
 
       estoqueAbatidoRef.current = true;
-      const resultado = await abaterIngredientesDaReceita(paramsProcessados.rawIngredients);
+      const resultado = await abaterIngredientesDaReceita(
+        paramsProcessados.rawIngredients,
+      );
       const totalIgnorados =
         resultado.ignoradosIncompativeis +
         resultado.ignoradosNaoEncontrados +
@@ -119,7 +152,7 @@ export default function PreparoReceitaScreen() {
         Alert.alert(
           "Atenção",
           resultado.mensagem ||
-            "A receita foi concluída, mas não foi possível atualizar sua despensa agora."
+            "A receita foi concluída, mas não foi possível atualizar sua despensa agora.",
         );
       } else {
         Alert.alert("Despensa atualizada", resumo);
@@ -127,7 +160,11 @@ export default function PreparoReceitaScreen() {
     };
 
     executarAbatimento();
-  }, [isConcluido, paramsProcessados.rawIngredients, abaterIngredientesDaReceita]);
+  }, [
+    isConcluido,
+    paramsProcessados.rawIngredients,
+    abaterIngredientesDaReceita,
+  ]);
 
   // ============================================
   // RENDERIZAÇÃO (após TODOS os hooks)
@@ -138,9 +175,13 @@ export default function PreparoReceitaScreen() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <ActivityIndicator size="large" color={Colors.secondary} />
-          <Text style={{ marginTop: 12, color: Colors.subtext }}>Carregando receita...</Text>
+          <Text style={{ marginTop: 12, color: Colors.subtext }}>
+            Carregando receita...
+          </Text>
         </View>
       </View>
     );
@@ -151,19 +192,44 @@ export default function PreparoReceitaScreen() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <AlertCircle size={48} color={Colors.secondary} style={{ marginBottom: 16 }} />
-          <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.primary, textAlign: 'center', marginBottom: 8 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}
+        >
+          <AlertCircle
+            size={48}
+            color={Colors.secondary}
+            style={{ marginBottom: 16 }}
+          />
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "bold",
+              color: Colors.primary,
+              textAlign: "center",
+              marginBottom: 8,
+            }}
+          >
             Oops! Algo deu errado
           </Text>
-          <Text style={{ fontSize: 14, color: Colors.subtext, textAlign: 'center', marginBottom: 20 }}>
+          <Text
+            style={{
+              fontSize: 14,
+              color: Colors.subtext,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
             {erro}
           </Text>
-          <Pressable 
-            style={styles.btnLaranja}
-            onPress={() => router.back()}
-          >
-            <Text style={[styles.btnAcaoTexto, { color: Colors.light }]}>Voltar</Text>
+          <Pressable style={styles.btnLaranja} onPress={() => router.back()}>
+            <Text style={[styles.btnAcaoTexto, { color: Colors.light }]}>
+              Voltar
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -174,7 +240,10 @@ export default function PreparoReceitaScreen() {
   if (isConcluido) {
     return (
       <ScrollView
-        contentContainerStyle={styles.containerSucesso}
+        contentContainerStyle={[
+          styles.containerSucesso,
+          { paddingBottom: insets.bottom + 32 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <StatusBar barStyle="dark-content" />
@@ -213,7 +282,9 @@ export default function PreparoReceitaScreen() {
           />
           <View style={styles.successInfo}>
             <Text style={styles.preparouLabel}>VOCÊ PREPAROU:</Text>
-            <Text style={styles.sucessRecipeTitle}>{paramsProcessados.titulo}</Text>
+            <Text style={styles.sucessRecipeTitle}>
+              {paramsProcessados.titulo}
+            </Text>
           </View>
         </Animated.View>
 
@@ -288,7 +359,12 @@ export default function PreparoReceitaScreen() {
         ))}
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 140,
+        }}
+      >
         <Animated.View key={passoAtual} entering={FadeIn.duration(400)}>
           <View style={styles.stepCard}>
             <Text style={styles.stepIndicator}>
@@ -318,7 +394,9 @@ export default function PreparoReceitaScreen() {
                   <Pressable
                     style={[
                       styles.btnTimerControl,
-                      (!timerAtivo && tempo <= 0) && styles.btnTimerControlDisabled // Adicione esta linha
+                      !timerAtivo &&
+                        tempo <= 0 &&
+                        styles.btnTimerControlDisabled, // Adicione esta linha
                     ]}
                     onPress={toggleTimer}
                     disabled={!timerAtivo && tempo <= 0}
@@ -355,7 +433,7 @@ export default function PreparoReceitaScreen() {
         </Animated.View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         {passoAtual > 0 && (
           <Pressable
             style={[styles.btnAcao, styles.btnBorda]}

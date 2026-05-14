@@ -1,10 +1,4 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  RotateCcw,
-  X,
-  Zap,
-} from "lucide-react-native";
+import { ChevronDown, ChevronUp, RotateCcw, X, Zap } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
 import {
   Image,
@@ -19,6 +13,7 @@ import Animated, {
   FadeInRight,
   Layout,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports
 import { GenerateButton } from "../components/generate_button";
@@ -26,88 +21,95 @@ import { Header } from "../components/header";
 import { Colors } from "../constants/theme";
 import { useSelecaoIA } from "../hooks/useSelecaoIA";
 import { styles } from "../styles/selecao_ia_styles";
-import type { Ingredient } from "../types/dispensa";
+import type { Ingredient } from "../types/despensa";
 
 // --- SUB-COMPONENTES AUXILIARES (MEMOIZADOS) ---
 
 /** Bandeja horizontal de itens já selecionados */
-const SelectedTray = memo(({ 
-  items, 
-  onRemove 
-}: { 
-  items: Ingredient[]; 
-  onRemove: (id: string) => void; 
-}) => {
-  if (items.length === 0) return null;
+const SelectedTray = memo(
+  ({
+    items,
+    onRemove,
+  }: {
+    items: Ingredient[];
+    onRemove: (id: string) => void;
+  }) => {
+    if (items.length === 0) return null;
 
-  return (
-    <View style={styles.trayWrapper}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.trayScrollContent}
-      >
-        {items.map((ing) => (
-          <Animated.View
-            key={`tray-${ing.id}`}
-            entering={FadeInRight.duration(300)}
-          >
-            <TouchableOpacity
-              style={styles.trayItem}
-              onPress={() => onRemove(ing.id)}
-              activeOpacity={0.8}
+    return (
+      <View style={styles.trayWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.trayScrollContent}
+        >
+          {items.map((ing) => (
+            <Animated.View
+              key={`tray-${ing.id}`}
+              entering={FadeInRight.duration(300)}
             >
-              <Text style={styles.trayItemText}>{ing.name}</Text>
-              <X size={14} color={Colors.light} />
-            </TouchableOpacity>
-          </Animated.View>
-        ))}
-      </ScrollView>
-    </View>
-  );
-});
+              <TouchableOpacity
+                style={styles.trayItem}
+                onPress={() => onRemove(ing.id)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.trayItemText}>{ing.name}</Text>
+                <X size={14} color={Colors.light} />
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  },
+);
 
 /** Chip individual de ingrediente na lista principal */
-const IngredientChip = memo(({ 
-  ing, 
-  isSelected, 
-  onToggle 
-}: { 
-  ing: Ingredient; 
-  isSelected: boolean; 
-  onToggle: (id: string) => void; 
-}) => {
-  // Formatação local para evitar poluição no JSX principal
-  const formattedQty = useMemo(() => {
-    const q = Number(ing.qty);
-    if (!Number.isFinite(q)) return ing.unit || "";
-    const arredondado = Math.round(q * 1000) / 1000;
-    const texto = arredondado % 1 === 0 
-      ? String(arredondado) 
-      : arredondado.toFixed(2).replace(/\.?0+$/, "");
-    return `${texto} ${ing.unit}`.trim();
-  }, [ing.qty, ing.unit]);
+const IngredientChip = memo(
+  ({
+    ing,
+    isSelected,
+    onToggle,
+  }: {
+    ing: Ingredient;
+    isSelected: boolean;
+    onToggle: (id: string) => void;
+  }) => {
+    // Formatação local para evitar poluição no JSX principal
+    const formattedQty = useMemo(() => {
+      const q = Number(ing.qty);
+      if (!Number.isFinite(q)) return ing.unit || "";
+      const arredondado = Math.round(q * 1000) / 1000;
+      const texto =
+        arredondado % 1 === 0
+          ? String(arredondado)
+          : arredondado.toFixed(2).replace(/\.?0+$/, "");
+      return `${texto} ${ing.unit}`.trim();
+    }, [ing.qty, ing.unit]);
 
-  return (
-    <Pressable
-      onPress={() => onToggle(ing.id)}
-      style={[styles.chip, isSelected && styles.chipActive]}
-    >
-      <View style={styles.chipTextBlock}>
-        <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
-          {ing.name}
-        </Text>
-        <Text style={[styles.chipMeta, isSelected && styles.chipMetaActive]}>
-          {formattedQty}
-        </Text>
-      </View>
-    </Pressable>
-  );
-});
+    return (
+      <Pressable
+        onPress={() => onToggle(ing.id)}
+        style={[styles.chip, isSelected && styles.chipActive]}
+      >
+        <View style={styles.chipTextBlock}>
+          <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
+            {ing.name}
+          </Text>
+          <Text style={[styles.chipMeta, isSelected && styles.chipMetaActive]}>
+            {formattedQty}
+          </Text>
+        </View>
+      </Pressable>
+    );
+  },
+);
 
 // --- TELA PRINCIPAL ---
 
 export default function SelecaoIAScreen() {
+  const insets = useSafeAreaInsets();
+
   const {
     busca,
     setBusca,
@@ -136,7 +138,10 @@ export default function SelecaoIAScreen() {
       />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: insets.bottom + 140 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Banner Hero */}
@@ -160,16 +165,25 @@ export default function SelecaoIAScreen() {
         </Animated.View>
 
         {/* Título e Contador */}
-        <Animated.View entering={FadeInDown.delay(150)} style={styles.sectionTitleContainer}>
-          <Text style={styles.sectionTitleText}>Ingredientes da minha despensa:</Text>
+        <Animated.View
+          entering={FadeInDown.delay(150)}
+          style={styles.sectionTitleContainer}
+        >
+          <Text style={styles.sectionTitleText}>
+            Ingredientes da minha despensa:
+          </Text>
         </Animated.View>
 
         <View style={styles.actionRow}>
           <Text style={styles.countText}>
-            {selecionadosCount} {selecionadosCount === 1 ? "selecionado" : "selecionados"}
+            {selecionadosCount}{" "}
+            {selecionadosCount === 1 ? "selecionado" : "selecionados"}
           </Text>
           {selecionadosCount > 0 && (
-            <TouchableOpacity style={styles.clearButton} onPress={limparSelecao}>
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={limparSelecao}
+            >
               <RotateCcw size={14} color={Colors.primary} />
               <Text style={styles.clearButtonText}>Limpar</Text>
             </TouchableOpacity>
@@ -177,15 +191,18 @@ export default function SelecaoIAScreen() {
         </View>
 
         {/* Bandeja de Selecionados */}
-        <SelectedTray items={ingredientesSelecionados} onRemove={toggleIngrediente} />
+        <SelectedTray
+          items={ingredientesSelecionados}
+          onRemove={toggleIngrediente}
+        />
 
         {/* Listagem de Categorias (Alfabética) */}
         {categoriasFiltradas.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>
-              {busca 
-                ? "Nenhum ingrediente encontrado." 
-                : "Sua dispensa está vazia."}
+              {busca
+                ? "Nenhum ingrediente encontrado."
+                : "Sua despensa está vazia."}
             </Text>
           </View>
         ) : (
@@ -211,7 +228,8 @@ export default function SelecaoIAScreen() {
                     </View>
                     <View style={styles.quantityPill}>
                       <Text style={styles.quantityText}>
-                        {cat.itens.length} {cat.itens.length === 1 ? "item" : "itens"}
+                        {cat.itens.length}{" "}
+                        {cat.itens.length === 1 ? "item" : "itens"}
                       </Text>
                     </View>
                     <View style={styles.headerDivider} />
@@ -243,9 +261,11 @@ export default function SelecaoIAScreen() {
       </ScrollView>
 
       {/* Rodapé Fixo */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <GenerateButton
-          label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"}
+          label={
+            isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"
+          }
           selectedCount={selecionadosCount}
           onPress={handleGerarReceita}
           disabled={isGenerating}

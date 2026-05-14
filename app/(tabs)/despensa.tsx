@@ -1,26 +1,29 @@
 import { Check, Edit2, Trash2, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AddItemCard } from "../../components/AddItemCard";
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
 import { UNIDADES_ACEITAS } from "../../constants/ingredients";
 import { Colors } from "../../constants/theme";
-import { useDispensa } from "../../hooks/useDispensa";
+import { useDespensa } from "../../hooks/useDespensa";
 import { useSelecaoIA } from "../../hooks/useSelecaoIA";
-import { dispensaStyles as styles } from "../../styles/dispensa_styles";
+import { despensaStyles as styles } from "../../styles/despensa_styles";
 import { validateQuantity } from "../../utils/validation";
 
-export default function DispensaScreen() {
+export default function DespensaScreen() {
+  const insets = useSafeAreaInsets();
+
   const {
     filteredIngredients,
     searchText,
@@ -32,7 +35,7 @@ export default function DispensaScreen() {
     selectedCount,
     selectedIngredientIds,
     isLoading,
-  } = useDispensa();
+  } = useDespensa();
 
   const { handleGerarReceita, isGenerating } = useSelecaoIA();
 
@@ -62,7 +65,7 @@ export default function DispensaScreen() {
     if (!nomeNovo.trim() || !qtdNova.trim() || !metaNova.trim()) {
       return Alert.alert(
         "Atenção",
-        "Preencha o nome, a quantidade atual e a meta."
+        "Preencha o nome, a quantidade atual e a meta.",
       );
     }
 
@@ -72,14 +75,14 @@ export default function DispensaScreen() {
     if (qty === null || ideal === null) {
       return Alert.alert(
         "Erro",
-        "Quantidade deve ser um número entre 0 e 99999."
+        "Quantidade deve ser um número entre 0 e 99999.",
       );
     }
 
     if (qty === 0 || ideal === 0) {
       return Alert.alert(
         "Atenção",
-        "Quantidade não pode ser zero. Defina um valor maior que zero."
+        "Quantidade não pode ser zero. Defina um valor maior que zero.",
       );
     }
 
@@ -90,7 +93,7 @@ export default function DispensaScreen() {
       setQtdNova("");
       setMetaNova("");
       setShowUnitPickerNew(false);
-    } catch (e) {
+    } catch {
       Alert.alert("Erro", "Falha ao adicionar ingrediente.");
     } finally {
       setIsAddingIngredient(false);
@@ -125,7 +128,7 @@ export default function DispensaScreen() {
     if (qty === null || ideal === null) {
       return Alert.alert(
         "Erro",
-        "Quantidade deve ser um número entre 0 e 99999."
+        "Quantidade deve ser um número entre 0 e 99999.",
       );
     }
 
@@ -137,7 +140,7 @@ export default function DispensaScreen() {
   const showMetaHelp = () => {
     Alert.alert(
       "O que é a Meta?",
-      "É a quantidade que você sempre quer ter na dispensa (ex: 5kg de Arroz). Nossa IA usará isso para gerar sua Lista de Compras automaticamente quando o estoque baixar!"
+      "É a quantidade que você sempre quer ter na despensa (ex: 5kg de Arroz). Nossa IA usará isso para gerar sua Lista de Compras automaticamente quando o estoque baixar!",
     );
   };
 
@@ -153,7 +156,7 @@ export default function DispensaScreen() {
     units: string[],
     activeUnit: string,
     onSelect: (unit: string) => void,
-    onClose: () => void
+    onClose: () => void,
   ) => (
     <View style={styles.unitPickerContainer}>
       {units.map((u) => (
@@ -163,10 +166,7 @@ export default function DispensaScreen() {
             onSelect(u);
             onClose();
           }}
-          style={[
-            styles.unitChip,
-            activeUnit === u && styles.unitChipActive,
-          ]}
+          style={[styles.unitChip, activeUnit === u && styles.unitChipActive]}
         >
           <Text
             style={[
@@ -184,7 +184,7 @@ export default function DispensaScreen() {
   return (
     <View style={styles.container}>
       <Header
-        title="Sua Dispensa"
+        title="Sua Despensa"
         centerTitle
         searchText={searchText}
         setSearchText={setSearchText}
@@ -192,7 +192,10 @@ export default function DispensaScreen() {
       />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: insets.bottom + 150 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* === PAINEL DE ADIÇÃO INTELIGENTE === */}
@@ -236,7 +239,7 @@ export default function DispensaScreen() {
           />
         ) : filteredIngredients.length === 0 ? (
           <Text style={styles.emptyText}>
-            {searchText ? "Nenhum resultado." : "Sua dispensa está vazia."}
+            {searchText ? "Nenhum resultado." : "Sua despensa está vazia."}
           </Text>
         ) : (
           filteredIngredients.map((item) => {
@@ -253,14 +256,16 @@ export default function DispensaScreen() {
                 key={item.id}
                 style={[
                   styles.ingredientCard,
-                  item.qty === 0 && !isEditing && styles.ingredientCardEmpty
+                  item.qty === 0 && !isEditing && styles.ingredientCardEmpty,
                 ]}
               >
                 {/* --- MODO EXPANDIDO (EDIÇÃO) --- */}
                 {isEditing ? (
                   <View style={styles.editingContainer}>
                     <View style={styles.editingHeader}>
-                      <Text style={styles.editingTitle}>Editar Ingrediente</Text>
+                      <Text style={styles.editingTitle}>
+                        Editar Ingrediente
+                      </Text>
                       <TouchableOpacity
                         onPress={() => setEditingId(null)}
                         style={styles.editingCloseButton}
@@ -270,7 +275,10 @@ export default function DispensaScreen() {
                     </View>
 
                     <TextInput
-                      style={[styles.editingNameInput, { fontFamily: "System" }]}
+                      style={[
+                        styles.editingNameInput,
+                        { fontFamily: "System" },
+                      ]}
                       value={editForm.name}
                       onChangeText={(t) =>
                         setEditForm({ ...editForm, name: t })
@@ -281,7 +289,10 @@ export default function DispensaScreen() {
                       <View style={styles.editingField}>
                         <Text style={styles.editingFieldLabel}>Atual</Text>
                         <TextInput
-                          style={[styles.editingFieldInput, { fontFamily: "System" }]}
+                          style={[
+                            styles.editingFieldInput,
+                            { fontFamily: "System" },
+                          ]}
                           keyboardType="numeric"
                           value={editForm.qty}
                           onChangeText={(t) =>
@@ -292,7 +303,10 @@ export default function DispensaScreen() {
                       <View style={styles.editingField}>
                         <Text style={styles.editingFieldLabel}>Meta</Text>
                         <TextInput
-                          style={[styles.editingFieldInput, { fontFamily: "System" }]}
+                          style={[
+                            styles.editingFieldInput,
+                            { fontFamily: "System" },
+                          ]}
                           keyboardType="numeric"
                           value={editForm.ideal_qty}
                           onChangeText={(t) =>
@@ -322,9 +336,8 @@ export default function DispensaScreen() {
                       renderUnitPicker(
                         UNIDADES_ACEITAS,
                         editForm.unit,
-                        (unit) =>
-                          setEditForm({ ...editForm, unit }),
-                        () => setShowUnitPickerEdit(false)
+                        (unit) => setEditForm({ ...editForm, unit }),
+                        () => setShowUnitPickerEdit(false),
                       )}
 
                     <TouchableOpacity
@@ -357,10 +370,7 @@ export default function DispensaScreen() {
                             />
                           )}
                         </TouchableOpacity>
-                        <Text
-                          style={styles.viewNameText}
-                          numberOfLines={1}
-                        >
+                        <Text style={styles.viewNameText} numberOfLines={1}>
                           {item.name}
                         </Text>
                       </View>
@@ -408,15 +418,13 @@ export default function DispensaScreen() {
         selectedCount={selectedCount}
         disabled={isGenerating}
         loading={isGenerating}
-        label={
-          isGenerating ? "Cozinhando ideias... 🍳" : "Gerar receitas"
-        }
+        label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar receitas"}
         onPress={() =>
           selectedCount > 0
             ? void handleGerarReceita(selectedIngredientIds)
             : Alert.alert("Atenção", "Selecione ingredientes!")
         }
-        style={styles.floatingBtn}
+        style={[styles.floatingBtn, { bottom: insets.bottom + 16 }]}
       />
     </View>
   );

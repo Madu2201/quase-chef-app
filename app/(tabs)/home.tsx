@@ -1,10 +1,5 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import {
-  ChevronDown,
-  ChevronRight,
-  User2,
-  Zap
-} from "lucide-react-native";
+import { ChevronDown, ChevronRight, User2, Zap } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -35,7 +30,7 @@ import { useSugestoesHome } from "../../hooks/useSugestoesHome";
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const [fotoUrl, setFotoUrl] = useState('');
+  const [fotoUrl, setFotoUrl] = useState("");
 
   const [nomeExibido, setNomeExibido] = useState<any>(["Usuário"]);
 
@@ -63,7 +58,7 @@ export default function HomeScreen() {
       };
 
       carregarDadosUsuario();
-    }, [user])
+    }, [user]),
   );
 
   // Renderiza o componente
@@ -115,10 +110,7 @@ export default function HomeScreen() {
         </Animated.Text>
 
         {/* Hero Card */}
-        <Animated.View
-          entering={FadeInDown.delay(500)}
-          style={styles.heroCard}
-        >
+        <Animated.View entering={FadeInDown.delay(500)} style={styles.heroCard}>
           <View style={styles.heroTextArea}>
             <View style={styles.heroTag}>
               <Zap size={10} color={Colors.primary} fill={Colors.primary} />
@@ -167,33 +159,39 @@ export default function HomeScreen() {
 
         {/* Renderização Dinâmica das Sugestões */}
         {carregando ? (
-          <ActivityIndicator size="large" color={Colors.secondary} style={{ marginVertical: 20 }} />
+          <ActivityIndicator
+            size="large"
+            color={Colors.secondary}
+            style={{ marginVertical: 20 }}
+          />
         ) : sugestoes.length > 0 ? (
           sugestoes.map((receita: any, index: number) => (
             <RecipeCard
               key={receita.id}
-              delay={700 + (index * 100)} // Mantém o efeito cascata baseando-se no index
+              delay={700 + index * 100} // Mantém o efeito cascata baseando-se no index
               image={{ uri: receita.image }}
               time={receita.time}
               title={receita.title}
               desc={receita.descStart}
-              onPress={() => router.push({
-                pathname: '/detalhe_receita',
-                params: {
-                  id: receita.id,
-                  tipo: receita.tipo,
-                }
-              })}
+              onPress={() =>
+                router.push({
+                  pathname: "/detalhe_receita",
+                  params: {
+                    id: receita.id,
+                    tipo: receita.tipo,
+                  },
+                })
+              }
             />
           ))
         ) : (
-          <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={{ color: Colors.subtext, textAlign: 'center' }}>
-              Adicione mais itens na dispensa para ver sugestões mágicas por aqui!
+          <View style={{ padding: 20, alignItems: "center" }}>
+            <Text style={{ color: Colors.subtext, textAlign: "center" }}>
+              Adicione mais itens na despensa para ver sugestões mágicas por
+              aqui!
             </Text>
           </View>
         )}
-
       </ScrollView>
     </View>
   );
@@ -210,15 +208,10 @@ const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (
       onPress={onPress}
       style={styles.recipeTouchable}
     >
-      <Image
-        source={image}
-        style={styles.recipeImage}
-        resizeMode="cover"
-      />
+      <Image source={image} style={styles.recipeImage} resizeMode="cover" />
 
       {/* Container Principal das Infos (agora é row) */}
       <View style={styles.recipeInfo}>
-
         {/* Bloco de Esquerda: Apenas Textos */}
         <View style={styles.recipeTextBlock}>
           <Text style={styles.recipeTime}>⏱ {time}</Text>
@@ -236,7 +229,6 @@ const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (
         <View style={styles.recipeArrowBlock}>
           <ChevronRight size={22} color={Colors.primary} strokeWidth={2.5} />
         </View>
-
       </View>
     </TouchableOpacity>
   </Animated.View>

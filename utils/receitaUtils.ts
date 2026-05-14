@@ -1,11 +1,11 @@
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
+import type { Ingredient } from "../types/despensa";
 import type { Ingrediente, PassoPreparo } from "../types/detalhe_receita";
-import type { Ingredient } from "../types/dispensa";
 import {
-    converterParaUnidadeBase,
-    nomesIngredientesCompativeis,
-    normalizarBase,
-    normalizarTexto,
+  converterParaUnidadeBase,
+  nomesIngredientesCompativeis,
+  normalizarBase,
+  normalizarTexto,
 } from "./normalization";
 
 // Formata tempo de minutos/horas para exibição
@@ -20,7 +20,7 @@ export const formatarTempo = (tempo: string): string =>
 // Processa ingredientes do formato raw para o formato da interface
 export const calcularStatusIngrediente = (
   ingredienteReceita: any,
-  dispensa: Ingredient[],
+  despensa: Ingredient[],
 ): "ok" | "faltando" => {
   if (!ingredienteReceita || !ingredienteReceita.nome_base) {
     return "faltando";
@@ -35,17 +35,17 @@ export const calcularStatusIngrediente = (
     return "ok";
   }
 
-  const itemDispensa = encontrarItemDispensaPorNome(
+  const itemDespensa = encontrarItemDespensaPorNome(
     ingredienteReceita.nome_base,
-    dispensa,
+    despensa,
   );
 
-  if (!itemDispensa) {
+  if (!itemDespensa) {
     return "faltando";
   }
 
-  // Regra: se a quantidade na dispensa for 0 ou menor, está faltando
-  if (itemDispensa.qty <= 0) {
+  // Regra: se a quantidade na despensa for 0 ou menor, está faltando
+  if (itemDespensa.qty <= 0) {
     return "faltando";
   }
 
@@ -58,8 +58,8 @@ export const calcularStatusIngrediente = (
       ingredienteReceita.quantidade_gramas_ml,
     );
     const { valor: estoqueNormalizado } = converterParaUnidadeBase(
-      itemDispensa.qty,
-      itemDispensa.unit,
+      itemDespensa.qty,
+      itemDespensa.unit,
     );
 
     return estoqueNormalizado >= quantidadeNecessaria ? "ok" : "faltando";
@@ -70,29 +70,29 @@ export const calcularStatusIngrediente = (
     Number(ingredienteReceita.quantidade) || 0,
     ingredienteReceita.unidade || "",
   );
-  const baseDispensa = normalizarBase(itemDispensa.qty, itemDispensa.unit);
+  const baseDespensa = normalizarBase(itemDespensa.qty, itemDespensa.unit);
 
   // Se ambas são unidades contáveis, comparar diretamente
-  if (baseReceita.tipo === "unidade" && baseDispensa.tipo === "unidade") {
-    return baseDispensa.valor >= baseReceita.valor ? "ok" : "faltando";
+  if (baseReceita.tipo === "unidade" && baseDespensa.tipo === "unidade") {
+    return baseDespensa.valor >= baseReceita.valor ? "ok" : "faltando";
   }
 
   // Se uma é massa/volume e outra não, não consegue comparar
   return "faltando";
 };
 
-export const encontrarItemDispensaPorNome = (
+export const encontrarItemDespensaPorNome = (
   nomeIngredienteReceita: string,
-  dispensa: Ingredient[],
+  despensa: Ingredient[],
 ): Ingredient | undefined => {
-  return dispensa.find((item) =>
+  return despensa.find((item) =>
     nomesIngredientesCompativeis(nomeIngredienteReceita, item.name),
   );
 };
 
 export const processarIngredientes = (
   rawIngredients: string | undefined,
-  dispensa: Ingredient[] = [],
+  despensa: Ingredient[] = [],
 ): Ingrediente[] => {
   if (!rawIngredients) return [];
 
@@ -115,7 +115,7 @@ export const processarIngredientes = (
       return {
         id: String(idx),
         nome: nomeExibicao,
-        status: calcularStatusIngrediente(ing, dispensa),
+        status: calcularStatusIngrediente(ing, despensa),
       };
     });
   } catch (e) {

@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
-import { ITEM_LIST_ACTIONS, ITEM_LIST_BUTTONS, ITEM_LIST_CARDS, ITEM_LIST_CHECKBOX, ITEM_LIST_CONTAINERS, ITEM_LIST_FLEX, ITEM_LIST_INPUTS, ITEM_LIST_PICKERS } from "./global_styles";
+import { GLOBAL_EDIT_STYLES, ITEM_LIST_ACTIONS, ITEM_LIST_BUTTONS, ITEM_LIST_CARDS, ITEM_LIST_CHECKBOX, ITEM_LIST_CONTAINERS, ITEM_LIST_FLEX, ITEM_LIST_INPUTS, ITEM_LIST_PICKERS } from "./global_styles";
 
 // ESTILOS ESPECÍFICOS PARA: LISTA DE COMPRAS
 export const listaStyles = StyleSheet.create({
@@ -12,6 +12,7 @@ export const listaStyles = StyleSheet.create({
     ...ITEM_LIST_BUTTONS,
     ...ITEM_LIST_CHECKBOX,
     ...ITEM_LIST_ACTIONS,
+    ...GLOBAL_EDIT_STYLES,
     scrollContent: {
         paddingHorizontal: Spacing.lg,
         paddingTop: Spacing.md,
@@ -79,22 +80,7 @@ export const listaStyles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.subtext + '10',
     },
-    itemInfo: {
-        flex: 1,
-        marginLeft: Spacing.md,
-        justifyContent: 'center',
-    },
-    itemName: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small + 2,
-        color: Colors.dark,
-        marginBottom: Spacing.xs,
-    },
-    itemSub: {
-        fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
-        color: Colors.subtext,
-    },
+
 
     // --- CARD REFORMATADO (ESTILO DASHBOARD) ---
     itemCardView: {
@@ -376,80 +362,24 @@ export const listaStyles = StyleSheet.create({
         color: Colors.subtext,
     },
 
-    // --- EDIÇÃO DE QUANTIDADE ---
-    itemCardEditing: {
-        backgroundColor: Colors.primary + '10',
-        borderWidth: 2,
-        borderColor: Colors.primary,
+    // === ESTADOS DE INTERFACE ===
+    checkboxDisabled: {
+        opacity: 0.5,
+        borderColor: Colors.subtext,
+    },
+    
+    checkboxMargin: {
+        marginRight: 12,
     },
 
-    itemEditContainer: {
-        flex: 1,
-        paddingHorizontal: Spacing.md,
+    
+    magicButtonDisabled: {
+        opacity: 0.5,
     },
-
-    itemEditHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: Spacing.md,
-    },
-
-    itemEditLabel: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
-        color: Colors.primary,
-    },
-
-    itemEditClose: {
-        fontSize: 20,
+    emptyText: {
+        textAlign: "center",
         color: Colors.subtext,
-    },
-
-    itemEditRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Spacing.sm,
-    },
-
-    itemEditInput: {
-        flex: 1,
-        backgroundColor: Colors.background,
-        borderRadius: Radius.md,
-        paddingHorizontal: Spacing.md,
-        height: 38,
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
-        color: Colors.dark,
-        borderWidth: 1.5,
-        borderColor: Colors.primary,
-    },
-
-    itemEditUnit: {
+        marginTop: Spacing.md,
         fontFamily: Fonts.regular,
-        fontSize: FontSizes.small,
-        color: Colors.dark,
-        minWidth: 40,
-    },
-
-    itemEditSaveBtn: {
-        backgroundColor: Colors.primary,
-        width: 45,
-        height: 38,
-        borderRadius: Radius.md,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    itemEditSaveText: {
-        fontFamily: Fonts.bold,
-        fontSize: FontSizes.small,
-        color: Colors.light,
-    },
-
-    itemActions: {
-        flexDirection: 'row',
-        gap: Spacing.md,
-        alignItems: 'center',
     },
 });

@@ -66,4 +66,20 @@ export const favStyles = StyleSheet.create({
         fontSize: FontSizes.small - 2,
         color: Colors.primary,
     },
+    emptyCentered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    emptyIcon: {
+        marginBottom: 15,
+        opacity: 0.3,
+    },
+    emptyTextCenter: {
+        color: Colors.subtext,
+        fontSize: 16,
+        textAlign: 'center',
+        lineHeight: 22,
+    },
 });

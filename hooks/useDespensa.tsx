@@ -1,24 +1,26 @@
 import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 import { Alert } from "react-native";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
 import {
-  AbatimentoResultado,
-  DespensaContextData,
-  Ingredient,
+    AbatimentoResultado,
+    DespensaContextData,
+    Ingredient,
 } from "../types/despensa";
+import type { CompraItem } from "../types/lista";
 import {
-  converterDaBaseParaUnidade,
-  converterParaUnidadeBase,
-  nomesIngredientesCompativeis,
-  normalizarTexto,
+    converterDaBaseParaUnidade,
+    converterParaUnidadeBase,
+    formatarQuantidade,
+    nomesIngredientesCompativeis,
+    normalizarTexto
 } from "../utils/normalization";
 import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
@@ -125,6 +127,15 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     const item = ingredients.find((i) => i.id === id);
     if (!item) return;
 
+    // Impede a seleção de itens com quantidade zero
+    if (item.qty <= 0 && !item.selected) {
+      Alert.alert(
+        "Ingrediente Esgotado",
+        "Você não pode selecionar itens com quantidade zero para gerar receitas."
+      );
+      return;
+    }
+
     setIngredients((prev) =>
       prev.map((i) => (i.id === id ? { ...i, selected: !i.selected } : i)),
     );
@@ -156,17 +167,30 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     ideal_qty: number,
     unit: string,
   ) => {
+    const formattedQty = formatarQuantidade(qty);
+    const formattedIdeal = formatarQuantidade(ideal_qty);
+
     const backup = [...ingredients];
     setIngredients((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, name, qty, ideal_qty, unit } : i)),
+      prev.map((i) =>
+        i.id === id
+          ? {
+              ...i,
+              name,
+              qty: formattedQty,
+              ideal_qty: formattedIdeal,
+              unit,
+            }
+          : i,
+      ),
     );
 
     const { error } = await supabase
       .from("dispensa")
       .update({
         nome_base: name,
-        quantidade: qty,
-        quantidade_ideal: ideal_qty,
+        quantidade: formattedQty,
+        quantidade_ideal: formattedIdeal,
         unidade: unit,
       })
       .eq("id", id);
@@ -191,13 +215,17 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Mock para usar a nossa função pura
-    const itemCompradoMock = {
+    const itemCompradoMock: CompraItem = {
+      id: "",
+      user_id: user.id,
       nome,
       quantidade_comprar: qtyComprada,
       unidade: unidadeComprada,
-    } as any;
+      comprado: false,
+    };
 
     const decision = calcularUpsertDecision(itemCompradoMock, existente);
+    const formattedNovoValor = formatarQuantidade(decision.novoValor);
 
     if (decision.acao === "INSERT") {
       const { data, error } = await supabase
@@ -206,8 +234,8 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
           {
             user_id: user.id,
             nome_base: nome,
-            quantidade: decision.novoValor,
-            quantidade_ideal: decision.novoValor, // A primeira compra vira a meta
+            quantidade: formattedNovoValor,
+            quantidade_ideal: formattedNovoValor, // A primeira compra vira a meta
             unidade: decision.unidadeFinal,
             selected: false,
           },
@@ -241,7 +269,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase
         .from("dispensa")
         .update({
-          quantidade: decision.novoValor,
+          quantidade: formattedNovoValor,
           unidade: decision.unidadeFinal,
         })
         .eq("id", existente.id);
@@ -253,7 +281,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
       ingredientsRef.current = ingredientsRef.current.map((i) =>
         i.id === existente.id
-          ? { ...i, qty: decision.novoValor, unit: decision.unidadeFinal }
+          ? { ...i, qty: formattedNovoValor, unit: decision.unidadeFinal }
           : i,
       );
       setIngredients(ingredientsRef.current);
@@ -406,8 +434,8 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       }
 
       const novoValorBase = Math.max(0, estoqueBase.valor - quantidadeConsumir);
-      const novoValorUnidadeOriginal = Number(
-        converterDaBaseParaUnidade(novoValorBase, itemDespensa.unit).toFixed(3),
+      const novoValorUnidadeOriginal = formatarQuantidade(
+        converterDaBaseParaUnidade(novoValorBase, itemDespensa.unit),
       );
 
       // Regra: se chegar a 0, desativa o item (selected: false)

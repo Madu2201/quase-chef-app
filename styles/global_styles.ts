@@ -83,6 +83,9 @@ export const ITEM_LIST_INPUTS = StyleSheet.create({
   inputFull: {
     marginBottom: Spacing.xs,
   },
+  fontSystem: {
+    fontFamily: "System",
+  },
 });
 
 // LAYOUTS FLEX - DESPENSA, LISTA
@@ -196,6 +199,84 @@ export const ITEM_LIST_BUTTONS = StyleSheet.create({
   },
   btnAddPressed: {
     backgroundColor: Colors.primary,
+  },
+});
+
+// ESTILOS DE EDIÇÃO COMPARTILHADOS (EditItemCard)
+export const GLOBAL_EDIT_STYLES = StyleSheet.create({
+  editingCard: {
+    backgroundColor: Colors.light,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
+  },
+  editingContainer: {
+    marginTop: 0,
+  },
+  editingHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.lg,
+  },
+  editingTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: Colors.secondary,
+  },
+  editingCloseButton: {
+    padding: Spacing.xs,
+  },
+  editingNameInput: {
+    backgroundColor: Colors.background,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    marginBottom: Spacing.sm,
+    color: Colors.dark,
+    height: 39,
+  },
+  editingFieldsRow: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
+  },
+  editingField: {
+    flex: 1,
+  },
+  editingFieldLabel: {
+    fontSize: 10,
+    color: Colors.subtext,
+    marginBottom: 2,
+  },
+  editingFieldInput: {
+    backgroundColor: Colors.background,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    height: 39,
+    color: Colors.dark,
+    justifyContent: "center",
+  },
+  editingUnitText: {
+    color: Colors.dark,
+  },
+  editingUnitButton: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  editingSaveButton: {
+    backgroundColor: Colors.secondary,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44,
+  },
+  editingSaveButtonText: {
+    color: Colors.light,
+    fontWeight: "bold",
   },
 });
 

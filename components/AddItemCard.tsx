@@ -61,7 +61,7 @@ export function AddItemCard({
     onMetaChange,
     onMetaFocus,
     onMetaBlur,
-    qtyLabel = "QTD",
+    qtyLabel = "QUANTIDADE",
     metaLabel = "META IDEAL",
     onMetaHelp,
 }: AddItemCardProps) {
@@ -79,7 +79,7 @@ export function AddItemCard({
                 {/* Primeira linha: Nome do Item + Seletor de Unidade */}
                 <View style={styles.addPanelRow}>
                     <TextInput
-                        style={[styles.addPanelNameInput, { fontFamily: "System" }]}
+                        style={[styles.addPanelNameInput, styles.fontSystem]}
                         placeholder={placeholder}
                         placeholderTextColor={Colors.subtext}
                         value={nameValue}
@@ -129,7 +129,7 @@ export function AddItemCard({
                     <View style={styles.addPanelField}>
                         <Text style={styles.addPanelFieldLabel}>{qtyLabel}</Text>
                         <TextInput
-                            style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
+                            style={[styles.addPanelFieldInput, styles.fontSystem]}
                             placeholder="0"
                             keyboardType="numeric"
                             value={qtyValue}
@@ -149,7 +149,7 @@ export function AddItemCard({
                                 )}
                             </View>
                             <TextInput
-                                style={[styles.addPanelFieldInput, { fontFamily: "System" }]}
+                                style={[styles.addPanelFieldInput, styles.fontSystem]}
                                 placeholder="0"
                                 keyboardType="numeric"
                                 value={metaValue}
@@ -165,7 +165,7 @@ export function AddItemCard({
                         onPressOut={() => setIsButtonPressed(false)}
                         style={[
                             styles.addPanelButton,
-                            isButtonPressed && { backgroundColor: Colors.primary },
+                            isButtonPressed && styles.btnAddPressed,
                         ]}
                     >
                         <Check size={20} color={Colors.light} />

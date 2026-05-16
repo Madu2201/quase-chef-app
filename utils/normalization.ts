@@ -153,3 +153,18 @@ export const nomesIngredientesCompativeis = (nomeA: string, nomeB: string): bool
 
     return a.includes(b) || b.includes(a);
 };
+
+/**
+ * Formata uma quantidade numérica para no máximo 2 casas decimais.
+ * Resolve problemas de precisão de ponto flutuante (ex: 0.30000000000000007 -> 0.30).
+ */
+export const formatarQuantidade = (valor: number): number => {
+  return Math.round(valor * 100) / 100;
+};
+
+/**
+ * Formata um percentual para exibição inteira sem casas decimais.
+ */
+export const formatarPercentual = (valor: number): number => {
+  return Math.round(valor);
+};

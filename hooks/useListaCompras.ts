@@ -3,6 +3,7 @@ import { Alert, Share } from "react-native";
 import { supabase } from "../services/supabase";
 import { Ingredient } from "../types/despensa";
 import { CompraItem } from "../types/lista";
+import { formatarQuantidade } from "../utils/normalization";
 import { normalizarNome, parseNumero } from "../utils/validation";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
@@ -80,7 +81,7 @@ export function useListaCompras() {
 
     if (itemExistente) {
       // Item existe: soma as quantidades
-      const novaQuantidade = itemExistente.quantidade_comprar + qtdNumero;
+      const novaQuantidade = formatarQuantidade(itemExistente.quantidade_comprar + qtdNumero);
       await atualizarQuantidade(itemExistente.id, novaQuantidade);
       Alert.alert(
         "Sucesso",
@@ -93,7 +94,7 @@ export function useListaCompras() {
     const novoItem = {
       user_id: user.id,
       nome: normalizarNome(nome),
-      quantidade_comprar: qtdNumero,
+      quantidade_comprar: formatarQuantidade(qtdNumero),
       unidade: unidade,
       comprado: false,
     };
@@ -114,16 +115,19 @@ export function useListaCompras() {
    * Atualiza diretamente a quantidade de um item existente
    */
   const atualizarQuantidade = async (id: string, novaQuantidade: number) => {
+    // Garante no máximo 2 casas decimais
+    const qtdFormatada = formatarQuantidade(novaQuantidade);
+    
     // Agora o hook confia que a validação foi feita antes da chamada
     setItems((prev) =>
       prev.map((i) =>
-        i.id === id ? { ...i, quantidade_comprar: novaQuantidade } : i,
+        i.id === id ? { ...i, quantidade_comprar: qtdFormatada } : i,
       ),
     );
 
     await supabase
       .from("lista_compras")
-      .update({ quantidade_comprar: novaQuantidade })
+      .update({ quantidade_comprar: qtdFormatada })
       .eq("id", id);
   };
 
@@ -154,7 +158,8 @@ export function useListaCompras() {
       // Processa cada item faltante
       for (const ing of itensFaltantes) {
         const nomeNormalizado = normalizarNome(ing.name).toLowerCase();
-        const qtdFaltante = Math.max(0, (ing.ideal_qty || 0) - (ing.qty || 0));
+        const rawQtdFaltante = Math.max(0, (ing.ideal_qty || 0) - (ing.qty || 0));
+        const qtdFaltante = formatarQuantidade(rawQtdFaltante);
 
         // Verifica se já existe na lista (não comprado)
         const itemExistente = items.find(

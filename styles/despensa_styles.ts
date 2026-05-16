@@ -9,6 +9,7 @@ import {
 } from "../constants/theme";
 import {
     GLOBAL_ACTION_BUTTONS,
+    GLOBAL_EDIT_STYLES,
     ITEM_LIST_ACTIONS,
     ITEM_LIST_BUTTONS,
     ITEM_LIST_CARDS,
@@ -30,6 +31,7 @@ export const despensaStyles = StyleSheet.create({
   ...ITEM_LIST_CHECKBOX,
   ...ITEM_LIST_ACTIONS,
   ...GLOBAL_ACTION_BUTTONS,
+  ...GLOBAL_EDIT_STYLES,
   scrollContent: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
@@ -69,17 +71,24 @@ export const despensaStyles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
 
+  activityIndicatorContainer: {
+    marginTop: Spacing.lg,
+  },
+
   // --- BOTÃO FLUTUANTE ---
   floatingBtn: {
     ...GLOBAL_ACTION_BUTTONS.btn,
     position: "absolute",
-    bottom: Spacing.md,
     left: Spacing.lg,
     right: Spacing.lg,
     height: 55,
     paddingHorizontal: Spacing.lg,
     justifyContent: "space-between",
     ...Shadows.lg,
+    ...Platform.select({
+      ios: { bottom: 40 },
+      default: { bottom: 20 },
+    }),
   },
   floatingBtnText: {
     ...GLOBAL_ACTION_BUTTONS.btnText,
@@ -253,84 +262,6 @@ export const despensaStyles = StyleSheet.create({
     opacity: 0.6,
   },
 
-  // === MODO EDIÇÃO ===
-  editingContainer: {
-    marginTop: 0,
-  },
-
-  editingHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.lg,
-  },
-
-  editingTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: Colors.secondary,
-  },
-
-  editingCloseButton: {
-    padding: Spacing.xs,
-  },
-
-  editingNameInput: {
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    padding: Spacing.sm,
-    marginBottom: Spacing.sm,
-    color: Colors.dark,
-    height: 39,
-  },
-
-  editingFieldsRow: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
-  },
-
-  editingField: {
-    flex: 1,
-  },
-
-  editingFieldLabel: {
-    fontSize: 10,
-    color: Colors.subtext,
-    marginBottom: 2,
-  },
-
-  editingFieldInput: {
-    backgroundColor: Colors.background,
-    borderRadius: Radius.md,
-    padding: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    height: 39,
-    color: Colors.dark,
-  },
-
-  editingUnitPickerRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginBottom: Spacing.lg,
-  },
-
-  editingSaveButton: {
-    backgroundColor: Colors.secondary,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: Radius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 44,
-  },
-
-  editingSaveButtonText: {
-    color: Colors.light,
-    fontWeight: "bold",
-  },
-
   // === MODO VISUALIZAÇÃO (DASHBOARD) ===
   viewContainer: {
     marginTop: 0,
@@ -354,6 +285,11 @@ export const despensaStyles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.dark,
     flex: 1,
+  },
+
+  viewNameTextDisabled: {
+    color: Colors.subtext + 5,
+    opacity: 0.45,
   },
 
   viewActions: {
@@ -389,6 +325,16 @@ export const despensaStyles = StyleSheet.create({
   progressBar: {
     height: "100%",
     borderRadius: Radius.sm,
+  },
+
+  // === ESTADOS DE INTERFACE ===
+  checkboxDisabled: {
+    opacity: 0.5,
+    borderColor: Colors.subtext,
+  },
+  
+  checkboxMargin: {
+    marginRight: 12,
   },
 
   // === CORES PARA BARRA DE PROGRESSO ===

@@ -194,9 +194,9 @@ const Chip = ({ active, icon, label, onPress }: any) => (
 
 /** Feedback visual para lista vazia */
 const EmptyState = ({ isSearch }: { isSearch: boolean }) => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
-    <Heart size={48} color={Colors.subtext} style={{ marginBottom: 15, opacity: 0.3 }} />
-    <Text style={{ color: Colors.subtext, fontSize: 16, textAlign: "center", lineHeight: 22 }}>
+  <View style={styles.emptyCentered}>
+    <Heart size={48} color={Colors.subtext} style={styles.emptyIcon} />
+    <Text style={styles.emptyTextCenter}>
       {isSearch
         ? "Nenhum favorito encontrado para os filtros selecionados."
         : "Sua pasta de favoritos está vazia.\nSalve receitas para acessá-las aqui!"}

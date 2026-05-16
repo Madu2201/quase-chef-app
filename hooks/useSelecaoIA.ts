@@ -65,8 +65,11 @@ export function useSelecaoIA() {
 
     const grupos: Record<string, Ingredient[]> = {};
 
+    // Filtra ingredientes com quantidade > 0 (não mostrar itens acabados)
+    const ingredientesDisponiveis = ingredients.filter((ing) => (ing.qty || 0) > 0);
+
     // Ordenação alfabética global dos ingredientes
-    const ingredientesOrdenados = [...ingredients].sort((a, b) =>
+    const ingredientesOrdenados = [...ingredientesDisponiveis].sort((a, b) =>
       a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
     );
 

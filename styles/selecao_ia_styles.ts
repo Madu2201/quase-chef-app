@@ -7,10 +7,11 @@ import {
   Shadows,
   Spacing,
 } from "../constants/theme";
-import { GLOBAL_ACTION_BUTTONS } from "./global_styles";
+import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from "./global_styles";
 
 export const styles = StyleSheet.create({
   ...GLOBAL_ACTION_BUTTONS,
+  ...GLOBAL_CHIPS_FILTERS,
   container: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -63,13 +64,8 @@ export const styles = StyleSheet.create({
     padding: Spacing.md,
   },
   heroTag: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+    ...GLOBAL_CHIPS_FILTERS.chip,
     backgroundColor: Colors.background,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderRadius: Radius.full,
     alignSelf: "flex-start",
     marginBottom: Spacing.sm,
   },
@@ -196,7 +192,8 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     paddingBottom: Spacing.sm,
   },
-  chip: {
+  // O chip de ingrediente mantém seu estilo específico, mas o chip global está disponível via spread
+  chipIngredient: {
     flexDirection: "row",
     alignItems: "center",
     minHeight: 36,
@@ -209,7 +206,7 @@ export const styles = StyleSheet.create({
     gap: 6,
     alignSelf: "flex-start",
   },
-  chipActive: {
+  chipIngredientActive: {
     backgroundColor: Colors.secondary,
     borderColor: Colors.secondary,
   },
@@ -257,11 +254,14 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Platform.OS === "ios" ? 40 : 20,
     paddingTop: Spacing.xs,
     backgroundColor: Colors.background,
+    ...Platform.select({
+      ios: { paddingBottom: 40 },
+      default: { paddingBottom: 20 },
+    }),
   },
-    chevronIcon: {
-    color: Colors.brown, // Definindo a cor aqui
+  chevronIcon: {
+    color: Colors.brown,
   },
 });

@@ -1,17 +1,17 @@
 import { ChevronDown, ChevronUp, RotateCcw, X, Zap } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
 import {
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    Pressable,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
-  FadeInRight,
-  Layout,
+    FadeInDown,
+    FadeInRight,
+    Layout,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -22,6 +22,7 @@ import { Colors } from "../constants/theme";
 import { useSelecaoIA } from "../hooks/useSelecaoIA";
 import { styles } from "../styles/selecao_ia_styles";
 import type { Ingredient } from "../types/despensa";
+import { formatarQuantidade } from "../utils/normalization";
 
 // --- SUB-COMPONENTES AUXILIARES (MEMOIZADOS) ---
 
@@ -79,7 +80,7 @@ const IngredientChip = memo(
     const formattedQty = useMemo(() => {
       const q = Number(ing.qty);
       if (!Number.isFinite(q)) return ing.unit || "";
-      const arredondado = Math.round(q * 1000) / 1000;
+      const arredondado = formatarQuantidade(q);
       const texto =
         arredondado % 1 === 0
           ? String(arredondado)
@@ -90,7 +91,7 @@ const IngredientChip = memo(
     return (
       <Pressable
         onPress={() => onToggle(ing.id)}
-        style={[styles.chip, isSelected && styles.chipActive]}
+        style={[styles.chipIngredient, isSelected && styles.chipIngredientActive]}
       >
         <View style={styles.chipTextBlock}>
           <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
@@ -261,7 +262,7 @@ export default function SelecaoIAScreen() {
       </ScrollView>
 
       {/* Rodapé Fixo */}
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
+      <View style={styles.footer}>
         <GenerateButton
           label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar Receita Mágica"}
           selectedCount={selecionadosCount}

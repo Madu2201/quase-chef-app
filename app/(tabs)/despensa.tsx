@@ -1,24 +1,24 @@
-import { Check, Edit2, Trash2, X } from "lucide-react-native";
+import { Check, Edit2, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AddItemCard } from "../../components/AddItemCard";
+import { EditItemCard } from "../../components/EditItemCard";
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
-import { UNIDADES_ACEITAS } from "../../constants/ingredients";
 import { Colors } from "../../constants/theme";
 import { useDespensa } from "../../hooks/useDespensa";
 import { useSelecaoIA } from "../../hooks/useSelecaoIA";
 import { despensaStyles as styles } from "../../styles/despensa_styles";
+import { formatarPercentual } from "../../utils/normalization";
 import { validateQuantity } from "../../utils/validation";
 
 export default function DespensaScreen() {
@@ -62,7 +62,8 @@ export default function DespensaScreen() {
   const handleAdd = async () => {
     if (isAddingIngredient) return; // Previne cliques duplos
 
-    if (!nomeNovo.trim() || !qtdNova.trim() || !metaNova.trim()) {
+    // Ajustado: Alerta apenas se os campos estiverem vazios. Quantidade 0 é permitida.
+    if (!nomeNovo.trim() || qtdNova.trim() === "" || metaNova.trim() === "") {
       return Alert.alert(
         "Atenção",
         "Preencha o nome, a quantidade atual e a meta.",
@@ -76,13 +77,6 @@ export default function DespensaScreen() {
       return Alert.alert(
         "Erro",
         "Quantidade deve ser um número entre 0 e 99999.",
-      );
-    }
-
-    if (qty === 0 || ideal === 0) {
-      return Alert.alert(
-        "Atenção",
-        "Quantidade não pode ser zero. Defina um valor maior que zero.",
       );
     }
 
@@ -113,17 +107,18 @@ export default function DespensaScreen() {
   };
 
   // Salvar edição
-  const saveEdit = () => {
+  const saveEdit = (form?: any) => {
+    const finalForm = form || editForm;
     if (
-      !editForm.name.trim() ||
-      !editForm.qty.trim() ||
-      !editForm.ideal_qty.trim()
+      !finalForm.name.trim() ||
+      finalForm.qty.trim() === "" ||
+      finalForm.ideal_qty.trim() === ""
     ) {
       return Alert.alert("Atenção", "Nenhum campo pode ficar vazio.");
     }
 
-    const qty = validateQuantity(editForm.qty);
-    const ideal = validateQuantity(editForm.ideal_qty);
+    const qty = validateQuantity(finalForm.qty);
+    const ideal = validateQuantity(finalForm.ideal_qty);
 
     if (qty === null || ideal === null) {
       return Alert.alert(
@@ -132,7 +127,7 @@ export default function DespensaScreen() {
       );
     }
 
-    updateIngredientFull(editingId!, editForm.name, qty, ideal, editForm.unit);
+    updateIngredientFull(editingId!, finalForm.name, qty, ideal, finalForm.unit);
     setEditingId(null);
   };
 
@@ -235,7 +230,7 @@ export default function DespensaScreen() {
           <ActivityIndicator
             size="large"
             color={Colors.secondary}
-            style={{ marginTop: 20 }}
+            style={styles.activityIndicatorContainer}
           />
         ) : filteredIngredients.length === 0 ? (
           <Text style={styles.emptyText}>
@@ -261,94 +256,16 @@ export default function DespensaScreen() {
               >
                 {/* --- MODO EXPANDIDO (EDIÇÃO) --- */}
                 {isEditing ? (
-                  <View style={styles.editingContainer}>
-                    <View style={styles.editingHeader}>
-                      <Text style={styles.editingTitle}>
-                        Editar Ingrediente
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => setEditingId(null)}
-                        style={styles.editingCloseButton}
-                      >
-                        <X size={20} color={Colors.subtext} />
-                      </TouchableOpacity>
-                    </View>
-
-                    <TextInput
-                      style={[
-                        styles.editingNameInput,
-                        { fontFamily: "System" },
-                      ]}
-                      value={editForm.name}
-                      onChangeText={(t) =>
-                        setEditForm({ ...editForm, name: t })
-                      }
-                    />
-
-                    <View style={styles.editingFieldsRow}>
-                      <View style={styles.editingField}>
-                        <Text style={styles.editingFieldLabel}>Atual</Text>
-                        <TextInput
-                          style={[
-                            styles.editingFieldInput,
-                            { fontFamily: "System" },
-                          ]}
-                          keyboardType="numeric"
-                          value={editForm.qty}
-                          onChangeText={(t) =>
-                            setEditForm({ ...editForm, qty: t })
-                          }
-                        />
-                      </View>
-                      <View style={styles.editingField}>
-                        <Text style={styles.editingFieldLabel}>Meta</Text>
-                        <TextInput
-                          style={[
-                            styles.editingFieldInput,
-                            { fontFamily: "System" },
-                          ]}
-                          keyboardType="numeric"
-                          value={editForm.ideal_qty}
-                          onChangeText={(t) =>
-                            setEditForm({ ...editForm, ideal_qty: t })
-                          }
-                        />
-                      </View>
-                      <View style={styles.editingField}>
-                        <Text style={styles.editingFieldLabel}>Unid.</Text>
-                        <TouchableOpacity
-                          style={[
-                            styles.editingFieldInput,
-                            { alignItems: "center" },
-                          ]}
-                          onPress={() =>
-                            setShowUnitPickerEdit(!showUnitPickerEdit)
-                          }
-                        >
-                          <Text style={{ color: Colors.dark }}>
-                            {editForm.unit}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-
-                    {showUnitPickerEdit &&
-                      renderUnitPicker(
-                        UNIDADES_ACEITAS,
-                        editForm.unit,
-                        (unit) => setEditForm({ ...editForm, unit }),
-                        () => setShowUnitPickerEdit(false),
-                      )}
-
-                    <TouchableOpacity
-                      onPress={saveEdit}
-                      style={styles.editingSaveButton}
-                    >
-                      <Text style={styles.editingSaveButtonText}>
-                        Salvar Alterações
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  <EditItemCard
+                    editForm={editForm}
+                    setEditForm={setEditForm}
+                    onSave={saveEdit}
+                    onClose={() => setEditingId(null)}
+                    styles={styles}
+                    showUnitPicker={showUnitPickerEdit}
+                    setShowUnitPicker={setShowUnitPickerEdit}
+                    renderUnitPicker={renderUnitPicker}
+                  />
                 ) : (
                   /* --- MODO VISUALIZAÇÃO (DASHBOARD) --- */
                   <View style={styles.viewContainer}>
@@ -359,8 +276,10 @@ export default function DespensaScreen() {
                           style={[
                             styles.checkbox,
                             item.selected && styles.checkboxActive,
-                            { marginRight: 12 },
+                            item.qty <= 0 && styles.checkboxDisabled,
+                            styles.checkboxMargin,
                           ]}
+                          disabled={item.qty <= 0 && !item.selected}
                         >
                           {item.selected && (
                             <Check
@@ -370,7 +289,13 @@ export default function DespensaScreen() {
                             />
                           )}
                         </TouchableOpacity>
-                        <Text style={styles.viewNameText} numberOfLines={1}>
+                        <Text 
+                          style={[
+                            styles.viewNameText,
+                            item.qty <= 0 && styles.viewNameTextDisabled
+                          ]} 
+                          numberOfLines={1}
+                        >
                           {item.name}
                         </Text>
                       </View>
@@ -393,7 +318,7 @@ export default function DespensaScreen() {
                         Temos: {item.qty} {item.unit}
                       </Text>
                       <Text style={styles.viewStatsRight}>
-                        Meta: {item.ideal_qty} {item.unit} ({Math.round(pct)}%)
+                        Meta: {item.ideal_qty} {item.unit} ({formatarPercentual(pct)}%)
                       </Text>
                     </View>
 
@@ -424,7 +349,7 @@ export default function DespensaScreen() {
             ? void handleGerarReceita(selectedIngredientIds)
             : Alert.alert("Atenção", "Selecione ingredientes!")
         }
-        style={[styles.floatingBtn, { bottom: insets.bottom + 16 }]}
+        style={styles.floatingBtn}
       />
     </View>
   );

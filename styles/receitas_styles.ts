@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 import {
-  FILTERS_LAYOUT,
-  GLOBAL_ACTION_BUTTONS,
-  GLOBAL_CHIPS_FILTERS,
-  ITEM_LIST_CONTAINERS
+    FILTERS_LAYOUT,
+    GLOBAL_ACTION_BUTTONS,
+    GLOBAL_CHIPS_FILTERS,
+    ITEM_LIST_CONTAINERS
 } from "./global_styles";
 
 // Importando o Toggle do arquivo de Header
@@ -104,5 +104,29 @@ export const receitasStyles = StyleSheet.create({
   viewButtonText: {
     ...GLOBAL_ACTION_BUTTONS.btnText,
     fontSize: FontSizes.medium - 1,
+  },
+  emptyCentered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyCenteredPadding: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyIcon: {
+    opacity: 0.5,
+    marginBottom: 10,
+  },
+  emptyTextCenter: {
+    textAlign: 'center',
+    color: Colors.subtext,
+    fontSize: 16,
+  },
+  emptySmallText: {
+    marginTop: Spacing.sm,
+    color: Colors.subtext,
   },
 });

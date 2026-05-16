@@ -1,24 +1,24 @@
 import {
-    Check,
-    Edit2,
-    FileDown,
-    PackagePlus,
-    Share2,
-    Trash2,
-    Wand2,
+  Check,
+  Edit2,
+  FileDown,
+  PackagePlus,
+  Share2,
+  Trash2,
+  Wand2,
 } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 import { AddItemCard } from "../../components/AddItemCard";
+import { EditItemCard } from "../../components/EditItemCard";
 import { Header } from "../../components/header";
 import { Colors } from "../../constants/theme";
 import { useDespensa } from "../../hooks/useDespensa";
@@ -68,6 +68,9 @@ export default function ListaScreen() {
   const [showUnitPicker, setShowUnitPicker] = useState(false);
 
   // ============ ESTADOS DE UI ============
+  // Controle de busca
+  const [searchText, setSearchText] = useState("");
+
   // Controle de foco de inputs
   const [activeInput, setActiveInput] = useState<string | null>(null);
 
@@ -77,11 +80,34 @@ export default function ListaScreen() {
 
   // Edição inline de quantidade
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editQuantidade, setEditQuantidade] = useState("");
+  const [editForm, setEditForm] = useState({
+    name: "",
+    qty: "",
+    ideal_qty: "",
+    unit: "un",
+  });
+  const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
 
   // ============ REFERÊNCIAS ============
   // Timeout para limpar undo toast automaticamente
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /**
+   * Filtragem de itens (Memoizada para performance)
+   */
+  const filteredPendentes = useMemo(() => 
+    pendentes.filter(item => 
+      item.nome.toLowerCase().includes(searchText.toLowerCase())
+    ),
+    [pendentes, searchText]
+  );
+
+  const filteredComprados = useMemo(() => 
+    comprados.filter(item => 
+      item.nome.toLowerCase().includes(searchText.toLowerCase())
+    ),
+    [comprados, searchText]
+  );
 
   /**
    * Marca item como comprado com suporte a undo
@@ -136,21 +162,24 @@ export default function ListaScreen() {
   /**
    * Inicia modo de edição de quantidade de um item
    */
-  const handleEditarQuantidade = (itemId: string, quantidade: number) => {
-    setEditingId(itemId);
-    setEditQuantidade(String(quantidade));
+  const handleEditarQuantidade = (item: any) => {
+    setEditingId(item.id);
+    setEditForm({
+      name: item.nome,
+      qty: String(item.quantidade_comprar),
+      ideal_qty: "",
+      unit: item.unidade,
+    });
   };
 
   /**
    * Salva a edição de quantidade e fecha modo de edição
    */
-  const handleSalvarQuantidade = async () => {
+  const handleSalvarQuantidade = async (form: any) => {
     if (!editingId) return;
 
-    const novaQtd = parseFloat(editQuantidade.replace(",", "."));
+    const novaQtd = parseFloat(form.qty.replace(",", "."));
 
-    // 1. Mudamos a verificação de < 0 para <= 0
-    // 2. Trocamos o título de "Erro" para "Atenção" para ser mais amigável
     if (isNaN(novaQtd) || novaQtd <= 0) {
       Alert.alert(
         "Atenção",
@@ -161,8 +190,39 @@ export default function ListaScreen() {
 
     await atualizarQuantidade(editingId, novaQtd);
     setEditingId(null);
-    setEditQuantidade("");
   };
+
+  /**
+   * Renderizar picker de unidades
+   */
+  const renderUnitPicker = (
+    units: string[],
+    activeUnit: string,
+    onSelect: (unit: string) => void,
+    onClose: () => void,
+  ) => (
+    <View style={styles.unitPickerContainer}>
+      {units.map((u) => (
+        <TouchableOpacity
+          key={u}
+          onPress={() => {
+            onSelect(u);
+            onClose();
+          }}
+          style={[styles.unitChip, activeUnit === u && styles.unitChipActive]}
+        >
+          <Text
+            style={[
+              styles.unitChipText,
+              activeUnit === u && styles.unitChipTextActive,
+            ]}
+          >
+            {u}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 
   /**
    * Compartilha a lista com outros usuários via Share API nativa
@@ -207,6 +267,9 @@ export default function ListaScreen() {
       <Header
         title="Lista de Compras"
         centerTitle
+        searchText={searchText}
+        setSearchText={setSearchText}
+        searchPlaceholder="Buscar na lista..."
         rightElement={
           <View style={styles.headerRightContainer}>
             <TouchableOpacity onPress={() => exportarListaPendentes(pendentes)}>
@@ -262,44 +325,38 @@ export default function ListaScreen() {
           <>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                Para Comprar ({pendentes.length})
+                Para Comprar ({filteredPendentes.length})
               </Text>
             </View>
 
-            {pendentes.map((item) =>
-              editingId === item.id ? (
-                // Modo de edição de quantidade
-                <View
-                  key={item.id}
-                  style={[styles.itemCard, styles.itemCardEditing]}
-                >
-                  <View style={styles.itemEditContainer}>
-                    <View style={styles.itemEditHeader}>
-                      <Text style={styles.itemEditLabel}>
-                        Editar Quantidade
-                      </Text>
-                      <TouchableOpacity onPress={() => setEditingId(null)}>
-                        <Text style={styles.itemEditClose}>✕</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.itemEditRow}>
-                      <TextInput
-                        style={styles.itemEditInput}
-                        placeholder="0"
-                        keyboardType="decimal-pad"
-                        value={editQuantidade}
-                        onChangeText={setEditQuantidade}
-                        placeholderTextColor={Colors.subtext}
-                      />
-                      <Text style={styles.itemEditUnit}>{item.unidade}</Text>
-                      <TouchableOpacity
-                        onPress={handleSalvarQuantidade}
-                        style={styles.itemEditSaveBtn}
-                      >
-                        <Text style={styles.itemEditSaveText}>OK</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+            {filteredPendentes.length === 0 && searchText !== "" && (
+                <Text style={styles.emptyText}>Nenhum item pendente encontrado.</Text>
+            )}
+
+            {filteredPendentes.map((item) =>
+               editingId === item.id ? (
+                 // Modo de edição de quantidade
+                 <View
+                   key={item.id}
+                   style={styles.editingCard}
+                 >
+                   <EditItemCard
+                     isListMode
+                    item={{
+                        id: item.id,
+                        name: item.nome,
+                        qty: item.quantidade_comprar,
+                        unit: item.unidade
+                    }}
+                    editForm={editForm}
+                    setEditForm={setEditForm}
+                    onSave={handleSalvarQuantidade}
+                    onClose={() => setEditingId(null)}
+                    styles={styles}
+                    showUnitPicker={showUnitPickerEdit}
+                    setShowUnitPicker={setShowUnitPickerEdit}
+                    renderUnitPicker={renderUnitPicker}
+                  />
                 </View>
               ) : (
                 // Modo de visualização normal (reformatado como dashboard)
@@ -308,7 +365,7 @@ export default function ListaScreen() {
                     <View style={styles.itemViewNameSection}>
                       <TouchableOpacity
                         onPress={() => handleToggleWithUndo(item.id)}
-                        style={[styles.checkbox, { marginRight: 12 }]}
+                        style={[styles.checkbox, styles.checkboxMargin]}
                       />
                       <Text style={styles.itemViewNameText} numberOfLines={1}>
                         {item.nome}
@@ -317,10 +374,7 @@ export default function ListaScreen() {
                     <View style={styles.itemViewActions}>
                       <TouchableOpacity
                         onPress={() =>
-                          handleEditarQuantidade(
-                            item.id,
-                            item.quantidade_comprar,
-                          )
+                          handleEditarQuantidade(item)
                         }
                       >
                         <Edit2 size={18} color={Colors.subtext} />
@@ -337,7 +391,7 @@ export default function ListaScreen() {
               ),
             )}
 
-            {comprados.length > 0 && (
+            {filteredComprados.length > 0 && (
               <View style={styles.historicoCompradoContainer}>
                 <View style={styles.sectionHeader}>
                   <Text style={styles.sectionTitleOff}>Histórico Comprado</Text>
@@ -354,14 +408,14 @@ export default function ListaScreen() {
                     Guardar no Estoque
                   </Text>
                 </TouchableOpacity>
-                {comprados.map((item) => (
+                {filteredComprados.map((item) => (
                   <View
                     key={item.id}
                     style={[styles.itemCard, styles.itemCardComprado]}
                   >
                     <TouchableOpacity
                       onPress={() => toggleItem(item.id)}
-                      style={styles.checkboxActive}
+                      style={[styles.checkboxActive, styles.checkboxMargin]}
                     >
                       <Check size={12} color={Colors.light} />
                     </TouchableOpacity>

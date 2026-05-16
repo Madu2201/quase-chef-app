@@ -176,21 +176,21 @@ export default function ReceitasScreen() {
       <ListHeader />
       
       {carregando && receitasFiltradas.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={styles.emptyCentered}>
             <ActivityIndicator size="large" color={Colors.secondary} />
-            <Text style={{ marginTop: 10, color: Colors.subtext }}>Buscando receitas fresquinhas...</Text>
+            <Text style={styles.emptySmallText}>Buscando receitas fresquinhas...</Text>
         </View>
       ) : receitasFiltradas.length === 0 && usarEstoque ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <Package size={48} color={Colors.subtext} style={{ opacity: 0.5, marginBottom: 10 }} />
-            <Text style={{ textAlign: 'center', color: Colors.subtext, fontSize: 16 }}>
+        <View style={styles.emptyCenteredPadding}>
+            <Package size={48} color={Colors.subtext} style={styles.emptyIcon} />
+            <Text style={styles.emptyTextCenter}>
               Não conseguimos encontrar nenhuma receita onde você possua TODOS os ingredientes.
             </Text>
         </View>
       ) : receitasFiltradas.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <IceCream size={48} color={Colors.subtext} style={{ opacity: 0.5, marginBottom: 10 }} />
-            <Text style={{ textAlign: 'center', color: Colors.subtext, fontSize: 16 }}>
+        <View style={styles.emptyCenteredPadding}>
+            <IceCream size={48} color={Colors.subtext} style={styles.emptyIcon} />
+            <Text style={styles.emptyTextCenter}>
               Nenhuma receita encontrada com esse filtro.
             </Text>
         </View>

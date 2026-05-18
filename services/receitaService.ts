@@ -9,6 +9,86 @@ import { supabase } from "./supabase";
  */
 
 // ============================================
+// FUNÇÕES DE STORAGE
+// ============================================
+
+/**
+ * Upload de imagem da receita para o bucket 'receitas_ia'
+ */
+async function uploadReceitaImagem(
+  userId: string,
+  titulo: string,
+  base64Data: string,
+) {
+  try {
+    // Se não for base64 (já for uma URL), retorna ela mesma
+    if (!base64Data || !base64Data.startsWith("data:image")) return base64Data;
+
+    const base64Content = base64Data.split(",")[1];
+    const contentType = base64Data.split(";")[0].split(":")[1];
+    const fileExt = contentType.split("/")[1] || "png";
+
+    // Nome do arquivo: userId/timestamp-titulo.ext
+    const fileName = `${userId}/${Date.now()}-${titulo.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.${fileExt}`;
+
+    // Converte base64 para Uint8Array (compatível com o upload do Supabase)
+    const binaryString = atob(base64Content);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    const { error: uploadError } = await supabase.storage
+      .from("receitas_ia")
+      .upload(fileName, bytes, {
+        contentType,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("❌ Erro no upload do Supabase:", uploadError.message);
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from("receitas_ia")
+      .getPublicUrl(fileName);
+    return data.publicUrl;
+  } catch (error) {
+    console.error("❌ Erro ao fazer upload da imagem da receita:", error);
+    return base64Data; // Fallback para base64 se falhar
+  }
+}
+
+/**
+ * Exclui a imagem do bucket 'receitas_ia' a partir da URL pública
+ */
+async function excluirImagemDoBucket(url: string) {
+  try {
+    if (!url || !url.includes("receitas_ia")) return;
+
+    // Extrai o caminho do arquivo da URL
+    // Ex: https://.../storage/v1/object/public/receitas_ia/USER_ID/FILE_NAME.png
+    const parts = url.split("receitas_ia/");
+    if (parts.length < 2) return;
+
+    const filePath = parts[1].split("?")[0]; // Remove query params se houver
+
+    const { error } = await supabase.storage
+      .from("receitas_ia")
+      .remove([filePath]);
+
+    if (error) {
+      console.error("❌ Erro ao excluir imagem do bucket:", error.message);
+    } else {
+      console.log("✅ Imagem excluída do bucket:", filePath);
+    }
+  } catch (error) {
+    console.error("❌ Exceção ao excluir imagem do bucket:", error);
+  }
+}
+
+// ============================================
 // FUNÇÕES DE BUSCA SEGURAS
 // ============================================
 
@@ -107,6 +187,14 @@ export async function salvarReceitaIAParaFavorito(
     if (idExistente != null) {
       receitaId = Number(idExistente);
     } else {
+      // 1. Faz upload da imagem para o bucket do Supabase
+      const publicUrl = await uploadReceitaImagem(
+        userId,
+        titulo,
+        receita.image,
+      );
+
+      // 2. Insere a receita com a URL do bucket
       const { data, error } = await supabase
         .from("receitas")
         .insert([
@@ -116,7 +204,7 @@ export async function salvarReceitaIAParaFavorito(
             dificuldade: receita.difficulty,
             calorias: receita.calories,
             descricao_simples_preparo: receita.description,
-            imagem_url: receita.image,
+            imagem_url: publicUrl,
             ingredientes,
             passos_detalhados: passos,
             dica_rapida: receita.dica_rapida,
@@ -187,6 +275,18 @@ export async function adicionarFavorito(receitaId: number, userId: string) {
 
 export async function removerFavorito(receitaId: number, userId: string) {
   try {
+    // 1. Busca a receita para saber se é IA e pegar a URL da imagem
+    const { data: receita, error: fetchError } = await supabase
+      .from("receitas")
+      .select("eh_ia, imagem_url, user_id")
+      .eq("id", receitaId)
+      .single();
+
+    if (fetchError) {
+      console.error(`❌ Erro ao buscar receita para remover favorito:`, fetchError.message);
+    }
+
+    // 2. Remove da tabela de favoritos
     const { error } = await supabase
       .from("receitas_favoritas")
       .delete()
@@ -195,6 +295,24 @@ export async function removerFavorito(receitaId: number, userId: string) {
     if (error) {
       console.error(`❌ Erro ao remover favorito ${receitaId}:`, error.message);
       return false;
+    }
+
+    // 3. Se for uma receita gerada por IA deste usuário, exclui a imagem e o registro da receita
+    if (receita && receita.eh_ia && receita.user_id === userId) {
+      // Exclui a imagem do bucket
+      if (receita.imagem_url) {
+        await excluirImagemDoBucket(receita.imagem_url);
+      }
+
+      // Exclui o registro da receita (opcional, mas recomendado para não poluir o banco)
+      const { error: deleteError } = await supabase
+        .from("receitas")
+        .delete()
+        .eq("id", receitaId);
+
+      if (deleteError) {
+        console.error(`❌ Erro ao excluir registro de receita IA:`, deleteError.message);
+      }
     }
 
     return true;

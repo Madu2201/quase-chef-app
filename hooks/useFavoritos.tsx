@@ -93,21 +93,11 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
         const idParaExcluir = !isNaN(idNum) ? idNum : mappedSavedIdNum;
 
         if (!isNaN(idParaExcluir)) {
-          // 1. Remove da tabela de favoritos (removerFavorito já faz isso no banco)
+          // 1. Remove da tabela de favoritos e limpa dados da IA (imagem + registro)
+          // removerFavorito em receitaService.ts agora lida com a limpeza completa
           const successRemover = await removerFavorito(idParaExcluir, user.id);
           
           if (successRemover) {
-            // 2. Exclui a receita física da tabela 'receitas'
-            // Somente se for uma receita gerada por IA e pertencer ao usuário
-            const { error: deleteError } = await supabase
-              .from("receitas")
-              .delete()
-              .match({ id: idParaExcluir, eh_ia: true, user_id: user.id });
-
-            if (deleteError) {
-              console.error("Erro ao excluir receita física da IA:", deleteError.message);
-            }
-
             setFavoritosIds((prev) => prev.filter((id) => id !== String(idParaExcluir)));
             
             // Forçamos a atualização do catálogo global para que a receita suma da lista useReceitas

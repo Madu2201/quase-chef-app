@@ -55,7 +55,7 @@ utils/                  # Funções auxiliares
 | Integrante                  | Papel                   | Contribuições                                                                                             |
 | --------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------- |
 | **Maria Eduarda Almeida**   | Coordenação + Front-End | Estrutura de pastas, telas principais (Login, Home, Favoritos, Despensa, Lista), centralização de estilos |
-| **Marcus Vinicius**         | Back-End                | Supabase, autenticação, APIs (Gemini/Hugging Face), edição de perfil                                      |
+| **Marcus Vinicius**         | Back-End                | Supabase, autenticação, APIs (Gemini/Pollinations.ai), edição de perfil                                      |
 | **Kauã de Almeida**         | Backend + Prototipagem  | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes                              |
 | **Maria Eduarda Rodrigues** | Front-End               | Cadastro com validação, perfil, receitas, telas de IA                                                     |
 

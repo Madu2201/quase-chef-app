@@ -33,7 +33,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports
 import { useAuth } from "@/hooks/useAuth";
-import { gerarImagemDaReceita } from "@/services/huggingFaceService";
+import { gerarImagemDaReceita } from "@/services/pollinationsService";
 import { Header } from "../components/header";
 import { ALLERGY_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";

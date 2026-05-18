@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { perguntarAoGemini } from "../services/geminiService";
-import { gerarImagemDaReceita } from "../services/huggingFaceService";
+import { gerarImagemDaReceita } from "../services/pollinationsService";
 import type { Ingredient } from "../types/despensa";
 import { ReceitaIAResponse } from "../types/ia";
 import {

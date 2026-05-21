@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, 
+  Platform,
   Pressable,
   ScrollView,
-  Text, TextInput,
+  Text, 
+  TextInput,
   View
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -21,17 +23,11 @@ import { authStyles as styles } from "../../styles/auth_styles";
 export default function EsqueciSenhaScreen() {
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
 
-  // Nossos novos estados
+  // Estados
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ⚠️ COLOQUE SUAS CHAVES DO EMAILJS AQUI
-  const EMAILJS_SERVICE_ID = "service_b5282sg";
-  const EMAILJS_TEMPLATE_ID = "template_s1zb6fs";
-  const EMAILJS_PUBLIC_KEY = "mqdmJb88HtTXkQn9Q";
-  const EMAILJS_PRIVATE_KEY = ""; // 👈 Se der erro de 'Strict Mode', coloque sua Private Key aqui!
-
-  // Função que faz a mágica acontecer
+  // Função que faz a solicitação
   async function handleSolicitarRecuperacao() {
     if (!email) {
       Alert.alert("Opa!", "Por favor, digite seu e-mail para enviarmos o código.");
@@ -69,15 +65,15 @@ export default function EsqueciSenhaScreen() {
 
       if (erroUpdate) throw new Error("Erro ao salvar código no banco.");
 
-      // 4. Envia o e-mail via EmailJS
+      // 4. Envia o e-mail via EmailJS puxando as chaves do .env
       const respostaEmail = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service_id: EMAILJS_SERVICE_ID,
-          template_id: EMAILJS_TEMPLATE_ID,
-          user_id: EMAILJS_PUBLIC_KEY,
-          accessToken: EMAILJS_PRIVATE_KEY, // Adicionado para suportar o Modo Estrito
+          service_id: process.env.EXPO_PUBLIC_EMAILJS_SERVICE_ID,
+          template_id: process.env.EXPO_PUBLIC_EMAILJS_TEMPLATE_ID,
+          user_id: process.env.EXPO_PUBLIC_EMAILJS_PUBLIC_KEY,
+          accessToken: process.env.EXPO_PUBLIC_EMAILJS_PRIVATE_KEY, // Modo Estrito
           template_params: {
             user_email: email.trim().toLowerCase(),
             codigo: codigoGerado,
@@ -102,9 +98,9 @@ export default function EsqueciSenhaScreen() {
         params: { email: email.trim().toLowerCase() }
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro na recuperação:", error);
-      Alert.alert("Ops", "Algo deu errado. Tente novamente mais tarde.");
+      Alert.alert("Erro Real Capturado", error.message || JSON.stringify(error));
     } finally {
       setLoading(false);
     }

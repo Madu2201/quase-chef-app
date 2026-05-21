@@ -4,18 +4,17 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView, Platform,
   Pressable,
   ScrollView,
   Text, TextInput,
   View
 } from "react-native";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 // Meus imports
-import AuthHeader from "../../components/AuthHeader";
 import { supabase } from "@/services/supabase";
+import AuthHeader from "../../components/AuthHeader";
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 
@@ -30,6 +29,7 @@ export default function EsqueciSenhaScreen() {
   const EMAILJS_SERVICE_ID = "service_b5282sg";
   const EMAILJS_TEMPLATE_ID = "template_s1zb6fs";
   const EMAILJS_PUBLIC_KEY = "mqdmJb88HtTXkQn9Q";
+  const EMAILJS_PRIVATE_KEY = ""; // 👈 Se der erro de 'Strict Mode', coloque sua Private Key aqui!
 
   // Função que faz a mágica acontecer
   async function handleSolicitarRecuperacao() {
@@ -77,6 +77,7 @@ export default function EsqueciSenhaScreen() {
           service_id: EMAILJS_SERVICE_ID,
           template_id: EMAILJS_TEMPLATE_ID,
           user_id: EMAILJS_PUBLIC_KEY,
+          accessToken: EMAILJS_PRIVATE_KEY, // Adicionado para suportar o Modo Estrito
           template_params: {
             user_email: email.trim().toLowerCase(),
             codigo: codigoGerado,

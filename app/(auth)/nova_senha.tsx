@@ -1,12 +1,13 @@
+import { supabase } from "@/services/supabase";
 import { router, useLocalSearchParams } from "expo-router";
-import { KeyRound, Lock } from "lucide-react-native";
+import { Eye, EyeOff, KeyRound, Lock } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform,
-  Pressable, ScrollView, Text, TextInput, View,
+  ActivityIndicator, Alert,
+  KeyboardAvoidingView, Platform,
+  Pressable, ScrollView, Text, TextInput, View
 } from "react-native";
-import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
-import { supabase } from "@/services/supabase";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 // Meus imports
 import AuthHeader from "../../components/AuthHeader";
@@ -20,6 +21,7 @@ export default function NovaSenhaScreen() {
   const [isFocusedSenha, setIsFocusedSenha] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSalvarNovaSenha() {
@@ -137,13 +139,20 @@ export default function NovaSenhaScreen() {
               placeholder="Sua nova senha"
               placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               value={novaSenha}
               onChangeText={setNovaSenha}
               onFocus={() => setIsFocusedSenha(true)}
               onBlur={() => setIsFocusedSenha(false)}
               selectionColor={Colors.primary}
             />
+            <Pressable onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <EyeOff size={20} color={Colors.primary} />
+              ) : (
+                <Eye size={20} color={Colors.primary} />
+              )}
+            </Pressable>
           </View>
 
           <Pressable

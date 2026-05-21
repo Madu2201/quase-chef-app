@@ -1,10 +1,11 @@
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 import { DeviceEventEmitter } from "react-native";
 import { RECEITAS_CATALOGO_ATUALIZAR } from "../services/receitaEvents";
@@ -12,10 +13,12 @@ import { supabase } from "../services/supabase";
 import { TemporaryMode } from "../types/perfil";
 import { normalizarTexto } from "../utils/normalization";
 import {
-  modoPerfilAplicaPreferencias,
-  receitaBloqueadaPorAlergia,
-  receitaPassaUniaoPreferencias,
+    modoPerfilAplicaPreferencias,
+    receitaBloqueadaPorAlergia,
+    receitaPassaUniaoPreferencias,
 } from "../utils/perfilReceitasFilter";
+import { useAuth } from "./useAuth";
+import { useFiltroEstoque } from "./useFiltroEstoque";
 
 export interface Recipe {
   id: string;
@@ -64,20 +67,22 @@ export function filtrarPorCategoria(
   receitas: Recipe[],
   categoria: string,
 ): Recipe[] {
-  if (categoria === "Todas") return receitas;
-  return receitas.filter((r) => r.tags?.includes(categoria));
+  if (!Array.isArray(receitas)) return [];
+  if (!categoria || categoria === "Todas") return receitas;
+  return receitas.filter((r) => r.tags && Array.isArray(r.tags) && r.tags.includes(categoria));
 }
 
 /**
  * Filtra receitas por texto de busca (título ou ingredientes)
  */
 export function filtrarPorBusca(receitas: Recipe[], busca: string): Recipe[] {
-  if (!busca.trim()) return receitas;
+  if (!Array.isArray(receitas)) return [];
+  if (!busca || !busca.trim()) return receitas;
   const termoBusca = normalizarTexto(busca);
   return receitas.filter(
     (r) =>
-      normalizarTexto(r.title).includes(termoBusca) ||
-      normalizarTexto(r.rawIngredients).includes(termoBusca),
+      (r.title && normalizarTexto(r.title).includes(termoBusca)) ||
+      (r.rawIngredients && normalizarTexto(r.rawIngredients).includes(termoBusca)),
   );
 }
 
@@ -87,7 +92,7 @@ export function filtrarPorPerfil(
   allergies?: string[] | null,
   temporaryMode?: TemporaryMode | null,
 ): Recipe[] {
-  if (!receitas || receitas.length === 0) return receitas;
+  if (!Array.isArray(receitas) || receitas.length === 0) return receitas;
 
   const aplicarPreferencias = modoPerfilAplicaPreferencias(temporaryMode);
 
@@ -140,10 +145,11 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error("❌ Erro ao buscar as receitas:", error.message);
+        setReceitasBanco([]);
         return;
       }
 
-      if (data) {
+      if (data && Array.isArray(data)) {
         const receitasTraduzidas = data.map((item, index) => {
           return {
             id: String(item.id || index),
@@ -166,7 +172,12 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
           };
         });
         setReceitasBanco(receitasTraduzidas);
+      } else {
+        setReceitasBanco([]);
       }
+    } catch (err) {
+      console.error("❌ Erro crítico ao buscar receitas:", err);
+      setReceitasBanco([]);
     } finally {
       setCarregando(false);
     }
@@ -213,4 +224,93 @@ export function useReceitas(): ReceitasContextValue {
     throw new Error("useReceitas deve ser usado dentro de ReceitasProvider");
   }
   return ctx;
+}
+
+const PAGE_SIZE = 30;
+
+export function useReceitasList() {
+  const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil } = useReceitas();
+  const { filtrarPorEstoque } = useFiltroEstoque();
+  const { user } = useAuth();
+
+  const [busca, setBusca] = useState("");
+  const [usarEstoque, setUsarEstoque] = useState(false);
+  const [filtro, setFiltro] = useState("Todas");
+  const [page, setPage] = useState(1);
+  const [hasMounted, setHasMounted] = useState(false);
+  const onEndReachedCalledDuringMomentum = useRef(true);
+
+  const receitasFiltradas = useMemo(() => {
+    try {
+      let filtradas = Array.isArray(receitasBanco) ? receitasBanco : [];
+
+      filtradas = filtrarPorPerfil(
+        filtradas,
+        user?.food_preferences,
+        user?.allergies,
+        user?.temporaryMode,
+      );
+
+      filtradas = filtrarPorCategoria(filtradas, filtro);
+      filtradas = filtrarPorBusca(filtradas, busca);
+
+      if (usarEstoque) {
+        filtradas = filtrarPorEstoque(filtradas);
+      }
+
+      return filtradas;
+    } catch (err) {
+      console.error("❌ Erro ao filtrar receitas:", err);
+      return [];
+    }
+  }, [receitasBanco, busca, filtro, usarEstoque, filtrarPorCategoria, filtrarPorBusca, filtrarPorEstoque, filtrarPorPerfil, user?.food_preferences, user?.allergies, user?.temporaryMode]);
+
+  const totalReceitasEncontradas = receitasFiltradas.length;
+  const receitasExibidas = useMemo(
+    () => receitasFiltradas.slice(0, page * PAGE_SIZE),
+    [receitasFiltradas, page],
+  );
+  const podeCarregarMais = receitasExibidas.length < totalReceitasEncontradas;
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+    onEndReachedCalledDuringMomentum.current = true;
+  }, [busca, filtro, usarEstoque]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!podeCarregarMais) return;
+    setPage((prevPage) => Math.min(prevPage + 1, Math.ceil(totalReceitasEncontradas / PAGE_SIZE)));
+  }, [podeCarregarMais, totalReceitasEncontradas]);
+
+  const handleMomentumScrollBegin = useCallback(() => {
+    onEndReachedCalledDuringMomentum.current = false;
+  }, []);
+
+  const handleEndReached = useCallback(() => {
+    if (!onEndReachedCalledDuringMomentum.current) {
+      handleLoadMore();
+      onEndReachedCalledDuringMomentum.current = true;
+    }
+  }, [handleLoadMore]);
+
+  return {
+    busca,
+    setBusca,
+    usarEstoque,
+    setUsarEstoque,
+    filtro,
+    setFiltro,
+    receitasFiltradas,
+    receitasExibidas,
+    totalReceitasEncontradas,
+    carregando,
+    podeCarregarMais,
+    hasMounted,
+    handleEndReached,
+    handleMomentumScrollBegin,
+  };
 }

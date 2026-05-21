@@ -343,7 +343,7 @@ export default function DespensaScreen() {
         selectedCount={selectedCount}
         disabled={isGenerating}
         loading={isGenerating}
-        label={isGenerating ? "Cozinhando ideias... 🍳" : "Gerar receitas"}
+        label="Gerar receitas"
         onPress={() =>
           selectedCount > 0
             ? void handleGerarReceita(selectedIngredientIds)

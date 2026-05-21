@@ -1,36 +1,44 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Sparkles } from "lucide-react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    StyleProp,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from "react-native";
 import Animated, {
-    cancelAnimation,
-    Easing,
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withTiming,
+  cancelAnimation,
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
 } from "react-native-reanimated";
 
 // Meus imports
 import {
-    Colors,
-    Fonts,
-    FontSizes,
-    Radius,
-    Shadows,
-    Spacing,
+  Colors,
+  Fonts,
+  FontSizes,
+  Radius,
+  Shadows,
+  Spacing,
 } from "../constants/theme";
 
 /** Largura da faixa luminosa (onda). Subir = onda mais “grossa”. */
 const SHIMMER_BAND_WIDTH = 124;
+
+const LOADING_MESSAGES = [
+  "Cozinhando ideias... 🍳",
+  "Picando os ingredientes... 🔪",
+  "Aquecendo o fogão... 🔥",
+  "Misturando sabores... 🧂",
+  "Finalizando o prato... ✨",
+];
 
 // Componente de botão de gerar receitas
 interface GenerateButtonProps {
@@ -73,6 +81,8 @@ export const GenerateButton = ({
 
   const buttonW = useSharedValue(220);
   const shimmerPhase = useSharedValue(0);
+  const textOpacity = useSharedValue(1);
+  const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
     if (loading) {
@@ -81,9 +91,32 @@ export const GenerateButton = ({
         -1,
         false,
       );
+
+      // Efeito de carrossel de texto
+      const interval = setInterval(() => {
+        // Fade out
+        textOpacity.value = withTiming(0, { duration: 400 }, () => {
+          // Muda o texto e faz fade in
+          textOpacity.value = withTiming(1, { duration: 400 });
+        });
+        
+        // Pequeno delay para sincronizar com o fade out antes de mudar o index no state
+        setTimeout(() => {
+          setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+        }, 400);
+      }, 4500)
+
+      return () => {
+        clearInterval(interval);
+        cancelAnimation(textOpacity);
+        textOpacity.value = 1;
+        setMessageIndex(0);
+      };
     } else {
       cancelAnimation(shimmerPhase);
       shimmerPhase.value = 0;
+      textOpacity.value = 1;
+      setMessageIndex(0);
     }
   }, [loading]);
 
@@ -101,6 +134,11 @@ export const GenerateButton = ({
       },
       { rotate: "-14deg" },
     ],
+  }));
+
+  const animatedTextStyle = useAnimatedStyle(() => ({
+    opacity: textOpacity.value,
+    transform: [{ translateY: interpolate(textOpacity.value, [0, 1], [4, 0]) }]
   }));
 
   const effectiveIconColor = loading ? Colors.light : iconColor;
@@ -127,7 +165,11 @@ export const GenerateButton = ({
           color={effectiveIconColor}
           fill={effectiveIconColor}
         />
-        <Text style={styles.text}>{label}</Text>
+        <Animated.View style={loading ? animatedTextStyle : null}>
+          <Text style={styles.text}>
+            {loading ? LOADING_MESSAGES[messageIndex] : label}
+          </Text>
+        </Animated.View>
       </View>
 
       {showBadge && selectedCount > 0 && (

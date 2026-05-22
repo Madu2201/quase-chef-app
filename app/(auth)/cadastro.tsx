@@ -5,7 +5,9 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView, Platform, Pressable,
   ScrollView, Text, TextInput, View
 } from "react-native";
 import Animated, {
@@ -174,10 +176,11 @@ export default function CadastroScreen() {
               placeholderTextColor={Colors.subtitle + "99"}
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               onFocus={() => setFocusedInput("email")}
               onBlur={() => setFocusedInput(null)}
               onChangeText={(t) => {
-                setEmail(t);
+                setEmail(t.trim());
                 setErrors({ ...errors, email: null, geral: null });
               }}
               value={email}
@@ -193,7 +196,7 @@ export default function CadastroScreen() {
               placeholder="Digite sua senha"
               placeholderTextColor={Colors.subtitle + "99"}
               secureTextEntry={!showPassword}
-              maxLength={8}
+              maxLength={16}
               onFocus={() => setFocusedInput("senha")}
               onBlur={() => setFocusedInput(null)}
               onChangeText={(t) => {
@@ -209,7 +212,7 @@ export default function CadastroScreen() {
 
           {/* Validação de Senha em Tempo Real */}
           <View style={styles.passwordRequirements}>
-            {renderReqItem("Ter exatamente 8 caracteres", reqs.exactLength)}
+            {renderReqItem("Ter entre 8 e 16 caracteres", reqs.exactLength)}
             {renderReqItem("Pelo menos uma letra", reqs.hasLetter)}
             {renderReqItem("Pelo menos um símbolo", reqs.hasSymbol)}
           </View>
@@ -222,7 +225,7 @@ export default function CadastroScreen() {
               placeholder="Repita a senha"
               placeholderTextColor={Colors.subtitle + "99"}
               secureTextEntry={!showConfirmPassword}
-              maxLength={8}
+              maxLength={16}
               onFocus={() => setFocusedInput("conf")}
               onBlur={() => setFocusedInput(null)}
               onChangeText={(t) => {
@@ -325,7 +328,29 @@ export default function CadastroScreen() {
           {/* Botão de Cadastro */}
           <Pressable
             style={[styles.buttonPrimary, (isSuccess || isLoading) && styles.buttonPrimaryDisabled]}
-            onPress={handleRegister}
+            onPress={async () => {
+              const result = await handleRegister();
+              if (result && !result.success && result.error?.includes("User already registered")) {
+                Alert.alert(
+                  "E-mail já cadastrado",
+                  "Este e-mail já consta em nosso sistema. Você pode tentar fazer login ou recuperar sua senha.",
+                  [
+                    {
+                      text: "Voltar ao Login",
+                      onPress: () => router.push("/(auth)/login"),
+                    },
+                    {
+                      text: "Recuperar Senha",
+                      onPress: () => router.push("/(auth)/esqueci_senha"),
+                    },
+                    {
+                      text: "Tentar outro e-mail",
+                      style: "cancel",
+                    },
+                  ]
+                );
+              }
+            }}
             disabled={isSuccess || isLoading}
           >
             {isLoading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.buttonPrimaryText}>{isSuccess ? "Cadastrado!" : "Criar minha conta"}</Text>}

@@ -6,14 +6,14 @@ import { CompraItem } from "../types/lista";
 
 /**
  * Valida se a senha cumpre as regras estritas:
- * 1. Exatamente 8 caracteres (nem mais, nem menos)
+ * 1. Mínimo 8 caracteres, máximo 16
  * 2. Pelo menos uma letra (maiuscula ou minuscula)
  * 3. Pelo menos um símbolo especial
  */
 export const getPasswordRequirements = (password: string) => {
   return {
-    // Verifica se o comprimento é exatamente 8
-    exactLength: password.length === 8,
+    // Verifica se o comprimento é entre 8 e 16 caracteres
+    exactLength: password.length >= 8 && password.length <= 16,
     // Verifica se existe ao menos uma letra usando Regex
     hasLetter: /[a-zA-Z]/.test(password),
     // Verifica se existe ao menos um símbolo especial

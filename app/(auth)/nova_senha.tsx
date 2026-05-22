@@ -4,6 +4,7 @@ import { Eye, EyeOff, KeyRound, Lock } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator, Alert,
+  Keyboard,
   KeyboardAvoidingView, Platform,
   Pressable, ScrollView, Text, TextInput, View
 } from "react-native";
@@ -30,52 +31,83 @@ export default function NovaSenhaScreen() {
       return;
     }
 
+    const emailStr = typeof email === 'string' ? email.trim().toLowerCase() : '';
+
+    if (!emailStr) {
+      Alert.alert("Erro", "E-mail não encontrado. Volte e tente novamente.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // 1. Busca o usuário com o e-mail e verifica se o código bate
-      const { data: usuario, error: erroBusca } = await supabase
-        .from('users')
-        .select('id, reset_token, reset_token_expires')
-        .eq('email', email)
-        .single();
+      // 1. SEMPRE validar o OTP, independente de sessão existente (segurança crítica)
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: emailStr,
+        token: codigo.trim(),
+        type: 'recovery',
+      });
 
-      if (erroBusca || !usuario) {
-        throw new Error("Erro ao validar conta.");
-      }
-
-      // 2. Validações de segurança
-      if (usuario.reset_token !== codigo.trim()) {
-        Alert.alert("Erro", "Código incorreto.");
+      if (verifyError) {
+        Alert.alert("Código Inválido", "O código expirou ou está incorreto. Solicite um novo código.");
         setLoading(false);
         return;
       }
 
-      const agora = new Date().toISOString();
-      if (usuario.reset_token_expires < agora) {
-        Alert.alert("Erro", "Este código expirou. Solicite um novo.");
-        setLoading(false);
-        return;
+      // 2. Tenta injetar a nova senha
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: novaSenha,
+      });
+
+      if (updateError) {
+        if (updateError.message?.includes("different from the old password") || updateError.status === 422) {
+          // Estratégia de Segurança Estrita: O código OTP foi invalidado pelo Supabase
+          // Usuário deve gerar um novo código obrigatoriamente
+          Alert.alert(
+            "Senha Repetida",
+            "Sua nova senha não pode ser igual à anterior. Por segurança, o código de verificação foi invalidado. Por favor, solicite um novo código de recuperação.",
+            [
+              {
+                text: "Solicitar Novo Código",
+                onPress: () => {
+                  setLoading(false);
+                  router.replace("/(auth)/esqueci_senha");
+                }
+              }
+            ],
+            { cancelable: false }
+          );
+          setLoading(false);
+          return;
+        }
+        throw new Error(updateError.message);
       }
 
-      // 3. Atualiza a senha na tabela e limpa o código
-      const { error: erroUpdate } = await supabase
-        .from('users')
-        .update({
-          password_hash: novaSenha,
-          reset_token: null,
-          reset_token_expires: null
-        })
-        .eq('id', usuario.id);
+      Keyboard.dismiss();
+      setLoading(false);
 
-      if (erroUpdate) throw new Error("Erro ao atualizar a senha.");
-
-      Alert.alert("Sucesso!", "Sua senha foi alterada. Você já pode fazer login.");
-      router.replace("/(auth)/login");
+      // 3. Devolvemos o aviso de sucesso (que você pediu) com navegação atrelada ao botão OK
+      Alert.alert(
+        "Senha atualizada",
+        "Sua senha foi redefinida com sucesso. Você já pode acessar sua conta utilizando suas novas credenciais.",
+        [
+          {
+            text: "Ir para o Login",
+            onPress: () => {
+              router.replace("/(auth)/login");
+              // Limpa a sessão em background
+              setTimeout(() => {
+                supabase.auth.signOut().catch(console.error);
+              }, 300);
+            }
+          }
+        ],
+        { cancelable: false }
+      );
 
     } catch (error: any) {
-      Alert.alert("Ops", "Algo deu errado. Verifique o código e tente novamente.");
-    } finally {
+      console.error("Erro ao alterar senha:", error);
+      Alert.alert("Erro de Atualização", "Algo inesperado aconteceu. Tente novamente ou solicite um novo código de recuperação.");
       setLoading(false);
     }
   }
@@ -91,8 +123,7 @@ export default function NovaSenhaScreen() {
       >
         <AuthHeader
           title="Criar Nova Senha"
-          subtitle="Digite o código de 6 dígitos que enviamos para {email}"
-          email={typeof email === 'string' ? email : ''}
+          subtitle={`Digite o código de 8 dígitos que enviamos para ${typeof email === 'string' ? email : ''}`}
         />
 
         <Animated.View
@@ -112,11 +143,11 @@ export default function NovaSenhaScreen() {
               }
             />
             <TextInput
-              placeholder="Código de 6 dígitos"
+              placeholder="Código de 8 dígitos"
               placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               keyboardType="number-pad"
-              maxLength={6}
+              maxLength={8}
               value={codigo}
               onChangeText={setCodigo}
               onFocus={() => setIsFocusedCodigo(true)}
@@ -140,6 +171,7 @@ export default function NovaSenhaScreen() {
               placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               secureTextEntry={!showPassword}
+              maxLength={16}
               value={novaSenha}
               onChangeText={setNovaSenha}
               onFocus={() => setIsFocusedSenha(true)}

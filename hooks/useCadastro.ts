@@ -65,9 +65,11 @@ export function useCadastroForm() {
                     return { success: true };
                 } else {
                     setErrors({ geral: result.error || "Erro ao criar conta." });
+                    return { success: false, error: result.error };
                 }
-            } catch {
+            } catch (err: any) {
                 setErrors({ geral: "Erro de conexão com o servidor." });
+                return { success: false, error: err.message };
             }
         }
         return { success: false };

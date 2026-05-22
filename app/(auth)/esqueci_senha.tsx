@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView, 
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  Text, 
+  Text,
   TextInput,
   View
 } from "react-native";
@@ -27,72 +27,57 @@ export default function EsqueciSenhaScreen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Função que faz a solicitação
+  // Função refatorada para a Autenticação Nativa do Supabase
   async function handleSolicitarRecuperacao() {
     if (!email) {
-      Alert.alert("Opa!", "Por favor, digite seu e-mail para enviarmos o código.");
+      Alert.alert("Email Requerido", "Digite seu endereço de email para receber o código de recuperação.");
       return;
     }
 
     setLoading(true);
 
     try {
-      // 1. Verifica se o usuário existe na sua tabela pública 'users'
-      const { data: usuario, error: erroBusca } = await supabase
-        .from('users')
-        .select('id, email')
-        .eq('email', email.trim().toLowerCase())
-        .single();
+      // 0. Verifica se o e-mail existe na nossa tabela de usuários antes de disparar o OTP
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", email.trim().toLowerCase())
+        .maybeSingle();
 
-      if (erroBusca || !usuario) {
-        Alert.alert("Erro", "E-mail não encontrado em nossa base de dados.");
+      if (userError) throw userError;
+
+      if (!userData) {
+        Alert.alert(
+          "E-mail não encontrado",
+          "Não encontramos nenhuma conta com este e-mail. Deseja criar uma nova conta?",
+          [
+            {
+              text: "Criar Conta",
+              onPress: () => router.push("/(auth)/cadastro"),
+            },
+            {
+              text: "Tentar novamente",
+              style: "cancel",
+            },
+          ]
+        );
         setLoading(false);
         return;
       }
 
-      // 2. Gera um código de 6 dígitos e o tempo de expiração (1 hora)
-      const codigoGerado = Math.floor(100000 + Math.random() * 900000).toString();
-      const tempoExpiracao = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      // 1. O Supabase dispara o e-mail de recuperação nativo com o código (OTP)
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
 
-      // 3. Salva o código na sua tabela
-      const { error: erroUpdate } = await supabase
-        .from('users')
-        .update({
-          reset_token: codigoGerado,
-          reset_token_expires: tempoExpiracao
-        })
-        .eq('id', usuario.id);
-
-      if (erroUpdate) throw new Error("Erro ao salvar código no banco.");
-
-      // 4. Envia o e-mail via EmailJS puxando as chaves do .env
-      const respostaEmail = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service_id: process.env.EXPO_PUBLIC_EMAILJS_SERVICE_ID,
-          template_id: process.env.EXPO_PUBLIC_EMAILJS_TEMPLATE_ID,
-          user_id: process.env.EXPO_PUBLIC_EMAILJS_PUBLIC_KEY,
-          accessToken: process.env.EXPO_PUBLIC_EMAILJS_PRIVATE_KEY, // Modo Estrito
-          template_params: {
-            user_email: email.trim().toLowerCase(),
-            codigo: codigoGerado,
-          }
-        })
-      });
-
-      if (!respostaEmail.ok) {
-        const motivoDoErro = await respostaEmail.text(); // Lê a resposta da API
-        console.error("Motivo da recusa do EmailJS:", motivoDoErro);
-        throw new Error("Erro do EmailJS: " + motivoDoErro);
+      if (error) {
+        throw new Error(error.message);
       }
 
       Alert.alert(
-        "Código Enviado! 🚀",
-        "Dê uma olhada na sua caixa de entrada (e na pasta de spam). Enviamos um código de 6 dígitos para lá."
+        "Instruções enviadas",
+        "Enviamos o código de recuperação para você. Por favor, verifique sua caixa de entrada e a pasta de spam."
       );
 
-      // 5. Redireciona para a tela de digitar o código, passando o e-mail
+      // 2. Redireciona para a tela de digitar o código e a nova senha, passando o e-mail
       router.push({
         pathname: "/(auth)/nova_senha",
         params: { email: email.trim().toLowerCase() }
@@ -100,7 +85,7 @@ export default function EsqueciSenhaScreen() {
 
     } catch (error: any) {
       console.error("Erro na recuperação:", error);
-      Alert.alert("Erro Real Capturado", error.message || JSON.stringify(error));
+      Alert.alert("Erro", "Não foi possível enviar o e-mail. Verifique se o e-mail está correto.");
     } finally {
       setLoading(false);
     }
@@ -138,8 +123,9 @@ export default function EsqueciSenhaScreen() {
               style={styles.input}
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(t) => setEmail(t.trim())}
               onFocus={() => setIsFocusedEmail(true)}
               onBlur={() => setIsFocusedEmail(false)}
               selectionColor={Colors.primary}
@@ -147,7 +133,7 @@ export default function EsqueciSenhaScreen() {
           </View>
 
           <Pressable
-            style={styles.buttonPrimary}
+            style={[styles.buttonPrimary, loading && styles.buttonPrimaryDisabled]}
             onPress={handleSolicitarRecuperacao}
             disabled={loading}
           >
@@ -171,7 +157,7 @@ export default function EsqueciSenhaScreen() {
           </Text>
 
           <Text style={styles.legalText}>
-            Ao entrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
+            Ao continuar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
           </Text>
         </Animated.View>
       </ScrollView>

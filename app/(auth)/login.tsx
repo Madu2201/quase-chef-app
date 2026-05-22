@@ -2,15 +2,15 @@ import { router } from "expo-router";
 import { CheckCircle, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-  ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
-  ScrollView, Text, TextInput, View
+    ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
+    ScrollView, Text, TextInput, View
 } from "react-native";
 import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 
 // Imports de Configuração e Estilo
-import AuthHeader from "../../components/AuthHeader";
 import { useAuth } from "@/hooks/useAuth";
 import * as WebBrowser from 'expo-web-browser';
+import AuthHeader from "../../components/AuthHeader";
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 import { LoginErrors } from "../../types/auth";
@@ -46,7 +46,14 @@ export default function LoginScreen() {
           setIsSuccess(true);
           setTimeout(() => router.replace("/(tabs)/home"), 1500);
         } else {
-          setErrors({ geral: result.error || "E-mail ou senha incorretos." });
+          const errorMsg = result.error || "";
+          if (errorMsg.includes("Invalid login credentials") || errorMsg.includes("E-mail ou senha incorretos")) {
+            setErrors({ geral: "E-mail ou senha incorretos. Verifique seus dados e tente novamente." });
+          } else if (errorMsg.includes("Email not confirmed")) {
+            setErrors({ geral: "Por favor, confirme seu e-mail antes de fazer login." });
+          } else {
+            setErrors({ geral: errorMsg || "Erro ao realizar login." });
+          }
         }
       } catch (error) {
         setErrors({ geral: "Erro ao conectar com o servidor." });
@@ -94,11 +101,12 @@ export default function LoginScreen() {
               placeholderTextColor={Colors.subtitle + "99"}
               style={styles.input}
               autoCapitalize="none"
+              autoCorrect={false}
               keyboardType="email-address"
               value={email}
               onFocus={() => setFocused("email")}
               onBlur={() => setFocused(null)}
-              onChangeText={(t) => { setEmail(t); setErrors(prev => ({ ...prev, email: null })); }}
+              onChangeText={(t) => { setEmail(t.trim()); setErrors(prev => ({ ...prev, email: null })); }}
             />
           </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}

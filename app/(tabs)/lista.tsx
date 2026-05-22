@@ -342,12 +342,6 @@ export default function ListaScreen() {
                  >
                    <EditItemCard
                      isListMode
-                    item={{
-                        id: item.id,
-                        name: item.nome,
-                        qty: item.quantidade_comprar,
-                        unit: item.unidade
-                    }}
                     editForm={editForm}
                     setEditForm={setEditForm}
                     onSave={handleSalvarQuantidade}

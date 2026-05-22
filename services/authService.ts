@@ -2,7 +2,7 @@ import { supabase } from "@/services/supabase";
 import { File } from "expo-file-system";
 import * as FileSystem from "expo-file-system/legacy";
 
-// 1. Cadastro Simples
+// 1. Cadastro Seguro e Real
 export const registerUser = async (
   fullName: string,
   email: string,
@@ -11,56 +11,98 @@ export const registerUser = async (
   allergies: string[] = [],
   otherRestrictions: string = "",
 ) => {
-  // Inserimos direto na tabela sem passar pela RPC que hasha
-  const { data, error } = await supabase
+  // A) Normaliza email e cria o usuário na autenticação oficial do Supabase
+  const normalizedEmail = email.trim().toLowerCase();
+  const { data: authData, error: authError } = await supabase.auth.signUp({
+    email: normalizedEmail,
+    password,
+    options: {
+      data: {
+        full_name: fullName, // Salva no metadata para emergências
+      }
+    }
+  });
+
+if (authError) {
+    // Só exibe erro no console se não for o erro de e-mail duplicado (que já tratamos)
+    if (!authError.message.includes("already registered")) {
+      console.error("Erro no Auth do Supabase:", authError.message);
+    }
+    throw new Error(authError.message);
+  }
+
+  if (!authData.user) {
+    throw new Error("Não foi possível criar as credenciais de segurança.");
+  }
+
+  // B) Vincula os dados extras na sua tabela pública 'users' usando o ID oficial
+  const { error: dbError } = await supabase
     .from("users")
     .insert([
       {
+        id: authData.user.id, // O PULP DO GATO: Usa o ID gerado pelo sistema de autenticação real
         full_name: fullName,
-        email: email,
-        password_hash: password,
+        email: normalizedEmail,
+        password_hash: "PROTEGIDO_PELO_SUPABASE_AUTH", // Apenas para não quebrar colunas antigas NotNull se houver
         food_preferences: foodPreferences,
         allergies: allergies,
         other_restrictions: otherRestrictions,
       },
-    ])
-    .select("id")
-    .single();
+    ]);
 
-  if (error) {
-    console.error("Erro ao Cadastrar:", error.message);
-    throw new Error("Falha ao criar conta.");
+  if (dbError) {
+    console.error("Erro ao salvar dados complementares no banco:", dbError.message);
+    throw new Error("Usuário criado, mas houve um erro ao salvar o perfil.");
   }
 
-  return data.id;
+  return authData.user.id;
 };
 
-// 2. Login Simples
+// 2. Login Seguro e Real
 export const loginUser = async (email: string, senha: string) => {
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .eq("password_hash", senha) // Comparação direta de texto
-    .maybeSingle();
+  // A) Normaliza email e faz a verificação criptografada no Supabase Auth
+  const normalizedEmail = email.trim().toLowerCase();
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password: senha,
+  });
 
-  if (error || !data) {
+  if (authError) {
+    console.error("Erro no Login Auth:", authError.message);
     throw new Error("E-mail ou senha incorretos.");
   }
 
-  return data;
+  // B) Busca os dados customizados (dispensa, preferências) na tabela pública usando o ID autenticado
+  const { data: profileData, error: dbError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", authData.user.id)
+    .maybeSingle();
+
+  if (dbError || !profileData) {
+    // Fallback de segurança caso a tabela pública falhe: retorna o básico do Auth
+    return {
+      id: authData.user.id,
+      email: authData.user.email,
+      full_name: authData.user.user_metadata?.full_name || "",
+      avatar_url: authData.user.user_metadata?.avatar_url || "",
+      food_preferences: [],
+      allergies: [],
+      other_restrictions: ""
+    };
+  }
+
+  return profileData;
 };
-//upload de fotos
+
+// 3. Upload de fotos (Mantido intacto, agora funcionando perfeitamente com IDs reais)
 export const uploadAvatar = async (
   userId: string,
   nome: string,
   imageUri: string,
 ) => {
   try {
-    // 1. Cria o arquivo a partir da URI
     const file = new File(imageUri);
-
-    // 2. Lê como base64
     const base64 = await FileSystem.readAsStringAsync(imageUri, {
       encoding: "base64",
     });
@@ -69,10 +111,8 @@ export const uploadAvatar = async (
     const nomeLimpo = nome.trim().replace(/\//g, "");
     const filePath = `${userId}/${nomeLimpo} - perfil.${fileExt}`;
 
-    // 3. Converte base64 → ArrayBuffer
     const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
-    // 4. Upload
     const { error: uploadError } = await supabase.storage
       .from("avatars")
       .upload(filePath, arrayBuffer, {
@@ -96,7 +136,8 @@ export const uploadAvatar = async (
     throw error;
   }
 };
-//Editar Perfil
+
+// 4. Editar Perfil (Mantido intacto)
 export const updateUserProfile = async (
   userId: string,
   novoNome: string,
@@ -120,12 +161,12 @@ export const updateUserProfile = async (
       .from("users")
       .update(updateData)
       .eq("id", userId)
-      .select() // Pede pro Supabase devolver a linha atualizada
+      .select()
       .single();
 
     if (error) throw error;
 
-    return data; // Retorna os dados novos
+    return data;
   } catch (error: any) {
     console.error("Erro ao atualizar perfil:", error.message);
     throw new Error("Não foi possível atualizar os dados.");

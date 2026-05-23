@@ -38,7 +38,6 @@ import { ALLERGY_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
-import { generateRecipeImage } from "../services/aiImageService";
 import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 import type { InfoCardProps } from "../types/detalhe_receita";
 import { alergiasReceitaQueColidemComUsuario } from "../utils/perfilReceitasFilter";
@@ -57,10 +56,12 @@ export default function DetalheReceitaScreen() {
     receitaDetalhada,
     receitaFavoritoIA,
     rawIngredientsPreparo,
+    rawStepsPreparo,
     isIA,
     receitaId,
     isLoading,
     erro,
+    preferenciasReceita,
     alergiasReceita,
   } = useDetalheReceita();
 
@@ -71,6 +72,7 @@ export default function DetalheReceitaScreen() {
   // Estados locais
   const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   // Determinar if favorito
   const ehFav = isFavorito(receitaId);
@@ -82,32 +84,29 @@ export default function DetalheReceitaScreen() {
     return alergiasReceitaQueColidemComUsuario(u, r);
   }, [user?.allergies, alergiasReceita]);
 
-  // --- EFFECT QUE CHAMA A FOTO ASSIM QUE A TELA ABRE ---
+  const imageSourceUri = useMemo(
+    () => aiImageUrl || receitaDetalhada.imagem || "",
+    [aiImageUrl, receitaDetalhada.imagem],
+  );
+
+  // --- EFFECT QUE CARREGA A FOTO DO PARAMS ---
   useEffect(() => {
     let isMounted = true;
 
     async function fetchImage() {
-      // 1. Se já veio uma imagem nos params (ex: URL gerada no hook de seleção), use ela
       const imageParam = params.image as string | undefined;
-      if (imageParam && (imageParam.startsWith("data:image") || imageParam.startsWith("http"))) {
+      // Se veio uma imagem nos params (URL do Pollinations.ai ou Supabase), use ela
+      if (
+        imageParam &&
+        (imageParam.startsWith("data:image") || imageParam.startsWith("http"))
+      ) {
         if (isMounted) setAiImageUrl(imageParam);
         return;
       }
 
-      // 2. Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
-      if (isIA && receitaDetalhada.titulo && !aiImageUrl) {
-        if (isMounted) setIsLoadingImage(true);
-
-        try {
-          const url = await generateRecipeImage(receitaDetalhada.titulo);
-          if (url && isMounted) {
-            setAiImageUrl(url);
-          }
-        } catch (error) {
-          console.error("Erro na tela ao buscar imagem:", error);
-        } finally {
-          if (isMounted) setIsLoadingImage(false);
-        }
+      // Para receitas não-IA, a imagem vem do banco automaticamente
+      if (!isIA) {
+        return;
       }
     }
 
@@ -115,7 +114,11 @@ export default function DetalheReceitaScreen() {
     return () => {
       isMounted = false;
     };
-  }, [isIA, receitaDetalhada.titulo, params.image]);
+  }, [isIA, params.image]);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageSourceUri]);
 
   // ============================================
   // RENDERIZAÇÃO (após todos os hooks)
@@ -237,17 +240,18 @@ export default function DetalheReceitaScreen() {
                 </Animated.View>
               )}
 
-              {/* 2. Mostra a IMAGEM (se for receita normal OU se a foto da IA já carregou) */}
-              {(!isIA || aiImageUrl) && !isLoadingImage && (
+              {/* 2. Mostra a IMAGEM (seja vinda de params ou do banco de dados) */}
+              {!!imageSourceUri && !imageFailed && !isLoadingImage && (
                 <Animated.View
                   entering={FadeInUp.duration(600)}
                   style={styles.imageHeader}
                 >
                   <Image
                     source={{
-                      uri: isIA ? aiImageUrl || "" : receitaDetalhada.imagem,
+                      uri: imageSourceUri,
                     }}
                     style={styles.image}
+                    onError={() => setImageFailed(true)}
                   />
 
                   <Animated.View
@@ -265,6 +269,44 @@ export default function DetalheReceitaScreen() {
                       {isIA ? "Foto Gerada por IA 🤖" : "Sugestão Quase Chef"}
                     </Text>
                   </Animated.View>
+                </Animated.View>
+              )}
+
+              {(!imageSourceUri || imageFailed) && !isLoadingImage && (
+                <Animated.View
+                  entering={FadeInUp.duration(600)}
+                  style={[
+                    styles.imageHeader,
+                    {
+                      justifyContent: "center",
+                      alignItems: "center",
+                      backgroundColor: "#E2E8F0",
+                      paddingHorizontal: 24,
+                    },
+                  ]}
+                >
+                  <AlertCircle
+                    size={34}
+                    color={Colors.primary}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <Text
+                    style={{
+                      color: Colors.primary,
+                      fontWeight: "bold",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Imagem indisponível
+                  </Text>
+                  <Text
+                    style={{
+                      color: Colors.subtext,
+                      textAlign: "center",
+                    }}
+                  >
+                    A receita continua disponível mesmo sem a foto.
+                  </Text>
                 </Animated.View>
               )}
 
@@ -411,13 +453,16 @@ export default function DetalheReceitaScreen() {
                     id: receitaId,
                     tipo: isIA ? "ia" : "regular",
                     titulo: receitaDetalhada.titulo,
-                    imagem: receitaDetalhada.imagem,
                     time: receitaDetalhada.tempo,
                     difficulty: receitaDetalhada.dificuldade,
                     calories: receitaDetalhada.calorias,
                     description: receitaDetalhada.descricao,
+                    imagem: imageFailed ? "" : imageSourceUri,
                     rawIngredients: rawIngredientsPreparo,
                     passosJson: JSON.stringify(receitaDetalhada.preparo),
+                    rawSteps: rawStepsPreparo,
+                    preferencias: JSON.stringify(preferenciasReceita || []),
+                    alergias: JSON.stringify(alergiasReceita || []),
                   },
                 })
               }

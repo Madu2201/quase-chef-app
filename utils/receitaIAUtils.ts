@@ -3,34 +3,38 @@ import type { Recipe } from "../hooks/useReceitas";
 
 // Cria objeto Recipe para receitas geradas por IA
 export const criarReceitaIA = (params: {
-    id: string;
-    titulo: string;
-    time: string;
-    difficulty: string;
-    description: string;
-    imagem: string;
-    calories: string;
-    rawIngredients: string;
-    rawSteps: string;
-    tags?: string[];
-    dica_rapida?: string;
-    pre_visualizacao?: string[];
+  id: string;
+  titulo: string;
+  time: string;
+  difficulty: string;
+  description: string;
+  imagem: string;
+  calories: string;
+  rawIngredients: string;
+  rawSteps: string;
+  tags?: string[];
+  dica_rapida?: string;
+  pre_visualizacao?: string[];
+  preferences?: string[];
+  recipeAllergies?: string[];
 }): Recipe => {
-    return {
-        id: params.id,
-        title: params.titulo,
-        time: params.time,
-        difficulty: params.difficulty,
-        descStart: params.description,
-        ingredients: params.rawIngredients,
-        descEnd: "",
-        image: params.imagem,
-        calories: params.calories,
-        rawIngredients: params.rawIngredients,
-        rawSteps: params.rawSteps,
-        tags: params.tags || ["IA"],
-        tipo: "ia",
-        dica_rapida: params.dica_rapida,
-        pre_visualizacao: params.pre_visualizacao,
-    };
+  return {
+    id: params.id,
+    title: params.titulo,
+    time: params.time,
+    difficulty: params.difficulty,
+    descStart: params.description,
+    ingredients: params.rawIngredients,
+    descEnd: "",
+    image: params.imagem,
+    calories: params.calories,
+    rawIngredients: params.rawIngredients,
+    rawSteps: params.rawSteps,
+    tags: params.tags || ["IA"],
+    tipo: "ia",
+    dica_rapida: params.dica_rapida,
+    pre_visualizacao: params.pre_visualizacao,
+    preferences: params.preferences || [],
+    recipeAllergies: params.recipeAllergies || [],
+  };
 };

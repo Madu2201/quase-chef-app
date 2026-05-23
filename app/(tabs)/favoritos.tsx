@@ -1,16 +1,16 @@
 import { router } from "expo-router";
 import {
-    Heart,
-    Package
+  Heart,
+  Package
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    FlatList, Image, Pressable, ScrollView,
-    StatusBar, Switch, Text, View
+  FlatList, Image, Pressable, ScrollView,
+  StatusBar, Switch, Text, View
 } from "react-native";
 import Animated, {
-    FadeInDown, FadeInRight, useAnimatedStyle,
-    useSharedValue, withSequence, withSpring
+  FadeInDown, FadeInRight, useAnimatedStyle,
+  useSharedValue, withSequence, withSpring
 } from "react-native-reanimated";
 
 // Meus imports

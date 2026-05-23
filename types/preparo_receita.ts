@@ -3,16 +3,19 @@ import type { PassoPreparo } from './detalhe_receita';
 
 // TIPOS PARA PARAMS
 export interface PreparoReceitaParams {
-    id: string;
-    titulo: string;
-    imagem: string;
-    time: string;
-    difficulty: string;
-    calories: string;
-    description: string;
-    rawIngredients: string;
-    passosJson: string;
-    tipo?: string;
+  id: string;
+  titulo: string;
+  imagem: string;
+  time: string;
+  difficulty: string;
+  calories: string;
+  description: string;
+  rawIngredients: string;
+  rawSteps: string;
+  passosJson: string;
+  preferencias?: string[];
+  alergias?: string[];
+  tipo?: string;
 }
 
 // TIPOS PARA STATE

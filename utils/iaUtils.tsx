@@ -14,6 +14,12 @@ import {
 } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import type { Ingredient } from "../types/despensa";
+import type {
+  IngredienteIA,
+  PassoIA,
+  ReceitaIAJsonResponse,
+  ReceitaIAResponse,
+} from "../types/ia";
 
 /**
  * Mapeia uma string para o componente de ícone correspondente
@@ -106,6 +112,121 @@ export const limparJSONIA = (rawString: string): string => {
     .replace(/```/gi, "")
     .trim();
 };
+
+export type ReceitaIAParseResult = {
+  receita: ReceitaIAResponse;
+  imagePrompt: string | null;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizarString(valor: unknown, fallback = ""): string {
+  return typeof valor === "string" ? valor.trim() : fallback;
+}
+
+function normalizarNumero(valor: unknown): number {
+  if (typeof valor === "number" && Number.isFinite(valor)) {
+    return valor;
+  }
+
+  if (typeof valor === "string") {
+    const parsed = Number(valor.trim());
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  return 0;
+}
+
+function normalizarListaStrings(valor: unknown): string[] {
+  if (!Array.isArray(valor)) return [];
+  return valor
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+}
+
+function normalizarIngredientesIA(valor: unknown): IngredienteIA[] {
+  if (!Array.isArray(valor)) return [];
+
+  return valor
+    .filter(isRecord)
+    .map((item) => ({
+      nome_base: normalizarString(item.nome_base),
+      quantidade: normalizarNumero(item.quantidade),
+      unidade: normalizarString(item.unidade),
+      texto_original: normalizarString(item.texto_original),
+      quantidade_gramas_ml: normalizarNumero(item.quantidade_gramas_ml),
+    }))
+    .filter((item) => item.nome_base.length > 0);
+}
+
+function normalizarPassosIA(valor: unknown): PassoIA[] {
+  if (!Array.isArray(valor)) return [];
+
+  return valor
+    .filter(isRecord)
+    .map((item) => ({
+      titulo: normalizarString(item.titulo),
+      descricao: normalizarString(item.descricao),
+      dica_do_chef: normalizarString(item.dica_do_chef),
+      tempo_timer_minutos: normalizarNumero(item.tempo_timer_minutos),
+    }))
+    .filter((item) => item.titulo.length > 0 || item.descricao.length > 0);
+}
+
+function normalizarReceitaIA(payload: unknown): ReceitaIAResponse {
+  if (!isRecord(payload)) {
+    throw new Error("Resposta da IA em formato inválido.");
+  }
+
+  return {
+    nome_receita: normalizarString(payload.nome_receita, "Receita Surpresa"),
+    tempo_preparo: normalizarString(payload.tempo_preparo, "30min"),
+    dificuldade: normalizarString(payload.dificuldade, "Média"),
+    calorias: normalizarString(payload.calorias, "N/A"),
+    dica_rapida: normalizarString(payload.dica_rapida),
+    descricao_simples_preparo: normalizarString(
+      payload.descricao_simples_preparo,
+      "Sem descrição",
+    ),
+    pre_visualizacao_passos: normalizarListaStrings(
+      payload.pre_visualizacao_passos,
+    ),
+    ingredientes: normalizarIngredientesIA(payload.ingredientes),
+    passos_detalhados: normalizarPassosIA(payload.passos_detalhados),
+    tags: normalizarListaStrings(payload.tags),
+    preferencias: normalizarListaStrings(payload.preferencias),
+    alergias_presentes: normalizarListaStrings(payload.alergias_presentes),
+    imagem_base64: normalizarString(payload.imagem_base64) || undefined,
+  };
+}
+
+export function extrairReceitaIAParseada(
+  rawString: string,
+): ReceitaIAParseResult {
+  const textoLimpo = limparJSONIA(rawString);
+  const payload = JSON.parse(textoLimpo) as unknown;
+
+  if (!isRecord(payload)) {
+    throw new Error("Resposta da IA sem objeto JSON válido.");
+  }
+
+  const wrapper = payload as Partial<ReceitaIAJsonResponse> &
+    Record<string, unknown>;
+
+  const receitaPayload = isRecord(wrapper.texto_da_receita)
+    ? wrapper.texto_da_receita
+    : payload;
+
+  const receita = normalizarReceitaIA(receitaPayload);
+  const imagePrompt =
+    typeof wrapper.image_prompt === "string" && wrapper.image_prompt.trim()
+      ? wrapper.image_prompt.trim()
+      : null;
+
+  return { receita, imagePrompt };
+}
 
 /** Ingredientes selecionados com quantidade/unidade reais da despensa (para regras de limite no prompt). */
 export type IngredienteSelecionadoParaPrompt = {
@@ -227,7 +348,15 @@ REGRAS DE QUANTIDADE E UNIDADE:
 - Respeite fidelidade à unidade da despensa: se o item está em "un", use unidades na receita; não converta batatas em gramas se o estoque foi em unidades.
 - Garanta que nenhuma linha de ingrediente implique falta no estoque do usuário (nada de quantidades > disponível).
 
-REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON APENAS):
+REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON WRAPPER COM DUAS CHAVES):
+
+ESTRUTURA ESPERADA:
+{
+  "texto_da_receita": { ... campos de receita abaixo ... },
+  "image_prompt": "... prompt em inglês para geração de imagem ..."
+}
+
+CAMPOS DA RECEITA (dentro de "texto_da_receita"):
 1. nome_receita: Título da receita (Máximo 4 palavras).
 2. tempo_preparo: Formato padrão colado (ex: "20min", "1h30min"). SEM ESPAÇOS.
 3. dificuldade: Escolha entre "Fácil", "Média" ou "Difícil".
@@ -248,5 +377,8 @@ REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON APENAS):
 11. preferencias: Lista de strings. Escolha APENAS entre: ["vegano", "vegetariano", "sem_gluten", "sem_lactose", "baixo_carboidrato", "sem_acucar"]. Retorne [] se não aplicar.
 12. alergias_presentes: Lista de strings. Escolha APENAS entre: ["amendoim", "nozes", "leite", "ovo", "soja", "trigo", "gergelim", "frutos_do_mar"]. Retorne [] se for livre de alérgenos.
 
-Retorne APENAS o JSON puro, sem markdown ou explicações.`;
+CAMPO "image_prompt" (ESPECIALISTA EM FOOD PHOTOGRAPHY):
+You are an expert AI prompt engineer specializing in Midjourney and Stable Diffusion for professional food photography. Your task is to take a traditional Brazilian dish or dessert and transform it into a highly detailed, professional, English image generation prompt. Make sure to remain faithful to the authentic Brazilian ingredients (e.g., if it's brigadeiro, it must use chocolate sprinkles, not nuts or powdered sugar). Strictly follow this structure for the output prompt: "Ultra-realistic, professional food photography of [detailed description of the food], [description of ingredients/textures]. Macro photography, extreme close-up, highly detailed, showcasing the intricate texture of [specific elements]. Flawless food styling, elegant and gourmet presentation on a minimalist [type of plate/surface]. Soft, warm studio lighting, shallow depth of field, captivating bokeh background. Mouth-watering, appetizing, high resolution, award-winning food photography."
+
+Retorne APENAS o JSON com as duas chaves (texto_da_receita e image_prompt), sem markdown ou explicações.`;
 }

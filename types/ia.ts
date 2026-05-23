@@ -31,6 +31,12 @@ export interface ReceitaIAResponse {
   imagem_base64?: string;
 }
 
+// Nova estrutura: Gemini retorna texto_da_receita + image_prompt
+export interface ReceitaIAJsonResponse {
+  texto_da_receita: ReceitaIAResponse;
+  image_prompt?: string;
+}
+
 // Define a estrutura das categorias para a listagem
 export interface CategoriaIA {
   titulo: string;

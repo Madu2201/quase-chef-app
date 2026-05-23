@@ -1,13 +1,12 @@
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
-import { generateRecipeImage } from "../services/aiImageService";
+import { buildPollinationsImageUrl } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
 import type { Ingredient } from "../types/despensa";
-import { ReceitaIAResponse } from "../types/ia";
 import {
   ContextoSegurancaPrompt,
-  limparJSONIA,
+  extrairReceitaIAParseada,
   montarListaIngredientesPorIds,
   montarPromptGeracaoReceitaIA,
 } from "../utils/iaUtils";
@@ -138,14 +137,15 @@ export function useSelecaoIA() {
 
         const prompt = montarPromptGeracaoReceitaIA(comEstoque, contextoPerfil);
         const respostaIA = await perguntarAoGemini(prompt);
-        const textoLimpo = limparJSONIA(respostaIA);
-        const receitaGerada: ReceitaIAResponse = JSON.parse(textoLimpo);
+        const { receita: receitaGerada, imagePrompt } =
+          extrairReceitaIAParseada(respostaIA);
 
-        let imageUrl = "";
-        try {
-          imageUrl = (await generateRecipeImage(receitaGerada.nome_receita)) || "";
-        } catch (imgError) {
-          console.error("Erro ao gerar imagem:", imgError);
+        // Falha de mídia não pode derrubar a geração da receita.
+        const imageUrl = buildPollinationsImageUrl(imagePrompt);
+        if (!imageUrl) {
+          console.warn(
+            "Resposta da IA sem image_prompt válido; seguindo sem imagem externa.",
+          );
         }
 
         router.push({
@@ -165,7 +165,7 @@ export function useSelecaoIA() {
             pre_visualizacao: JSON.stringify(
               receitaGerada.pre_visualizacao_passos || [],
             ),
-            image: imageUrl,
+            image: imageUrl || "",
             tags: JSON.stringify(receitaGerada.tags || []),
             preferencias: JSON.stringify(receitaGerada.preferencias || []),
             alergias: JSON.stringify(receitaGerada.alergias_presentes || []),

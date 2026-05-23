@@ -1,23 +1,30 @@
 /**
- * Serviço de geração de imagens por IA (Mock)
- * Este arquivo centraliza a lógica de geração de imagens para as receitas.
+ * Serviço de geração de imagens por IA via Pollinations
+ * Constrói URLs para renderização de imagens de receitas
  */
 
 /**
- * Gera uma imagem para a receita baseada em um prompt.
- * Por enquanto, retorna um placeholder estático para não quebrar a UI.
- * 
- * @param prompt O nome ou descrição da receita para gerar a imagem
- * @returns Promise que resolve com a URL da imagem ou null
+ * Construir URL do Pollinations.ai para renderizar imagem
+ * Esta função é SÍNCRONA: apenas monta a URL, não faz requisições
+ *
+ * @param imagePrompt Prompt em inglês descrevendo a receita (gerado pelo Gemini)
+ * @returns URL completa pronta para renderizar em <Image /> ou null se o prompt for inválido
  */
-export async function generateRecipeImage(prompt: string): Promise<string | null> {
-  console.log(`[aiImageService] Mock: Gerando imagem para: "${prompt}"`);
-  
-  // Simulando um pequeno delay de rede
-  await new Promise(resolve => setTimeout(resolve, 1500));
+export function buildPollinationsImageUrl(
+  imagePrompt?: string | null,
+): string | null {
+  if (typeof imagePrompt !== "string") return null;
 
-  // Retorna uma imagem genérica de comida (Unsplash é ótimo para placeholders)
-  // Usamos um parâmetro aleatório para evitar cache e simular uma nova imagem
-  const randomId = Math.floor(Math.random() * 1000);
-  return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop&sig=${randomId}`;
+  // 1. Remove aspas extras do prompt
+  const cleaned = imagePrompt.replace(/"/g, "").trim();
+  if (!cleaned) return null;
+
+  // 2. Codifica para URL-safe
+  const encoded = encodeURIComponent(cleaned);
+
+  // 3. Adiciona seed aleatório para evitar cache excessivo
+  const seed = Math.random();
+
+  // 4. Retorna URL final do Pollinations.ai
+  return `https://image.pollinations.ai/p/${encoded}?width=1024&height=1024&model=flux&nologo=true&seed=${seed}`;
 }

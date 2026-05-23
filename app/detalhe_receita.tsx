@@ -33,12 +33,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports
 import { useAuth } from "@/hooks/useAuth";
-import { gerarImagemDaReceita } from "@/services/pollinationsService";
 import { Header } from "../components/header";
 import { ALLERGY_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
+import { generateRecipeImage } from "../services/aiImageService";
 import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 import type { InfoCardProps } from "../types/detalhe_receita";
 import { alergiasReceitaQueColidemComUsuario } from "../utils/perfilReceitasFilter";
@@ -69,7 +69,7 @@ export default function DetalheReceitaScreen() {
   const { user } = useAuth();
 
   // Estados locais
-  const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
+  const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
   // Determinar if favorito
@@ -87,21 +87,21 @@ export default function DetalheReceitaScreen() {
     let isMounted = true;
 
     async function fetchImage() {
-      // 1. Se já veio uma imagem nos params (ex: Base64 gerado no hook de seleção), use ela
+      // 1. Se já veio uma imagem nos params (ex: URL gerada no hook de seleção), use ela
       const imageParam = params.image as string | undefined;
-      if (imageParam && imageParam.startsWith("data:image")) {
-        if (isMounted) setAiImageBase64(imageParam);
+      if (imageParam && (imageParam.startsWith("data:image") || imageParam.startsWith("http"))) {
+        if (isMounted) setAiImageUrl(imageParam);
         return;
       }
 
       // 2. Só chama a IA se for receita gerada, se tiver título e se já não tiver baixado a imagem
-      if (isIA && receitaDetalhada.titulo && !aiImageBase64) {
+      if (isIA && receitaDetalhada.titulo && !aiImageUrl) {
         if (isMounted) setIsLoadingImage(true);
 
         try {
-          const base64 = await gerarImagemDaReceita(receitaDetalhada.titulo);
-          if (base64 && isMounted) {
-            setAiImageBase64(base64);
+          const url = await generateRecipeImage(receitaDetalhada.titulo);
+          if (url && isMounted) {
+            setAiImageUrl(url);
           }
         } catch (error) {
           console.error("Erro na tela ao buscar imagem:", error);
@@ -238,14 +238,14 @@ export default function DetalheReceitaScreen() {
               )}
 
               {/* 2. Mostra a IMAGEM (se for receita normal OU se a foto da IA já carregou) */}
-              {(!isIA || aiImageBase64) && !isLoadingImage && (
+              {(!isIA || aiImageUrl) && !isLoadingImage && (
                 <Animated.View
                   entering={FadeInUp.duration(600)}
                   style={styles.imageHeader}
                 >
                   <Image
                     source={{
-                      uri: isIA ? aiImageBase64 || "" : receitaDetalhada.imagem,
+                      uri: isIA ? aiImageUrl || "" : receitaDetalhada.imagem,
                     }}
                     style={styles.image}
                   />

@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
+import { generateRecipeImage } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
-import { gerarImagemDaReceita } from "../services/pollinationsService";
 import type { Ingredient } from "../types/despensa";
 import { ReceitaIAResponse } from "../types/ia";
 import {
@@ -141,9 +141,9 @@ export function useSelecaoIA() {
         const textoLimpo = limparJSONIA(respostaIA);
         const receitaGerada: ReceitaIAResponse = JSON.parse(textoLimpo);
 
-        let imagemBase64 = "";
+        let imageUrl = "";
         try {
-          imagemBase64 = await gerarImagemDaReceita(receitaGerada.nome_receita);
+          imageUrl = (await generateRecipeImage(receitaGerada.nome_receita)) || "";
         } catch (imgError) {
           console.error("Erro ao gerar imagem:", imgError);
         }
@@ -165,7 +165,7 @@ export function useSelecaoIA() {
             pre_visualizacao: JSON.stringify(
               receitaGerada.pre_visualizacao_passos || [],
             ),
-            image: imagemBase64,
+            image: imageUrl,
             tags: JSON.stringify(receitaGerada.tags || []),
             preferencias: JSON.stringify(receitaGerada.preferencias || []),
             alergias: JSON.stringify(receitaGerada.alergias_presentes || []),

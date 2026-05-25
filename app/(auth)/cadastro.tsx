@@ -17,6 +17,7 @@ import Animated, {
 
 // Meus imports
 import AuthHeader from "../../components/AuthHeader";
+import { AuthLegalNotice } from "../../components/AuthLegalNotice";
 import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../../constants/OpcaoAlimentar";
 import { Colors } from "../../constants/theme";
 import { useCadastroForm } from "../../hooks/useCadastro";
@@ -364,9 +365,7 @@ export default function CadastroScreen() {
             Já tem uma conta? <Text style={styles.primaryLink} onPress={() => router.push("/(auth)/login")}>Entre aqui</Text>
           </Text>
 
-          <Text style={styles.legalText}>
-            Ao se cadastrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
-          </Text>
+          <AuthLegalNotice prefixText="Ao se cadastrar, você aceita nossos" />
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import { ChevronDown, ChevronRight, User2, Zap } from "lucide-react-native";
+import { ChevronDown, ChevronRight, Clock, User2, Zap } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -214,7 +214,10 @@ const RecipeCard = ({ delay, image, time, title, desc, onPress }: any) => (
       <View style={styles.recipeInfo}>
         {/* Bloco de Esquerda: Apenas Textos */}
         <View style={styles.recipeTextBlock}>
-          <Text style={styles.recipeTime}>⏱ {time}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Clock size={14} color={Colors.primary} />
+            <Text style={styles.recipeTime}>{time}</Text>
+          </View>
 
           <Text style={styles.recipeTitle} numberOfLines={1}>
             {title}

@@ -2,8 +2,8 @@ import { router } from "expo-router";
 import { CheckCircle, Eye, EyeOff, Lock, Mail } from "lucide-react-native";
 import React, { useState } from "react";
 import {
-    ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
-    ScrollView, Text, TextInput, View
+  ActivityIndicator, KeyboardAvoidingView, Platform, Pressable,
+  ScrollView, Text, TextInput, View
 } from "react-native";
 import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 
@@ -11,6 +11,7 @@ import Animated, { FadeInDown, FadeOut } from "react-native-reanimated";
 import { useAuth } from "@/hooks/useAuth";
 import * as WebBrowser from 'expo-web-browser';
 import AuthHeader from "../../components/AuthHeader";
+import { AuthLegalNotice } from "../../components/AuthLegalNotice";
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 import { LoginErrors } from "../../types/auth";
@@ -157,9 +158,7 @@ export default function LoginScreen() {
             Não tem uma conta? <Text style={styles.primaryLink} onPress={() => router.push("/(auth)/cadastro")}>Cadastre-se</Text>
           </Text>
 
-          <Text style={styles.legalText}>
-            Ao entrar, você aceita nossos <Text style={styles.linkUnderline}>Termos de Serviço</Text> e <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
-          </Text>
+          <AuthLegalNotice prefixText="Ao entrar, você aceita nossos" />
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>

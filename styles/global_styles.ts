@@ -458,6 +458,22 @@ export const AUTH_TEXTAREA = StyleSheet.create({
   },
 });
 
+export const AUTH_LEGAL = StyleSheet.create({
+  legalText: {
+    textAlign: "center",
+    marginTop: Spacing.xl,
+    fontSize: FontSizes.small - 1,
+    fontFamily: Fonts.regular,
+    color: Colors.subtext,
+    lineHeight: Spacing.lg,
+    paddingHorizontal: Spacing.sm,
+  },
+  linkUnderline: {
+    textDecorationLine: "underline",
+    color: Colors.primary,
+  },
+});
+
 // PERFIL INPUTS - PERFIL
 export const PERFIL_INPUTS = StyleSheet.create({
   inputLabel: {

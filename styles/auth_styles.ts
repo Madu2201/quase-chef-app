@@ -286,21 +286,8 @@ export const authStyles = StyleSheet.create({
     fontSize: FontSizes.small,
     color: Colors.subtitle,
   },
-  legalText: {
-    textAlign: "center",
-    marginTop: Spacing.xl,
-    fontSize: FontSizes.small - 1,
-    fontFamily: Fonts.regular,
-    color: Colors.subtext,
-    lineHeight: Spacing.lg,
-    paddingHorizontal: Spacing.sm,
-  },
   primaryLink: {
     fontFamily: Fonts.bold,
-    color: Colors.primary,
-  },
-  linkUnderline: {
-    textDecorationLine: "underline",
     color: Colors.primary,
   },
 

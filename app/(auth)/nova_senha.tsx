@@ -12,6 +12,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 
 // Meus imports
 import AuthHeader from "../../components/AuthHeader";
+import { AuthLegalNotice } from "../../components/AuthLegalNotice";
 import { Colors } from "../../constants/theme";
 import { authStyles as styles } from "../../styles/auth_styles";
 
@@ -211,11 +212,7 @@ export default function NovaSenhaScreen() {
             </Text>
           </Text>
 
-          <Text style={styles.legalText}>
-            Ao continuar, você concorda com nossos{" "}
-            <Text style={styles.linkUnderline}>Termos de Serviço</Text> e{" "}
-            <Text style={styles.linkUnderline}>Política de Privacidade</Text>.
-          </Text>
+          <AuthLegalNotice prefixText="Ao continuar, você concorda com nossos" />
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>

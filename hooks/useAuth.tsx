@@ -30,7 +30,7 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<UserData | null>(null);
 
   useEffect(() => {
@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error("Erro ao carregar usuário local:", error);
       }
+      // Não definimos isLoading(false) aqui para esperar o Supabase confirmar a sessão real
     };
 
     loadUser();
@@ -78,6 +79,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // 2. O SENTINELA: Monitora e sincroniza a sessão real do Supabase
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Eventos que indicam que estamos processando uma sessão
+        if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+          setIsLoading(true);
+        }
         // Se for apenas uma atualização de usuário (como troca de senha), sincronizar metadata leve
         if (event === 'USER_UPDATED') {
           if (session?.user?.email && user && user.email !== session.user.email) {
@@ -125,6 +130,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             ]);
           } catch (error) {
             console.error("Erro no sentinela de auth:", error);
+          } finally {
+            setIsLoading(false);
           }
         } else if (event === "SIGNED_OUT") {
           setUser(null);
@@ -137,6 +144,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             "@user_allergies",
             "@user_temporary_mode",
           ]);
+          setIsLoading(false);
+        } else {
+          // Para outros eventos (como INITIAL_SESSION sem user)
+          setIsLoading(false);
         }
       },
     );
@@ -188,11 +199,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     setIsLoading(true);
     try {
+      // 1. Tenta encerrar a sessão no servidor do Supabase de forma educada
       await supabase.auth.signOut();
-      setUser(null);
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
+      console.error("Erro na API do Supabase ao sair (ignorado para forçar limpeza local):", error);
     } finally {
+      // 2. OBRIGA A LIMPEZA LOCAL (mesmo se o passo 1 falhou por falta de internet)
+      try {
+        // Puxa o nome de absolutamente tudo que está salvo no storage do celular
+        const allKeys = await AsyncStorage.getAllKeys();
+
+        // Caça as nossas chaves @user_ E a chave secreta dinâmica do Supabase (que começa com sb-)
+        const keysToNuke = allKeys.filter(
+          (key) => key.startsWith("@user_") || key.startsWith("sb-") || key.includes("supabase")
+        );
+
+        // Oblítera as chaves encontradas
+        if (keysToNuke.length > 0) {
+          await AsyncStorage.multiRemove(keysToNuke);
+        }
+      } catch (cleanupError) {
+        console.error("Erro ao varrer e limpar o AsyncStorage:", cleanupError);
+      }
+
+      // 3. Reseta o estado e manda pra tela de login
+      setUser(null);
       setIsLoading(false);
     }
   };

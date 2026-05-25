@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 
 // Essas chaves são strings, o TS vai inferir isso automaticamente
@@ -10,4 +11,11 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "";
 console.log("ENV TEST:", process.env.EXPO_PUBLIC_SUPABASE_URL);
 
 // Criamos a instância do cliente
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: AsyncStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false, // Necessário para React Native
+  },
+});

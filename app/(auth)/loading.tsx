@@ -3,27 +3,39 @@ import { View, Image, StyleSheet, StatusBar, Dimensions, Text } from "react-nati
 import { router } from "expo-router";
 
 // Imports do Tema
+import { useAuth } from "@/hooks/useAuth";
 import { Colors, Fonts, FontSizes, Spacing, Shadows, Radius } from "../../constants/theme";
 
 const { width } = Dimensions.get("window");
 
 export default function LoadingScreen() {
+  const { user, isLoading } = useAuth();
   const [step, setStep] = useState(0);
 
+  // Animação dos pontinhos
   useEffect(() => {
     const interval = setInterval(() => {
       setStep((prev) => (prev < 3 ? prev + 1 : 1));
     }, 800);
-
-    const timer = setTimeout(() => {
-      router.replace("/(auth)/login");
-    }, 6000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timer);
-    };
+    return () => clearInterval(interval);
   }, []);
+
+  // Lógica de Redirecionamento Baseada na Autenticação
+  useEffect(() => {
+    // Só redireciona quando o useAuth terminar de verificar o storage/sessão
+    if (!isLoading) {
+      // Pequeno delay para a animação não sumir instantaneamente se o carregamento for muito rápido
+      const redirectTimer = setTimeout(() => {
+        if (user) {
+          router.replace("/(tabs)/home");
+        } else {
+          router.replace("/(auth)/login");
+        }
+      }, 1500); // 1.5s é o tempo ideal para o usuário ver a marca
+
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [isLoading, user]);
 
   return (
     <View style={styles.container}>

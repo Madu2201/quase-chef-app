@@ -18,7 +18,6 @@ import {
   Image,
   Pressable,
   ScrollView,
-  Share,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -36,6 +35,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Header } from "../components/header";
 import { ALLERGY_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
+import { useCompartilharReceita } from "../hooks/useCompartilharReceita";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
@@ -68,6 +68,8 @@ export default function DetalheReceitaScreen() {
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { user } = useAuth();
+
+  const { compartilhar, isSharing } = useCompartilharReceita();
 
   // Estados locais
   const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
@@ -133,13 +135,22 @@ export default function DetalheReceitaScreen() {
         onBack={() => router.back()}
         showSearch={false}
         rightElement={
-          <TouchableOpacity
-            onPress={() =>
-              Share.share({ message: `Receita de ${receitaDetalhada.titulo}` })
-            }
-          >
-            <Share2 size={22} color={Colors.primary} />
-          </TouchableOpacity>
+          isSharing ? (
+            <ActivityIndicator size="small" color={Colors.primary} />
+          ) : (
+            <TouchableOpacity
+              disabled={isLoading || !receitaId}
+              onPress={() =>
+                compartilhar({
+                  id: receitaId,
+                  titulo: receitaDetalhada.titulo || "Receita",
+                  imagemUrl: imageFailed ? undefined : imageSourceUri,
+                })
+              }
+            >
+              <Share2 size={22} color={Colors.primary} />
+            </TouchableOpacity>
+          )
         }
       />
 

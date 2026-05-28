@@ -17,7 +17,6 @@ import {
   Image,
   Pressable,
   ScrollView,
-  Share,
   StatusBar,
   Text,
   View,
@@ -34,6 +33,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports organizados
 import { Colors } from "../constants/theme";
+import { useCompartilharReceita } from "../hooks/useCompartilharReceita";
 import { useDespensa } from "../hooks/useDespensa";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
@@ -65,6 +65,7 @@ export default function PreparoReceitaScreen() {
   // Hooks - TODOS declarados no topo, sem early returns
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { abaterIngredientesDaReceita } = useDespensa();
+  const { compartilhar, isSharing } = useCompartilharReceita();
   const {
     passoAtual,
     isConcluido,
@@ -116,13 +117,15 @@ export default function PreparoReceitaScreen() {
   };
 
   const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `Olha só a receita de ${paramsProcessados.titulo} que acabei de preparar! 🍳`,
-      });
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível compartilhar.");
+    if (!paramsProcessados.id) {
+      Alert.alert("Erro", "Receita inválida para compartilhamento.");
+      return;
     }
+    await compartilhar({
+      id: paramsProcessados.id,
+      titulo: paramsProcessados.titulo || "Receita",
+      imagemUrl: paramsProcessados.imagem || undefined,
+    });
   };
 
   useEffect(() => {
@@ -313,9 +316,19 @@ export default function PreparoReceitaScreen() {
             </Text>
           </Pressable>
 
-          <Pressable style={styles.btnOutline} onPress={handleShare}>
-            <Share2 size={18} color={Colors.primary} />
-            <Text style={styles.btnOutlineText}>Compartilhar</Text>
+          <Pressable
+            style={[styles.btnOutline, isSharing && { opacity: 0.7 }]}
+            onPress={handleShare}
+            disabled={isSharing}
+          >
+            {isSharing ? (
+              <ActivityIndicator size="small" color={Colors.primary} />
+            ) : (
+              <Share2 size={18} color={Colors.primary} />
+            )}
+            <Text style={styles.btnOutlineText}>
+              {isSharing ? "Gerando link..." : "Compartilhar"}
+            </Text>
           </Pressable>
         </Animated.View>
 

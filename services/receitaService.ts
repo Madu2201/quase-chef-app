@@ -180,7 +180,10 @@ export async function removerFavorito(receitaId: number, userId: string) {
       .single();
 
     if (fetchError) {
-      console.error(`❌ Erro ao buscar receita para remover favorito:`, fetchError.message);
+      console.error(
+        `❌ Erro ao buscar receita para remover favorito:`,
+        fetchError.message,
+      );
     }
 
     // 2. Remove da tabela de favoritos
@@ -203,13 +206,51 @@ export async function removerFavorito(receitaId: number, userId: string) {
         .eq("id", receitaId);
 
       if (deleteError) {
-        console.error(`❌ Erro ao excluir registro de receita IA:`, deleteError.message);
+        console.error(
+          `❌ Erro ao excluir registro de receita IA:`,
+          deleteError.message,
+        );
       }
     }
 
     return true;
   } catch (exception) {
     console.error(`❌ Exceção ao remover favorito ${receitaId}:`, exception);
+    return false;
+  }
+}
+/**
+ * Torna uma receita pública para permitir acesso via link compartilhado.
+ * A permissão real de leitura pública depende da política RLS no Supabase.
+ */
+export async function tornarReceitaPublica(
+  receitaId: number | string,
+): Promise<boolean> {
+  try {
+    const id =
+      typeof receitaId === "string" ? parseInt(receitaId, 10) : receitaId;
+
+    if (!id || Number.isNaN(id)) {
+      console.error(
+        "❌ ID de receita inválido para compartilhamento:",
+        receitaId,
+      );
+      return false;
+    }
+
+    const { error } = await supabase
+      .from("receitas")
+      .update({ is_public: true })
+      .eq("id", id);
+
+    if (error) {
+      console.error(`❌ Erro ao tornar receita pública ${id}:`, error.message);
+      return false;
+    }
+
+    return true;
+  } catch (exception) {
+    console.error("❌ Exceção ao tornar receita pública:", exception);
     return false;
   }
 }

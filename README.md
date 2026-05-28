@@ -35,7 +35,7 @@ app/
 │   ├── despensa.tsx
 │   ├── lista.tsx
 │   └── _layout.tsx
-├── perfil/              # Tela acessada via header no home
+├── perfil.tsx              # Tela acessada via header no home
 ├── detalhe_receita.tsx
 ├── preparo_receita.tsx
 ├── selecao_ia.tsx
@@ -52,12 +52,12 @@ utils/                  # Funções auxiliares
 
 ## 👥 Equipe
 
-| Integrante                  | Papel                   | Contribuições                                                                                             |
-| --------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Maria Eduarda Almeida**   | Coordenação + Front-End | Estrutura de pastas, telas principais (Login, Home, Favoritos, Despensa, Lista), centralização de estilos |
-| **Marcus Vinicius**         | Back-End                | Supabase, autenticação, APIs (Gemini/Pollinations.ai), edição de perfil                                      |
-| **Kauã de Almeida**         | Backend + Prototipagem  | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes                              |
-| **Maria Eduarda Rodrigues** | Front-End               | Cadastro com validação, perfil, receitas, telas de IA                                                     |
+| Integrante                  | Papel                   | Contribuições                                                                                                        |
+| --------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Maria Eduarda Almeida**   | Coordenação + Front-End | Estrutura de pastas, telas principais (Login, Home, Favoritos, Despensa, Lista), centralização de estilos            |
+| **Marcus Vinicius**         | Back-End                | Supabase, autenticação, APIs (Gemini/Pollinations.ai), edição de perfil                                              |
+| **Kauã de Almeida**         | Backend + Prototipagem  | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes                                         |
+| **Maria Eduarda Rodrigues** | Front-End               | Cadastro com validação, tela de perfil e preferências alimentares, receitas, telas de IA, ajustes de rotas do perfil |
 
 ## 📝 Funcionalidades Principais
 
@@ -85,5 +85,6 @@ utils/                  # Funções auxiliares
 
 - Favoritos de receitas
 - Modo de preparo interativo com temporizador
+- Compartilhamento de receitas via link do app
 - Exportar lista de compras em PDF
 - 💾 Sincronização local com AsyncStorage

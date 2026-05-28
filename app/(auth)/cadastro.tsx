@@ -308,11 +308,14 @@ export default function CadastroScreen() {
                   ))}
                 </View>
                 <Text style={styles.label}>Outras restrições</Text>
+                <Text style={styles.sectionHelper}>
+                  Liste outras alergias ou restrições separando cada item por vírgula.
+                </Text>
                 <View style={[styles.inputContainer, styles.textAreaContainer, focusedInput === "outras_restricoes" && styles.inputContainerFocused]}>
                   <TextInput
                     style={styles.textArea}
                     multiline
-                    placeholder="Ex.: intolerâncias específicas, orientação médica..."
+                    placeholder="Ex.: peixe, coentro, camarão, pimenta"
                     placeholderTextColor={Colors.subtitle + "99"}
                     value={otherRestrictions}
                     onFocus={() => setFocusedInput("outras_restricoes")}

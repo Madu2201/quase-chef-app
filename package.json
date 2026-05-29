@@ -32,7 +32,7 @@
     "expo-image-picker": "~55.0.20",
     "expo-linear-gradient": "~55.0.14",
     "expo-linking": "~55.0.15",
-    "expo-network": "^56.0.4",
+    "expo-network": "~55.0.14",
     "expo-print": "~55.0.15",
     "expo-router": "~55.0.16",
     "expo-sharing": "~55.0.20",

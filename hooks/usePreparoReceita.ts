@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { buscarReceitaPorId } from '../services/receitaService';
 import type { PassoPreparo, ReceitaBancoDados } from '../types/detalhe_receita';
+import { useNetworkStatus } from './useNetworkStatus';
 
 interface UsePreparoReceitaReturn {
     passoAtual: number;
@@ -15,6 +16,7 @@ interface UsePreparoReceitaReturn {
     totalPassos: number;
     isLoading: boolean;
     erro: string | null;
+    retryReceita: () => Promise<void>;
 }
 
 /**
@@ -38,6 +40,7 @@ export function usePreparoReceita(
     const [receitaBancoDados, setReceitaBancoDados] = useState<ReceitaBancoDados | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
+    const { isOffline, notifyInternetRequired } = useNetworkStatus();
 
     // Estados do preparo
     const [passoAtual, setPassoAtual] = useState(0);
@@ -48,56 +51,48 @@ export function usePreparoReceita(
     // ============================================
     // REGRA 3: Fetch com isMounted tracking
     // ============================================
-    useEffect(() => {
-        let isMounted = true;
-
-        async function buscarDados() {
-            // Só busca no banco se for receita regular (não IA) e tiver ID numérico
-            const isIA = tipo === "ia";
-            if (isIA || !receitaId || isNaN(Number(receitaId))) {
-                if (isMounted) {
-                    setReceitaBancoDados(null);
-                    setIsLoading(false);
-                }
-                return;
-            }
-
-            if (isMounted) {
-                setIsLoading(true);
-                setErro(null);
-            }
-
-            try {
-                const dados = await buscarReceitaPorId(receitaId);
-
-                if (isMounted) {
-                    if (dados) {
-                        setReceitaBancoDados(dados);
-                        setErro(null);
-                    } else {
-                        setErro("Receita não encontrada");
-                        setReceitaBancoDados(null);
-                    }
-                }
-            } catch (err) {
-                if (isMounted) {
-                    console.error("Erro ao buscar receita para preparo:", err);
-                    setErro("Erro ao carregar receita");
-                    setReceitaBancoDados(null);
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
+    const retryReceita = useCallback(async () => {
+        const isIA = tipo === "ia";
+        if (isIA || !receitaId || isNaN(Number(receitaId))) {
+            setReceitaBancoDados(null);
+            setErro(null);
+            setIsLoading(false);
+            return;
         }
 
-        buscarDados();
+        if (isOffline) {
+            setReceitaBancoDados(null);
+            setErro("Você está sem internet. Reconecte-se para carregar esta receita.");
+            setIsLoading(false);
+            notifyInternetRequired("Reconecte-se para abrir esta receita.");
+            return;
+        }
 
-        return () => {
-            isMounted = false;
-        };
-    }, [receitaId, tipo]);
+        setIsLoading(true);
+        setErro(null);
+
+        try {
+            const dados = await buscarReceitaPorId(receitaId);
+
+            if (dados) {
+                setReceitaBancoDados(dados);
+                setErro(null);
+            } else {
+                setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+                setReceitaBancoDados(null);
+            }
+        } catch (err) {
+            console.error("Erro ao buscar receita para preparo:", err);
+            setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+            setReceitaBancoDados(null);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isOffline, notifyInternetRequired, receitaId, tipo]);
+
+    useEffect(() => {
+        void retryReceita();
+    }, [retryReceita]);
 
     // ============================================
     // Processamento de passos
@@ -182,5 +177,6 @@ export function usePreparoReceita(
         totalPassos: passosParam.length,
         isLoading,
         erro,
+        retryReceita,
     };
 }

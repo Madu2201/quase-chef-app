@@ -316,4 +316,21 @@ export const detalheReceitaStyles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontSize: FontSizes.medium - 2,
   },
+  errorActionButton: {
+    minWidth: 220,
+    height: 56,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.full,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    ...Shadows.sm,
+  },
+  errorActionButtonText: {
+    color: Colors.light,
+    fontFamily: Fonts.bold,
+    fontSize: FontSizes.medium - 2,
+  },
 });

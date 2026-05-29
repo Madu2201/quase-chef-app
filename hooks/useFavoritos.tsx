@@ -16,6 +16,7 @@ import {
 import { supabase } from "../services/supabase";
 import { FavoritosContextData } from "../types/favoritos";
 import { useAuth } from "./useAuth";
+import { useNetworkStatus } from "./useNetworkStatus";
 import { Recipe, useReceitas } from "./useReceitas";
 
 const FavoritosContext = createContext<FavoritosContextData>(
@@ -24,6 +25,7 @@ const FavoritosContext = createContext<FavoritosContextData>(
 
 export function FavoritosProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { notifyInternetRequired } = useNetworkStatus();
   const iaFavoritoSalvandoRef = useRef<Set<string>>(new Set());
   const [favoritosIds, setFavoritosIds] = useState<string[]>([]);
   const [favoritosIA, setFavoritosIA] = useState<Recipe[]>([]);
@@ -73,6 +75,10 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     receitaData?: Recipe,
   ) => {
     if (!user?.id) return;
+
+    if (!notifyInternetRequired("Reconecte-se para favoritar esta receita.")) {
+      return;
+    }
 
     const idStr = String(receitaId);
     const idNum = Number(idStr);

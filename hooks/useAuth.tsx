@@ -10,6 +10,7 @@ import {
 import { loginUser, registerUser } from "../services/authService";
 import { AuthResponse, UserData } from "../types/auth";
 import { TemporaryMode } from "../types/perfil";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 interface AuthContextData {
   user: UserData | null;
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<UserData | null>(null);
+  const { notifyInternetRequired } = useNetworkStatus();
 
   useEffect(() => {
     const parseArrayString = (value: string | null): string[] => {
@@ -165,6 +167,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     allergies: string[] = [],
     otherRestrictions: string = "",
   ) => {
+    if (!notifyInternetRequired("Reconecte-se para criar sua conta.")) {
+      return {
+        success: false,
+        error: "Reconecte-se à internet para criar sua conta.",
+      };
+    }
+
     setIsLoading(true);
     try {
       const userId = await registerUser(nome, email, senha, foodPreferences, allergies, otherRestrictions);
@@ -177,6 +186,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, senha: string): Promise<AuthResponse> => {
+    if (!notifyInternetRequired("Reconecte-se para entrar na sua conta.")) {
+      return {
+        success: false,
+        error: "Reconecte-se à internet para entrar na sua conta.",
+      };
+    }
+
     setIsLoading(true);
     try {
       const userData = await loginUser(email, senha);

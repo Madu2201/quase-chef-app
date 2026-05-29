@@ -8,10 +8,13 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { OfflineBanner } from "../components/OfflineBanner";
 import { AuthProvider } from "../hooks/useAuth";
 import { DespensaProvider } from "../hooks/useDespensa";
 import { FavoritosProvider } from "../hooks/useFavoritos";
+import { NetworkStatusProvider } from "../hooks/useNetworkStatus";
 import { ReceitasProvider } from "../hooks/useReceitas";
 
 SplashScreen.preventAutoHideAsync();
@@ -39,25 +42,30 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <DespensaProvider>
-          <ReceitasProvider>
-            <FavoritosProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="selecao_ia"
-                  options={{ presentation: "modal" }}
-                />
-                <Stack.Screen name="detalhe_receita" />
-                <Stack.Screen name="preparo_receita" />
-                <Stack.Screen name="perfil" />
-              </Stack>
-            </FavoritosProvider>
-          </ReceitasProvider>
-        </DespensaProvider>
-      </AuthProvider>
+      <SafeAreaProvider>
+        <NetworkStatusProvider>
+          <AuthProvider>
+            <DespensaProvider>
+              <ReceitasProvider>
+                <FavoritosProvider>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(auth)" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen
+                      name="selecao_ia"
+                      options={{ presentation: "modal" }}
+                    />
+                    <Stack.Screen name="detalhe_receita" />
+                    <Stack.Screen name="preparo_receita" />
+                    <Stack.Screen name="perfil" />
+                  </Stack>
+                  <OfflineBanner />
+                </FavoritosProvider>
+              </ReceitasProvider>
+            </DespensaProvider>
+          </AuthProvider>
+        </NetworkStatusProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

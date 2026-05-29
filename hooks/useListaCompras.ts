@@ -7,6 +7,7 @@ import { formatarQuantidade } from "../utils/normalization";
 import { normalizarNome, parseNumero } from "../utils/validation";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 /**
  * Hook gerenciador de Lista de Compras
@@ -20,6 +21,7 @@ import { useDespensa } from "./useDespensa";
 export function useListaCompras() {
   const { user } = useAuth();
   const { ingredients } = useDespensa();
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
   const [items, setItems] = useState<CompraItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingList, setIsGeneratingList] = useState(false);
@@ -30,6 +32,10 @@ export function useListaCompras() {
    */
   const buscarLista = async () => {
     if (!user?.id) return;
+    if (isOffline) {
+      setIsLoading(false);
+      return;
+    }
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -50,7 +56,7 @@ export function useListaCompras() {
   // Atualiza a lista sempre que o usuário muda ou o hook é montado
   useEffect(() => {
     buscarLista();
-  }, [user]);
+  }, [user, isOffline]);
 
   /**
    * Adiciona um novo item à lista de compras
@@ -61,6 +67,9 @@ export function useListaCompras() {
    */
   const addItem = async (nome: string, qtd: string, unidade: string) => {
     if (!user?.id) return;
+    if (!notifyInternetRequired("Reconecte-se para editar sua lista de compras.")) {
+      return;
+    }
 
     const qtdNumero = parseNumero(qtd);
     if (qtdNumero <= 0) {
@@ -115,6 +124,14 @@ export function useListaCompras() {
    * Atualiza diretamente a quantidade de um item existente
    */
   const atualizarQuantidade = async (id: string, novaQuantidade: number) => {
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para atualizar sua lista de compras.",
+      )
+    ) {
+      return;
+    }
+
     // Garante no máximo 2 casas decimais
     const qtdFormatada = formatarQuantidade(novaQuantidade);
     
@@ -139,6 +156,13 @@ export function useListaCompras() {
   const gerarListaDaDespensa = async () => {
     if (isGeneratingList) return; // Previne cliques duplos
     if (!user?.id) return;
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para gerar a lista a partir da despensa.",
+      )
+    ) {
+      return;
+    }
 
     setIsGeneratingList(true);
 
@@ -209,6 +233,14 @@ export function useListaCompras() {
     const item = items.find((i) => i.id === id);
     if (!item) return;
 
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para atualizar sua lista de compras.",
+      )
+    ) {
+      return;
+    }
+
     const novoStatus = !item.comprado;
     // Optimistic UI Update (atualiza tela antes do banco)
     setItems((prev) =>
@@ -225,6 +257,9 @@ export function useListaCompras() {
    * Deleta um item específico
    */
   const removerItem = async (id: string) => {
+    if (!notifyInternetRequired("Reconecte-se para editar sua lista de compras.")) {
+      return;
+    }
     setItems((prev) => prev.filter((i) => i.id !== id));
     await supabase.from("lista_compras").delete().eq("id", id);
   };
@@ -233,6 +268,9 @@ export function useListaCompras() {
    * Limpa o histórico excluindo todos os itens marcados como comprados
    */
   const limparComprados = async () => {
+    if (!notifyInternetRequired("Reconecte-se para limpar sua lista de compras.")) {
+      return;
+    }
     setItems((prev) => prev.filter((i) => !i.comprado));
     await supabase
       .from("lista_compras")
@@ -248,6 +286,13 @@ export function useListaCompras() {
     onUpsert: (nome: string, qtd: number, unit: string) => Promise<boolean>,
   ) => {
     if (!user?.id) return;
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para guardar os itens comprados na despensa.",
+      )
+    ) {
+      return;
+    }
 
     const itensParaGuardar = items.filter((i) => i.comprado);
 

@@ -1,4 +1,5 @@
 import { supabase } from "@/services/supabase";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { router, useLocalSearchParams } from "expo-router";
 import { Eye, EyeOff, KeyRound, Lock } from "lucide-react-native";
 import React, { useState } from "react";
@@ -18,6 +19,7 @@ import { authStyles as styles } from "../../styles/auth_styles";
 
 export default function NovaSenhaScreen() {
   const { email } = useLocalSearchParams(); // Pega o e-mail da tela anterior
+  const { notifyInternetRequired } = useNetworkStatus();
 
   const [isFocusedCodigo, setIsFocusedCodigo] = useState(false);
   const [isFocusedSenha, setIsFocusedSenha] = useState(false);
@@ -36,6 +38,14 @@ export default function NovaSenhaScreen() {
 
     if (!emailStr) {
       Alert.alert("Erro", "E-mail não encontrado. Volte e tente novamente.");
+      return;
+    }
+
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para redefinir sua senha.",
+      )
+    ) {
       return;
     }
 

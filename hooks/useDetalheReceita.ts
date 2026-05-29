@@ -1,20 +1,21 @@
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 //Meus imports
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import { buscarReceitaPorId } from "../services/receitaService";
 import type {
-  ReceitaBancoDados,
-  ReceitaDetalhada,
+    ReceitaBancoDados,
+    ReceitaDetalhada,
 } from "../types/detalhe_receita";
 import { criarReceitaIA } from "../utils/receitaIAUtils";
 import {
-  formatarTempo,
-  processarIngredientes,
-  processarPassosPreparo,
+    formatarTempo,
+    processarIngredientes,
+    processarPassosPreparo,
 } from "../utils/receitaUtils";
 import { useDespensa } from "./useDespensa";
+import { useNetworkStatus } from "./useNetworkStatus";
 import type { Recipe } from "./useReceitas";
 
 interface UseDetalheReceitaReturn {
@@ -26,6 +27,7 @@ interface UseDetalheReceitaReturn {
   receitaId: string;
   isLoading: boolean;
   erro: string | null;
+  retryReceita: () => Promise<void>;
   preferenciasReceita: string[];
   alergiasReceita: string[];
 }
@@ -69,63 +71,55 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const { ingredients: despensa } = useDespensa();
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
 
   // ============================================
   // REGRA 3: Fetch com isMounted tracking
   // ============================================
-  useEffect(() => {
-    let isMounted = true;
+  const retryReceita = useCallback(async () => {
+    const receitaId = params.id as string | undefined;
+    const isNumericId = receitaId ? !isNaN(Number(receitaId)) : false;
 
-    async function buscarDados() {
-      const receitaId = params.id as string | undefined;
-      const tipo = params.tipo as string | undefined;
-      const isNumericId = receitaId ? !isNaN(Number(receitaId)) : false;
-
-      // Busca no banco quando temos um ID numérico (inclusive receitas IA persistidas)
-      if (!receitaId || !isNumericId) {
-        if (isMounted) {
-          setReceitaBancoDados(null);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      if (isMounted) {
-        setIsLoading(true);
-        setErro(null);
-      }
-
-      try {
-        const dados = await buscarReceitaPorId(receitaId);
-
-        if (isMounted) {
-          if (dados) {
-            setReceitaBancoDados(dados);
-            setErro(null);
-          } else {
-            setErro("Receita não encontrada no banco de dados");
-            setReceitaBancoDados(null);
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.error("Erro ao buscar receita:", err);
-          setErro("Erro ao carregar receita");
-          setReceitaBancoDados(null);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
+    // Busca no banco quando temos um ID numérico (inclusive receitas IA persistidas)
+    if (!receitaId || !isNumericId) {
+      setReceitaBancoDados(null);
+      setErro(null);
+      setIsLoading(false);
+      return;
     }
 
-    buscarDados();
+    if (isOffline) {
+      setReceitaBancoDados(null);
+      setErro("Você está sem internet. Reconecte-se para carregar esta receita.");
+      setIsLoading(false);
+      return;
+    }
 
-    return () => {
-      isMounted = false;
-    };
-  }, [params.id, params.tipo]);
+    setIsLoading(true);
+    setErro(null);
+
+    try {
+      const dados = await buscarReceitaPorId(receitaId);
+
+      if (dados) {
+        setReceitaBancoDados(dados);
+        setErro(null);
+      } else {
+        setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+        setReceitaBancoDados(null);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar receita:", err);
+      setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+      setReceitaBancoDados(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isOffline, notifyInternetRequired, params.id]);
+
+  useEffect(() => {
+    void retryReceita();
+  }, [retryReceita, params.tipo]);
 
   // ============================================
   // Processamento de dados (sem early returns)
@@ -339,6 +333,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     receitaId,
     isLoading,
     erro,
+    retryReceita,
     preferenciasReceita,
     alergiasReceita,
   };

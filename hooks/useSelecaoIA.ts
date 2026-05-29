@@ -12,6 +12,7 @@ import {
 } from "../utils/iaUtils";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 /** Estrutura de categoria para a listagem alfabética */
 export type CategoriaIngredienteIA = {
@@ -33,6 +34,7 @@ export function useSelecaoIA() {
 
   const { ingredients } = useDespensa();
   const { user } = useAuth();
+  const { notifyInternetRequired } = useNetworkStatus();
 
   // --- AÇÕES DO USUÁRIO ---
 
@@ -118,6 +120,12 @@ export function useSelecaoIA() {
         return;
       }
 
+      if (
+        !notifyInternetRequired("Reconecte-se para gerar uma receita com IA.")
+      ) {
+        return;
+      }
+
       setIsGenerating(true);
       try {
         const comEstoque = montarListaIngredientesPorIds(lista, ingredients);
@@ -181,7 +189,7 @@ export function useSelecaoIA() {
         setIsGenerating(false);
       }
     },
-    [ingredients, user],
+    [ingredients, notifyInternetRequired, user],
   );
 
   // --- RETORNO DO HOOK ---

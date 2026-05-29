@@ -19,6 +19,7 @@ import {
 } from "../utils/perfilReceitasFilter";
 import { useAuth } from "./useAuth";
 import { useFiltroEstoque } from "./useFiltroEstoque";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 export interface Recipe {
   id: string;
@@ -137,8 +138,17 @@ const ReceitasContext = createContext<ReceitasContextValue | null>(null);
 export function ReceitasProvider({ children }: { children: React.ReactNode }) {
   const [receitasBanco, setReceitasBanco] = useState<Recipe[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
 
-  const buscarReceitas = useCallback(async () => {
+  const buscarReceitas = useCallback(async (notifyOnOffline = false) => {
+    if (isOffline) {
+      if (notifyOnOffline) {
+        notifyInternetRequired("Reconecte-se para atualizar o catálogo de receitas.");
+      }
+      setCarregando(false);
+      return;
+    }
+
     try {
       setCarregando(true);
       const { data, error } = await supabase.from("receitas").select("*");
@@ -181,7 +191,7 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [isOffline, notifyInternetRequired]);
 
   useEffect(() => {
     void buscarReceitas();
@@ -198,7 +208,7 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
   }, [buscarReceitas]);
 
   const refreshReceitas = useCallback(() => {
-    void buscarReceitas();
+    void buscarReceitas(true);
   }, [buscarReceitas]);
 
   const value = useMemo<ReceitasContextValue>(

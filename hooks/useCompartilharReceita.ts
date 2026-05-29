@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Alert, Share } from "react-native";
 
 import { tornarReceitaPublica } from "../services/receitaService";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 interface CompartilharReceitaParams {
   id: number | string;
@@ -12,11 +13,18 @@ interface CompartilharReceitaParams {
 export function useCompartilharReceita() {
   const [isSharing, setIsSharing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { notifyInternetRequired } = useNetworkStatus();
 
   const compartilhar = useCallback(
     async ({ id, titulo }: CompartilharReceitaParams) => {
       if (!id) {
         Alert.alert("Erro", "Receita inválida para compartilhamento.");
+        return;
+      }
+
+      if (
+        !notifyInternetRequired("Reconecte-se para compartilhar esta receita.")
+      ) {
         return;
       }
 
@@ -56,7 +64,7 @@ export function useCompartilharReceita() {
         setIsSharing(false);
       }
     },
-    [],
+    [notifyInternetRequired],
   );
 
   return {

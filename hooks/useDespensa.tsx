@@ -24,6 +24,7 @@ import {
 } from "../utils/normalization";
 import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 const DespensaContext = createContext<DespensaContextData>(
   {} as DespensaContextData,
@@ -31,6 +32,7 @@ const DespensaContext = createContext<DespensaContextData>(
 
 export function DespensaProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const ingredientsRef = useRef<Ingredient[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -43,6 +45,10 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
   // Busca inicial do banco (Agora com quantidade_ideal)
   const buscarDespensa = async () => {
     if (!user?.id) return;
+    if (isOffline) {
+      setIsLoading(false);
+      return;
+    }
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -72,7 +78,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     buscarDespensa();
-  }, [user]);
+  }, [user, isOffline]);
 
   const filteredIngredients = useMemo(
     () =>
@@ -89,6 +95,9 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     unidade: string,
   ) => {
     if (!user?.id) return;
+    if (!notifyInternetRequired("Reconecte-se para adicionar itens à despensa.")) {
+      return;
+    }
 
     const { data, error } = await supabase
       .from("dispensa")
@@ -127,6 +136,14 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     const item = ingredients.find((i) => i.id === id);
     if (!item) return;
 
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para atualizar itens da despensa.",
+      )
+    ) {
+      return;
+    }
+
     // Impede a seleção de itens com quantidade zero
     if (item.qty <= 0 && !item.selected) {
       Alert.alert(
@@ -153,10 +170,16 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeIngredient = async (id: string) => {
+    if (!notifyInternetRequired("Reconecte-se para remover itens da despensa.")) {
+      return;
+    }
     const backup = [...ingredients];
     setIngredients((prev) => prev.filter((i) => i.id !== id));
     const { error } = await supabase.from("dispensa").delete().eq("id", id);
-    if (error) setIngredients(backup);
+    if (error) {
+      setIngredients(backup);
+      Alert.alert("Erro", "Não foi possível remover o ingrediente.");
+    }
   };
 
   // Atualiza o card inteiro de uma vez
@@ -167,6 +190,10 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     ideal_qty: number,
     unit: string,
   ) => {
+    if (!notifyInternetRequired("Reconecte-se para editar a despensa.")) {
+      return;
+    }
+
     const formattedQty = formatarQuantidade(qty);
     const formattedIdeal = formatarQuantidade(ideal_qty);
 
@@ -208,6 +235,13 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     unidadeComprada: string,
   ): Promise<boolean> => {
     if (!user?.id) return false;
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para guardar itens na despensa.",
+      )
+    ) {
+      return false;
+    }
 
     const nomeNorm = normalizarTexto(nome);
     const existente = ingredientsRef.current.find(
@@ -316,6 +350,22 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         ignoradosBaixaConfianca: 0,
         ignoradosLivres: 0,
         mensagem: "Usuário não autenticado ou ingredientes inválidos.",
+      };
+    }
+
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para atualizar a despensa após o preparo.",
+      )
+    ) {
+      return {
+        sucesso: false,
+        abatidos: 0,
+        ignoradosIncompativeis: 0,
+        ignoradosNaoEncontrados: 0,
+        ignoradosBaixaConfianca: 0,
+        ignoradosLivres: 0,
+        mensagem: "Reconecte-se à internet para atualizar sua despensa.",
       };
     }
 

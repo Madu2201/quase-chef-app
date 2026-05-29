@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Share2,
   Stars,
+  WifiOff,
   X,
 } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
@@ -36,6 +37,7 @@ import { Colors } from "../constants/theme";
 import { useCompartilharReceita } from "../hooks/useCompartilharReceita";
 import { useDespensa } from "../hooks/useDespensa";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
+import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
 import type { Recipe } from "../hooks/useReceitas";
 import { preparoStyles as styles } from "../styles/preparo_styles";
@@ -66,6 +68,7 @@ export default function PreparoReceitaScreen() {
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { abaterIngredientesDaReceita } = useDespensa();
   const { compartilhar, isSharing } = useCompartilharReceita();
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
   const {
     passoAtual,
     isConcluido,
@@ -79,6 +82,7 @@ export default function PreparoReceitaScreen() {
     totalPassos,
     isLoading,
     erro,
+    retryReceita,
   } = usePreparoReceita(
     passosDinamicos,
     paramsProcessados.id,
@@ -92,6 +96,8 @@ export default function PreparoReceitaScreen() {
     : undefined;
 
   const ehFav = isFavorito(paramsProcessados.id);
+  const isOfflineBlockingError =
+    !!erro && isOffline && !!paramsProcessados.id && !isNaN(Number(paramsProcessados.id));
   const heartScale = useSharedValue(1);
   const estoqueAbatidoRef = useRef(false);
   const [resumoAbatimento, setResumoAbatimento] = useState("");
@@ -217,7 +223,9 @@ export default function PreparoReceitaScreen() {
               marginBottom: 8,
             }}
           >
-            Oops! Algo deu errado
+            {isOfflineBlockingError
+              ? "Conexão necessária para abrir a receita"
+              : "Oops! Algo deu errado"}
           </Text>
           <Text
             style={{
@@ -229,11 +237,44 @@ export default function PreparoReceitaScreen() {
           >
             {erro}
           </Text>
-          <Pressable style={styles.btnLaranja} onPress={() => router.back()}>
-            <Text style={[styles.btnAcaoTexto, { color: Colors.light }]}>
-              Voltar
-            </Text>
-          </Pressable>
+          {isOfflineBlockingError ? (
+            <>
+              <WifiOff
+                size={18}
+                color={Colors.subtext}
+                style={{ marginBottom: 12 }}
+              />
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: Colors.subtext,
+                  textAlign: "center",
+                  marginBottom: 20,
+                }}
+              >
+                Assim que a internet voltar, toque em tentar novamente.
+              </Text>
+              <Pressable
+                style={styles.btnLaranja}
+                onPress={() => {
+                  if (!notifyInternetRequired("Reconecte-se para abrir esta receita.")) {
+                    return;
+                  }
+                  void retryReceita();
+                }}
+              >
+                <Text style={[styles.btnAcaoTexto, { color: Colors.light }]}>
+                  Tentar novamente
+                </Text>
+              </Pressable>
+            </>
+          ) : (
+            <Pressable style={styles.btnLaranja} onPress={() => void retryReceita()}>
+              <Text style={[styles.btnAcaoTexto, { color: Colors.light }]}>
+                Tentar novamente
+              </Text>
+            </Pressable>
+          )}
         </View>
       </View>
     );

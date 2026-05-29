@@ -16,6 +16,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 
 // Meus imports
 import { supabase } from "@/services/supabase";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import AuthHeader from "../../components/AuthHeader";
 import { AuthLegalNotice } from "../../components/AuthLegalNotice";
 import { Colors } from "../../constants/theme";
@@ -23,6 +24,7 @@ import { authStyles as styles } from "../../styles/auth_styles";
 
 export default function EsqueciSenhaScreen() {
   const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+  const { notifyInternetRequired } = useNetworkStatus();
 
   // Estados
   const [email, setEmail] = useState("");
@@ -32,6 +34,14 @@ export default function EsqueciSenhaScreen() {
   async function handleSolicitarRecuperacao() {
     if (!email) {
       Alert.alert("Email Requerido", "Digite seu endereço de email para receber o código de recuperação.");
+      return;
+    }
+
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para recuperar sua senha.",
+      )
+    ) {
       return;
     }
 

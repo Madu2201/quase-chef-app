@@ -1,32 +1,33 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  AlertCircle,
-  AlertTriangle,
-  BarChart3,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Heart,
-  Lightbulb,
-  PlayCircle,
-  Share2,
+    AlertCircle,
+    AlertTriangle,
+    BarChart3,
+    CheckCircle2,
+    Clock,
+    Flame,
+    Heart,
+    Lightbulb,
+    PlayCircle,
+    Share2,
+    WifiOff,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  FadeInDown,
-  FadeInLeft,
-  FadeInUp,
+    FadeInDown,
+    FadeInLeft,
+    FadeInUp,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -38,6 +39,7 @@ import { Colors } from "../constants/theme";
 import { useCompartilharReceita } from "../hooks/useCompartilharReceita";
 import { useDetalheReceita } from "../hooks/useDetalheReceita";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
+import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { detalheReceitaStyles as styles } from "../styles/detalhe_receita_styles";
 import type { InfoCardProps } from "../types/detalhe_receita";
 import { alergiasReceitaQueColidemComUsuario } from "../utils/perfilReceitasFilter";
@@ -61,6 +63,7 @@ export default function DetalheReceitaScreen() {
     receitaId,
     isLoading,
     erro,
+    retryReceita,
     preferenciasReceita,
     alergiasReceita,
   } = useDetalheReceita();
@@ -68,12 +71,13 @@ export default function DetalheReceitaScreen() {
   // Puxamos as funções globais de favoritos
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { user } = useAuth();
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
 
   const { compartilhar, isSharing } = useCompartilharReceita();
 
   // Estados locais
   const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const [isLoadingImage] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
 
   // Determinar if favorito
@@ -90,6 +94,8 @@ export default function DetalheReceitaScreen() {
     () => aiImageUrl || receitaDetalhada.imagem || "",
     [aiImageUrl, receitaDetalhada.imagem],
   );
+  const isOfflineBlockingError =
+    !!erro && isOffline && !!receitaId && !isNaN(Number(receitaId));
 
   // --- EFFECT QUE CARREGA A FOTO DO PARAMS ---
   useEffect(() => {
@@ -191,7 +197,9 @@ export default function DetalheReceitaScreen() {
               marginBottom: 8,
             }}
           >
-            Oops! Algo deu errado
+            {isOfflineBlockingError
+              ? "Conexão necessária para abrir a receita"
+              : "Oops! Algo deu errado"}
           </Text>
           <Text
             style={{
@@ -203,12 +211,45 @@ export default function DetalheReceitaScreen() {
           >
             {erro}
           </Text>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={[styles.mainButton, { marginTop: 0 }]}
-          >
-            <Text style={styles.mainButtonText}>Voltar</Text>
-          </TouchableOpacity>
+          {isOfflineBlockingError ? (
+            <>
+              <WifiOff
+                size={18}
+                color={Colors.subtext}
+                style={{ marginBottom: 12 }}
+              />
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: Colors.subtext,
+                  textAlign: "center",
+                  marginBottom: 20,
+                }}
+              >
+                Assim que a internet voltar, toque em tentar novamente.
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  if (!notifyInternetRequired("Reconecte-se para abrir esta receita.")) {
+                    return;
+                  }
+                  void retryReceita();
+                }}
+                style={styles.errorActionButton}
+              >
+                <Text style={styles.errorActionButtonText}>Tentar novamente</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                void retryReceita();
+              }}
+              style={styles.errorActionButton}
+            >
+              <Text style={styles.errorActionButtonText}>Tentar novamente</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -445,7 +486,17 @@ export default function DetalheReceitaScreen() {
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
             <Pressable
-              onPress={() => toggleFavorito(receitaId, receitaFavoritoIA)}
+              onPress={() => {
+                if (
+                  !notifyInternetRequired(
+                    "Reconecte-se para favoritar esta receita.",
+                  )
+                ) {
+                  return;
+                }
+
+                void toggleFavorito(receitaId, receitaFavoritoIA);
+              }}
               style={styles.favButton}
             >
               <Heart

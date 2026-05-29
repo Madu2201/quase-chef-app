@@ -9,6 +9,7 @@ import {
   UserProfileData,
 } from "../types/perfil";
 import { useAuth } from "./useAuth";
+import { useNetworkStatus } from "./useNetworkStatus";
 
 const STORAGE_KEYS = {
   lifestyle: "@perfil_food_lifestyle",
@@ -20,6 +21,7 @@ const STORAGE_KEYS = {
 
 export const useProfile = (userFromAuth: any) => {
   const { user, updateUser } = useAuth();
+  const { isOffline, notifyInternetRequired } = useNetworkStatus();
   const [profile, setProfile] = useState<UserProfileData>({
     id: null,
     nome: "Carregando...",
@@ -48,15 +50,19 @@ export const useProfile = (userFromAuth: any) => {
 
         if (!currentId) return;
 
-        // 1. Busca dados ATUALIZADOS do Supabase para garantir que as preferências do cadastro apareçam
-        const { data: userData, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", currentId)
-          .single();
+        let userData: any = null;
+        if (!isOffline) {
+          const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", currentId)
+            .single();
 
-        if (error) {
-          console.error("Erro ao buscar dados do Supabase:", error);
+          if (error) {
+            console.error("Erro ao buscar dados do Supabase:", error);
+          } else {
+            userData = data;
+          }
         }
 
         const keys = Object.values(STORAGE_KEYS);
@@ -136,11 +142,18 @@ export const useProfile = (userFromAuth: any) => {
     return () => {
       isMounted = false;
     };
-  }, [userFromAuth]); // Adicionado dependência para recarregar se o user mudar
+  }, [isOffline, userFromAuth]); // Adicionado dependência para recarregar se o user mudar
 
   // Salva preferências alimentares (Supabase + Local Storage)
   const savePreferences = async () => {
     if (!profile.id) return Alert.alert("Erro", "Usuário não identificado.");
+    if (
+      !notifyInternetRequired(
+        "Reconecte-se para salvar suas preferências alimentares.",
+      )
+    ) {
+      return false;
+    }
 
     setIsSavingPref(true);
     const now = new Date();
@@ -189,6 +202,9 @@ export const useProfile = (userFromAuth: any) => {
   // Salva dados básicos (Supabase + Local Storage)
   const saveBasicProfile = async () => {
     if (!profile.id) return Alert.alert("Erro", "Usuário não identificado.");
+    if (!notifyInternetRequired("Reconecte-se para atualizar seu perfil.")) {
+      return false;
+    }
 
     setIsLoading(true);
     try {
@@ -221,9 +237,11 @@ export const useProfile = (userFromAuth: any) => {
         });
       }
       Alert.alert("Sucesso", "Dados do perfil salvos!");
+      return true;
     } catch (e) {
       console.error(e);
       Alert.alert("Erro", "Falha ao atualizar perfil.");
+      return false;
     } finally {
       setIsLoading(false);
     }

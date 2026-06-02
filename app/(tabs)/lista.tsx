@@ -95,15 +95,15 @@ export default function ListaScreen() {
   /**
    * Filtragem de itens (Memoizada para performance)
    */
-  const filteredPendentes = useMemo(() => 
-    pendentes.filter(item => 
+  const filteredPendentes = useMemo(() =>
+    pendentes.filter(item =>
       item.nome.toLowerCase().includes(searchText.toLowerCase())
     ),
     [pendentes, searchText]
   );
 
-  const filteredComprados = useMemo(() => 
-    comprados.filter(item => 
+  const filteredComprados = useMemo(() =>
+    comprados.filter(item =>
       item.nome.toLowerCase().includes(searchText.toLowerCase())
     ),
     [comprados, searchText]
@@ -330,18 +330,18 @@ export default function ListaScreen() {
             </View>
 
             {filteredPendentes.length === 0 && searchText !== "" && (
-                <Text style={styles.emptyText}>Nenhum item pendente encontrado.</Text>
+              <Text style={styles.emptyText}>Nenhum item pendente encontrado.</Text>
             )}
 
             {filteredPendentes.map((item) =>
-               editingId === item.id ? (
-                 // Modo de edição de quantidade
-                 <View
-                   key={item.id}
-                   style={styles.editingCard}
-                 >
-                   <EditItemCard
-                     isListMode
+              editingId === item.id ? (
+                // Modo de edição de quantidade
+                <View
+                  key={item.id}
+                  style={styles.editingCard}
+                >
+                  <EditItemCard
+                    isListMode
                     editForm={editForm}
                     setEditForm={setEditForm}
                     onSave={handleSalvarQuantidade}

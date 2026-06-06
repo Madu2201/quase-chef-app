@@ -56,7 +56,7 @@ export default function LoginScreen() {
             setErrors({ geral: errorMsg || "Erro ao realizar login." });
           }
         }
-      } catch (error) {
+      } catch {
         setErrors({ geral: "Erro ao conectar com o servidor." });
       }
     }

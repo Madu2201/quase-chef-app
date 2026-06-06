@@ -14,7 +14,7 @@ import { receitasStyles as styles } from '../styles/receitas_styles';
 interface ChipsFilterProps {
   filtro: string;
   setFiltro: (filtro: string) => void;
-  receitasExibidas: Array<{ id: string }>;
+  receitasExibidas: { id: string }[];
   totalReceitasEncontradas: number;
   hasMounted: boolean;
 }

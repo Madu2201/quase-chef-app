@@ -2,10 +2,10 @@ import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import type { Ingredient } from "../types/despensa";
 import type { Ingrediente, PassoPreparo } from "../types/detalhe_receita";
 import {
-  converterParaUnidadeBase,
-  nomesIngredientesCompativeis,
-  normalizarBase,
-  normalizarTexto,
+    converterParaUnidadeBase,
+    nomesIngredientesCompativeis,
+    normalizarBase,
+    normalizarTexto,
 } from "./normalization";
 
 // Formata tempo de minutos/horas para exibição

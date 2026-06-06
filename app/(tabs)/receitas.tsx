@@ -39,7 +39,6 @@ export default function ReceitasScreen() {
     receitasExibidas,
     totalReceitasEncontradas,
     carregando,
-    podeCarregarMais,
     hasMounted,
     handleEndReached,
     handleMomentumScrollBegin,

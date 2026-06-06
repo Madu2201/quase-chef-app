@@ -71,7 +71,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const { ingredients: despensa } = useDespensa();
-  const { isOffline, notifyInternetRequired } = useNetworkStatus();
+  const { isOffline } = useNetworkStatus();
 
   // ============================================
   // REGRA 3: Fetch com isMounted tracking
@@ -115,7 +115,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, [isOffline, notifyInternetRequired, params.id]);
+  }, [isOffline, params.id]);
 
   useEffect(() => {
     void retryReceita();

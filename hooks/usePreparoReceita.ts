@@ -37,7 +37,7 @@ export function usePreparoReceita(
     // ============================================
 
     // Estados para dados da receita do banco
-    const [receitaBancoDados, setReceitaBancoDados] = useState<ReceitaBancoDados | null>(null);
+    const [, setReceitaBancoDados] = useState<ReceitaBancoDados | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
     const { isOffline, notifyInternetRequired } = useNetworkStatus();
@@ -134,7 +134,7 @@ export function usePreparoReceita(
                 clearInterval(interval);
             }
         };
-    }, [timerAtivo]);
+    }, [timerAtivo, tempo]);
 
     // ============================================
     // Funções de navegação

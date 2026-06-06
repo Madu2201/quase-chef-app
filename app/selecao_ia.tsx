@@ -1,17 +1,17 @@
 import { ChevronDown, ChevronUp, RotateCcw, X, Zap } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
 import {
-    Image,
-    Pressable,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    FadeInDown,
-    FadeInRight,
-    Layout,
+  FadeInDown,
+  FadeInRight,
+  Layout,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -64,6 +64,7 @@ const SelectedTray = memo(
     );
   },
 );
+SelectedTray.displayName = "SelectedTray";
 
 /** Chip individual de ingrediente na lista principal */
 const IngredientChip = memo(
@@ -105,6 +106,7 @@ const IngredientChip = memo(
     );
   },
 );
+IngredientChip.displayName = "IngredientChip";
 
 // --- TELA PRINCIPAL ---
 

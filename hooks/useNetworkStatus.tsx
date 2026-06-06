@@ -1,12 +1,13 @@
 import * as Network from "expo-network";
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
 } from "react";
 
 type NetworkStatusContextValue = {
@@ -75,7 +76,7 @@ export function NetworkStatusProvider({
     }
   }, [isOffline]);
 
-  const notifyInternetRequired = (message?: string) => {
+  const notifyInternetRequired = useCallback((message?: string) => {
     if (!isOffline) {
       return true;
     }
@@ -91,7 +92,7 @@ export function NetworkStatusProvider({
     }, 3500);
 
     return false;
-  };
+  }, [isOffline]);
 
   const value = useMemo(
     () => ({
@@ -99,7 +100,7 @@ export function NetworkStatusProvider({
       offlineActionMessage,
       notifyInternetRequired,
     }),
-    [isOffline, offlineActionMessage],
+    [isOffline, offlineActionMessage, notifyInternetRequired],
   );
 
   return (

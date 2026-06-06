@@ -1,5 +1,4 @@
 import { supabase } from "@/services/supabase";
-import { File } from "expo-file-system";
 import * as FileSystem from "expo-file-system/legacy";
 
 // 1. Cadastro Seguro e Real
@@ -102,7 +101,7 @@ export const uploadAvatar = async (
   imageUri: string,
 ) => {
   try {
-    const file = new File(imageUri);
+
     const base64 = await FileSystem.readAsStringAsync(imageUri, {
       encoding: "base64",
     });

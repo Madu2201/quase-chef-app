@@ -69,16 +69,6 @@ export const GenerateButton = ({
   forceEnabled = false,
   loading = false,
 }: GenerateButtonProps) => {
-  if (!alwaysVisible && selectedCount === 0) return null;
-
-  // Verifica se o botão deve estar desabilitado
-  const isDisabled = forceEnabled
-    ? disabled
-    : disabled || (alwaysVisible && selectedCount === 0);
-  const shouldReduceOpacity = forceEnabled
-    ? false
-    : alwaysVisible && selectedCount === 0;
-
   const buttonW = useSharedValue(220);
   const shimmerPhase = useSharedValue(0);
   const textOpacity = useSharedValue(1);
@@ -118,7 +108,7 @@ export const GenerateButton = ({
       textOpacity.value = 1;
       setMessageIndex(0);
     }
-  }, [loading]);
+  }, [loading, shimmerPhase, textOpacity]);
 
   const shimmerStyle = useAnimatedStyle(() => ({
     transform: [
@@ -140,6 +130,16 @@ export const GenerateButton = ({
     opacity: textOpacity.value,
     transform: [{ translateY: interpolate(textOpacity.value, [0, 1], [4, 0]) }]
   }));
+
+  if (!alwaysVisible && selectedCount === 0) return null;
+
+  // Verifica se o botão deve estar desabilitado
+  const isDisabled = forceEnabled
+    ? disabled
+    : disabled || (alwaysVisible && selectedCount === 0);
+  const shouldReduceOpacity = forceEnabled
+    ? false
+    : alwaysVisible && selectedCount === 0;
 
   const effectiveIconColor = loading ? Colors.light : iconColor;
 

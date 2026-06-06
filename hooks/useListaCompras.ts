@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert, Share } from "react-native";
 import { supabase } from "../services/supabase";
 import { Ingredient } from "../types/despensa";
@@ -30,7 +30,7 @@ export function useListaCompras() {
    * Busca a lista completa do usuário do banco de dados
    * Ordena por data de criação (mais recentes primeiro)
    */
-  const buscarLista = async () => {
+  const buscarLista = useCallback(async () => {
     if (!user?.id) return;
     if (isOffline) {
       setIsLoading(false);
@@ -51,12 +51,12 @@ export function useListaCompras() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, isOffline]);
 
   // Atualiza a lista sempre que o usuário muda ou o hook é montado
   useEffect(() => {
     buscarLista();
-  }, [user, isOffline]);
+  }, [buscarLista]);
 
   /**
    * Adiciona um novo item à lista de compras
@@ -219,7 +219,7 @@ export function useListaCompras() {
         "Pronto!",
         "Sua lista foi atualizada com os itens faltantes.",
       );
-    } catch (error) {
+    } catch {
       Alert.alert("Erro ao gerar", "Falha ao atualizar a lista.");
     } finally {
       setIsGeneratingList(false);

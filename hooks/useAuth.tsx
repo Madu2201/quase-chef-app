@@ -5,6 +5,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { loginUser, registerUser } from "../services/authService";
@@ -33,7 +34,12 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<UserData | null>(null);
+  const userRef = useRef(user);
   const { notifyInternetRequired } = useNetworkStatus();
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     const parseArrayString = (value: string | null): string[] => {
@@ -87,9 +93,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         // Se for apenas uma atualização de usuário (como troca de senha), sincronizar metadata leve
         if (event === 'USER_UPDATED') {
-          if (session?.user?.email && user && user.email !== session.user.email) {
+          const currentUser = userRef.current;
+          if (session?.user?.email && currentUser && currentUser.email !== session.user.email) {
             // Atualizar apenas o email se mudou de outro dispositivo
-            const updatedUser = { ...user, email: session.user.email };
+            const updatedUser = { ...currentUser, email: session.user.email };
             setUser(updatedUser);
             await AsyncStorage.setItem("@user_email", session.user.email);
           }

@@ -1,26 +1,27 @@
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
 } from "react";
 import { Alert } from "react-native";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
 import {
-    AbatimentoResultado,
-    DespensaContextData,
-    Ingredient,
+  AbatimentoResultado,
+  DespensaContextData,
+  Ingredient,
 } from "../types/despensa";
 import type { CompraItem } from "../types/lista";
 import {
-    converterDaBaseParaUnidade,
-    converterParaUnidadeBase,
-    formatarQuantidade,
-    nomesIngredientesCompativeis,
-    normalizarTexto
+  converterDaBaseParaUnidade,
+  converterParaUnidadeBase,
+  formatarQuantidade,
+  nomesIngredientesCompativeis,
+  normalizarTexto
 } from "../utils/normalization";
 import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
@@ -43,7 +44,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
   }, [ingredients]);
 
   // Busca inicial do banco (Agora com quantidade_ideal)
-  const buscarDespensa = async () => {
+  const buscarDespensa = useCallback(async () => {
     if (!user?.id) return;
     if (isOffline) {
       setIsLoading(false);
@@ -74,11 +75,11 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, isOffline]);
 
   useEffect(() => {
     buscarDespensa();
-  }, [user, isOffline]);
+  }, [buscarDespensa]);
 
   const filteredIngredients = useMemo(
     () =>

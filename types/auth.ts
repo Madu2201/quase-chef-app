@@ -1,5 +1,8 @@
 import { LucideIcon } from "lucide-react-native";
 
+// Tipagem para os dados do usuário
+import { TemporaryMode } from "./perfil";
+
 // Tipagem para os itens de opções
 export interface OptionItem {
     key: string;
@@ -22,9 +25,6 @@ export interface CadastroErrors {
     confirmarSenha?: string | null;
     geral?: string | null;
 }
-
-// Tipagem para os dados do usuário
-import { TemporaryMode } from "./perfil";
 
 export interface UserData {
     id: string;

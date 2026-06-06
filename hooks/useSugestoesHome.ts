@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { normalizarTexto } from "../utils/normalization";
 import { useAuth } from "./useAuth";
-import { useDespensa } from "./useDespensa";
 import { useFiltroEstoque } from "./useFiltroEstoque";
 import { Recipe, useReceitas } from "./useReceitas";
 
@@ -22,14 +21,9 @@ function dedupeSugestoesHome(receitas: Recipe[]): Recipe[] {
 export function useSugestoesHome(limiteDeSugestoes: number = 3) {
   const { receitasBanco, carregando, filtrarPorPerfil } = useReceitas();
   const { filtrarPorEstoque } = useFiltroEstoque();
-  const { ingredients } = useDespensa();
   const { user } = useAuth();
 
-  const fingerprintEstoque = useMemo(
-    () =>
-      ingredients.map((i) => `${i.id}:${i.qty}:${i.unit}:${i.name}`).join("|"),
-    [ingredients],
-  );
+
 
   const sugestoes = useMemo(() => {
     if (!receitasBanco || receitasBanco.length === 0) return [];
@@ -61,7 +55,6 @@ export function useSugestoesHome(limiteDeSugestoes: number = 3) {
     filtrarPorEstoque,
     filtrarPorPerfil,
     limiteDeSugestoes,
-    fingerprintEstoque,
     user?.food_preferences,
     user?.allergies,
     user?.temporaryMode,

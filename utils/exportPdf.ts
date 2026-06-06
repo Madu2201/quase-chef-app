@@ -276,7 +276,7 @@ const handleMobileExport = async (html: string) => {
       dialogTitle: "Exportar Lista",
       UTI: "com.adobe.pdf",
     });
-  } catch (error) {
+  } catch {
     // Erro ao gerar PDF no mobile - usuário será notificado pela UX nativa
   }
 };

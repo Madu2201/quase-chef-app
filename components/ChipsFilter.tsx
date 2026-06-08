@@ -1,29 +1,15 @@
 import { memo, useMemo } from 'react';
-import {
-    Pressable,
-    ScrollView,
-    Text,
-    View,
-} from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
+
+// Meus imports
 import { BASE_CHIPS as CHIPS } from '../constants/filtros';
 import { Colors } from '../constants/theme';
 import { useChipsScroll } from '../hooks/useChipsScroll';
 import { receitasStyles as styles } from '../styles/receitas_styles';
+import type { ChipsFilterProps } from '../types/components';
 
-interface ChipsFilterProps {
-  filtro: string;
-  setFiltro: (filtro: string) => void;
-  receitasExibidas: { id: string }[];
-  totalReceitasEncontradas: number;
-  hasMounted: boolean;
-}
-
-/**
- * Componente de filtro com chips horizontais
- * Gerencia sua própria lógica de scroll, preservando posição entre mudanças de filtro
- * Memoizado para evitar re-renderizações desnecessárias
- */
+// Componente de filtro de chips para as receitas
 const ChipsFilter = memo(
   ({
     filtro,
@@ -34,7 +20,7 @@ const ChipsFilter = memo(
   }: ChipsFilterProps) => {
     const { chipsScrollRef, handleChipsScroll } = useChipsScroll(filtro);
 
-    // Memoiza o render dos chips para evitar re-criação desnecessária
+    // Renderiza os chips de forma dinâmica com base no array CHIPS e aplica animação de entrada
     const renderedChips = useMemo(
       () =>
         CHIPS.map((chip, index) => {
@@ -100,4 +86,3 @@ const ChipsFilter = memo(
 ChipsFilter.displayName = 'ChipsFilter';
 
 export { ChipsFilter };
-

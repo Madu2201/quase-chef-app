@@ -1,27 +1,12 @@
 import { router, useSegments } from "expo-router";
 import { ArrowLeft, FileText, Search } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { StyleProp, Text, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 // Meus imports
 import { Colors, Spacing } from "../constants/theme";
 import { headerStyles as styles } from "../styles/header.styles";
-
-interface HeaderProps {
-  title?: string;
-  centerTitle?: boolean;
-  showSearch?: boolean;
-  searchText?: string;
-  setSearchText?: (text: string) => void;
-  searchPlaceholder?: string;
-  showExport?: boolean;
-  onExport?: () => void;
-  onBack?: () => void;
-  rightElement?: React.ReactNode;
-  children?: React.ReactNode;
-  showBackButton?: boolean;
-  style?: StyleProp<ViewStyle>;
-}
+import type { HeaderProps } from "../types/components";
 
 export const Header = ({
   title = "",
@@ -35,7 +20,7 @@ export const Header = ({
   onBack,
   rightElement,
   children,
-  style, // Recebendo a prop de estilo
+  style,
   showBackButton = false,
 }: HeaderProps) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -54,7 +39,6 @@ export const Header = ({
   };
 
   return (
-    /* APLICAÇÃO DO ESTILO: Aqui combinamos o padrão com o que vier por prop */
     <View style={[styles.header, style]}>
       <View style={styles.titleContainer}>
 

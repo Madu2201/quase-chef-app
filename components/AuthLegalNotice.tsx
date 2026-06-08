@@ -1,9 +1,8 @@
 import { Text } from "react-native";
-import { AUTH_LEGAL } from "../styles/global_styles";
 
-type AuthLegalNoticeProps = {
-  prefixText?: string;
-};
+// Meus imports
+import { AUTH_LEGAL } from "../styles/global_styles";
+import type { AuthLegalNoticeProps } from "../types/components";
 
 export function AuthLegalNotice({
   prefixText = "Ao continuar, você aceita nossos",

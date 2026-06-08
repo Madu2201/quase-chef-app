@@ -1,145 +1,60 @@
 import { Check, Edit2, Trash2 } from "lucide-react-native";
-import React, { useState } from "react";
-import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import React from "react";
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// Meus imports
 import { AddItemCard } from "../../components/AddItemCard";
 import { EditItemCard } from "../../components/EditItemCard";
 import { GenerateButton } from "../../components/generate_button";
 import { Header } from "../../components/header";
 import { Colors } from "../../constants/theme";
-import { useDespensa } from "../../hooks/useDespensa";
+import { useDespensaScreen } from "../../hooks/useDespensa";
 import { useSelecaoIA } from "../../hooks/useSelecaoIA";
 import { despensaStyles as styles } from "../../styles/despensa_styles";
 import { formatarPercentual } from "../../utils/normalization";
-import { validateQuantity } from "../../utils/validation";
 
 export default function DespensaScreen() {
   const insets = useSafeAreaInsets();
 
+  // Funcionamento geral da tela e lógica de negócios encapsulados no hook personalizado
   const {
     filteredIngredients,
     searchText,
     setSearchText,
-    addIngredient,
+    handleAdd,
+    nomeNovo,
+    setNomeNovo,
+    qtdNova,
+    setQtdNova,
+    metaNova,
+    setMetaNova,
+    unidadeNova,
+    setUnidadeNova,
+    showUnitPickerNew,
+    setShowUnitPickerNew,
+    activeInput,
+    setActiveInput,
+    editingId,
+    setEditingId,
+    editForm,
+    setEditForm,
+    showUnitPickerEdit,
+    setShowUnitPickerEdit,
+    startEditing,
+    saveEdit,
+    showMetaHelp,
     toggleIngredient,
     removeIngredient,
-    updateIngredientFull,
     selectedCount,
     selectedIngredientIds,
     isLoading,
-  } = useDespensa();
+  } = useDespensaScreen();
 
+  // Funcionamento da inteligência artificial
   const { handleGerarReceita, isGenerating } = useSelecaoIA();
 
-  // Estados de Criação
-  const [nomeNovo, setNomeNovo] = useState("");
-  const [qtdNova, setQtdNova] = useState("");
-  const [metaNova, setMetaNova] = useState("");
-  const [unidadeNova, setUnidadeNova] = useState("un");
-  const [showUnitPickerNew, setShowUnitPickerNew] = useState(false);
-  const [isAddingIngredient, setIsAddingIngredient] = useState(false);
-  const [activeInput, setActiveInput] = useState<string | null>(null);
-
-  // Estados de Edição em Lote
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    qty: "",
-    ideal_qty: "",
-    unit: "un",
-  });
-  const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
-
-  // Adicionar ingrediente
-  const handleAdd = async () => {
-    if (isAddingIngredient) return; // Previne cliques duplos
-
-    // Ajustado: Alerta apenas se os campos estiverem vazios. Quantidade 0 é permitida.
-    if (!nomeNovo.trim() || qtdNova.trim() === "" || metaNova.trim() === "") {
-      return Alert.alert(
-        "Atenção",
-        "Preencha o nome, a quantidade atual e a meta.",
-      );
-    }
-
-    const qty = validateQuantity(qtdNova);
-    const ideal = validateQuantity(metaNova);
-
-    if (qty === null || ideal === null) {
-      return Alert.alert(
-        "Erro",
-        "Quantidade deve ser um número entre 0 e 99999.",
-      );
-    }
-
-    try {
-      setIsAddingIngredient(true);
-      await addIngredient(nomeNovo, qty, ideal, unidadeNova);
-      setNomeNovo("");
-      setQtdNova("");
-      setMetaNova("");
-      setShowUnitPickerNew(false);
-    } catch {
-      Alert.alert("Erro", "Falha ao adicionar ingrediente.");
-    } finally {
-      setIsAddingIngredient(false);
-    }
-    return;
-  };
-
-  // Iniciar edição
-  const startEditing = (item: any) => {
-    setEditingId(item.id);
-    setEditForm({
-      name: item.name,
-      qty: String(item.qty),
-      ideal_qty: String(item.ideal_qty),
-      unit: item.unit,
-    });
-  };
-
-  // Salvar edição
-  const saveEdit = (form?: any) => {
-    const finalForm = form || editForm;
-    if (
-      !finalForm.name.trim() ||
-      finalForm.qty.trim() === "" ||
-      finalForm.ideal_qty.trim() === ""
-    ) {
-      return Alert.alert("Atenção", "Nenhum campo pode ficar vazio.");
-    }
-
-    const qty = validateQuantity(finalForm.qty);
-    const ideal = validateQuantity(finalForm.ideal_qty);
-
-    if (qty === null || ideal === null) {
-      return Alert.alert(
-        "Erro",
-        "Quantidade deve ser um número entre 0 e 99999.",
-      );
-    }
-
-    updateIngredientFull(editingId!, finalForm.name, qty, ideal, finalForm.unit);
-    setEditingId(null);
-  };
-
-  // Mostrar ajuda sobre Meta
-  const showMetaHelp = () => {
-    Alert.alert(
-      "O que é a Meta?",
-      "É a quantidade que você sempre quer ter na despensa (ex: 5kg de Arroz). Nossa IA usará isso para gerar sua Lista de Compras automaticamente quando o estoque baixar!",
-    );
-  };
-
-  // Determinar cor da barra de progresso
+  // Funções auxiliares
   const getProgressBarColor = (pct: number) => {
     if (pct <= 25) return styles.progressBarRed;
     if (pct <= 50) return styles.progressBarOrange;
@@ -289,11 +204,11 @@ export default function DespensaScreen() {
                             />
                           )}
                         </TouchableOpacity>
-                        <Text 
+                        <Text
                           style={[
                             styles.viewNameText,
                             item.qty <= 0 && styles.viewNameTextDisabled
-                          ]} 
+                          ]}
                           numberOfLines={1}
                         >
                           {item.name}
@@ -339,6 +254,7 @@ export default function DespensaScreen() {
         )}
       </ScrollView>
 
+      {/* === BOTÃO DE GERAR RECEITAS COM IA === */}
       <GenerateButton
         selectedCount={selectedCount}
         disabled={isGenerating}

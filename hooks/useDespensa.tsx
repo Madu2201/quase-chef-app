@@ -1,29 +1,22 @@
 import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState
+  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState
 } from "react";
 import { Alert } from "react-native";
+
+// Meus imports
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
 import {
-    AbatimentoResultado,
-    DespensaContextData,
-    Ingredient,
+  AbatimentoResultado, DespensaContextData, DespensaScreenHookData, DespensaUpdatePayload, Ingredient,
 } from "../types/despensa";
 import type { CompraItem } from "../types/lista";
+import { EditForm } from "../types/lista";
 import {
-    converterDaBaseParaUnidade,
-    converterParaUnidadeBase,
-    formatarQuantidade,
-    nomesIngredientesCompativeis,
-    normalizarTexto
+  converterDaBaseParaUnidade, converterParaUnidadeBase, formatarQuantidade, nomesIngredientesCompativeis,
+  normalizarTexto
 } from "../utils/normalization";
 import { calcularUpsertDecision } from "../utils/upsertUtils";
+import { validateQuantity } from "../utils/validation";
 import { useAuth } from "./useAuth";
 import { useNetworkStatus } from "./useNetworkStatus";
 
@@ -31,6 +24,7 @@ const DespensaContext = createContext<DespensaContextData>(
   {} as DespensaContextData,
 );
 
+// Função principal para gerenciamento da despensa, incluindo lógica de negócios e integrações com o banco de dados
 export function DespensaProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { isOffline, notifyInternetRequired } = useNetworkStatus();
@@ -81,6 +75,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     buscarDespensa();
   }, [buscarDespensa]);
 
+  // Filtro de pesquisa
   const filteredIngredients = useMemo(
     () =>
       ingredients.filter((i) =>
@@ -89,6 +84,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     [ingredients, searchText],
   );
 
+  // Adicionar ingrediente (com validação e formatação)
   const addIngredient = async (
     nome: string,
     qtd: number,
@@ -107,7 +103,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
           user_id: user.id,
           nome_base: nome,
           quantidade: qtd,
-          quantidade_ideal: ideal_qtd, // Novo campo
+          quantidade_ideal: ideal_qtd,
           unidade: unidade,
           selected: false,
         },
@@ -133,6 +129,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Atualizar ingrediente
   const toggleIngredient = async (id: string) => {
     const item = ingredients.find((i) => i.id === id);
     if (!item) return;
@@ -170,6 +167,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Remover ingrediente
   const removeIngredient = async (id: string) => {
     if (!notifyInternetRequired("Reconecte-se para remover itens da despensa.")) {
       return;
@@ -203,16 +201,17 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       prev.map((i) =>
         i.id === id
           ? {
-              ...i,
-              name,
-              qty: formattedQty,
-              ideal_qty: formattedIdeal,
-              unit,
-            }
+            ...i,
+            name,
+            qty: formattedQty,
+            ideal_qty: formattedIdeal,
+            unit,
+          }
           : i,
       ),
     );
 
+    // Atualiza no banco de dados
     const { error } = await supabase
       .from("dispensa")
       .update({
@@ -229,7 +228,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // NOVA FUNÇÃO (FASE 2): Integração do Upsert para Listas de Compras
+  // Adicionar ingrediente de compra (com lógica de upsert inteligente)
   const upsertIngredientFromCompra = async (
     nome: string,
     qtyComprada: number,
@@ -259,6 +258,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       comprado: false,
     };
 
+    // Decidir o que deve ser feito (INSERT, UPDATE ou IGNORAR) e qual será a nova quantidade
     const decision = calcularUpsertDecision(itemCompradoMock, existente);
     const formattedNovoValor = formatarQuantidade(decision.novoValor);
 
@@ -270,7 +270,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
             user_id: user.id,
             nome_base: nome,
             quantidade: formattedNovoValor,
-            quantidade_ideal: formattedNovoValor, // A primeira compra vira a meta
+            quantidade_ideal: formattedNovoValor,
             unidade: decision.unidadeFinal,
             selected: false,
           },
@@ -287,6 +287,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
+      // Adiciona o novo ingrediente na lista localmente
       const novoIngrediente: Ingredient = {
         id: data.id,
         name: data.nome_base,
@@ -324,21 +325,23 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Contagem de itens selecionados para geração de receitas
   const selectedCount = useMemo(
     () => ingredients.filter((i) => i.selected).length,
     [ingredients],
   );
-
+  // Nomes dos itens selecionados
   const selectedIngredients = useMemo(
     () => ingredients.filter((i) => i.selected).map((i) => i.name),
     [ingredients],
   );
-
+  // IDs dos itens selecionados
   const selectedIngredientIds = useMemo(
     () => ingredients.filter((i) => i.selected).map((i) => i.id),
     [ingredients],
   );
 
+  // Abater ingredientes da receita (após preparo) com lógica de compatibilidade, baixa confiança e ingredientes livres
   const abaterIngredientesDaReceita = async (
     rawIngredients: string,
   ): Promise<AbatimentoResultado> => {
@@ -407,13 +410,9 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
+    // Atualizar estoque localmente com base nos ingredientes da receita, aplicando as regras de negócio
     const estoqueAtualizado = [...ingredients];
-    const alteracoes: {
-      id: string;
-      quantidade: number;
-      unidade: string;
-      selected: boolean;
-    }[] = [];
+    const alteracoes: DespensaUpdatePayload[] = [];
     let ignoradosIncompativeis = 0;
     let ignoradosNaoEncontrados = 0;
     let ignoradosBaixaConfianca = 0;
@@ -448,8 +447,8 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         indexDespensaExato >= 0
           ? indexDespensaExato
           : estoqueAtualizado.findIndex((item) =>
-              nomesIngredientesCompativeis(nomeReceita, item.name),
-            );
+            nomesIngredientesCompativeis(nomeReceita, item.name),
+          );
 
       const indexDespensa = indexDespensaCompativel;
       if (indexDespensa < 0) {
@@ -595,6 +594,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
+  // Provider com todos os dados e funções para a despensa
   return (
     <DespensaContext.Provider
       value={{
@@ -621,3 +621,147 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useDespensa = () => useContext(DespensaContext);
+
+// Hook para a tela de despensa, separando a lógica de UI da lógica de negócios e acesso a dados
+export function useDespensaScreen(): DespensaScreenHookData {
+  const {
+    filteredIngredients,
+    searchText,
+    setSearchText,
+    addIngredient,
+    toggleIngredient,
+    removeIngredient,
+    updateIngredientFull,
+    selectedCount,
+    selectedIngredientIds,
+    isLoading,
+  } = useDespensa();
+
+  const [nomeNovo, setNomeNovo] = useState("");
+  const [qtdNova, setQtdNova] = useState("");
+  const [metaNova, setMetaNova] = useState("");
+  const [unidadeNova, setUnidadeNova] = useState("un");
+  const [showUnitPickerNew, setShowUnitPickerNew] = useState(false);
+  const [isAddingIngredient, setIsAddingIngredient] = useState(false);
+  const [activeInput, setActiveInput] = useState<string | null>(null);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({
+    name: "",
+    qty: "",
+    ideal_qty: "",
+    unit: "un",
+  });
+  const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
+
+  // Função para adicionar um novo ingrediente com validação e formatação, usando a função do contexto
+  const handleAdd = async () => {
+    if (isAddingIngredient) return;
+
+    if (!nomeNovo.trim() || qtdNova.trim() === "" || metaNova.trim() === "") {
+      Alert.alert("Atenção", "Preencha o nome, a quantidade atual e a meta.");
+      return;
+    }
+
+    const qty = validateQuantity(qtdNova);
+    const ideal = validateQuantity(metaNova);
+
+    if (qty === null || ideal === null) {
+      Alert.alert("Erro", "Quantidade deve ser um número entre 0 e 99999.");
+      return;
+    }
+
+    try {
+      setIsAddingIngredient(true);
+      await addIngredient(nomeNovo, qty, ideal, unidadeNova);
+      setNomeNovo("");
+      setQtdNova("");
+      setMetaNova("");
+      setShowUnitPickerNew(false);
+    } catch {
+      Alert.alert("Erro", "Falha ao adicionar ingrediente.");
+    } finally {
+      setIsAddingIngredient(false);
+    }
+  };
+
+  // Função para iniciar a edição de um ingrediente usando a função do contexto
+  const startEditing = (item: Ingredient) => {
+    setEditingId(item.id);
+    setShowUnitPickerEdit(false);
+    setEditForm({
+      name: item.name,
+      qty: String(item.qty),
+      ideal_qty: String(item.ideal_qty),
+      unit: item.unit,
+    });
+  };
+
+  // Função para salvar a edição de um ingrediente com validação e formatação, usando a função do contexto
+  const saveEdit = (form?: EditForm) => {
+    const finalForm = form || editForm;
+
+    if (
+      !finalForm.name.trim() ||
+      finalForm.qty.trim() === "" ||
+      finalForm.ideal_qty.trim() === ""
+    ) {
+      Alert.alert("Atenção", "Nenhum campo pode ficar vazio.");
+      return;
+    }
+
+    const qty = validateQuantity(finalForm.qty);
+    const ideal = validateQuantity(finalForm.ideal_qty);
+
+    if (qty === null || ideal === null || !editingId) {
+      Alert.alert("Erro", "Quantidade deve ser um número entre 0 e 99999.");
+      return;
+    }
+
+    updateIngredientFull(editingId, finalForm.name, qty, ideal, finalForm.unit);
+    setEditingId(null);
+    setShowUnitPickerEdit(false);
+  };
+
+  // Função para exibir ajuda sobre a meta
+  const showMetaHelp = () => {
+    Alert.alert(
+      "O que é a Meta?",
+      "É a quantidade que você sempre quer ter na despensa (ex: 5kg de Arroz). Nossa IA usará isso para gerar sua Lista de Compras automaticamente quando o estoque baixar!",
+    );
+  };
+
+  return {
+    filteredIngredients,
+    searchText,
+    setSearchText,
+    handleAdd,
+    nomeNovo,
+    setNomeNovo,
+    qtdNova,
+    setQtdNova,
+    metaNova,
+    setMetaNova,
+    unidadeNova,
+    setUnidadeNova,
+    showUnitPickerNew,
+    setShowUnitPickerNew,
+    isAddingIngredient,
+    activeInput,
+    setActiveInput,
+    editingId,
+    setEditingId,
+    editForm,
+    setEditForm,
+    showUnitPickerEdit,
+    setShowUnitPickerEdit,
+    startEditing,
+    saveEdit,
+    showMetaHelp,
+    toggleIngredient,
+    removeIngredient,
+    selectedCount,
+    selectedIngredientIds,
+    isLoading,
+  };
+}

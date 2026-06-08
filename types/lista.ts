@@ -17,6 +17,15 @@ export interface EditForm {
   unit: string;
 }
 
+// Tipos relacionados ao upsert inteligente
+export type UpsertAction = "INSERT" | "UPDATE" | "UPDATE_COM_AVISO";
+
+export interface UpsertDecision {
+  acao: UpsertAction;
+  novoValor: number;
+  unidadeFinal: string;
+}
+
 // Contexto da lista de compras
 export interface ListaContextData {
   // Estado

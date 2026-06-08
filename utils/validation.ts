@@ -1,3 +1,4 @@
+// Meu import
 import { CompraItem } from "../types/lista";
 
 // Valida se a senha cumpre as regras estritas

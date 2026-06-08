@@ -1,4 +1,4 @@
-import { Leaf, Wheat, Milk, Drumstick, Candy, Nut, Egg, Fish } from "lucide-react-native";
+import { Candy, Drumstick, Egg, Fish, Leaf, Milk, Nut, Wheat } from "lucide-react-native";
 
 // Meu import
 import { OptionItem } from "../types/auth";
@@ -24,3 +24,23 @@ export const ALLERGY_OPTIONS: OptionItem[] = [
     { key: "gergelim", label: "Gergelim", icon: Wheat },
     { key: "frutos_do_mar", label: "Frutos do mar", icon: Fish },
 ];
+
+// Tratamento de alguns casos comuns e sinônimos
+export const ALLERGY_ALIASES: Record<string, string> = {
+    soy: "soja",
+    tofu: "soja",
+    edamame: "soja",
+    peanut: "amendoim",
+    groundnut: "amendoim",
+    shrimp: "frutos_do_mar",
+    camarão: "frutos_do_mar",
+    camarao: "frutos_do_mar",
+    gluten: "trigo",
+    wheat: "trigo",
+    dairy: "leite",
+    milk: "leite",
+    egg: "ovo",
+    eggs: "ovo",
+    sesame: "gergelim",
+    shellfish: "frutos_do_mar",
+};

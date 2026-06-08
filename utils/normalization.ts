@@ -1,4 +1,5 @@
 import { CATEGORIA_UNIDADE, UNIDADE_EQUIVALENCIAS, UNIDADES_CONTAVEIS } from "../constants/ingredients";
+import type { BaseDePeso } from "../types/despensa";
 
 // Funções de normalização de texto e unidades para facilitar comparações e cálculos
 export const normalizarTexto = (texto: string): string => {
@@ -17,10 +18,6 @@ export const normalizarTexto = (texto: string): string => {
 };
 
 // Normaliza nome para comparação case-insensitive, mantendo a primeira letra maiúscula
-export interface BaseDePeso {
-  valor: number;
-  tipo: 'massa_volume' | 'unidade';
-}
 
 // Normaliza quantidade e unidade para comparação case-insensitive
 export const normalizarBase = (qtd: number, unidade: string): BaseDePeso => {

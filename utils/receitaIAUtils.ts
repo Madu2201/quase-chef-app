@@ -1,23 +1,9 @@
-// UTILITÁRIOS GERAIS PARA RECEITAS IA
+// Meu import
+import type { ReceitaIACriarParams } from "../types/ia";
 import type { Recipe } from "../types/receitas";
 
 // Cria objeto Recipe para receitas geradas por IA
-export const criarReceitaIA = (params: {
-  id: string;
-  titulo: string;
-  time: string;
-  difficulty: string;
-  description: string;
-  imagem: string;
-  calories: string;
-  rawIngredients: string;
-  rawSteps: string;
-  tags?: string[];
-  dica_rapida?: string;
-  pre_visualizacao?: string[];
-  preferences?: string[];
-  recipeAllergies?: string[];
-}): Recipe => {
+export const criarReceitaIA = (params: ReceitaIACriarParams): Recipe => {
   return {
     id: params.id,
     title: params.titulo,

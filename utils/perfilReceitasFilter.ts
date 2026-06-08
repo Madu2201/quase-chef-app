@@ -1,4 +1,9 @@
-import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlimentar";
+// Meus imports
+import {
+  ALLERGY_ALIASES,
+  ALLERGY_OPTIONS,
+  FOOD_PREFERENCE_OPTIONS,
+} from "../constants/OpcaoAlimentar";
 import { TemporaryMode } from "../types/perfil";
 import { normalizarTexto } from "./normalization";
 
@@ -40,25 +45,7 @@ export function alergenioParaChaveCanonica(valor: string): string | null {
 
   // Tratamento de alguns casos comuns e sinônimos
   const low = t.toLowerCase();
-  const alias: Record<string, string> = {
-    soy: "soja",
-    tofu: "soja",
-    edamame: "soja",
-    peanut: "amendoim",
-    groundnut: "amendoim",
-    shrimp: "frutos_do_mar",
-    camarão: "frutos_do_mar",
-    camarao: "frutos_do_mar",
-    gluten: "trigo",
-    wheat: "trigo",
-    dairy: "leite",
-    milk: "leite",
-    egg: "ovo",
-    eggs: "ovo",
-    sesame: "gergelim",
-    shellfish: "frutos_do_mar",
-  };
-  if (alias[low]) return alias[low];
+  if (ALLERGY_ALIASES[low]) return ALLERGY_ALIASES[low];
 
   for (const opt of ALLERGY_OPTIONS) {
     const lk = normalizarTexto(opt.label);

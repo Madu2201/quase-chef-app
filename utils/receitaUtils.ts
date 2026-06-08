@@ -1,11 +1,10 @@
+// Meus imports
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import type { Ingredient } from "../types/despensa";
 import type { Ingrediente, PassoPreparo } from "../types/detalhe_receita";
 import {
-    converterParaUnidadeBase,
-    nomesIngredientesCompativeis,
-    normalizarBase,
-    normalizarTexto,
+  converterParaUnidadeBase, nomesIngredientesCompativeis,
+  normalizarBase, normalizarTexto,
 } from "./normalization";
 
 // Formata tempo de minutos/horas para exibição
@@ -17,7 +16,7 @@ export const formatarTempo = (tempo: string): string =>
     .replace("horas", "h")
     .replace("hora", "h");
 
-// Processa ingredientes do formato raw para o formato da interface
+// Calcula o status de um ingrediente na receita comparando com os ingredientes da despensa, considerando regras de compatibilidade e quantidades
 export const calcularStatusIngrediente = (
   ingredienteReceita: any,
   despensa: Ingredient[],
@@ -81,6 +80,7 @@ export const calcularStatusIngrediente = (
   return "faltando";
 };
 
+// Encontra um ingrediente na despensa pelo nome, usando comparação de nomes normalizados e compatíveis
 export const encontrarItemDespensaPorNome = (
   nomeIngredienteReceita: string,
   despensa: Ingredient[],
@@ -90,6 +90,7 @@ export const encontrarItemDespensaPorNome = (
   );
 };
 
+// Processa os ingredientes de uma receita, retornando um array de Ingrediente
 export const processarIngredientes = (
   rawIngredients: string | undefined,
   despensa: Ingredient[] = [],

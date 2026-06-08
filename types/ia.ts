@@ -34,6 +34,24 @@ export interface ReceitaIAResponse {
   imagem_base64?: string;
 }
 
+// Parâmetros para criar uma receita de IA no contexto de preparo
+export interface ReceitaIACriarParams {
+  id: string;
+  titulo: string;
+  time: string;
+  difficulty: string;
+  description: string;
+  imagem: string;
+  calories: string;
+  rawIngredients: string;
+  rawSteps: string;
+  tags?: string[];
+  dica_rapida?: string;
+  pre_visualizacao?: string[];
+  preferences?: string[];
+  recipeAllergies?: string[];
+}
+
 // Define o formato exato que esperamos do JSON da IA + image_prompt
 export interface ReceitaIAJsonResponse {
   texto_da_receita: ReceitaIAResponse;

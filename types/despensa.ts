@@ -1,5 +1,11 @@
 import type { EditForm } from "./lista";
 
+// Tipos de base de peso
+export interface BaseDePeso {
+  valor: number;
+  tipo: 'massa_volume' | 'unidade';
+}
+
 // Tipos de ingrediente
 export interface Ingredient {
   id: string;

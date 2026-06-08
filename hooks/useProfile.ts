@@ -3,14 +3,13 @@ import { supabase } from "@/services/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
-import {
-  FoodPreferences,
-  TemporaryMode,
-  UserProfileData,
-} from "../types/perfil";
+
+// Meus imports
+import { FoodPreferences, TemporaryMode, UserProfileData } from "../types/perfil";
 import { useAuth } from "./useAuth";
 import { useNetworkStatus } from "./useNetworkStatus";
 
+// Chaves de armazenamentolocal para as preferências do perfil
 const STORAGE_KEYS = {
   lifestyle: "@perfil_food_lifestyle",
   allergies: "@perfil_food_allergies",
@@ -19,6 +18,7 @@ const STORAGE_KEYS = {
   updated: "@perfil_food_updated_at",
 };
 
+// Hook principal para gerenciar o perfil do usuário, incluindo dados básicos e preferências alimentares
 export const useProfile = (userFromAuth: any) => {
   const { user, updateUser } = useAuth();
   const { isOffline, notifyInternetRequired } = useNetworkStatus();
@@ -35,8 +35,8 @@ export const useProfile = (userFromAuth: any) => {
     temporaryMode: "always_on",
     updatedAt: "",
   });
-  const [isLoading, setIsLoading] = useState(false); // Loading para dados básicos
-  const [isSavingPref, setIsSavingPref] = useState(false); // Loading para preferências
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSavingPref, setIsSavingPref] = useState(false);
 
   // Carregamento inicial: Auth + AsyncStorage
   useEffect(() => {
@@ -142,7 +142,7 @@ export const useProfile = (userFromAuth: any) => {
     return () => {
       isMounted = false;
     };
-  }, [isOffline, userFromAuth]); // Adicionado dependência para recarregar se o user mudar
+  }, [isOffline, userFromAuth]);
 
   // Salva preferências alimentares (Supabase + Local Storage)
   const savePreferences = async () => {

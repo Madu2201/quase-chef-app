@@ -1,28 +1,13 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import {
-  AlertCircle,
-  Camera,
-  CheckCircle,
-  ChevronRight,
-  Leaf,
-  Lightbulb,
-  LogOut,
-  Pencil,
-  Settings,
-  User as UserIcon,
+  AlertCircle, Camera, CheckCircle, ChevronRight, Leaf,
+  Lightbulb, LogOut, Pencil, Settings, User as UserIcon,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+  ActivityIndicator, Image, KeyboardAvoidingView, Platform,
+  ScrollView, Text, TextInput, TouchableOpacity, View,
 } from "react-native";
 
 // Meus imports
@@ -31,10 +16,7 @@ import { useProfile } from "@/hooks/useProfile";
 import type { OptionItem } from "@/types/auth";
 import { TemporaryMode } from "@/types/perfil";
 import { Header } from "../components/header";
-import {
-  ALLERGY_OPTIONS,
-  FOOD_PREFERENCE_OPTIONS,
-} from "../constants/OpcaoAlimentar";
+import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import { perfilStyles as styles } from "../styles/perfil_styles";
 
@@ -175,14 +157,14 @@ export default function PerfilScreen() {
                   style={[
                     styles.segmentButton,
                     preferences.temporaryMode === m &&
-                      styles.segmentButtonActive,
+                    styles.segmentButtonActive,
                   ]}
                 >
                   <Text
                     style={[
                       styles.segmentButtonText,
                       preferences.temporaryMode === m &&
-                        styles.segmentButtonTextActive,
+                      styles.segmentButtonTextActive,
                     ]}
                   >
                     {m === "always_on"
@@ -253,7 +235,7 @@ export default function PerfilScreen() {
                     styles.inputContainer,
                     styles.textAreaContainer,
                     focusedInput === "outras_restricoes" &&
-                      styles.inputContainerFocused,
+                    styles.inputContainerFocused,
                   ]}
                 >
                   <TextInput

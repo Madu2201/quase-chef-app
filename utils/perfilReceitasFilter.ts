@@ -2,19 +2,12 @@ import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlim
 import { TemporaryMode } from "../types/perfil";
 import { normalizarTexto } from "./normalization";
 
-/** Normaliza comparação de chaves e labels (underscore vs espaço). */
+// Funções de filtragem de receitas com base no perfil do usuário (preferências e alergias)
 function squish(s: string): string {
   return normalizarTexto(s).replace(/\s+/g, "").replace(/_/g, "");
 }
 
-/**
- * Preferências de estilo (união): só aplicadas quando retorna true.
- * Alergias são SEMPRE aplicadas em separado — não usar esta função para alergias.
- *
- * - paused → não filtra por preferências (catálogo mais amplo).
- * - weekends_only → sábado/domingo: igual a pausado para preferências; dias úteis: ativo.
- * - always_on → aplica preferências.
- */
+/// Aplica preferências alimentares dependendo do modo de trabalho do perfil (sempre, pausado ou apenas fins de semana).
 export function modoPerfilAplicaPreferencias(
   temporaryMode?: TemporaryMode | null,
 ): boolean {
@@ -31,9 +24,7 @@ export function modoPerfilAplicaPreferencias(
 /** @deprecated Use modoPerfilAplicaPreferencias — nome antigo enganava (alergias são sempre aplicadas). */
 export const modoPerfilAplicaFiltros = modoPerfilAplicaPreferencias;
 
-/**
- * Mapeia texto livre / tag da receita para chave canônica de ALLERGY_OPTIONS (sinônimos comuns).
- */
+// Normaliza e converte um valor de alergia para a chave canônica reconhecida pelo sistema (ou null se não reconhecer).
 export function alergenioParaChaveCanonica(valor: string): string | null {
   const t = String(valor).trim();
   if (!t) return null;
@@ -47,6 +38,7 @@ export function alergenioParaChaveCanonica(valor: string): string | null {
     if (squish(opt.label) === q) return opt.key;
   }
 
+  // Tratamento de alguns casos comuns e sinônimos
   const low = t.toLowerCase();
   const alias: Record<string, string> = {
     soy: "soja",
@@ -78,6 +70,7 @@ export function alergenioParaChaveCanonica(valor: string): string | null {
   return null;
 }
 
+// Normaliza e converte um valor de preferência alimentar para a chave canônica reconhecida pelo sistema.
 function preferenciaParaChaveCanonica(valor: string): string | null {
   const t = String(valor).trim();
   if (!t) return null;
@@ -93,9 +86,7 @@ function preferenciaParaChaveCanonica(valor: string): string | null {
   return null;
 }
 
-/**
- * Blacklist: bloqueia se qualquer alérgeno da receita (canônico) coincide com o do usuário.
- */
+// Verifica se uma receita tem alergias que colidem com o perfil do usuário.
 export function receitaBloqueadaPorAlergia(
   alergiasUsuario: string[],
   alergiasReceita: string[],
@@ -118,9 +109,7 @@ export function receitaBloqueadaPorAlergia(
   return false;
 }
 
-/**
- * Chaves canônicas dos alérgenos da receita que colidem com o perfil (para alertas na UI).
- */
+// Verifica se uma receita tem alergias que colidem com o perfil do usuário. Retorna a lista de alergias conflitantes.
 export function alergiasReceitaQueColidemComUsuario(
   alergiasUsuario: string[],
   alergiasReceita: string[],
@@ -143,10 +132,7 @@ export function alergiasReceitaQueColidemComUsuario(
   return [...new Set(hits)];
 }
 
-/**
- * União: a receita entra se atender pelo menos UMA preferência do usuário.
- * Se o usuário não marcou preferências, não restringe por este critério.
- */
+// Verifica se uma receita tem preferências alimentares que colidem com o perfil do usuário.
 export function receitaPassaUniaoPreferencias(
   preferenciasUsuario: string[],
   preferenciasReceita: string[],

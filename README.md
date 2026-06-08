@@ -21,33 +21,18 @@ O Quase Chef moderniza a gestão da cozinha doméstica através de um **Ciclo de
 
 ```
 app/
-├── (auth)/              # Fluxo autenticação (pré-login)
-│   ├── loading.tsx
-│   ├── login.tsx
-│   ├── cadastro.tsx
-│   ├── esqueci_senha.tsx
-│   ├── nova_senha.tsx
-│   └── _layout.tsx
-├── (tabs)/              # Fluxo principal (pós-login)
-│   ├── home.tsx
-│   ├── receitas.tsx
-│   ├── favoritos.tsx
-│   ├── despensa.tsx
-│   ├── lista.tsx
-│   └── _layout.tsx
-├── perfil.tsx              # Tela acessada via header no home
-├── detalhe_receita.tsx
-├── preparo_receita.tsx
-├── selecao_ia.tsx
-├── _layout.tsx          # Root layout
-└── index.tsx            # Redirecionamento (auth vs tabs)
-
-components/             # Componentes reutilizáveis
-constants/              # Temas e configurações
-hooks/                  # Hooks customizados
-services/               # API, Supabase, Gemini
-styles/                 # Estilos globais
-utils/                  # Funções auxiliares
+├── (auth)/                    # Fluxo autenticação (pré-login)
+├── (tabs)/                    # Fluxo principal (pós-login)
+├── index.tsx                  # Redirecionamento (auth vs tabs)
+assets/
+└── images/                   # Imagens estáticas
+components/                   # Componentes reutilizáveis
+constants/                    # Constantes centralizadas
+hooks/                        # Hooks customizados
+services/                     # Lógica de backend
+styles/                       # Estilos por tela e global
+types/                        # Tipos TypeScript centralizados
+utils/                        # Funções auxiliares
 ```
 
 ## 👥 Equipe

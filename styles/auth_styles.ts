@@ -1,7 +1,5 @@
 import { StyleSheet } from "react-native";
-import {
-  Colors, Fonts, FontSizes, Radius, Shadows, Spacing,
-} from "../constants/theme";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing, } from "../constants/theme";
 import { AUTH_INPUTS, AUTH_TEXTAREA } from "./global_styles";
 
 export const authStyles = StyleSheet.create({

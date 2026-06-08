@@ -1,29 +1,20 @@
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
+
+// Meus imports
 import { generateAndUploadRecipeImage } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
-import type { Ingredient } from "../types/despensa";
+import type { ContextoSegurancaPrompt } from "../types/ia";
 import {
-  ContextoSegurancaPrompt,
-  extrairReceitaIAParseada,
-  montarListaIngredientesPorIds,
-  montarPromptGeracaoReceitaIA,
+  extrairReceitaIAParseada, filtrarCategoriasPorBusca, montarListaIngredientesPorIds,
+  montarPromptGeracaoReceitaIA, obterCategoriasIngredientesPorAlfabeto,
 } from "../utils/iaUtils";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-/** Estrutura de categoria para a listagem alfabética */
-export type CategoriaIngredienteIA = {
-  titulo: string;
-  itens: Ingredient[];
-};
-
-/**
- * Hook para gerenciar a lógica da tela de Seleção IA.
- * Responsável pela filtragem, agrupamento alfabético e integração com serviços de IA.
- */
+/// Hook para gerar receitas com IA a partir dos ingredientes selecionados pelo usuário
 export function useSelecaoIA() {
   const [busca, setBusca] = useState("");
   const [selecionadosIds, setSelecionadosIds] = useState<string[]>([]);
@@ -35,8 +26,6 @@ export function useSelecaoIA() {
   const { ingredients } = useDespensa();
   const { user } = useAuth();
   const { notifyInternetRequired } = useNetworkStatus();
-
-  // --- AÇÕES DO USUÁRIO ---
 
   const toggleIngrediente = useCallback((id: string) => {
     setSelecionadosIds((prev) =>
@@ -54,64 +43,24 @@ export function useSelecaoIA() {
     );
   }, []);
 
-  // --- DADOS DERIVADOS (MEMOIZADOS) ---
-
+  // Ingredientes selecionados para a geração da receita
   const ingredientesSelecionados = useMemo(() => {
     if (!ingredients) return [];
     return ingredients.filter((ing) => selecionadosIds.includes(ing.id));
   }, [ingredients, selecionadosIds]);
 
-  const categoriasComItens = useMemo((): CategoriaIngredienteIA[] => {
-    if (!ingredients?.length) return [];
+  const categoriasComItens = useMemo(
+    () => obterCategoriasIngredientesPorAlfabeto(ingredients),
+    [ingredients],
+  );
 
-    const grupos: Record<string, Ingredient[]> = {};
+  // Busca na lista de categorias e ingredientes para filtrar conforme o termo digitado
+  const categoriasFiltradas = useMemo(
+    () => filtrarCategoriasPorBusca(categoriasComItens, busca),
+    [busca, categoriasComItens],
+  );
 
-    // Filtra ingredientes com quantidade > 0 (não mostrar itens acabados)
-    const ingredientesDisponiveis = ingredients.filter((ing) => (ing.qty || 0) > 0);
-
-    // Ordenação alfabética global dos ingredientes
-    const ingredientesOrdenados = [...ingredientesDisponiveis].sort((a, b) =>
-      a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
-    );
-
-    ingredientesOrdenados.forEach((ing) => {
-      const primeiraLetra = ing.name.charAt(0).toUpperCase();
-      const categoria = /^[A-ZÀ-Ú]$/.test(primeiraLetra) ? primeiraLetra : "#";
-
-      if (!grupos[categoria]) {
-        grupos[categoria] = [];
-      }
-      grupos[categoria].push(ing);
-    });
-
-    return Object.keys(grupos)
-      .sort((a, b) => {
-        if (a === "#") return 1;
-        if (b === "#") return -1;
-        return a.localeCompare(b, "pt-BR");
-      })
-      .map((letra) => ({
-        titulo: letra,
-        itens: grupos[letra],
-      }));
-  }, [ingredients]);
-
-  const categoriasFiltradas = useMemo(() => {
-    const termo = busca.toLowerCase().trim();
-    if (!termo) return categoriasComItens;
-
-    return categoriasComItens
-      .map((cat) => ({
-        ...cat,
-        itens: cat.itens.filter((ing) =>
-          ing.name.toLowerCase().includes(termo),
-        ),
-      }))
-      .filter((cat) => cat.itens.length > 0);
-  }, [busca, categoriasComItens]);
-
-  // --- GERAÇÃO DE RECEITA ---
-
+  // Funções de geração da receita com IA
   const gerarReceitaComIngredientes = useCallback(
     async (idsIngredientes: string[]): Promise<void> => {
       const lista = idsIngredientes.filter(Boolean);
@@ -201,7 +150,7 @@ export function useSelecaoIA() {
     [ingredients, notifyInternetRequired, user],
   );
 
-  // --- RETORNO DO HOOK ---
+  // Funções de geração da receita com IA, expostas para a tela de seleção
   const handleGerarReceita = useCallback(
     async (idsOpcionais?: any) => {
       const idsParaGerar = Array.isArray(idsOpcionais)

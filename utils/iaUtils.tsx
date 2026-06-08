@@ -1,30 +1,18 @@
-import {
-  Flame,
-  Leaf,
-  RotateCcw,
-  Sparkles,
-  Utensils,
-  Zap,
-} from "lucide-react-native";
+import { Flame, Leaf, RotateCcw, Sparkles, Utensils, Zap } from "lucide-react-native";
 import React from "react";
+
+// Meus imports
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
-import {
-  ALLERGY_OPTIONS,
-  FOOD_PREFERENCE_OPTIONS,
-} from "../constants/OpcaoAlimentar";
+import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import type { Ingredient } from "../types/despensa";
 import type {
-  IngredienteIA,
-  PassoIA,
-  ReceitaIAJsonResponse,
-  ReceitaIAResponse,
+  CategoriaIngredienteIA, ContextoSegurancaPrompt, IngredienteIA,
+  IngredienteSelecionadoParaPrompt, PassoIA, ReceitaIAJsonResponse,
+  ReceitaIAParseResult, ReceitaIAResponse,
 } from "../types/ia";
 
-/**
- * Mapeia uma string para o componente de ícone correspondente
- * Útil para converter os dados das constantes em elementos visuais
- */
+// Cria o icone da categoria
 export const getCategoriaIcon = (iconName: string, size = 14) => {
   const props = { size, color: Colors.dark };
 
@@ -44,10 +32,7 @@ export const getCategoriaIcon = (iconName: string, size = 14) => {
   }
 };
 
-/**
- * Lógica de correspondência inteligente (Sinônimos e Variações)
- * Verifica se o nome de um ingrediente da despensa pertence a uma categoria
- */
+// Verificação de correspondência entre ingrediente da despensa e item da categoria (com dicionário de variações)
 export const verificarCorrespondencia = (
   ingName: string,
   catItem: string,
@@ -55,7 +40,7 @@ export const verificarCorrespondencia = (
   const ingLower = ingName.toLowerCase().trim();
   const itemLower = catItem.toLowerCase().trim();
 
-  // 1. Verificação direta (ex: "Tomate" === "Tomate")
+  // 1. Caso o ingrediente da despensa seja exatamente igual ao item da categoria
   if (
     ingLower === itemLower ||
     ingLower.includes(itemLower) ||
@@ -103,9 +88,7 @@ export const verificarCorrespondencia = (
   return false;
 };
 
-/**
- * Limpa a string retornada pela IA removendo blocos de código Markdown
- */
+// Normalização de texto para comparação (remove acentos, caracteres especiais, etc.)
 export const limparJSONIA = (rawString: string): string => {
   return rawString
     .replace(/```json/gi, "")
@@ -113,11 +96,7 @@ export const limparJSONIA = (rawString: string): string => {
     .trim();
 };
 
-export type ReceitaIAParseResult = {
-  receita: ReceitaIAResponse;
-  imagePrompt: string | null;
-};
-
+// Funções de normalização para garantir que a resposta da IA esteja no formato esperado.
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -202,6 +181,7 @@ function normalizarReceitaIA(payload: unknown): ReceitaIAResponse {
   };
 }
 
+// Função principal para extrair e normalizar a receita da resposta bruta da IA
 export function extrairReceitaIAParseada(
   rawString: string,
 ): ReceitaIAParseResult {
@@ -228,16 +208,7 @@ export function extrairReceitaIAParseada(
   return { receita, imagePrompt };
 }
 
-/** Ingredientes selecionados com quantidade/unidade reais da despensa (para regras de limite no prompt). */
-export type IngredienteSelecionadoParaPrompt = {
-  nome: string;
-  quantidadeDisponivel: number;
-  unidade: string;
-};
-
-/**
- * Monta o estoque para o prompt a partir dos IDs da despensa (evita ambiguidade com nomes duplicados).
- */
+// Monta a lista de ingredientes selecionados para o prompt
 export function montarListaIngredientesPorIds(
   idsSelecionados: string[],
   estoqueDespensa: Ingredient[],
@@ -254,7 +225,7 @@ export function montarListaIngredientesPorIds(
     }));
 }
 
-/** Texto único da lista INGREDIENTES_LIVRES para o prompt (referência explícita). */
+// Monta a lista de ingredientes livres para o prompt
 export function obterListaIngredientesLivresParaPrompt(): string {
   const unicos = [
     ...new Set(INGREDIENTES_LIVRES.map((s) => s.trim().toLowerCase())),
@@ -262,12 +233,60 @@ export function obterListaIngredientesLivresParaPrompt(): string {
   return unicos.join(", ");
 }
 
-/** Perfil do usuário para reforço de segurança no prompt (alergias / preferências). */
-export type ContextoSegurancaPrompt = {
-  chavesAlergiaUsuario: string[];
-  chavesPreferenciaUsuario: string[];
-};
+// Monta as categorias de ingredientes para o prompt
+export function obterCategoriasIngredientesPorAlfabeto(
+  ingredients: Ingredient[],
+): CategoriaIngredienteIA[] {
+  if (!ingredients?.length) return [];
 
+  const grupos: Record<string, Ingredient[]> = {};
+
+  const ingredientesDisponiveis = ingredients.filter((ing) => (ing.qty || 0) > 0);
+  const ingredientesOrdenados = [...ingredientesDisponiveis].sort((a, b) =>
+    a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+  );
+
+  ingredientesOrdenados.forEach((ing) => {
+    const primeiraLetra = ing.name.charAt(0).toUpperCase();
+    const categoria = /^[A-ZÀ-Ú]$/.test(primeiraLetra) ? primeiraLetra : "#";
+
+    if (!grupos[categoria]) {
+      grupos[categoria] = [];
+    }
+    grupos[categoria].push(ing);
+  });
+
+  return Object.keys(grupos)
+    .sort((a, b) => {
+      if (a === "#") return 1;
+      if (b === "#") return -1;
+      return a.localeCompare(b, "pt-BR");
+    })
+    .map((titulo) => ({
+      titulo,
+      itens: grupos[titulo],
+    }));
+}
+
+// Filtra as categorias de ingredientes por busca
+export function filtrarCategoriasPorBusca(
+  categorias: CategoriaIngredienteIA[],
+  busca: string,
+): CategoriaIngredienteIA[] {
+  const termo = busca.toLowerCase().trim();
+  if (!termo) return categorias;
+
+  return categorias
+    .map((cat) => ({
+      ...cat,
+      itens: cat.itens.filter((ing) =>
+        ing.name.toLowerCase().includes(termo),
+      ),
+    }))
+    .filter((cat) => cat.itens.length > 0);
+}
+
+// Monta o contexto de segurança para o prompt, incluindo alergias e preferências do usuário
 function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
   const linhas: string[] = [];
 
@@ -304,10 +323,7 @@ function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
   return `\n${linhas.join("\n\n")}\n`;
 }
 
-/**
- * Monta o prompt completo para geração de receita por IA.
- * Regras: só ingredientes selecionados + INGREDIENTES_LIVRES; limites de quantidade; fidelidade de unidade.
- */
+// Monta o prompt de criação de receita com IA, incluindo regras de estoque e segurança
 export function montarPromptGeracaoReceitaIA(
   ingredientesComEstoque: IngredienteSelecionadoParaPrompt[],
   contextoUsuario?: ContextoSegurancaPrompt | null,
@@ -318,6 +334,7 @@ export function montarPromptGeracaoReceitaIA(
     ? montarBlocoSegurancaPerfil(contextoUsuario)
     : "";
 
+  // Monta o bloco de estoque detalhado para o prompt, incluindo regras claras de quantidade e unidade
   const blocoEstoque = ingredientesComEstoque
     .map((ing) => {
       const limite = ing.quantidadeDisponivel;
@@ -330,6 +347,7 @@ export function montarPromptGeracaoReceitaIA(
     })
     .join("\n");
 
+  // Monta o prompt completo com regras de ingredientes, estoque e segurança
   return `Atue como um Chef de Cozinha profissional.
 
 FONTES DE INGREDIENTES — É PROIBIDO inventar ou citar qualquer ingrediente que não esteja em uma destas duas fontes:
@@ -374,7 +392,7 @@ CAMPOS DA RECEITA (dentro de "texto_da_receita"):
         2. Se a receita usar medidas caseiras ou volumes culinários (ex: "xícara", "colher", "copo"): Converta OBRIGATORIAMENTE para o peso/volume equivalente aproximado em gramas ou ml (ex: "1 xícara de arroz" vira 200.0; "2 xícaras de água" vira 480.0; "1 colher de sopa de açúcar" vira 15.0). JAMAIS use 0.0 para medidas caseiras.
         3. Se a receita pedir unidades físicas soltas ou itens a gosto (ex: "3 batatas", "1 dente de alho", "sal a gosto"): preencha ESTREITAMENTE com 0.0 para indicar que é um item contável. O valor 0.0 aqui NÃO exclui o ingrediente.
         * Formatação: JAMAIS retorne números com ponto final solto como '0.' ou '1.'. Use sempre o formato decimal completo como '0.0', '1.0' ou '250.0').
-   }.
+  }.
 9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }. No campo "descricao" evite textos muitos longos para evitar desinteresse no usuário.
     REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.
 10. tags: Lista de strings. Escolha APENAS entre: ["Salgadas", "Doces", "Rápidas", "Saudáveis", "Econômicas", "Lanches", "Jantar", "Almoço"].

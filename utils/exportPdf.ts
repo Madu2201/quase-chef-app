@@ -1,15 +1,17 @@
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
+
+// Meu import
 import { Colors } from "../constants/theme";
 
+// Gera um PDF com a lista de itens pendentes
 export const exportarListaPendentes = async (itens: any[]) => {
-  const dataAtual = new Date().toLocaleDateString("pt-BR");
+    const dataAtual = new Date().toLocaleDateString("pt-BR");
 
-  // Gera as linhas da lista com layout de cartões
-  const rows = itens
-    .map(
-      (item) => `
+    const rows = itens
+        .map(
+            (item) => `
         <div class="item-card">
             <div class="item-left">
                 <div class="checkbox"></div>
@@ -23,11 +25,11 @@ export const exportarListaPendentes = async (itens: any[]) => {
             </div>
         </div>
     `,
-    )
-    .join("");
+        )
+        .join("");
 
-  // HTML com layout moderno e identidade visual do app
-  const htmlContent = `
+    // HTML com layout moderno e identidade visual do app
+    const htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -236,47 +238,49 @@ export const exportarListaPendentes = async (itens: any[]) => {
         </html>
     `;
 
-  if (Platform.OS === "web") {
-    handleWebExport(htmlContent);
-  } else {
-    await handleMobileExport(htmlContent);
-  }
+    if (Platform.OS === "web") {
+        handleWebExport(htmlContent);
+    } else {
+        await handleMobileExport(htmlContent);
+    }
 };
 
+// Funcionalidade de exportação para web usando iframe e print
 const handleWebExport = (html: string) => {
-  const iframe = document.createElement("iframe");
-  iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
-  iframe.style.border = "0";
-  document.body.appendChild(iframe);
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
 
-  const doc = iframe.contentWindow?.document;
-  if (doc) {
-    doc.open();
-    doc.write(html);
-    doc.close();
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
 
-    iframe.onload = () => {
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-      setTimeout(() => document.body.removeChild(iframe), 1000);
-    };
-  }
+        iframe.onload = () => {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            setTimeout(() => document.body.removeChild(iframe), 1000);
+        };
+    }
 };
 
+// Funcionalidade de exportação para mobile
 const handleMobileExport = async (html: string) => {
-  try {
-    const { uri } = await Print.printToFileAsync({ html });
+    try {
+        const { uri } = await Print.printToFileAsync({ html });
 
-    await Sharing.shareAsync(uri, {
-      mimeType: "application/pdf",
-      dialogTitle: "Exportar Lista",
-      UTI: "com.adobe.pdf",
-    });
-  } catch {
-    // Erro ao gerar PDF no mobile - usuário será notificado pela UX nativa
-  }
+        await Sharing.shareAsync(uri, {
+            mimeType: "application/pdf",
+            dialogTitle: "Exportar Lista",
+            UTI: "com.adobe.pdf",
+        });
+    } catch {
+        // Erro ao gerar PDF no mobile - usuário será notificado pela UX nativa
+    }
 };

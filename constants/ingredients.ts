@@ -35,3 +35,50 @@ export const UNIDADES_ACEITAS = [
   "xícara",
   "colher",
 ];
+
+// Unidades contáveis que não devem ser convertidas para massa/volume
+export const UNIDADES_CONTAVEIS = [
+  'un',
+  'und',
+  'unidade',
+  'unidades',
+  'unit',
+  'media',
+  'medio',
+  'média',
+  'médio',
+  'picado',
+  'picada',
+  'picados',
+  'picadas',
+  'dente',
+  'dentes',
+  'folha',
+  'folhas',
+];
+
+// Categorias de unidades para normalização
+export const CATEGORIA_UNIDADE = {
+  PESO: ['g', 'kg', 'quilo', 'quilos', 'grama', 'gramas'],
+  VOLUME: ['ml', 'l', 'litro', 'litros', 'mililitro', 'mililitros'],
+  UNIDADE: ['un', 'pct', 'dz'],
+};
+
+// Equivalências para conversão de unidades para uma base comum (gramas para peso, ml para volume)
+export const UNIDADE_EQUIVALENCIAS: Record<string, number> = {
+  'kg': 1000,
+  'quilo': 1000,
+  'quilos': 1000,
+  'g': 1,
+  'grama': 1,
+  'gramas': 1,
+  'l': 1000,
+  'litro': 1000,
+  'litros': 1000,
+  'ml': 1,
+  'mililitro': 1,
+  'mililitros': 1,
+  'un': 1,
+  'pct': 1,
+  'dz': 12,
+};

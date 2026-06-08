@@ -1,5 +1,5 @@
-import type { Recipe } from "../hooks/useReceitas";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
+import type { Recipe } from "../types/receitas";
 import { criarReceitaIA } from "./receitaIAUtils";
 
 //Cria objeto Recipe para receitas de IA no contexto de preparo

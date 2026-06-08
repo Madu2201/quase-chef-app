@@ -2,14 +2,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { ChevronDown, ChevronRight, Clock, User2, Zap } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+  ActivityIndicator, Image, Pressable, ScrollView, StatusBar, Text, TouchableOpacity, View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -23,10 +16,9 @@ import { homeStyles as styles } from "../../styles/home_styles";
 import { useAuth } from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Novo hook de sugestões
+// Hook personalizado para obter sugestões de receitas
 import { useSugestoesHome } from "../../hooks/useSugestoesHome";
 
-// Componente principal
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
@@ -40,7 +32,6 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       const carregarDadosUsuario = async () => {
-        // --- 1. Carrega o Nome ---
         if (user?.full_name) {
           setNomeExibido(user.full_name.split(" "));
         } else {
@@ -48,7 +39,6 @@ export default function HomeScreen() {
           if (nomeSalvo) setNomeExibido(nomeSalvo.split(" "));
         }
 
-        // --- 2. Carrega a Foto ---
         if (user?.avatar_url) {
           setFotoUrl(user.avatar_url);
         } else {
@@ -61,10 +51,10 @@ export default function HomeScreen() {
     }, [user]),
   );
 
-  // Renderiza o componente
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
+      {/* Header personalizado com saudação e avatar do usuário */}
       <Header title="" showSearch={false} style={styles.customHeader}>
         <Pressable
           style={styles.userHeader}

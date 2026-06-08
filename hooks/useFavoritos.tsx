@@ -1,23 +1,18 @@
 import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+  createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState,
 } from "react";
+
+// Meus imports
 import { solicitarAtualizacaoCatalogoReceitas } from "../services/receitaEvents";
 import {
-  adicionarFavorito,
-  removerFavorito,
-  salvarReceitaIAParaFavorito,
+  adicionarFavorito, removerFavorito, salvarReceitaIAParaFavorito,
 } from "../services/receitaService";
 import { supabase } from "../services/supabase";
 import { FavoritosContextData } from "../types/favoritos";
+import type { Recipe } from "../types/receitas";
 import { useAuth } from "./useAuth";
 import { useNetworkStatus } from "./useNetworkStatus";
-import { Recipe, useReceitas } from "./useReceitas";
+import { useReceitas } from "./useReceitas";
 
 const FavoritosContext = createContext<FavoritosContextData>(
   {} as FavoritosContextData,
@@ -45,6 +40,7 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Busca favoritos do banco para o usuário logado e atualiza estados locais
   async function buscarFavoritosBanco(userId: string) {
     try {
       setCarregandoFavoritos(true);
@@ -70,6 +66,7 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  // Função para favoritar ou desfavoritar uma receita
   const toggleFavorito = async (
     receitaId: string | number,
     receitaData?: Recipe,
@@ -94,23 +91,21 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
 
     if (isIA) {
       if (existeLocalIA || existePersistido || existePersistidoPeloMap) {
-        // Se a receita for IA e estiver sendo desfavoritada, 
-        // excluímos ela fisicamente do banco de dados para evitar lixo.
+        // 1. Remove da tabela de favoritos e limpa dados da IA (imagem + registro)
         const idParaExcluir = !isNaN(idNum) ? idNum : mappedSavedIdNum;
 
         if (!isNaN(idParaExcluir)) {
-          // 1. Remove da tabela de favoritos e limpa dados da IA (imagem + registro)
-          // removerFavorito em receitaService.ts agora lida com a limpeza completa
+          // Se for um ID numérico, é um favorito persistido no banco, então removemos do banco
           const successRemover = await removerFavorito(idParaExcluir, user.id);
-          
+
           if (successRemover) {
             setFavoritosIds((prev) => prev.filter((id) => id !== String(idParaExcluir)));
-            
-            // Forçamos a atualização do catálogo global para que a receita suma da lista useReceitas
+            // Se o ID removido for o mapeado, limpa o mapeamento também (para evitar inconsistências futuras)
             solicitarAtualizacaoCatalogoReceitas();
           }
         }
 
+        // 2. Remove da lista local de favoritos IA (isso cobre tanto o caso de favorito local quanto o persistido)
         setFavoritosIA((prev) => prev.filter((item) => item.id !== idStr));
         setSavedIAReceitaMap((prev) => {
           const next = { ...prev };
@@ -147,13 +142,13 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
               prev.some((item) => item.id === idStr)
                 ? prev
                 : [
-                    ...prev,
-                    {
-                      ...receitaData,
-                      id: idStr,
-                      tipo: "ia",
-                    },
-                  ],
+                  ...prev,
+                  {
+                    ...receitaData,
+                    id: idStr,
+                    tipo: "ia",
+                  },
+                ],
             );
             setSavedIAReceitaMap((prev) => ({
               ...prev,
@@ -201,19 +196,15 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// --- Hooks ---
-
-/** Acesso básico ao Contexto */
 export const useFavoritosGlobal = () => useContext(FavoritosContext);
 
-/** Lógica Unificada de Filtro para a Screen de Favoritos (SEM ESTOQUE AQUI) */
+// Consome a lógica unificada de filtragem e marcação de favoritos, retornando a lista filtrada para a tela de favoritos
 export function useFavoritosLogic(searchText: string, filtro: string) {
   const { receitasBanco, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil } = useReceitas();
   const { isFavorito, favoritosIA, savedIAReceitaMap } = useFavoritosGlobal();
   const { user } = useAuth();
 
   const receitasFiltradas = useMemo(() => {
-    // 1. Unifica Receitas Fixas Favoritadas + IA Salvas
     let lista = receitasBanco.filter((r) => isFavorito(r.id));
     lista = filtrarPorPerfil(
       lista,
@@ -231,14 +222,12 @@ export function useFavoritosLogic(searchText: string, filtro: string) {
     });
     lista = [...lista, ...iaSemDuplicarPersistidos];
 
-    // 2. Filtra por Categoria (Trata "IA" como categoria especial)
     if (filtro === "IA") {
       lista = lista.filter((r) => r.tipo === "ia");
     } else {
       lista = filtrarPorCategoria(lista, filtro);
     }
 
-    // 3. Filtra por Busca Textual
     lista = filtrarPorBusca(lista, searchText);
 
     return lista;

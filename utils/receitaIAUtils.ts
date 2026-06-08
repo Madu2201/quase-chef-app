@@ -1,5 +1,5 @@
 // UTILITÁRIOS GERAIS PARA RECEITAS IA
-import type { Recipe } from "../hooks/useReceitas";
+import type { Recipe } from "../types/receitas";
 
 // Cria objeto Recipe para receitas geradas por IA
 export const criarReceitaIA = (params: {

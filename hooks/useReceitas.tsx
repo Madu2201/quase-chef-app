@@ -1,46 +1,24 @@
 import React, {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from "react";
 import { DeviceEventEmitter } from "react-native";
+
+// Meus imports
 import { RECEITAS_CATALOGO_ATUALIZAR } from "../services/receitaEvents";
 import { supabase } from "../services/supabase";
 import { TemporaryMode } from "../types/perfil";
+import type { ReceitasContextValue, Recipe } from "../types/receitas";
 import { normalizarTexto } from "../utils/normalization";
 import {
-    modoPerfilAplicaPreferencias,
-    receitaBloqueadaPorAlergia,
-    receitaPassaUniaoPreferencias,
+  modoPerfilAplicaPreferencias,
+  receitaBloqueadaPorAlergia,
+  receitaPassaUniaoPreferencias,
 } from "../utils/perfilReceitasFilter";
 import { useAuth } from "./useAuth";
 import { useFiltroEstoque } from "./useFiltroEstoque";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-export interface Recipe {
-  id: string;
-  title: string;
-  time: string;
-  difficulty: string;
-  descStart: string;
-  ingredients: string;
-  descEnd: string;
-  image: string;
-  calories: string;
-  rawIngredients: string;
-  rawSteps: string;
-  tags: string[];
-  preferences?: string[];
-  recipeAllergies?: string[];
-  tipo?: string;
-  dica_rapida?: string;
-  pre_visualizacao?: string[];
-}
-
+// Normaliza uma lista de strings, seja ela um array ou uma string JSON
 const normalizarLista = (valor: unknown): string[] => {
   if (Array.isArray(valor)) {
     return valor.filter(Boolean).map((item) => String(item).trim());
@@ -61,9 +39,7 @@ const normalizarLista = (valor: unknown): string[] => {
   return [];
 };
 
-/**
- * Filtra receitas por categoria/tag
- */
+// Filtra receitas por categoria (tag)
 export function filtrarPorCategoria(
   receitas: Recipe[],
   categoria: string,
@@ -73,9 +49,7 @@ export function filtrarPorCategoria(
   return receitas.filter((r) => r.tags && Array.isArray(r.tags) && r.tags.includes(categoria));
 }
 
-/**
- * Filtra receitas por texto de busca (título ou ingredientes)
- */
+// Filtra receitas por busca (título e ingredientes)
 export function filtrarPorBusca(receitas: Recipe[], busca: string): Recipe[] {
   if (!Array.isArray(receitas)) return [];
   if (!busca || !busca.trim()) return receitas;
@@ -87,6 +61,7 @@ export function filtrarPorBusca(receitas: Recipe[], busca: string): Recipe[] {
   );
 }
 
+// Filtra receitas por perfil do usuário (preferências alimentares e alergias)
 export function filtrarPorPerfil(
   receitas: Recipe[],
   foodPreferences?: string[] | null,
@@ -124,17 +99,9 @@ export function filtrarPorPerfil(
   });
 }
 
-export type ReceitasContextValue = {
-  receitasBanco: Recipe[];
-  carregando: boolean;
-  refreshReceitas: () => void;
-  filtrarPorCategoria: typeof filtrarPorCategoria;
-  filtrarPorBusca: typeof filtrarPorBusca;
-  filtrarPorPerfil: typeof filtrarPorPerfil;
-};
-
 const ReceitasContext = createContext<ReceitasContextValue | null>(null);
 
+// Provedor de receitas, responsável por buscar e armazenar as receitas do banco, além de fornecer funções de filtragem
 export function ReceitasProvider({ children }: { children: React.ReactNode }) {
   const [receitasBanco, setReceitasBanco] = useState<Recipe[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -193,10 +160,12 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isOffline, notifyInternetRequired]);
 
+  // Busca as receitas ao montar o componente e quando o evento de atualização for emitido
   useEffect(() => {
     void buscarReceitas();
   }, [buscarReceitas]);
 
+  // Busca as receitas quando o evento de atualização for emitido
   useEffect(() => {
     const sub = DeviceEventEmitter.addListener(
       RECEITAS_CATALOGO_ATUALIZAR,
@@ -228,6 +197,7 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Hook para usar o provedor de receitas
 export function useReceitas(): ReceitasContextValue {
   const ctx = useContext(ReceitasContext);
   if (!ctx) {
@@ -238,6 +208,7 @@ export function useReceitas(): ReceitasContextValue {
 
 const PAGE_SIZE = 30;
 
+// Hook para obter a lista de receitas filtrada por busca, categoria, perfil e estoque, com suporte a paginação e carregamento incremental
 export function useReceitasList() {
   const { receitasBanco, carregando, filtrarPorCategoria, filtrarPorBusca, filtrarPorPerfil } = useReceitas();
   const { filtrarPorEstoque } = useFiltroEstoque();
@@ -291,6 +262,8 @@ export function useReceitasList() {
     onEndReachedCalledDuringMomentum.current = true;
   }, [busca, filtro, usarEstoque]);
 
+
+  // Funções de carregamento incremental
   const handleLoadMore = useCallback(() => {
     if (!podeCarregarMais) return;
     setPage((prevPage) => Math.min(prevPage + 1, Math.ceil(totalReceitasEncontradas / PAGE_SIZE)));

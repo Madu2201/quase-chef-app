@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { useDespensa } from "../hooks/useDespensa";
-import { Recipe } from "../hooks/useReceitas";
+import type { Recipe } from "../types/receitas";
 import { normalizarBase, normalizarTexto } from "../utils/normalization";
 
 export function useFiltroEstoque() {

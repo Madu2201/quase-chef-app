@@ -1,34 +1,34 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-    AlertCircle,
-    Heart,
-    Lightbulb,
-    Pause,
-    Play,
-    RotateCcw,
-    Share2,
-    Stars,
-    WifiOff,
-    X,
+  AlertCircle,
+  Heart,
+  Lightbulb,
+  Pause,
+  Play,
+  RotateCcw,
+  Share2,
+  Stars,
+  WifiOff,
+  X,
 } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    StatusBar,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
 } from "react-native";
 import Animated, {
-    FadeIn,
-    FadeInLeft,
-    FadeInUp,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
+  FadeIn,
+  FadeInLeft,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -39,13 +39,13 @@ import { useDespensa } from "../hooks/useDespensa";
 import { useFavoritosGlobal } from "../hooks/useFavoritos";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { usePreparoReceita } from "../hooks/usePreparoReceita";
-import type { Recipe } from "../hooks/useReceitas";
 import { preparoStyles as styles } from "../styles/preparo_styles";
 import type { PassoPreparo } from "../types/detalhe_receita";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
+import type { Recipe } from "../types/receitas";
 import {
-    criarReceitaIAParaPreparo,
-    processarParamsPreparo,
+  criarReceitaIAParaPreparo,
+  processarParamsPreparo,
 } from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 

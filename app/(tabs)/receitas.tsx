@@ -2,16 +2,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { BarChart, Clock, Heart, IceCream, Package } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList, Image,
-  ListRenderItemInfo,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StatusBar,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View
+  ActivityIndicator, FlatList, Image, ListRenderItemInfo, NativeScrollEvent,
+  NativeSyntheticEvent, StatusBar, Switch, Text, TouchableOpacity, View
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -20,13 +12,15 @@ import { ChipsFilter } from '../../components/ChipsFilter';
 import { Header } from '../../components/header';
 import { Colors } from '../../constants/theme';
 import { useFavoritosGlobal } from '../../hooks/useFavoritos';
-import { Recipe, useReceitasList } from '../../hooks/useReceitas';
+import { useReceitasList } from '../../hooks/useReceitas';
 import { receitasStyles as styles } from '../../styles/receitas_styles';
+import type { Recipe } from '../../types/receitas';
 
 export default function ReceitasScreen() {
   const params = useLocalSearchParams();
   const flatListRef = useRef<FlatList<Recipe>>(null);
-  
+
+  // Configuração dos Filtros
   const [scrollY, setScrollY] = useState(0);
   const {
     busca,
@@ -45,7 +39,6 @@ export default function ReceitasScreen() {
   } = useReceitasList();
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
 
-
   // Restaura a posição de scroll ao voltar da tela de detalhes
   useEffect(() => {
     const restoreScroll = Number(params.restoreScroll ?? 0);
@@ -57,15 +50,18 @@ export default function ReceitasScreen() {
     }
   }, [params.restoreScroll]);
 
+  // Configuração da barra de rolagem
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setScrollY(event.nativeEvent.contentOffset.y);
   };
 
+  // Renderiza um card de receita
   function renderRecipeCard({ item, index }: ListRenderItemInfo<Recipe>) {
     try {
       const ehFav = isFavorito(item.id);
-      
+
       return (
+        // Animação de entrada para os cards, com delay baseado no índice para efeito cascata
         <Animated.View
           entering={!hasMounted ? FadeInDown.delay(index * 150).duration(600).springify() : undefined}
           style={styles.card}
@@ -82,11 +78,11 @@ export default function ReceitasScreen() {
           <View style={styles.cardBody}>
             <View style={styles.titleRow}>
               <Text style={styles.recipeTitle}>{item.title || "Receita sem título"}</Text>
-              
+
               <TouchableOpacity onPress={() => toggleFavorito(item.id)} style={styles.heartButton}>
                 <Heart size={22} color={Colors.secondary} fill={ehFav ? Colors.secondary : 'transparent'} />
               </TouchableOpacity>
-              
+
             </View>
             <View style={styles.metaRow}>
               <View style={styles.metaItem}><Clock size={14} color={Colors.primary} /><Text style={styles.metaText}>{item.time || "-"}</Text></View>
@@ -119,6 +115,7 @@ export default function ReceitasScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+      {/* Cabecalho */}
       <Header title="Receitas Encontradas" centerTitle searchText={busca} setSearchText={setBusca} searchPlaceholder="Buscar ingredientes ou receitas...">
         <View style={styles.stockToggle}>
           <Package size={18} color={Colors.primary} />
@@ -126,33 +123,35 @@ export default function ReceitasScreen() {
           <Switch trackColor={{ false: Colors.subtext + '30', true: Colors.secondary }} thumbColor={Colors.light} onValueChange={setUsarEstoque} value={usarEstoque} style={styles.switchStyle} />
         </View>
       </Header>
-      
-      <ChipsFilter 
+
+      {/* Filtros de ingredientes */}
+      <ChipsFilter
         filtro={filtro}
         setFiltro={setFiltro}
         receitasExibidas={receitasExibidas}
         totalReceitasEncontradas={totalReceitasEncontradas}
         hasMounted={hasMounted}
       />
-      
+
+      {/* Lista de receitas */}
       {carregando && receitasFiltradas.length === 0 ? (
         <View style={styles.emptyCentered}>
-            <ActivityIndicator size="large" color={Colors.secondary} />
-            <Text style={styles.emptySmallText}>Buscando receitas fresquinhas...</Text>
+          <ActivityIndicator size="large" color={Colors.secondary} />
+          <Text style={styles.emptySmallText}>Buscando receitas fresquinhas...</Text>
         </View>
       ) : receitasFiltradas.length === 0 && usarEstoque ? (
         <View style={styles.emptyCenteredPadding}>
-            <Package size={48} color={Colors.subtext} style={styles.emptyIcon} />
-            <Text style={styles.emptyTextCenter}>
-              Não conseguimos encontrar nenhuma receita onde você possua TODOS os ingredientes.
-            </Text>
+          <Package size={48} color={Colors.subtext} style={styles.emptyIcon} />
+          <Text style={styles.emptyTextCenter}>
+            Não conseguimos encontrar nenhuma receita onde você possua TODOS os ingredientes.
+          </Text>
         </View>
       ) : receitasFiltradas.length === 0 ? (
         <View style={styles.emptyCenteredPadding}>
-            <IceCream size={48} color={Colors.subtext} style={styles.emptyIcon} />
-            <Text style={styles.emptyTextCenter}>
-              Nenhuma receita encontrada com esse filtro.
-            </Text>
+          <IceCream size={48} color={Colors.subtext} style={styles.emptyIcon} />
+          <Text style={styles.emptyTextCenter}>
+            Nenhuma receita encontrada com esse filtro.
+          </Text>
         </View>
       ) : (
         <FlatList

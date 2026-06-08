@@ -5,18 +5,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import { buscarReceitaPorId } from "../services/receitaService";
 import type {
-    ReceitaBancoDados,
-    ReceitaDetalhada,
+  ReceitaBancoDados,
+  ReceitaDetalhada,
 } from "../types/detalhe_receita";
+import type { Recipe } from "../types/receitas";
 import { criarReceitaIA } from "../utils/receitaIAUtils";
 import {
-    formatarTempo,
-    processarIngredientes,
-    processarPassosPreparo,
+  formatarTempo,
+  processarIngredientes,
+  processarPassosPreparo,
 } from "../utils/receitaUtils";
 import { useDespensa } from "./useDespensa";
 import { useNetworkStatus } from "./useNetworkStatus";
-import type { Recipe } from "./useReceitas";
 
 interface UseDetalheReceitaReturn {
   receitaDetalhada: ReceitaDetalhada;

@@ -1,7 +1,6 @@
-import {
-    LayoutGrid, Utensils, IceCream, Zap,
-    Activity, Banknote, Sparkles
-} from "lucide-react-native";
+import { LayoutGrid, Utensils, IceCream, Zap, Activity, Banknote, Sparkles } from "lucide-react-native";
+
+// Meu import
 import { ChipItem } from "../types/favoritos";
 
 // A base que se repete em ambas as telas

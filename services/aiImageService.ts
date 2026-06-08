@@ -1,9 +1,6 @@
-/**
- * Serviço de geração de imagens por IA via Cloudflare + Upload para Supabase Storage
- * Gera imagem com Flux 1.0 e armazena diretamente no Supabase
- */
-
 import { decode } from "base64-arraybuffer";
+
+// Meu import
 import { supabase } from "./supabase";
 
 /**

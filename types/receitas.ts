@@ -21,6 +21,23 @@ export interface Recipe {
     pre_visualizacao?: string[];
 }
 
+// Tipos relacionados aos parâmetros de receita IA
+export interface ReceitaIASalvarParams {
+    title: string;
+    time: string;
+    difficulty: string;
+    description: string;
+    image: string;
+    calories: string;
+    rawIngredients: string;
+    rawSteps: string;
+    tags?: string[];
+    dica_rapida?: string;
+    pre_visualizacao_passos?: string[];
+    preferencias?: string[];
+    alergias_presentes?: string[];
+}
+
 // Tipos relacionados ao contexto de receitas
 export type ReceitasContextValue = {
     receitasBanco: Recipe[];

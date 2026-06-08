@@ -1,16 +1,7 @@
+// Meus imports
+import type { ReceitaIASalvarParams } from "../types/receitas";
 import { solicitarAtualizacaoCatalogoReceitas } from "./receitaEvents";
 import { supabase } from "./supabase";
-
-/**
- * Nota: filtros de perfil (preferências em união, alergias em blacklist, modos temporários)
- * aplicam-se no cliente via `utils/perfilReceitasFilter.ts` e `useReceitas.filtrarPorPerfil`
- * (alergias sempre; preferências conforme modo temporário).
- * As queries aqui retornam o catálogo completo; não há filtro SQL por array de preferências.
- */
-
-// ============================================
-// FUNÇÕES DE BUSCA SEGURAS
-// ============================================
 
 /**
  * Busca uma receita completa no banco de dados pelo ID
@@ -66,22 +57,6 @@ export async function buscarReceitasPorIds(ids: (number | string)[]) {
     console.error(`❌ Exceção ao buscar receitas por IDs:`, exception);
     return [];
   }
-}
-
-export interface ReceitaIASalvarParams {
-  title: string;
-  time: string;
-  difficulty: string;
-  description: string;
-  image: string;
-  calories: string;
-  rawIngredients: string;
-  rawSteps: string;
-  tags?: string[];
-  dica_rapida?: string;
-  pre_visualizacao_passos?: string[];
-  preferencias?: string[];
-  alergias_presentes?: string[];
 }
 
 export async function salvarReceitaIAParaFavorito(
@@ -242,11 +217,7 @@ export async function removerFavorito(receitaId: number, userId: string) {
   }
 }
 
-/**
- * Extrai o caminho relativo da imagem a partir de uma URL pública do Supabase Storage
- * Ex: https://[project].supabase.co/storage/v1/object/public/ai-recipes/ia-1234-5678.jpg
- * Retorna: ia-1234-5678.jpg
- */
+// Extrai o caminho da imagem da URL publicada receita IA para permitir exclusão do arquivo no Supabase Storage
 function extrairCaminhoImagemDoStorage(urlPublica: string): string | null {
   try {
     const match = urlPublica.match(/\/ai-recipes\/(.+)$/);
@@ -260,10 +231,8 @@ function extrairCaminhoImagemDoStorage(urlPublica: string): string | null {
     return null;
   }
 }
-/**
- * Torna uma receita pública para permitir acesso via link compartilhado.
- * A permissão real de leitura pública depende da política RLS no Supabase.
- */
+
+// Torna uma receita publica para que outros usuários possam ver (usado para compartilhar receita IA gerada)
 export async function tornarReceitaPublica(
   receitaId: number | string,
 ): Promise<boolean> {

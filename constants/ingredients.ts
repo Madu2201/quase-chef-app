@@ -1,7 +1,4 @@
-/**
- * Ingredientes que se presume o usuário sempre tem em casa
- * Não precisa estar adicionado na despensa
- */
+// Lista de ingredientes que são considerados "livres" para a geração de receitas
 export const INGREDIENTES_LIVRES = [
   "agua",
   "água",
@@ -16,9 +13,7 @@ export const INGREDIENTES_LIVRES = [
   "açúcar",
 ];
 
-/**
- * Strings padrão para receitas
- */
+// Strings e constantes relacionadas a receitas e ingredientes
 export const RECEITA_STRINGS = {
   IMAGEM_PADRAO:
     "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?q=80&w=1000",
@@ -30,9 +25,7 @@ export const RECEITA_STRINGS = {
   VALOR_PADRAO: "--",
 } as const;
 
-/**
- * Unidades de medida aceitas para ingredientes
- */
+// Unidades aceitas
 export const UNIDADES_ACEITAS = [
   "un",
   "kg",

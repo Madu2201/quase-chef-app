@@ -1,7 +1,7 @@
 import { Leaf, Wheat, Milk, Drumstick, Candy, Nut, Egg, Fish } from "lucide-react-native";
-import { OptionItem } from "../types/auth";
 
-// Tipagem para os itens de opções
+// Meu import
+import { OptionItem } from "../types/auth";
 
 // Preferência alimentar
 export const FOOD_PREFERENCE_OPTIONS: OptionItem[] = [

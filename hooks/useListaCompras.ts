@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Share } from "react-native";
+
+// Meus imports
 import { supabase } from "../services/supabase";
 import { Ingredient } from "../types/despensa";
 import { CompraItem, EditForm } from "../types/lista";
 import { formatarQuantidade } from "../utils/normalization";
-import {
-  filterByText,
-  normalizeItemName,
-  parseNumero,
-} from "../utils/validation";
+import { filterByText, normalizeItemName, parseNumero } from "../utils/validation";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
 import { useNetworkStatus } from "./useNetworkStatus";
@@ -40,7 +38,7 @@ export function useListaCompras() {
   const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const pendentes = useMemo(
+  const pendentes = useMemo(
     () => items.filter((item) => !item.comprado),
     [items],
   );
@@ -84,6 +82,7 @@ export function useListaCompras() {
     };
   }, []);
 
+  // Adiciona um item na lista
   const handleAddItem = async () => {
     if (!nomeItem.trim() || !quantidade.trim()) {
       Alert.alert("Atenção", "Preencha nome e quantidade.");
@@ -152,6 +151,7 @@ export function useListaCompras() {
     }
   };
 
+  // Altera o status de um item (comprado / pendente)
   const handleToggleWithUndo = async (itemId: string) => {
     const item = pendentes.find((i) => i.id === itemId);
 
@@ -170,6 +170,7 @@ export function useListaCompras() {
     await toggleItem(itemId);
   };
 
+  // Desfaz a alteração de um item comprado
   const handleUndoClick = async () => {
     if (!lastRemovedItem) return;
 
@@ -179,6 +180,7 @@ export function useListaCompras() {
     setLastRemovedItem(null);
   };
 
+  // Edita a quantidade de um item
   const handleEditarQuantidade = (item: CompraItem) => {
     setEditingId(item.id);
     setEditForm({
@@ -189,6 +191,7 @@ export function useListaCompras() {
     });
   };
 
+  // Salva a quantidade editada de um item
   const handleSalvarQuantidade = async (form: EditForm) => {
     if (!editingId) return;
 
@@ -205,6 +208,7 @@ export function useListaCompras() {
     setEditingId(null);
   };
 
+  // Guarda os itens comprados na despensa e remove da lista
   const handleGuardarEstoque = async () => {
     Alert.alert(
       "Guardar no Estoque",
@@ -232,6 +236,7 @@ export function useListaCompras() {
     [comprados, searchText],
   );
 
+  // Atualiza a quantidade de um item específico
   const atualizarQuantidade = async (id: string, novaQuantidade: number) => {
     if (
       !notifyInternetRequired(
@@ -243,7 +248,7 @@ export function useListaCompras() {
 
     // Garante no máximo 2 casas decimais
     const qtdFormatada = formatarQuantidade(novaQuantidade);
-    
+
     // Agora o hook confia que a validação foi feita antes da chamada
     setItems((prev) =>
       prev.map((i) =>
@@ -410,6 +415,7 @@ export function useListaCompras() {
       }
     }
 
+    // Mostra mensagem de sucesso/parcial/erro baseado nos resultados
     const total = itensParaGuardar.length;
     const ok = idsGuardadosComSucesso.length;
 
@@ -466,7 +472,6 @@ export function useListaCompras() {
     }
   };
 
-  // Retorna interface pública do hook com todas as operações
   return {
     nomeItem,
     setNomeItem,

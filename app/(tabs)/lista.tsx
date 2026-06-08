@@ -1,21 +1,9 @@
 import {
-  Check,
-  Edit2,
-  FileDown,
-  PackagePlus,
-  Share2,
-  Trash2,
-  Wand2,
-} from "lucide-react-native";
+  Check, Edit2, FileDown, PackagePlus, Share2, Trash2, Wand2, } from "lucide-react-native";
 import React from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+// Meus imports
 import { AddItemCard } from "../../components/AddItemCard";
 import { EditItemCard } from "../../components/EditItemCard";
 import { Header } from "../../components/header";
@@ -25,6 +13,7 @@ import { listaStyles as styles } from "../../styles/lista_styles";
 import { exportarListaPendentes } from "../../utils/exportPdf";
 
 export default function ListaScreen() {
+  
   const {
     nomeItem,
     setNomeItem,
@@ -64,6 +53,7 @@ export default function ListaScreen() {
     toggleItem,
   } = useListaCompras();
 
+  // Função para renderizar o picker de unidades
   const renderUnitPicker = (
     units: string[],
     activeUnit: string,
@@ -95,6 +85,8 @@ export default function ListaScreen() {
 
   return (
     <View style={styles.containerFlex}>
+
+      {/* Header com título, busca e ações de exportação/compartilhamento */}
       <Header
         title="Lista de Compras"
         centerTitle
@@ -117,6 +109,7 @@ export default function ListaScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Card de adicionar item */}
         <AddItemCard
           label="Adicionar item"
           placeholder="Ex: Tomate"
@@ -138,6 +131,7 @@ export default function ListaScreen() {
           useAddPanelStyle={true}
         />
 
+        {/* Botão para gerar lista da despensa */}
         <TouchableOpacity
           onPress={gerarListaDaDespensa}
           style={[styles.magicButton, isGeneratingList && { opacity: 0.5 }]}
@@ -147,6 +141,7 @@ export default function ListaScreen() {
           <Text style={styles.magicButtonText}>Completar via Despensa</Text>
         </TouchableOpacity>
 
+        {/* Cards de itens pendentes */}
         {isLoading ? (
           <ActivityIndicator
             color={Colors.primary}
@@ -216,6 +211,7 @@ export default function ListaScreen() {
               ),
             )}
 
+            {/* Histórico Comprado */}
             {filteredComprados.length > 0 && (
               <View style={styles.historicoCompradoContainer}>
                 <View style={styles.sectionHeader}>

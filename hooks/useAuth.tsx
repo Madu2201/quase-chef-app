@@ -1,36 +1,16 @@
 import { supabase } from "@/services/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+
+// Meus imports
 import { loginUser, registerUser } from "../services/authService";
-import { AuthResponse, UserData } from "../types/auth";
+import type { AuthContextData, AuthResponse, UserData } from "../types/auth";
 import { TemporaryMode } from "../types/perfil";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-interface AuthContextData {
-  user: UserData | null;
-  isLoading: boolean;
-  signIn: (email: string, senha: string) => Promise<AuthResponse>;
-  signUp: (
-    nome: string,
-    email: string,
-    senha: string,
-    foodPreferences?: string[],
-    allergies?: string[],
-    otherRestrictions?: string,
-  ) => Promise<{ success: boolean; userId?: string; error?: string }>;
-  signOut: () => Promise<void>;
-  updateUser: (user: UserData | null) => void;
-}
-
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
+// 1. Carrega o cache local rápido para a abertura do app
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<UserData | null>(null);
@@ -52,7 +32,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    // 1. Carrega o cache local rápido para a abertura do app
     const loadUser = async () => {
       try {
         const [id, name, email, avatar, foodPreferences, allergies, temporaryMode] = await Promise.all([
@@ -79,7 +58,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error("Erro ao carregar usuário local:", error);
       }
-      // Não definimos isLoading(false) aqui para esperar o Supabase confirmar a sessão real
     };
 
     loadUser();
@@ -87,11 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // 2. O SENTINELA: Monitora e sincroniza a sessão real do Supabase
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // Eventos que indicam que estamos processando uma sessão
+
         if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
           setIsLoading(true);
         }
-        // Se for apenas uma atualização de usuário (como troca de senha), sincronizar metadata leve
+
         if (event === 'USER_UPDATED') {
           const currentUser = userRef.current;
           if (session?.user?.email && currentUser && currentUser.email !== session.user.email) {
@@ -108,7 +86,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userId = session.user.id;
             const userEmail = session.user.email || "";
 
-            // Sempre busca o perfil completo e atualizado do banco de dados
             const { data: dbProfile, error: dbError } = await supabase
               .from("users")
               .select("*")
@@ -155,7 +132,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           ]);
           setIsLoading(false);
         } else {
-          // Para outros eventos (como INITIAL_SESSION sem user)
           setIsLoading(false);
         }
       },
@@ -166,6 +142,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  // 3. Funções de autenticação
   const signUp = async (
     nome: string,
     email: string,
@@ -232,12 +209,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Puxa o nome de absolutamente tudo que está salvo no storage do celular
         const allKeys = await AsyncStorage.getAllKeys();
 
-        // Caça as nossas chaves @user_ E a chave secreta dinâmica do Supabase (que começa com sb-)
         const keysToNuke = allKeys.filter(
           (key) => key.startsWith("@user_") || key.startsWith("sb-") || key.includes("supabase")
         );
 
-        // Oblítera as chaves encontradas
         if (keysToNuke.length > 0) {
           await AsyncStorage.multiRemove(keysToNuke);
         }

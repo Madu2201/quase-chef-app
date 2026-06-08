@@ -1,5 +1,12 @@
 import type { TemporaryMode } from "./perfil";
 
+// Tipo de parâmetros para compartilhar receita
+export interface CompartilharReceitaParams {
+    id: number | string;
+    titulo: string;
+    imagemUrl?: string;
+}
+
 // Tipos relacionados a receitas
 export interface Recipe {
     id: string;

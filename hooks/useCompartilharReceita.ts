@@ -1,15 +1,12 @@
 import { useCallback, useState } from "react";
 import { Alert, Share } from "react-native";
 
+// Meus imports
 import { tornarReceitaPublica } from "../services/receitaService";
+import type { CompartilharReceitaParams } from "../types/receitas";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-interface CompartilharReceitaParams {
-  id: number | string;
-  titulo: string;
-  imagemUrl?: string;
-}
-
+// Funcionalidade de compartilhar receita
 export function useCompartilharReceita() {
   const [isSharing, setIsSharing] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -43,3 +43,13 @@ export interface AuthResponse {
     user?: UserData;
     error?: string;
 }
+
+// Tipagem para o contexto de autenticação
+export interface AuthContextData {
+    user: UserData | null;
+    isLoading: boolean;
+    signIn: (email: string, senha: string) => Promise<AuthResponse>;
+    signUp: (nome: string, email: string, senha: string, foodPreferences?: string[], allergies?: string[], otherRestrictions?: string) => Promise<{ success: boolean; userId?: string; error?: string }>;
+    signOut: () => Promise<void>;
+    updateUser: (nextUser: UserData | null) => void;
+}

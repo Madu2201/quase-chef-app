@@ -18,6 +18,7 @@ const FavoritosContext = createContext<FavoritosContextData>(
   {} as FavoritosContextData,
 );
 
+// Provider para o contexto de favoritos, gerenciando estados e lógica de favoritos (tanto persistidos quanto IA)
 export function FavoritosProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { notifyInternetRequired } = useNetworkStatus();

@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
 // Meus imports
+import { IA_PATTERNS } from "../constants/ia";
 import { generateAndUploadRecipeImage } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
 import type { ContextoSegurancaPrompt } from "../types/ia";
@@ -98,7 +99,7 @@ export function useSelecaoIA() {
           extrairReceitaIAParseada(respostaIA);
 
         // Gera ID único para a receita
-        const idReceitaGerada = "ia-" + Date.now();
+        const idReceitaGerada = IA_PATTERNS.id_prefix + Date.now();
 
         // Falha de mídia não pode derrubar a geração da receita.
         let imageUrl: string | null = null;

@@ -3,6 +3,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 
 // Meus imports
+import { AUTH_DEFAULTS, AUTH_EVENTS, AUTH_STORAGE_KEYS } from "../constants/auth";
+import { DATABASE_TABLES } from "../constants/database";
+import { MESSAGES } from "../constants/messages";
 import { loginUser, registerUser } from "../services/authService";
 import type { AuthContextData, AuthResponse, UserData } from "../types/auth";
 import { TemporaryMode } from "../types/perfil";
@@ -35,13 +38,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loadUser = async () => {
       try {
         const [id, name, email, avatar, foodPreferences, allergies, temporaryMode] = await Promise.all([
-          AsyncStorage.getItem("@user_id"),
-          AsyncStorage.getItem("@user_full_name"),
-          AsyncStorage.getItem("@user_email"),
-          AsyncStorage.getItem("@user_foto"),
-          AsyncStorage.getItem("@user_food_preferences"),
-          AsyncStorage.getItem("@user_allergies"),
-          AsyncStorage.getItem("@user_temporary_mode"),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_id),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_full_name),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_email),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_foto),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_food_preferences),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_allergies),
+          AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_temporary_mode),
         ]);
 
         if (id) {
@@ -70,13 +73,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsLoading(true);
         }
 
-        if (event === 'USER_UPDATED') {
+        if (event === AUTH_EVENTS.USER_UPDATED) {
           const currentUser = userRef.current;
           if (session?.user?.email && currentUser && currentUser.email !== session.user.email) {
             // Atualizar apenas o email se mudou de outro dispositivo
             const updatedUser = { ...currentUser, email: session.user.email };
             setUser(updatedUser);
-            await AsyncStorage.setItem("@user_email", session.user.email);
+            await AsyncStorage.setItem(AUTH_STORAGE_KEYS.user_email, session.user.email);
           }
           return;
         }
@@ -87,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userEmail = session.user.email || "";
 
             const { data: dbProfile, error: dbError } = await supabase
-              .from("users")
+              .from(DATABASE_TABLES.users)
               .select("*")
               .eq("id", userId)
               .maybeSingle();
@@ -107,28 +110,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             // Salva tudo mastigado no AsyncStorage
             await AsyncStorage.multiSet([
-              ["@user_id", userId],
-              ["@user_email", userEmail],
-              ["@user_full_name", completeUser.full_name || ""],
-              ["@user_foto", completeUser.avatar_url || ""],
-              ["@user_food_preferences", JSON.stringify(completeUser.food_preferences)],
-              ["@user_allergies", JSON.stringify(completeUser.allergies)],
+              [AUTH_STORAGE_KEYS.user_id, userId],
+              [AUTH_STORAGE_KEYS.user_email, userEmail],
+              [AUTH_STORAGE_KEYS.user_full_name, completeUser.full_name || ""],
+              [AUTH_STORAGE_KEYS.user_foto, completeUser.avatar_url || ""],
+              [AUTH_STORAGE_KEYS.user_food_preferences, JSON.stringify(completeUser.food_preferences)],
+              [AUTH_STORAGE_KEYS.user_allergies, JSON.stringify(completeUser.allergies)],
             ]);
           } catch (error) {
             console.error("Erro no sentinela de auth:", error);
           } finally {
             setIsLoading(false);
           }
-        } else if (event === "SIGNED_OUT") {
+        } else if (event === AUTH_EVENTS.SIGNED_OUT) {
           setUser(null);
           await AsyncStorage.multiRemove([
-            "@user_id",
-            "@user_email",
-            "@user_full_name",
-            "@user_foto",
-            "@user_food_preferences",
-            "@user_allergies",
-            "@user_temporary_mode",
+            AUTH_STORAGE_KEYS.user_id,
+            AUTH_STORAGE_KEYS.user_email,
+            AUTH_STORAGE_KEYS.user_full_name,
+            AUTH_STORAGE_KEYS.user_foto,
+            AUTH_STORAGE_KEYS.user_food_preferences,
+            AUTH_STORAGE_KEYS.user_allergies,
+            AUTH_STORAGE_KEYS.user_temporary_mode,
           ]);
           setIsLoading(false);
         } else {
@@ -151,10 +154,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     allergies: string[] = [],
     otherRestrictions: string = "",
   ) => {
-    if (!notifyInternetRequired("Reconecte-se para criar sua conta.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_CREATE_ACCOUNT)) {
       return {
         success: false,
-        error: "Reconecte-se à internet para criar sua conta.",
+        error: MESSAGES.OFFLINE_CREATE_ACCOUNT,
       };
     }
 
@@ -170,17 +173,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, senha: string): Promise<AuthResponse> => {
-    if (!notifyInternetRequired("Reconecte-se para entrar na sua conta.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_LOGIN)) {
       return {
         success: false,
-        error: "Reconecte-se à internet para entrar na sua conta.",
+        error: MESSAGES.OFFLINE_LOGIN,
       };
     }
 
     setIsLoading(true);
     try {
       const userData = await loginUser(email, senha);
-      const modoSalvo = await AsyncStorage.getItem("@user_temporary_mode");
+      const modoSalvo = await AsyncStorage.getItem(AUTH_STORAGE_KEYS.user_temporary_mode);
 
       const mergedUser: UserData = {
         ...userData,
@@ -210,7 +213,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const allKeys = await AsyncStorage.getAllKeys();
 
         const keysToNuke = allKeys.filter(
-          (key) => key.startsWith("@user_") || key.startsWith("sb-") || key.includes("supabase")
+          (key) => key.startsWith("@user_") || key.startsWith(AUTH_DEFAULTS.sb_prefix) || key.includes(AUTH_DEFAULTS.supabase_prefix)
         );
 
         if (keysToNuke.length > 0) {

@@ -4,11 +4,11 @@ import React, {
   useEffect, useMemo, useRef, useState
 } from "react";
 
+import { MESSAGES } from "../constants/messages";
+import { TIMINGS } from "../constants/timings";
 import type { NetworkStatusContextValue, NetworkStatusProviderProps } from "../types/network";
 
 const NetworkStatusContext = createContext<NetworkStatusContextValue | null>(null);
-const DEFAULT_OFFLINE_ACTION_MESSAGE =
-  "Reconecte-se a internet para usar esta função.";
 
 // Verifica se o dispositivo está offline com base no estado da rede
 function resolveIsOffline(networkState: Network.NetworkState): boolean {
@@ -69,7 +69,7 @@ export function NetworkStatusProvider({
       return true;
     }
 
-    setOfflineActionMessage(message || DEFAULT_OFFLINE_ACTION_MESSAGE);
+    setOfflineActionMessage(message || MESSAGES.DEFAULT_OFFLINE_ACTION);
 
     if (offlineMessageTimeoutRef.current) {
       clearTimeout(offlineMessageTimeoutRef.current);
@@ -77,7 +77,7 @@ export function NetworkStatusProvider({
 
     offlineMessageTimeoutRef.current = setTimeout(() => {
       setOfflineActionMessage(null);
-    }, 3500);
+    }, TIMINGS.network_check_debounce);
 
     return false;
   }, [isOffline]);

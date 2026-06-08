@@ -1,5 +1,7 @@
 import { supabase } from "@/services/supabase";
 import * as FileSystem from "expo-file-system/legacy";
+
+import { DATABASE_TABLES, STORAGE_BUCKETS } from "../constants/database";
 import type { UserData } from "../types/auth";
 
 // 1. Cadastro Seguro e Real
@@ -37,7 +39,7 @@ if (authError) {
 
   // B) Vincula os dados extras na sua tabela pública 'users' usando o ID oficial
   const { error: dbError } = await supabase
-    .from("users")
+    .from(DATABASE_TABLES.users)
     .insert([
       {
         id: authData.user.id,
@@ -114,7 +116,7 @@ export const uploadAvatar = async (
     const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
     const { error: uploadError } = await supabase.storage
-      .from("avatars")
+      .from(STORAGE_BUCKETS.avatars)
       .upload(filePath, arrayBuffer, {
         contentType: `image/${fileExt}`,
         upsert: true,
@@ -122,11 +124,11 @@ export const uploadAvatar = async (
 
     if (uploadError) throw uploadError;
 
-    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const { data } = supabase.storage.from(STORAGE_BUCKETS.avatars).getPublicUrl(filePath);
     const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
 
     await supabase
-      .from("users")
+      .from(DATABASE_TABLES.users)
       .update({ avatar_url: publicUrl })
       .eq("id", userId);
 
@@ -158,7 +160,7 @@ export const updateUserProfile = async (
       updateData.other_restrictions = otherRestrictions;
 
     const { data, error } = await supabase
-      .from("users")
+      .from(DATABASE_TABLES.users)
       .update(updateData)
       .eq("id", userId)
       .select()

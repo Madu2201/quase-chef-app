@@ -1,6 +1,7 @@
 import { decode } from "base64-arraybuffer";
 
 // Meu import
+import { STORAGE_BUCKETS } from "../constants/database";
 import { supabase } from "./supabase";
 
 /**
@@ -75,7 +76,7 @@ export async function generateAndUploadRecipeImage(
 
     // 7. Faz upload para o Supabase Storage
     const { data: uploadedData, error: uploadError } = await supabase.storage
-      .from("ai-recipes")
+      .from(STORAGE_BUCKETS.ai_recipes)
       .upload(bucketPath, imageBuffer, {
         contentType: "image/jpeg",
         upsert: false,
@@ -88,7 +89,7 @@ export async function generateAndUploadRecipeImage(
 
     // 8. Pega a URL pública da imagem
     const { data: publicUrlData } = supabase.storage
-      .from("ai-recipes")
+      .from(STORAGE_BUCKETS.ai_recipes)
       .getPublicUrl(bucketPath);
 
     if (!publicUrlData || !publicUrlData.publicUrl) {

@@ -5,18 +5,11 @@ import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 // Meus imports
+import { MESSAGES } from "../constants/messages";
+import { DEFAULT_TEMPORARY_MODE, MESES_PORTUGUES, PROFILE_DEFAULTS, STORAGE_KEYS } from "../constants/profile";
 import { FoodPreferences, TemporaryMode, UserProfileData } from "../types/perfil";
 import { useAuth } from "./useAuth";
 import { useNetworkStatus } from "./useNetworkStatus";
-
-// Chaves de armazenamentolocal para as preferências do perfil
-const STORAGE_KEYS = {
-  lifestyle: "@perfil_food_lifestyle",
-  allergies: "@perfil_food_allergies",
-  restrictions: "@perfil_food_other_restrictions",
-  mode: "@perfil_food_temporary_mode",
-  updated: "@perfil_food_updated_at",
-};
 
 // Hook principal para gerenciar o perfil do usuário, incluindo dados básicos e preferências alimentares
 export const useProfile = (userFromAuth: any) => {
@@ -32,7 +25,7 @@ export const useProfile = (userFromAuth: any) => {
     lifestyle: [],
     allergies: [],
     otherRestrictions: "",
-    temporaryMode: "always_on",
+    temporaryMode: DEFAULT_TEMPORARY_MODE,
     updatedAt: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -71,24 +64,10 @@ export const useProfile = (userFromAuth: any) => {
 
         if (isMounted) {
           // Formata a data de criação (Membro desde...)
-          let membroDesde = "Recente";
+          let membroDesde = PROFILE_DEFAULTS.MEMBRO_RECENTE;
           if (userData?.created_at) {
             const dataCriacao = new Date(userData.created_at);
-            const meses = [
-              "Janeiro",
-              "Fevereiro",
-              "Março",
-              "Abril",
-              "Maio",
-              "Junho",
-              "Julho",
-              "Agosto",
-              "Setembro",
-              "Outubro",
-              "Novembro",
-              "Dezembro",
-            ];
-            membroDesde = `Membro desde ${meses[dataCriacao.getMonth()]} de ${dataCriacao.getFullYear()}`;
+            membroDesde = `${PROFILE_DEFAULTS.MEMBRO_DESDE_PREFIX} ${MESES_PORTUGUES[dataCriacao.getMonth()]} de ${dataCriacao.getFullYear()}`;
           }
 
           // Atualiza Perfil
@@ -129,7 +108,7 @@ export const useProfile = (userFromAuth: any) => {
               data[STORAGE_KEYS.restrictions] ||
               "",
             temporaryMode:
-              (data[STORAGE_KEYS.mode] as TemporaryMode) || "always_on",
+              (data[STORAGE_KEYS.mode] as TemporaryMode) || DEFAULT_TEMPORARY_MODE,
             updatedAt: data[STORAGE_KEYS.updated] || "",
           });
         }
@@ -146,10 +125,10 @@ export const useProfile = (userFromAuth: any) => {
 
   // Salva preferências alimentares (Supabase + Local Storage)
   const savePreferences = async () => {
-    if (!profile.id) return Alert.alert("Erro", "Usuário não identificado.");
+    if (!profile.id) return Alert.alert("Erro", MESSAGES.ERROR_USER_NOT_IDENTIFIED);
     if (
       !notifyInternetRequired(
-        "Reconecte-se para salvar suas preferências alimentares.",
+        MESSAGES.OFFLINE_SAVE_PREFERENCES,
       )
     ) {
       return false;
@@ -188,11 +167,11 @@ export const useProfile = (userFromAuth: any) => {
           temporaryMode: preferences.temporaryMode,
         });
       }
-      Alert.alert("Sucesso", "Preferências alimentares atualizadas!");
+      Alert.alert("Sucesso", MESSAGES.SUCCESS_PREFERENCES_SAVED);
       return true;
     } catch (e) {
       console.error("Erro ao salvar preferências:", e);
-      Alert.alert("Erro", "Falha ao salvar preferências no banco de dados.");
+      Alert.alert("Erro", MESSAGES.ERROR_SAVE_PREFERENCES);
       return false;
     } finally {
       setIsSavingPref(false);
@@ -201,8 +180,8 @@ export const useProfile = (userFromAuth: any) => {
 
   // Salva dados básicos (Supabase + Local Storage)
   const saveBasicProfile = async () => {
-    if (!profile.id) return Alert.alert("Erro", "Usuário não identificado.");
-    if (!notifyInternetRequired("Reconecte-se para atualizar seu perfil.")) {
+    if (!profile.id) return Alert.alert("Erro", MESSAGES.ERROR_USER_NOT_IDENTIFIED);
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_UPDATE_PROFILE)) {
       return false;
     }
 
@@ -236,11 +215,11 @@ export const useProfile = (userFromAuth: any) => {
           avatar_url: finalFotoUrl,
         });
       }
-      Alert.alert("Sucesso", "Dados do perfil salvos!");
+      Alert.alert("Sucesso", MESSAGES.SUCCESS_PROFILE_SAVED);
       return true;
     } catch (e) {
       console.error(e);
-      Alert.alert("Erro", "Falha ao atualizar perfil.");
+      Alert.alert("Erro", MESSAGES.ERROR_UPDATE_PROFILE);
       return false;
     } finally {
       setIsLoading(false);

@@ -1,4 +1,5 @@
 // Meus imports
+import { DATABASE_TABLES } from "../constants/database";
 import type { ReceitaIASalvarParams } from "../types/receitas";
 import { solicitarAtualizacaoCatalogoReceitas } from "./receitaEvents";
 import { supabase } from "./supabase";
@@ -14,7 +15,7 @@ export async function buscarReceitaPorId(receitaId: number | string) {
       typeof receitaId === "string" ? parseInt(receitaId, 10) : receitaId;
 
     const { data, error } = await supabase
-      .from("receitas")
+      .from(DATABASE_TABLES.recipes)
       .select("*")
       .eq("id", id)
       .single();
@@ -43,7 +44,7 @@ export async function buscarReceitasPorIds(ids: (number | string)[]) {
     );
 
     const { data, error } = await supabase
-      .from("receitas")
+      .from(DATABASE_TABLES.recipes)
       .select("*")
       .in("id", numIds);
 
@@ -87,7 +88,7 @@ export async function salvarReceitaIAParaFavorito(
 
     // Sempre persiste uma nova receita IA. Título não é identidade estável.
     const { data, error } = await supabase
-      .from("receitas")
+      .from(DATABASE_TABLES.recipes)
       .insert([payloadPersistencia])
       .select("id")
       .single();
@@ -103,7 +104,7 @@ export async function salvarReceitaIAParaFavorito(
     const receitaId = data.id;
 
     const { error: favoritarError } = await supabase
-      .from("receitas_favoritas")
+      .from(DATABASE_TABLES.favorites)
       .insert({ user_id: userId, receita_id: receitaId });
 
     if (favoritarError) {
@@ -127,7 +128,7 @@ export async function salvarReceitaIAParaFavorito(
 export async function adicionarFavorito(receitaId: number, userId: string) {
   try {
     const { error } = await supabase
-      .from("receitas_favoritas")
+      .from(DATABASE_TABLES.favorites)
       .insert({ user_id: userId, receita_id: receitaId });
 
     if (error) {
@@ -149,7 +150,7 @@ export async function removerFavorito(receitaId: number, userId: string) {
   try {
     // 1. Busca a receita para saber se é IA e obter a URL da imagem
     const { data: receita, error: fetchError } = await supabase
-      .from("receitas")
+      .from(DATABASE_TABLES.recipes)
       .select("eh_ia, user_id, imagem_url")
       .eq("id", receitaId)
       .single();
@@ -163,7 +164,7 @@ export async function removerFavorito(receitaId: number, userId: string) {
 
     // 2. Remove da tabela de favoritos
     const { error } = await supabase
-      .from("receitas_favoritas")
+      .from(DATABASE_TABLES.favorites)
       .delete()
       .match({ user_id: userId, receita_id: receitaId });
 
@@ -196,7 +197,7 @@ export async function removerFavorito(receitaId: number, userId: string) {
 
       // 3b. Deleta o registro da receita IA da tabela
       const { error: deleteError } = await supabase
-        .from("receitas")
+        .from(DATABASE_TABLES.recipes)
         .delete()
         .eq("id", receitaId);
 
@@ -249,7 +250,7 @@ export async function tornarReceitaPublica(
     }
 
     const { error } = await supabase
-      .from("receitas")
+      .from(DATABASE_TABLES.recipes)
       .update({ is_public: true })
       .eq("id", id);
 

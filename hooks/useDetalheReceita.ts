@@ -2,6 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 //Meus imports
+import { IA_PATTERNS } from "../constants/ia";
 import { RECEITA_STRINGS } from "../constants/ingredients";
 import { buscarReceitaPorId } from "../services/receitaService";
 import type { ReceitaBancoDados, ReceitaDetalhada, UseDetalheReceitaReturn } from "../types/detalhe_receita";
@@ -87,7 +88,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
   // Determina qual é o ID da receita
   const receitaId = useMemo(() => {
     const id = params.id as string | undefined;
-    return id || `ia-${Date.now()}`;
+    return id || `${IA_PATTERNS.id_prefix}${Date.now()}`;
   }, [params.id]);
 
   // Determina se é receita IA

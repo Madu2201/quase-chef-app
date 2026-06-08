@@ -1,35 +1,55 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Share } from "react-native";
 import { supabase } from "../services/supabase";
 import { Ingredient } from "../types/despensa";
-import { CompraItem } from "../types/lista";
+import { CompraItem, EditForm } from "../types/lista";
 import { formatarQuantidade } from "../utils/normalization";
-import { normalizarNome, parseNumero } from "../utils/validation";
+import {
+  filterByText,
+  normalizeItemName,
+  parseNumero,
+} from "../utils/validation";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-/**
- * Hook gerenciador de Lista de Compras
- * Responsabilidades:
- * - Gerenciar CRUD de itens da lista
- * - Sincronizar com Supabase em tempo real
- * - Gerar lista automática baseada na despensa
- * - Compartilhamento de listas
- * - Edição rápida de quantidades
- */
+/// Busca e atualiza a lista de compras do usuário
 export function useListaCompras() {
   const { user } = useAuth();
-  const { ingredients } = useDespensa();
+  const { ingredients, upsertIngredientFromCompra } = useDespensa();
   const { isOffline, notifyInternetRequired } = useNetworkStatus();
   const [items, setItems] = useState<CompraItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingList, setIsGeneratingList] = useState(false);
 
-  /**
-   * Busca a lista completa do usuário do banco de dados
-   * Ordena por data de criação (mais recentes primeiro)
-   */
+  const [nomeItem, setNomeItem] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [unidade, setUnidade] = useState("un");
+  const [showUnitPicker, setShowUnitPicker] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [activeInput, setActiveInput] = useState<string | null>(null);
+  const [undoVisible, setUndoVisible] = useState(false);
+  const [lastRemovedItem, setLastRemovedItem] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({
+    name: "",
+    qty: "",
+    ideal_qty: "",
+    unit: "un",
+  });
+  const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const pendentes = useMemo(
+    () => items.filter((item) => !item.comprado),
+    [items],
+  );
+  const comprados = useMemo(
+    () => items.filter((item) => item.comprado),
+    [items],
+  );
+
+  // Carrega a lista do usuário ao montar
   const buscarLista = useCallback(async () => {
     if (!user?.id) return;
     if (isOffline) {
@@ -58,13 +78,25 @@ export function useListaCompras() {
     buscarLista();
   }, [buscarLista]);
 
-  /**
-   * Adiciona um novo item à lista de compras
-   * Se o item já existe, soma a quantidade
-   * @param nome - Nome do produto (ex: Arroz)
-   * @param qtd - Quantidade em string (ex: "2,5")
-   * @param unidade - Unidade de medida (ex: "kg")
-   */
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    };
+  }, []);
+
+  const handleAddItem = async () => {
+    if (!nomeItem.trim() || !quantidade.trim()) {
+      Alert.alert("Atenção", "Preencha nome e quantidade.");
+      return;
+    }
+
+    await addItem(nomeItem, quantidade, unidade);
+    setNomeItem("");
+    setQuantidade("");
+    setUnidade("un");
+    setActiveInput(null);
+  };
+
   const addItem = async (nome: string, qtd: string, unidade: string) => {
     if (!user?.id) return;
     if (!notifyInternetRequired("Reconecte-se para editar sua lista de compras.")) {
@@ -78,12 +110,12 @@ export function useListaCompras() {
     }
 
     // Normaliza o nome para comparação (case-insensitive)
-    const nomeNormalizado = normalizarNome(nome).toLowerCase();
+    const nomeNormalizado = normalizeItemName(nome);
 
     // Verifica se já existe item com esse nome e unidade
     const itemExistente = items.find(
       (item) =>
-        normalizarNome(item.nome).toLowerCase() === nomeNormalizado &&
+        normalizeItemName(item.nome) === nomeNormalizado &&
         item.unidade === unidade &&
         !item.comprado,
     );
@@ -102,7 +134,7 @@ export function useListaCompras() {
     // Item não existe: adiciona novo
     const novoItem = {
       user_id: user.id,
-      nome: normalizarNome(nome),
+      nome: normalizeItemName(nome),
       quantidade_comprar: formatarQuantidade(qtdNumero),
       unidade: unidade,
       comprado: false,
@@ -120,9 +152,86 @@ export function useListaCompras() {
     }
   };
 
-  /**
-   * Atualiza diretamente a quantidade de um item existente
-   */
+  const handleToggleWithUndo = async (itemId: string) => {
+    const item = pendentes.find((i) => i.id === itemId);
+
+    if (item) {
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+
+      setLastRemovedItem(itemId);
+      setUndoVisible(true);
+
+      undoTimeoutRef.current = setTimeout(() => {
+        setUndoVisible(false);
+        setLastRemovedItem(null);
+      }, 3000);
+    }
+
+    await toggleItem(itemId);
+  };
+
+  const handleUndoClick = async () => {
+    if (!lastRemovedItem) return;
+
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    await toggleItem(lastRemovedItem);
+    setUndoVisible(false);
+    setLastRemovedItem(null);
+  };
+
+  const handleEditarQuantidade = (item: CompraItem) => {
+    setEditingId(item.id);
+    setEditForm({
+      name: item.nome,
+      qty: String(item.quantidade_comprar),
+      ideal_qty: "",
+      unit: item.unidade,
+    });
+  };
+
+  const handleSalvarQuantidade = async (form: EditForm) => {
+    if (!editingId) return;
+
+    const novaQtd = parseFloat(form.qty.replace(",", "."));
+    if (isNaN(novaQtd) || novaQtd <= 0) {
+      Alert.alert(
+        "Atenção",
+        "A quantidade deve ser maior que zero. Se deseja remover o item, utilize o ícone de lixeira.",
+      );
+      return;
+    }
+
+    await atualizarQuantidade(editingId, novaQtd);
+    setEditingId(null);
+  };
+
+  const handleGuardarEstoque = async () => {
+    Alert.alert(
+      "Guardar no Estoque",
+      `Deseja salvar ${comprados.length} item(s) comprado(s) na despensa?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Guardar",
+          style: "default",
+          onPress: async () => {
+            await guardarNoEstoque(upsertIngredientFromCompra);
+          },
+        },
+      ],
+    );
+  };
+
+  const filteredPendentes = useMemo(
+    () => filterByText(pendentes, searchText),
+    [pendentes, searchText],
+  );
+
+  const filteredComprados = useMemo(
+    () => filterByText(comprados, searchText),
+    [comprados, searchText],
+  );
+
   const atualizarQuantidade = async (id: string, novaQuantidade: number) => {
     if (
       !notifyInternetRequired(
@@ -148,11 +257,7 @@ export function useListaCompras() {
       .eq("id", id);
   };
 
-  /**
-   * Inteligência: Compara Estoque Atual x Meta Ideal
-   * Adiciona automaticamente à lista tudo que estiver faltando
-   * Se item já existe: atualiza a quantidade (não duplica)
-   */
+  // Atualiza a lista com itens faltantes da despensa
   const gerarListaDaDespensa = async () => {
     if (isGeneratingList) return; // Previne cliques duplos
     if (!user?.id) return;
@@ -181,16 +286,15 @@ export function useListaCompras() {
     try {
       // Processa cada item faltante
       for (const ing of itensFaltantes) {
-        const nomeNormalizado = normalizarNome(ing.name).toLowerCase();
+        const nomeNormalizado = normalizeItemName(ing.name);
         const rawQtdFaltante = Math.max(0, (ing.ideal_qty || 0) - (ing.qty || 0));
         const qtdFaltante = formatarQuantidade(rawQtdFaltante);
 
         // Verifica se já existe na lista (não comprado)
-        const itemExistente = items.find(
+        const itemExistente = pendentes.find(
           (item) =>
-            normalizarNome(item.nome).toLowerCase() === nomeNormalizado &&
-            item.unidade === ing.unit &&
-            !item.comprado,
+            normalizeItemName(item.nome) === nomeNormalizado &&
+            item.unidade === ing.unit,
         );
 
         if (itemExistente) {
@@ -226,9 +330,7 @@ export function useListaCompras() {
     }
   };
 
-  /**
-   * Alterna o status do checkbox (comprado / pendente)
-   */
+  // Alterna comprado / pendente
   const toggleItem = async (id: string) => {
     const item = items.find((i) => i.id === id);
     if (!item) return;
@@ -253,9 +355,7 @@ export function useListaCompras() {
       .eq("id", id);
   };
 
-  /**
-   * Deleta um item específico
-   */
+  // Remove item
   const removerItem = async (id: string) => {
     if (!notifyInternetRequired("Reconecte-se para editar sua lista de compras.")) {
       return;
@@ -264,9 +364,7 @@ export function useListaCompras() {
     await supabase.from("lista_compras").delete().eq("id", id);
   };
 
-  /**
-   * Limpa o histórico excluindo todos os itens marcados como comprados
-   */
+  // Limpa itens comprados
   const limparComprados = async () => {
     if (!notifyInternetRequired("Reconecte-se para limpar sua lista de compras.")) {
       return;
@@ -279,9 +377,7 @@ export function useListaCompras() {
       .eq("comprado", true);
   };
 
-  /**
-   * NOVA FUNÇÃO (FASE 2): Guarda os itens comprados na despensa e limpa a lista
-   */
+  // Guarda comprado no estoque e remove da lista
   const guardarNoEstoque = async (
     onUpsert: (nome: string, qtd: number, unit: string) => Promise<boolean>,
   ) => {
@@ -342,11 +438,7 @@ export function useListaCompras() {
     }
   };
 
-  /**
-   * Gera código único para compartilhamento de lista
-   * Utiliza Share API nativa para compatibilidade cross-platform
-   * @returns Promise com status da operação
-   */
+  // Compartilha a lista via Share API
   const compartilharLista = async () => {
     if (items.length === 0) {
       Alert.alert("Lista vazia", "Adicione itens antes de compartilhar.");
@@ -376,12 +468,38 @@ export function useListaCompras() {
 
   // Retorna interface pública do hook com todas as operações
   return {
-    pendentes: items.filter((i) => !i.comprado),
-    comprados: items.filter((i) => i.comprado),
+    nomeItem,
+    setNomeItem,
+    quantidade,
+    setQuantidade,
+    unidade,
+    setUnidade,
+    showUnitPicker,
+    setShowUnitPicker,
+    searchText,
+    setSearchText,
+    activeInput,
+    setActiveInput,
+    undoVisible,
+    editingId,
+    setEditingId,
+    editForm,
+    setEditForm,
+    showUnitPickerEdit,
+    setShowUnitPickerEdit,
+    filteredPendentes,
+    filteredComprados,
+    handleToggleWithUndo,
+    handleUndoClick,
+    handleAddItem,
+    handleEditarQuantidade,
+    handleSalvarQuantidade,
+    handleGuardarEstoque,
+    pendentes,
+    comprados,
     isLoading,
     isGeneratingList,
     // Operações CRUD
-    addItem,
     toggleItem,
     removerItem,
     limparComprados,

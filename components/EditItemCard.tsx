@@ -1,17 +1,18 @@
 import { X } from "lucide-react-native";
 import React from "react";
 import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { UNIDADES_ACEITAS } from "../constants/ingredients";
 import { Colors } from "../constants/theme";
+import { EditForm } from "../types/lista";
 
 interface EditItemCardProps {
   isListMode?: boolean;
-  onSave: (form: { name: string; qty: string; ideal_qty: string; unit: string }) => void;
+  onSave: (form: EditForm) => void;
   onClose: () => void;
   styles: any;
   renderUnitPicker: (
@@ -22,13 +23,8 @@ interface EditItemCardProps {
   ) => React.ReactNode;
   showUnitPicker: boolean;
   setShowUnitPicker: (show: boolean) => void;
-  editForm: {
-    name: string;
-    qty: string;
-    ideal_qty: string;
-    unit: string;
-  };
-  setEditForm: (form: any) => void;
+  editForm: EditForm;
+  setEditForm: (form: EditForm) => void;
 }
 
 export const EditItemCard: React.FC<EditItemCardProps> = ({

@@ -1,38 +1,17 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  AlertCircle,
-  Heart,
-  Lightbulb,
-  Pause,
-  Play,
-  RotateCcw,
-  Share2,
-  Stars,
-  WifiOff,
-  X,
+  AlertCircle, Heart, Lightbulb, Pause, Play, RotateCcw, Share2, Stars, WifiOff, X
 } from "lucide-react-native";
 import React, { useEffect, useRef } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
+  ActivityIndicator, Alert, Image, Pressable, ScrollView, StatusBar, Text, View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInLeft,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+  FadeIn, FadeInLeft, FadeInUp, useAnimatedStyle, useSharedValue, withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// Meus imports organizados
+// Meus imports
 import { Colors } from "../constants/theme";
 import { useCompartilharReceita } from "../hooks/useCompartilharReceita";
 import { useDespensa } from "../hooks/useDespensa";
@@ -43,28 +22,19 @@ import { preparoStyles as styles } from "../styles/preparo_styles";
 import type { PassoPreparo } from "../types/detalhe_receita";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
 import type { Recipe } from "../types/receitas";
-import {
-  criarReceitaIAParaPreparo,
-  processarParamsPreparo,
-} from "../utils/preparoUtils";
+import { criarReceitaIAParaPreparo, formatarMensagemAbatimento, processarParamsPreparo } from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 
 export default function PreparoReceitaScreen() {
-  // ============================================
-  // REGRA 1: TODOS OS HOOKS NO TOPO
-  // ============================================
-
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-
-  // Processamento organizado dos parâmetros
   const paramsProcessados: PreparoReceitaParams =
     processarParamsPreparo(params);
   const passosDinamicos: PassoPreparo[] = paramsProcessados.passosJson
     ? JSON.parse(paramsProcessados.passosJson)
     : [];
 
-  // Hooks - TODOS declarados no topo, sem early returns
+  // Hooks para lógica de preparo, favoritos, compartilhamento, despensa e status de rede
   const { isFavorito, toggleFavorito } = useFavoritosGlobal();
   const { abaterIngredientesDaReceita } = useDespensa();
   const { compartilhar, isSharing } = useCompartilharReceita();
@@ -74,7 +44,7 @@ export default function PreparoReceitaScreen() {
     isConcluido,
     tempo,
     timerAtivo,
-    setTimerAtivo,
+    toggleTimer,
     proximoPasso,
     passoAnterior,
     resetarTimer,
@@ -104,14 +74,7 @@ export default function PreparoReceitaScreen() {
     transform: [{ scale: heartScale.value }],
   }));
 
-  // Função para controlar o timer com validação
-  const toggleTimer = () => {
-    if (!timerAtivo && tempo <= 0) {
-      return;
-    }
-    setTimerAtivo(!timerAtivo);
-  };
-
+  // Funções para lógica de favoritos
   const handleToggleFavorito = () => {
     if (paramsProcessados.id) {
       toggleFavorito(paramsProcessados.id, iaRecipeData);
@@ -121,6 +84,7 @@ export default function PreparoReceitaScreen() {
     }
   };
 
+  // Funções para lógica de compartilhamento
   const handleShare = async () => {
     if (!paramsProcessados.id) {
       Alert.alert("Erro", "Receita inválida para compartilhamento.");
@@ -133,6 +97,7 @@ export default function PreparoReceitaScreen() {
     });
   };
 
+  // Funções para lógica de abatimento
   useEffect(() => {
     const executarAbatimento = async () => {
       if (
@@ -148,59 +113,16 @@ export default function PreparoReceitaScreen() {
         paramsProcessados.rawIngredients,
       );
 
-      // Monta mensagem com detalhes dos ignorados
-      let mensagemCompleta = `${resultado.abatidos} ingrediente(s) abatido(s)`;
-      
-      if (resultado.ignoradosDetalhes.length > 0) {
-        const agrupados = resultado.ignoradosDetalhes.reduce((acc, item) => {
-          if (!acc[item.motivo]) acc[item.motivo] = [];
-          acc[item.motivo].push(item);
-          return acc;
-        }, {} as Record<string, typeof resultado.ignoradosDetalhes>);
-
-        const descricoes: string[] = [];
-        if (agrupados['incompativel']) {
-          descricoes.push(
-            `${agrupados['incompativel'].length} com unidades incompatíveis:\n` +
-            agrupados['incompativel']
-              .map((i) => `• ${i.nome} (${i.detalhes})`)
-              .join('\n')
-          );
-        }
-        if (agrupados['nao_encontrado']) {
-          descricoes.push(
-            `${agrupados['nao_encontrado'].length} não encontrados na despensa:\n` +
-            agrupados['nao_encontrado']
-              .map((i) => `• ${i.nome}`)
-              .join('\n')
-          );
-        }
-        if (agrupados['baixa_confianca']) {
-          descricoes.push(
-            `${agrupados['baixa_confianca'].length} com baixa confiança`
-          );
-        }
-        if (agrupados['livre']) {
-          descricoes.push(
-            `${agrupados['livre'].length} da lista de ingredientes livres`
-          );
-        }
-
-        if (descricoes.length > 0) {
-          mensagemCompleta += '\n\n⚠️ Ignorados:\n' + descricoes.join('\n\n');
-        }
-      }
-
-
       if (!resultado.sucesso) {
         Alert.alert(
           "Atenção",
           resultado.mensagem ||
-            "A receita foi concluída, mas não foi possível atualizar sua despensa agora.",
+          "A receita foi concluída, mas não foi possível atualizar sua despensa agora.",
         );
-      } else {
-        Alert.alert("Despensa atualizada", mensagemCompleta);
+        return;
       }
+
+      Alert.alert("Despensa atualizada", formatarMensagemAbatimento(resultado));
     };
 
     executarAbatimento();
@@ -209,10 +131,6 @@ export default function PreparoReceitaScreen() {
     paramsProcessados.rawIngredients,
     abaterIngredientesDaReceita,
   ]);
-
-  // ============================================
-  // RENDERIZAÇÃO (após TODOS os hooks)
-  // ============================================
 
   // Loading ao buscar receita no banco
   if (isLoading) {
@@ -315,7 +233,7 @@ export default function PreparoReceitaScreen() {
     );
   }
 
-  // VIEW: ESTADO CONCLUÍDO (renderizado como JSX, não early return)
+  // Receita concluida
   if (isConcluido) {
     return (
       <ScrollView
@@ -420,7 +338,7 @@ export default function PreparoReceitaScreen() {
     );
   }
 
-  // VIEW: ESTADO DE PREPARO (PASSOS)
+  // Passos da receita
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -479,8 +397,8 @@ export default function PreparoReceitaScreen() {
                     style={[
                       styles.btnTimerControl,
                       !timerAtivo &&
-                        tempo <= 0 &&
-                        styles.btnTimerControlDisabled, // Adicione esta linha
+                      tempo <= 0 &&
+                      styles.btnTimerControlDisabled, // Adicione esta linha
                     ]}
                     onPress={toggleTimer}
                     disabled={!timerAtivo && tempo <= 0}

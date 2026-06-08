@@ -1,40 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { buscarReceitaPorId } from '../services/receitaService';
 import type { PassoPreparo, ReceitaBancoDados } from '../types/detalhe_receita';
+import type { UsePreparoReceitaReturn } from '../types/preparo_receita';
 import { useNetworkStatus } from './useNetworkStatus';
 
-interface UsePreparoReceitaReturn {
-    passoAtual: number;
-    isConcluido: boolean;
-    tempo: number;
-    timerAtivo: boolean;
-    setTimerAtivo: (ativo: boolean) => void;
-    proximoPasso: () => void;
-    passoAnterior: () => void;
-    resetarTimer: () => void;
-    step: PassoPreparo | undefined;
-    totalPassos: number;
-    isLoading: boolean;
-    erro: string | null;
-    retryReceita: () => Promise<void>;
-}
-
-/**
- * Hook para Gerenciar Preparo da Receita com Fetch Seguro
- * 
- * REGRA 1: Todos os hooks (useState, useEffect) NO TOPO
- * REGRA 2: ZERO early returns antes dos hooks
- * REGRA 3: isMounted tracking em useEffect com fetch
- * REGRA 4: Reanimated hooks sempre chamados (se houver)
- */
+// HOOK PRINCIPAL
 export function usePreparoReceita(
     passosParam: PassoPreparo[],
     receitaId?: string | number,
     tipo?: string
 ): UsePreparoReceitaReturn {
-    // ============================================
-    // REGRA 1: HOOKS NO TOPO ABSOLUTO
-    // ============================================
 
     // Estados para dados da receita do banco
     const [, setReceitaBancoDados] = useState<ReceitaBancoDados | null>(null);
@@ -48,9 +23,7 @@ export function usePreparoReceita(
     const [tempo, setTempo] = useState<number>(0);
     const [timerAtivo, setTimerAtivo] = useState(false);
 
-    // ============================================
-    // REGRA 3: Fetch com isMounted tracking
-    // ============================================
+    // Busca no banco quando temos um ID numérico e não é receita de IA (que pode não ter persistência)
     const retryReceita = useCallback(async () => {
         const isIA = tipo === "ia";
         if (isIA || !receitaId || isNaN(Number(receitaId))) {
@@ -94,10 +67,6 @@ export function usePreparoReceita(
         void retryReceita();
     }, [retryReceita]);
 
-    // ============================================
-    // Processamento de passos
-    // ============================================
-
     // Determina qual passo está ativo (sem early return)
     const step = passosParam[passoAtual];
 
@@ -136,10 +105,7 @@ export function usePreparoReceita(
         };
     }, [timerAtivo, tempo]);
 
-    // ============================================
-    // Funções de navegação
-    // ============================================
-
+    // Funções para navegação entre passos    
     const proximoPasso = () => {
         if (passoAtual === passosParam.length - 1) {
             setIsConcluido(true);
@@ -161,15 +127,19 @@ export function usePreparoReceita(
         }
     };
 
-    // ============================================
-    // RETORNO (sem early returns antes daqui)
-    // ============================================
+    const toggleTimer = () => {
+        if (!timerAtivo && tempo <= 0) {
+            return;
+        }
+        setTimerAtivo((prev) => !prev);
+    };
+
     return {
         passoAtual,
         isConcluido,
         tempo,
         timerAtivo,
-        setTimerAtivo,
+        toggleTimer,
         proximoPasso,
         passoAnterior,
         resetarTimer,

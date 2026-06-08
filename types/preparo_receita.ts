@@ -1,7 +1,7 @@
 // TIPOS PARA PREPARO
 import type { PassoPreparo } from './detalhe_receita';
 
-// TIPOS PARA PARAMS
+// Tipo para os parâmetros de navegação da tela de preparo da receita
 export interface PreparoReceitaParams {
   id: string;
   titulo: string;
@@ -18,7 +18,24 @@ export interface PreparoReceitaParams {
   tipo?: string;
 }
 
-// TIPOS PARA STATE
+// Tipo para o retorno do hook de preparo da receita
+export interface UsePreparoReceitaReturn {
+  passoAtual: number;
+  isConcluido: boolean;
+  tempo: number;
+  timerAtivo: boolean;
+  toggleTimer: () => void;
+  proximoPasso: () => void;
+  passoAnterior: () => void;
+  resetarTimer: () => void;
+  step: PassoPreparo | undefined;
+  totalPassos: number;
+  isLoading: boolean;
+  erro: string | null;
+  retryReceita: () => Promise<void>;
+}
+
+// Tipo para o estado do preparo da receita
 export interface PreparoReceitaState {
     passoAtual: number;
     isConcluido: boolean;

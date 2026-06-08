@@ -1,3 +1,4 @@
+import type { AbatimentoResultado } from "../types/despensa";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
 import type { Recipe } from "../types/receitas";
 import { criarReceitaIA } from "./receitaIAUtils";
@@ -19,6 +20,54 @@ export const criarReceitaIAParaPreparo = (
     preferences: params.preferencias,
     recipeAllergies: params.alergias,
   });
+};
+
+//Formata mensagem de abatimento com detalhes dos ingredientes abatidos e ignorados
+export const formatarMensagemAbatimento = (
+  resultado: AbatimentoResultado,
+): string => {
+  const mensagemBase = `${resultado.abatidos} ingrediente(s) abatido(s)`;
+
+  if (!resultado.ignoradosDetalhes.length) {
+    return mensagemBase;
+  }
+
+  const agrupados = resultado.ignoradosDetalhes.reduce(
+    (acc, item) => {
+      acc[item.motivo] = acc[item.motivo] ?? [];
+      acc[item.motivo].push(item);
+      return acc;
+    },
+    {} as Record<AbatimentoResultado['ignoradosDetalhes'][number]['motivo'], typeof resultado.ignoradosDetalhes>,
+  );
+
+  const descricoes: string[] = [];
+
+  if (agrupados.incompativel?.length) {
+    descricoes.push(
+      `${agrupados.incompativel.length} com unidades incompatíveis:\n` +
+        agrupados.incompativel
+          .map((i) => `• ${i.nome}${i.detalhes ? ` (${i.detalhes})` : ''}`)
+          .join('\n'),
+    );
+  }
+
+  if (agrupados.nao_encontrado?.length) {
+    descricoes.push(
+      `${agrupados.nao_encontrado.length} não encontrados na despensa:\n` +
+        agrupados.nao_encontrado.map((i) => `• ${i.nome}`).join('\n'),
+    );
+  }
+
+  if (agrupados.baixa_confianca?.length) {
+    descricoes.push(`${agrupados.baixa_confianca.length} com baixa confiança`);
+  }
+
+  if (agrupados.livre?.length) {
+    descricoes.push(`${agrupados.livre.length} da lista de ingredientes livres`);
+  }
+
+  return `${mensagemBase}\n\n⚠️ Ignorados:\n${descricoes.join('\n\n')}`;
 };
 
 // Processa parâmetros da rota para o formato estruturado

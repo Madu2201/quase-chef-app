@@ -1,34 +1,34 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  AlertCircle,
-  Heart,
-  Lightbulb,
-  Pause,
-  Play,
-  RotateCcw,
-  Share2,
-  Stars,
-  WifiOff,
-  X,
+    AlertCircle,
+    Heart,
+    Lightbulb,
+    Pause,
+    Play,
+    RotateCcw,
+    Share2,
+    Stars,
+    WifiOff,
+    X,
 } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    Text,
+    View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInLeft,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+    FadeIn,
+    FadeInLeft,
+    FadeInUp,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -44,8 +44,8 @@ import { preparoStyles as styles } from "../styles/preparo_styles";
 import type { PassoPreparo } from "../types/detalhe_receita";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
 import {
-  criarReceitaIAParaPreparo,
-  processarParamsPreparo,
+    criarReceitaIAParaPreparo,
+    processarParamsPreparo,
 } from "../utils/preparoUtils";
 import { formatTime } from "../utils/timeFormatter";
 
@@ -100,7 +100,6 @@ export default function PreparoReceitaScreen() {
     !!erro && isOffline && !!paramsProcessados.id && !isNaN(Number(paramsProcessados.id));
   const heartScale = useSharedValue(1);
   const estoqueAbatidoRef = useRef(false);
-  const [resumoAbatimento, setResumoAbatimento] = useState("");
   const animatedHeartStyle = useAnimatedStyle(() => ({
     transform: [{ scale: heartScale.value }],
   }));
@@ -148,14 +147,50 @@ export default function PreparoReceitaScreen() {
       const resultado = await abaterIngredientesDaReceita(
         paramsProcessados.rawIngredients,
       );
-      const totalIgnorados =
-        resultado.ignoradosIncompativeis +
-        resultado.ignoradosNaoEncontrados +
-        resultado.ignoradosBaixaConfianca;
-      const resumo = `${resultado.abatidos} ingrediente(s) abatido(s)${
-        totalIgnorados > 0 ? `, ${totalIgnorados} ignorado(s)` : ""
-      }.`;
-      setResumoAbatimento(resumo);
+
+      // Monta mensagem com detalhes dos ignorados
+      let mensagemCompleta = `${resultado.abatidos} ingrediente(s) abatido(s)`;
+      
+      if (resultado.ignoradosDetalhes.length > 0) {
+        const agrupados = resultado.ignoradosDetalhes.reduce((acc, item) => {
+          if (!acc[item.motivo]) acc[item.motivo] = [];
+          acc[item.motivo].push(item);
+          return acc;
+        }, {} as Record<string, typeof resultado.ignoradosDetalhes>);
+
+        const descricoes: string[] = [];
+        if (agrupados['incompativel']) {
+          descricoes.push(
+            `${agrupados['incompativel'].length} com unidades incompatíveis:\n` +
+            agrupados['incompativel']
+              .map((i) => `• ${i.nome} (${i.detalhes})`)
+              .join('\n')
+          );
+        }
+        if (agrupados['nao_encontrado']) {
+          descricoes.push(
+            `${agrupados['nao_encontrado'].length} não encontrados na despensa:\n` +
+            agrupados['nao_encontrado']
+              .map((i) => `• ${i.nome}`)
+              .join('\n')
+          );
+        }
+        if (agrupados['baixa_confianca']) {
+          descricoes.push(
+            `${agrupados['baixa_confianca'].length} com baixa confiança`
+          );
+        }
+        if (agrupados['livre']) {
+          descricoes.push(
+            `${agrupados['livre'].length} da lista de ingredientes livres`
+          );
+        }
+
+        if (descricoes.length > 0) {
+          mensagemCompleta += '\n\n⚠️ Ignorados:\n' + descricoes.join('\n\n');
+        }
+      }
+
 
       if (!resultado.sucesso) {
         Alert.alert(
@@ -164,7 +199,7 @@ export default function PreparoReceitaScreen() {
             "A receita foi concluída, mas não foi possível atualizar sua despensa agora.",
         );
       } else {
-        Alert.alert("Despensa atualizada", resumo);
+        Alert.alert("Despensa atualizada", mensagemCompleta);
       }
     };
 
@@ -308,11 +343,6 @@ export default function PreparoReceitaScreen() {
           <Text style={styles.congratsSub}>
             Você concluiu sua receita com sucesso.
           </Text>
-          {!!resumoAbatimento && (
-            <Text style={[styles.congratsSub, { marginTop: 4 }]}>
-              {resumoAbatimento}
-            </Text>
-          )}
         </Animated.View>
 
         <Animated.View

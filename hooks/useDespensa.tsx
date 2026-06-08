@@ -1,27 +1,27 @@
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
 } from "react";
 import { Alert } from "react-native";
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { supabase } from "../services/supabase";
 import {
-  AbatimentoResultado,
-  DespensaContextData,
-  Ingredient,
+    AbatimentoResultado,
+    DespensaContextData,
+    Ingredient,
 } from "../types/despensa";
 import type { CompraItem } from "../types/lista";
 import {
-  converterDaBaseParaUnidade,
-  converterParaUnidadeBase,
-  formatarQuantidade,
-  nomesIngredientesCompativeis,
-  normalizarTexto
+    converterDaBaseParaUnidade,
+    converterParaUnidadeBase,
+    formatarQuantidade,
+    nomesIngredientesCompativeis,
+    normalizarTexto
 } from "../utils/normalization";
 import { calcularUpsertDecision } from "../utils/upsertUtils";
 import { useAuth } from "./useAuth";
@@ -350,6 +350,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         ignoradosNaoEncontrados: 0,
         ignoradosBaixaConfianca: 0,
         ignoradosLivres: 0,
+        ignoradosDetalhes: [],
         mensagem: "Usuário não autenticado ou ingredientes inválidos.",
       };
     }
@@ -366,6 +367,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         ignoradosNaoEncontrados: 0,
         ignoradosBaixaConfianca: 0,
         ignoradosLivres: 0,
+        ignoradosDetalhes: [],
         mensagem: "Reconecte-se à internet para atualizar sua despensa.",
       };
     }
@@ -385,6 +387,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         ignoradosNaoEncontrados: 0,
         ignoradosBaixaConfianca: 0,
         ignoradosLivres: 0,
+        ignoradosDetalhes: [],
         mensagem: "Não foi possível interpretar os ingredientes da receita.",
       };
     }
@@ -400,6 +403,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         ignoradosNaoEncontrados: 0,
         ignoradosBaixaConfianca: 0,
         ignoradosLivres: 0,
+        ignoradosDetalhes: [],
       };
     }
 
@@ -414,6 +418,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     let ignoradosNaoEncontrados = 0;
     let ignoradosBaixaConfianca = 0;
     let ignoradosLivres = 0;
+    const ignoradosDetalhes: any[] = [];
 
     for (const ingredienteReceita of ingredientesReceita) {
       const nomeReceita =
@@ -427,6 +432,11 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       );
       if (ehLivre) {
         ignoradosLivres += 1;
+        ignoradosDetalhes.push({
+          nome: nomeReceita,
+          motivo: 'livre',
+          detalhes: 'Ingrediente da lista de bases livres (sal, água, óleo)',
+        });
         continue;
       }
 
@@ -444,6 +454,11 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       const indexDespensa = indexDespensaCompativel;
       if (indexDespensa < 0) {
         ignoradosNaoEncontrados += 1;
+        ignoradosDetalhes.push({
+          nome: nomeReceita,
+          motivo: 'nao_encontrado',
+          detalhes: 'Não encontrado no estoque da despensa',
+        });
         continue;
       }
 
@@ -460,15 +475,31 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       const baixaConfianca = Boolean(ingredienteReceita?.baixa_confianca);
       if (baixaConfianca && quantidadeGramasMl > 0) {
         ignoradosBaixaConfianca += 1;
+        ignoradosDetalhes.push({
+          nome: nomeReceita,
+          motivo: 'baixa_confianca',
+          detalhes: `Quantidade com baixa confiança (${quantidadeGramasMl}${estoqueBase.unidadeBase}). Ignorado por segurança.`,
+        });
         continue;
       }
 
-      if (
-        quantidadeGramasMl > 0 &&
-        ["g", "ml"].includes(estoqueBase.unidadeBase)
-      ) {
-        quantidadeConsumir = quantidadeGramasMl;
+      // PRIORIDADE 1: Se IA preencheu quantidade_gramas_ml, isso é sinal de conversão
+      if (quantidadeGramasMl > 0) {
+        // Estoque DEVE estar em g/ml para usar essa métrica
+        if (["g", "ml"].includes(estoqueBase.unidadeBase)) {
+          quantidadeConsumir = quantidadeGramasMl;
+        } else {
+          // IA tentou conversão, mas estoque é em unidades → INCOMPATÍVEL
+          ignoradosIncompativeis += 1;
+          ignoradosDetalhes.push({
+            nome: nomeReceita,
+            motivo: 'incompativel',
+            detalhes: `Receita em ${estoqueBase.unidadeBase}ml/g, mas estoque em ${estoqueBase.unidadeBase}`,
+          });
+          continue;
+        }
       } else {
+        // PRIORIDADE 2: quantidade_gramas_ml = 0 → unidades soltas
         const quantidadeReceita = Number(ingredienteReceita?.quantidade) || 0;
         const unidadeReceita = ingredienteReceita?.unidade || "un";
         const receitaBase = converterParaUnidadeBase(
@@ -478,6 +509,11 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
         if (receitaBase.unidadeBase !== estoqueBase.unidadeBase) {
           ignoradosIncompativeis += 1;
+          ignoradosDetalhes.push({
+            nome: nomeReceita,
+            motivo: 'incompativel',
+            detalhes: `Receita em ${receitaBase.unidadeBase}, estoque em ${estoqueBase.unidadeBase}`,
+          });
           continue;
         }
 
@@ -517,6 +553,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
         ignoradosNaoEncontrados,
         ignoradosBaixaConfianca,
         ignoradosLivres,
+        ignoradosDetalhes,
       };
     }
 
@@ -540,6 +577,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
           ignoradosNaoEncontrados,
           ignoradosBaixaConfianca,
           ignoradosLivres,
+          ignoradosDetalhes,
           mensagem: "Falha ao atualizar a despensa no banco de dados.",
         };
       }
@@ -553,6 +591,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
       ignoradosNaoEncontrados,
       ignoradosBaixaConfianca,
       ignoradosLivres,
+      ignoradosDetalhes,
     };
   };
 

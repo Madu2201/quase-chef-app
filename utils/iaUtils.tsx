@@ -369,7 +369,11 @@ CAMPOS DA RECEITA (dentro de "texto_da_receita"):
       "nome_base": string (deve ser exatamente um dos ingredientes permitidos: selecionados ou da lista livre),
       "quantidade": number,
       "texto_original": string,
-      "quantidade_gramas_ml": number (use coerente com a unidade; se a receita usa unidades, pode ser 0 ou proporcional conforme sua convenção, sem violar o teto do estoque. JAMAIS use pontos finais após números como "0." ou "1.", use sempre ".0").
+      "quantidade_gramas_ml": number (OBRIGATÓRIO. Este campo NUNCA deve ser nulo, vazio ou omitido. Ele é o motor de conversão do sistema. Siga estritamente estas regras:
+        1. Se a receita indicar peso ou volume explícito (ex: "300g de arroz", "50ml de óleo"): preencha com o valor numérico puro em gramas ou ml (ex: 300.0, 50.0).
+        2. Se a receita usar medidas caseiras ou volumes culinários (ex: "xícara", "colher", "copo"): Converta OBRIGATORIAMENTE para o peso/volume equivalente aproximado em gramas ou ml (ex: "1 xícara de arroz" vira 200.0; "2 xícaras de água" vira 480.0; "1 colher de sopa de açúcar" vira 15.0). JAMAIS use 0.0 para medidas caseiras.
+        3. Se a receita pedir unidades físicas soltas ou itens a gosto (ex: "3 batatas", "1 dente de alho", "sal a gosto"): preencha ESTREITAMENTE com 0.0 para indicar que é um item contável. O valor 0.0 aqui NÃO exclui o ingrediente.
+        * Formatação: JAMAIS retorne números com ponto final solto como '0.' ou '1.'. Use sempre o formato decimal completo como '0.0', '1.0' ou '250.0').
    }.
 9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }. No campo "descricao" evite textos muitos longos para evitar desinteresse no usuário.
     REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.

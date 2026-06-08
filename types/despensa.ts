@@ -7,6 +7,12 @@ export interface Ingredient {
   selected: boolean;
 }
 
+export interface DetalhesIgnorado {
+  nome: string;
+  motivo: 'incompativel' | 'nao_encontrado' | 'baixa_confianca' | 'livre';
+  detalhes?: string;
+}
+
 export interface AbatimentoResultado {
   sucesso: boolean;
   abatidos: number;
@@ -14,6 +20,7 @@ export interface AbatimentoResultado {
   ignoradosNaoEncontrados: number;
   ignoradosBaixaConfianca: number;
   ignoradosLivres: number;
+  ignoradosDetalhes: DetalhesIgnorado[];
   mensagem?: string;
 }
 

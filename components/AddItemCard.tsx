@@ -81,7 +81,7 @@ export function AddItemCard({
                     <TextInput
                         style={[styles.addPanelNameInput, styles.fontSystem]}
                         placeholder={placeholder}
-                        placeholderTextColor={Colors.subtext}
+                        placeholderTextColor={Colors.subtitle}
                         value={nameValue}
                         onChangeText={onNameChange}
                         onFocus={onNameFocus}
@@ -131,6 +131,7 @@ export function AddItemCard({
                         <TextInput
                             style={[styles.addPanelFieldInput, styles.fontSystem]}
                             placeholder="0"
+                            placeholderTextColor={Colors.subtitle}
                             keyboardType="numeric"
                             value={qtyValue}
                             onChangeText={onQtyChange}
@@ -151,6 +152,7 @@ export function AddItemCard({
                             <TextInput
                                 style={[styles.addPanelFieldInput, styles.fontSystem]}
                                 placeholder="0"
+                                placeholderTextColor={Colors.subtitle}
                                 keyboardType="numeric"
                                 value={metaValue}
                                 onChangeText={onMetaChange}

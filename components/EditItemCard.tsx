@@ -1,10 +1,10 @@
 import { X } from "lucide-react-native";
 import React from "react";
 import {
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { UNIDADES_ACEITAS } from "../constants/ingredients";
 import { Colors } from "../constants/theme";
@@ -62,6 +62,7 @@ export const EditItemCard: React.FC<EditItemCardProps> = ({
             styles.editingNameInput,
             styles.fontSystem,
           ]}
+          placeholderTextColor={Colors.subtitle}
           value={editForm.name}
           onChangeText={(t) =>
             setEditForm({ ...editForm, name: t })
@@ -79,6 +80,7 @@ export const EditItemCard: React.FC<EditItemCardProps> = ({
               styles.editingFieldInput,
               styles.fontSystem,
             ]}
+            placeholderTextColor={Colors.subtitle}
             keyboardType="numeric"
             value={editForm.qty}
             onChangeText={(t) =>
@@ -95,6 +97,7 @@ export const EditItemCard: React.FC<EditItemCardProps> = ({
                 styles.editingFieldInput,
                 styles.fontSystem,
               ]}
+              placeholderTextColor={Colors.subtitle}
               keyboardType="numeric"
               value={editForm.ideal_qty}
               onChangeText={(t) =>

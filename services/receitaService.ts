@@ -172,10 +172,10 @@ export async function adicionarFavorito(receitaId: number, userId: string) {
 
 export async function removerFavorito(receitaId: number, userId: string) {
   try {
-    // 1. Busca a receita para saber se é IA
+    // 1. Busca a receita para saber se é IA e obter a URL da imagem
     const { data: receita, error: fetchError } = await supabase
       .from("receitas")
-      .select("eh_ia, user_id")
+      .select("eh_ia, user_id, imagem_url")
       .eq("id", receitaId)
       .single();
 
@@ -197,9 +197,29 @@ export async function removerFavorito(receitaId: number, userId: string) {
       return false;
     }
 
-    // 3. Se for uma receita gerada por IA deste usuário, exclui o registro da receita
-    // (Pollinations.ai gera imagens on-demand, sem armazenamento local)
+    // 3. Se for uma receita gerada por IA deste usuário, exclui a imagem do Storage e depois o registro
     if (receita && receita.eh_ia && receita.user_id === userId) {
+      // 3a. Deleta a imagem do Supabase Storage ANTES de deletar o registro
+      if (receita.imagem_url) {
+        const imagemPath = extrairCaminhoImagemDoStorage(receita.imagem_url);
+        if (imagemPath) {
+          const { error: deleteImageError } = await supabase.storage
+            .from("ai-recipes")
+            .remove([imagemPath]);
+
+          if (deleteImageError) {
+            console.error(
+              `⚠️  Aviso ao deletar imagem do Storage:`,
+              deleteImageError.message,
+            );
+            // Continuamos mesmo com erro de imagem, pois o registro de DB é prioridade
+          } else {
+            console.log(`✅ Imagem deletada do Storage:`, imagemPath);
+          }
+        }
+      }
+
+      // 3b. Deleta o registro da receita IA da tabela
       const { error: deleteError } = await supabase
         .from("receitas")
         .delete()
@@ -210,6 +230,8 @@ export async function removerFavorito(receitaId: number, userId: string) {
           `❌ Erro ao excluir registro de receita IA:`,
           deleteError.message,
         );
+      } else {
+        console.log(`✅ Receita IA excluída do banco:`, receitaId);
       }
     }
 
@@ -217,6 +239,25 @@ export async function removerFavorito(receitaId: number, userId: string) {
   } catch (exception) {
     console.error(`❌ Exceção ao remover favorito ${receitaId}:`, exception);
     return false;
+  }
+}
+
+/**
+ * Extrai o caminho relativo da imagem a partir de uma URL pública do Supabase Storage
+ * Ex: https://[project].supabase.co/storage/v1/object/public/ai-recipes/ia-1234-5678.jpg
+ * Retorna: ia-1234-5678.jpg
+ */
+function extrairCaminhoImagemDoStorage(urlPublica: string): string | null {
+  try {
+    const match = urlPublica.match(/\/ai-recipes\/(.+)$/);
+    if (!match || !match[1]) {
+      console.warn("Não foi possível extrair caminho da imagem:", urlPublica);
+      return null;
+    }
+    return match[1];
+  } catch (error) {
+    console.error("Erro ao extrair caminho da imagem:", error);
+    return null;
   }
 }
 /**

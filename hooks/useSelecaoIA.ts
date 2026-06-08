@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
-import { buildPollinationsImageUrl } from "../services/aiImageService";
+import { generateAndUploadRecipeImage } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
 import type { Ingredient } from "../types/despensa";
 import {
@@ -148,18 +148,27 @@ export function useSelecaoIA() {
         const { receita: receitaGerada, imagePrompt } =
           extrairReceitaIAParseada(respostaIA);
 
+        // Gera ID único para a receita
+        const idReceitaGerada = "ia-" + Date.now();
+
         // Falha de mídia não pode derrubar a geração da receita.
-        const imageUrl = buildPollinationsImageUrl(imagePrompt);
-        if (!imageUrl) {
-          console.warn(
-            "Resposta da IA sem image_prompt válido; seguindo sem imagem externa.",
+        let imageUrl: string | null = null;
+        if (imagePrompt) {
+          imageUrl = await generateAndUploadRecipeImage(
+            imagePrompt,
+            idReceitaGerada,
           );
+          if (!imageUrl) {
+            console.warn(
+              "Falha ao gerar/fazer upload da imagem; seguindo sem imagem externa.",
+            );
+          }
         }
 
         router.push({
           pathname: "/detalhe_receita",
           params: {
-            id: `ia-${Date.now()}`,
+            id: idReceitaGerada,
             tipo: "ia",
             title: receitaGerada.nome_receita || "Receita Surpresa",
             description:

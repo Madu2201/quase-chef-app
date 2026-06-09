@@ -145,7 +145,7 @@ export default function ListaScreen() {
             <Wand2 size={20} color={Colors.light} />
           )}
           <Text style={styles.magicButtonText}>
-            {isGeneratingList ? "Calculando mágica..." : "Completar via Despensa"}
+            {isGeneratingList ? "Completando a lista..." : "Completar via Despensa"}
           </Text>
         </TouchableOpacity>
 

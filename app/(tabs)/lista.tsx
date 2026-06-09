@@ -66,6 +66,7 @@ export default function ListaScreen() {
   const [quantidade, setQuantidade] = useState("");
   const [unidade, setUnidade] = useState("un");
   const [showUnitPicker, setShowUnitPicker] = useState(false);
+  const [isSavingStock, setIsSavingStock] = useState(false);
 
   // ============ ESTADOS DE UI ============
   // Controle de busca
@@ -87,6 +88,7 @@ export default function ListaScreen() {
     unit: "un",
   });
   const [showUnitPickerEdit, setShowUnitPickerEdit] = useState(false);
+  
 
   // ============ REFERÊNCIAS ============
   // Timeout para limpar undo toast automaticamente
@@ -244,9 +246,14 @@ export default function ListaScreen() {
           text: "Guardar",
           style: "default",
           onPress: async () => {
-            await guardarNoEstoque(async (nome, qtd, unit) => {
-              return await upsertIngredientFromCompra(nome, qtd, unit);
-            });
+            setIsSavingStock(true); // LIGA O LOADING
+            try {
+              await guardarNoEstoque(async (nome, qtd, unit) => {
+                return await upsertIngredientFromCompra(nome, qtd, unit);
+              });
+            } finally {
+              setIsSavingStock(false); // DESLIGA O LOADING
+            }
           },
         },
       ],
@@ -309,11 +316,17 @@ export default function ListaScreen() {
 
         <TouchableOpacity
           onPress={gerarListaDaDespensa}
-          style={[styles.magicButton, isGeneratingList && { opacity: 0.5 }]}
+          style={[styles.magicButton, isGeneratingList && { opacity: 0.7 }]}
           disabled={isGeneratingList}
         >
-          <Wand2 size={20} color={Colors.light} />
-          <Text style={styles.magicButtonText}>Completar via Despensa</Text>
+          {isGeneratingList ? (
+            <ActivityIndicator size="small" color={Colors.light} />
+          ) : (
+            <Wand2 size={20} color={Colors.light} />
+          )}
+          <Text style={styles.magicButtonText}>
+            {isGeneratingList ? "Calculando mágica..." : "Completar via Despensa"}
+          </Text>
         </TouchableOpacity>
 
         {isLoading ? (
@@ -395,11 +408,16 @@ export default function ListaScreen() {
                 </View>
                 <TouchableOpacity
                   onPress={handleGuardarEstoque}
-                  style={styles.btnGuardarEstoque}
+                  style={[styles.btnGuardarEstoque, isSavingStock && { opacity: 0.7 }]}
+                  disabled={isSavingStock}
                 >
-                  <PackagePlus size={20} color={Colors.light} />
+                  {isSavingStock ? (
+                    <ActivityIndicator size="small" color={Colors.light} />
+                  ) : (
+                    <PackagePlus size={20} color={Colors.light} />
+                  )}
                   <Text style={styles.btnGuardarEstoqueText}>
-                    Guardar no Estoque
+                    {isSavingStock ? "Guardando..." : "Guardar no Estoque"}
                   </Text>
                 </TouchableOpacity>
                 {filteredComprados.map((item) => (

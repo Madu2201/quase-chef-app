@@ -188,12 +188,64 @@ export function useSelecaoIA() {
             alergias: JSON.stringify(receitaGerada.alergias_presentes || []),
           },
         });
-      } catch (error) {
+        } catch (error: any) {
         console.error("Erro IA:", error);
-        Alert.alert(
-          "Erro",
-          "Não foi possível gerar a receita. Tente novamente.",
-        );
+        
+        // Transforma tudo em string e minúsculo para facilitar a busca
+        const errorMessage = (error?.message || String(error)).toLowerCase();
+
+        // Botões padronizados (adicionado o "OK" no cancelar para fazer mais sentido)
+        const alertButtons = [
+          { 
+            text: "Ver Catálogo", 
+            onPress: () => router.push("/(tabs)/receitas")
+          },
+          { 
+            text: "OK", 
+            style: "cancel" as const 
+          }
+        ];
+
+        // 1. Limite de Requisições (Rate Limit)
+        if (errorMessage.includes("429") || errorMessage.includes("too many requests")) {
+          Alert.alert(
+            "Muita gente na cozinha! 👨‍🍳", 
+            "A nossa IA está preparando muitos pratos ao mesmo tempo. Que tal dar uma olhada no nosso catálogo de receitas enquanto ela termina?", 
+            alertButtons
+          );
+        } 
+        // 2. Erro de Autenticação / Chave de API
+        else if (errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("api_key")) {
+          Alert.alert(
+            "Eita, faltou um ingrediente técnico! 🔧", 
+            "Tivemos um probleminha de conexão com o nosso assistente. Enquanto resolvemos isso, você pode conferir as opções do catálogo.", 
+            alertButtons
+          );
+        } 
+        // 3. Erro no Servidor (Deles ou Seu)
+        else if (errorMessage.includes("500") || errorMessage.includes("503") || errorMessage.includes("server")) {
+          Alert.alert(
+            "Servidores lotados! 🥵", 
+            "Nosso assistente de cozinha recebeu mais pedidos do que consegue aguentar agora. Bora dar uma olhada nas receitas prontas do catálogo?", 
+            alertButtons
+          );
+        } 
+        // 4. Erro de Internet / Conexão
+        else if (errorMessage.includes("network") || errorMessage.includes("fetch") || errorMessage.includes("internet") || errorMessage.includes("baleia")) {
+          Alert.alert(
+            "Sem sinal na cozinha? 🌐", 
+            "Sua internet parece ter dado uma oscilada. Verifique sua conexão ou aproveite para olhar nosso catálogo de receitas.", 
+            alertButtons
+          );
+        } 
+        // 5. Erro Genérico
+        else {
+          Alert.alert(
+            "A receita desandou! 🍳", 
+            "Não conseguimos criar sua receita personalizada dessa vez. Enquanto limpamos a bancada, que tal escolher uma opção do nosso catálogo?", 
+            alertButtons
+          );
+        }
       } finally {
         setIsGenerating(false);
       }

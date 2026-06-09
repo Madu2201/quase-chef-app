@@ -2,35 +2,16 @@ import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 //Meus imports
+import { IA_PATTERNS } from "../constants/ia";
 import { RECEITA_STRINGS } from "../constants/ingredients";
+import { MESSAGES } from "../constants/messages";
 import { buscarReceitaPorId } from "../services/receitaService";
-import type {
-    ReceitaBancoDados,
-    ReceitaDetalhada,
-} from "../types/detalhe_receita";
+import type { ReceitaBancoDados, ReceitaDetalhada, UseDetalheReceitaReturn } from "../types/detalhe_receita";
+import type { Recipe } from "../types/receitas";
 import { criarReceitaIA } from "../utils/receitaIAUtils";
-import {
-    formatarTempo,
-    processarIngredientes,
-    processarPassosPreparo,
-} from "../utils/receitaUtils";
+import { formatarTempo, processarIngredientes, processarPassosPreparo } from "../utils/receitaUtils";
 import { useDespensa } from "./useDespensa";
 import { useNetworkStatus } from "./useNetworkStatus";
-import type { Recipe } from "./useReceitas";
-
-interface UseDetalheReceitaReturn {
-  receitaDetalhada: ReceitaDetalhada;
-  receitaFavoritoIA: Recipe | undefined;
-  rawIngredientsPreparo: string;
-  rawStepsPreparo: string;
-  isIA: boolean;
-  receitaId: string;
-  isLoading: boolean;
-  erro: string | null;
-  retryReceita: () => Promise<void>;
-  preferenciasReceita: string[];
-  alergiasReceita: string[];
-}
 
 function parseListaStringsParam(valor: unknown): string[] {
   if (Array.isArray(valor)) {
@@ -51,31 +32,15 @@ function parseListaStringsParam(valor: unknown): string[] {
   }
 }
 
-/**
- * Hook Central para Buscar Dados de Receita
- *
- * REGRA 1: Todos os hooks (useState, useEffect, useMemo) NO TOPO
- * REGRA 2: ZERO early returns antes da declaração de hooks
- * REGRA 3: isMounted tracking em useEffect com fetch
- */
+// Hook para gerenciar o estado e lógica de detalhes da receita, incluindo dados do banco, processamento de ingredientes/preparo, e integração com receitas de IA
 export const useDetalheReceita = (): UseDetalheReceitaReturn => {
-  // ============================================
-  // REGRA 1: HOOKS NO TOPO ABSOLUTO
-  // ============================================
-
   const params = useLocalSearchParams();
-
-  // Estados
   const [receitaBancoDados, setReceitaBancoDados] =
     useState<ReceitaBancoDados | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const { ingredients: despensa } = useDespensa();
   const { isOffline } = useNetworkStatus();
-
-  // ============================================
-  // REGRA 3: Fetch com isMounted tracking
-  // ============================================
   const retryReceita = useCallback(async () => {
     const receitaId = params.id as string | undefined;
     const isNumericId = receitaId ? !isNaN(Number(receitaId)) : false;
@@ -90,7 +55,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
 
     if (isOffline) {
       setReceitaBancoDados(null);
-      setErro("Você está sem internet. Reconecte-se para carregar esta receita.");
+      setErro(MESSAGES.OFFLINE_LOAD_RECIPE);
       setIsLoading(false);
       return;
     }
@@ -105,12 +70,12 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
         setReceitaBancoDados(dados);
         setErro(null);
       } else {
-        setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+        setErro(MESSAGES.ERROR_LOAD_RECIPE);
         setReceitaBancoDados(null);
       }
     } catch (err) {
       console.error("Erro ao buscar receita:", err);
-      setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+      setErro(MESSAGES.ERROR_LOAD_RECIPE);
       setReceitaBancoDados(null);
     } finally {
       setIsLoading(false);
@@ -121,14 +86,10 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     void retryReceita();
   }, [retryReceita, params.tipo]);
 
-  // ============================================
-  // Processamento de dados (sem early returns)
-  // ============================================
-
   // Determina qual é o ID da receita
   const receitaId = useMemo(() => {
     const id = params.id as string | undefined;
-    return id || `ia-${Date.now()}`;
+    return id || `${IA_PATTERNS.id_prefix}${Date.now()}`;
   }, [params.id]);
 
   // Determina se é receita IA
@@ -157,8 +118,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     return parseListaStringsParam(params.tags);
   }, [receitaBancoDados?.tags, params.tags]);
 
-  // Processa dados da receita
-  // Prioridade: 1) Dados do banco 2) Params diretos 3) Fallback vazio
+  // Dados processados para exibição, combinando informações do banco e dos params (para casos de navegação direta ou receitas IA sem persistência)
   const receitaDetalhada: ReceitaDetalhada = useMemo(() => {
     if (receitaBancoDados) {
       // Dados do banco de dados
@@ -179,7 +139,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
           RECEITA_STRINGS.DESCRICAO_INDISPONIVEL,
         tempo: formatarTempo(
           receitaBancoDados.tempo_preparo ||
-            `${RECEITA_STRINGS.VALOR_PADRAO} min`,
+          `${RECEITA_STRINGS.VALOR_PADRAO} min`,
         ),
         dificuldade:
           receitaBancoDados.dificuldade || RECEITA_STRINGS.VALOR_PADRAO,
@@ -194,24 +154,24 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
           ingredientes.length > 0
             ? ingredientes
             : [
-                {
-                  id: "1",
-                  nome: RECEITA_STRINGS.SEM_INGREDIENTES,
-                  status: "faltando" as const,
-                },
-              ],
+              {
+                id: "1",
+                nome: RECEITA_STRINGS.SEM_INGREDIENTES,
+                status: "faltando" as const,
+              },
+            ],
         preparo:
           preparo.length > 0
             ? preparo
             : [
-                {
-                  titulo: "Siga sua intuição",
-                  descricao: RECEITA_STRINGS.SEM_PASSOS,
-                  dica: "",
-                  hasTimer: false,
-                  tempoTimer: 0,
-                },
-              ],
+              {
+                titulo: "Siga sua intuição",
+                descricao: RECEITA_STRINGS.SEM_PASSOS,
+                dica: "",
+                hasTimer: false,
+                tempoTimer: 0,
+              },
+            ],
       };
     } else {
       // Fallback: dados dos params (para recepção diretas ou navegação com dados)
@@ -243,24 +203,24 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
           ingredientes.length > 0
             ? ingredientes
             : [
-                {
-                  id: "1",
-                  nome: RECEITA_STRINGS.SEM_INGREDIENTES,
-                  status: "faltando" as const,
-                },
-              ],
+              {
+                id: "1",
+                nome: RECEITA_STRINGS.SEM_INGREDIENTES,
+                status: "faltando" as const,
+              },
+            ],
         preparo:
           preparo.length > 0
             ? preparo
             : [
-                {
-                  titulo: "Siga sua intuição",
-                  descricao: RECEITA_STRINGS.SEM_PASSOS,
-                  dica: "",
-                  hasTimer: false,
-                  tempoTimer: 0,
-                },
-              ],
+              {
+                titulo: "Siga sua intuição",
+                descricao: RECEITA_STRINGS.SEM_PASSOS,
+                dica: "",
+                hasTimer: false,
+                tempoTimer: 0,
+              },
+            ],
       };
     }
   }, [receitaBancoDados, params, despensa]);
@@ -321,9 +281,6 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
     return (params.steps as string) || "[]";
   }, [receitaBancoDados?.passos_detalhados, params.steps]);
 
-  // ============================================
-  // RETORNO (sem early returns antes daqui)
-  // ============================================
   return {
     receitaDetalhada,
     receitaFavoritoIA,

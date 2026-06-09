@@ -1,5 +1,8 @@
-import type { Recipe } from "../hooks/useReceitas";
+// Meus imports
+import { MESSAGES } from "../constants/messages";
+import type { AbatimentoResultado } from "../types/despensa";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
+import type { Recipe } from "../types/receitas";
 import { criarReceitaIA } from "./receitaIAUtils";
 
 //Cria objeto Recipe para receitas de IA no contexto de preparo
@@ -19,6 +22,54 @@ export const criarReceitaIAParaPreparo = (
     preferences: params.preferencias,
     recipeAllergies: params.alergias,
   });
+};
+
+//Formata mensagem de abatimento com detalhes dos ingredientes abatidos e ignorados
+export const formatarMensagemAbatimento = (
+  resultado: AbatimentoResultado,
+): string => {
+  const mensagemBase = `${resultado.abatidos} ${MESSAGES.ABATIMENTO_BASE}`;
+
+  if (!resultado.ignoradosDetalhes.length) {
+    return mensagemBase;
+  }
+
+  const agrupados = resultado.ignoradosDetalhes.reduce(
+    (acc, item) => {
+      acc[item.motivo] = acc[item.motivo] ?? [];
+      acc[item.motivo].push(item);
+      return acc;
+    },
+    {} as Record<AbatimentoResultado['ignoradosDetalhes'][number]['motivo'], typeof resultado.ignoradosDetalhes>,
+  );
+
+  const descricoes: string[] = [];
+
+  if (agrupados.incompativel?.length) {
+    descricoes.push(
+      `${agrupados.incompativel.length} ${MESSAGES.ABATIMENTO_INCOMPATIVEL}:\n` +
+        agrupados.incompativel
+          .map((i) => `• ${i.nome}${i.detalhes ? ` (${i.detalhes})` : ''}`)
+          .join('\n'),
+    );
+  }
+
+  if (agrupados.nao_encontrado?.length) {
+    descricoes.push(
+      `${agrupados.nao_encontrado.length} ${MESSAGES.ABATIMENTO_NAO_ENCONTRADO}:\n` +
+        agrupados.nao_encontrado.map((i) => `• ${i.nome}`).join('\n'),
+    );
+  }
+
+  if (agrupados.baixa_confianca?.length) {
+    descricoes.push(`${agrupados.baixa_confianca.length} ${MESSAGES.ABATIMENTO_BAIXA_CONFIANCA}`);
+  }
+
+  if (agrupados.livre?.length) {
+    descricoes.push(`${agrupados.livre.length} ${MESSAGES.ABATIMENTO_LIVRE}`);
+  }
+
+  return `${mensagemBase}\n\n${MESSAGES.ABATIMENTO_IGNORADOS_TITLE}:\n${descricoes.join('\n\n')}`;
 };
 
 // Processa parâmetros da rota para o formato estruturado

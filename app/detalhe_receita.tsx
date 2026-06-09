@@ -1,34 +1,15 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-    AlertCircle,
-    AlertTriangle,
-    BarChart3,
-    CheckCircle2,
-    Clock,
-    Flame,
-    Heart,
-    Lightbulb,
-    PlayCircle,
-    Share2,
-    WifiOff,
+  AlertCircle, AlertTriangle, BarChart3, CheckCircle2, Clock,
+  Flame, Heart, Lightbulb, PlayCircle, Share2, WifiOff,
 } from "lucide-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    Pressable,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator, Image, Pressable, ScrollView, StatusBar,
+  Text, TouchableOpacity, View,
 } from "react-native";
-import Animated, {
-    FadeInDown,
-    FadeInLeft,
-    FadeInUp,
-} from "react-native-reanimated";
+import Animated, { FadeInDown, FadeInLeft, FadeInUp, } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports
@@ -48,10 +29,6 @@ import { alergiasReceitaQueColidemComUsuario } from "../utils/perfilReceitasFilt
 export default function DetalheReceitaScreen() {
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-
-  // ============================================
-  // HOOKS NO TOPO (Regra 1)
-  // ============================================
 
   // Hook principal com lógica de busca
   const {
@@ -97,13 +74,12 @@ export default function DetalheReceitaScreen() {
   const isOfflineBlockingError =
     !!erro && isOffline && !!receitaId && !isNaN(Number(receitaId));
 
-  // --- EFFECT QUE CARREGA A FOTO DO PARAMS ---
+  // Carregar a imagem (se for receita IA, a imagem pode vir dos params ou ser gerada, para receitas do banco a imagem já vem pronta)
   useEffect(() => {
     let isMounted = true;
 
     async function fetchImage() {
       const imageParam = params.image as string | undefined;
-      // Se veio uma imagem nos params (URL do Pollinations.ai ou Supabase), use ela
       if (
         imageParam &&
         (imageParam.startsWith("data:image") || imageParam.startsWith("http"))
@@ -128,13 +104,10 @@ export default function DetalheReceitaScreen() {
     setImageFailed(false);
   }, [imageSourceUri]);
 
-  // ============================================
-  // RENDERIZAÇÃO (após todos os hooks)
-  // ============================================
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
+      {/* Cabeçalho */}
       <Header
         title={isIA ? "Receita gerada por IA" : "Detalhes da Receita"}
         centerTitle
@@ -324,6 +297,7 @@ export default function DetalheReceitaScreen() {
                 </Animated.View>
               )}
 
+              {/* 3. Mostra o AVISO de IMAGEM INDISPONIVEL */}
               {(!imageSourceUri || imageFailed) && !isLoadingImage && (
                 <Animated.View
                   entering={FadeInUp.duration(600)}
@@ -362,6 +336,7 @@ export default function DetalheReceitaScreen() {
                 </Animated.View>
               )}
 
+              {/* BLOCO DO CONTEUDO */}
               <View style={styles.contentCard}>
                 <Animated.Text
                   entering={FadeInDown.delay(200)}
@@ -418,6 +393,7 @@ export default function DetalheReceitaScreen() {
                   </Animated.View>
                 )}
 
+                {/* BLOCO DE INGREDIENTES */}
                 <View style={styles.sectionTitleRow}>
                   <Text style={styles.sectionTitle}>Ingredientes</Text>
                   <Text style={styles.itemsCount}>
@@ -460,6 +436,7 @@ export default function DetalheReceitaScreen() {
                   </Animated.View>
                 ) : null}
 
+                {/* BLOCO DE PREPARO */}
                 <Text style={styles.preparoTitle}>Modo de preparo</Text>
                 {receitaDetalhada.preparo.map((passo, index) => (
                   <View key={index} style={styles.stepItem}>
@@ -484,6 +461,7 @@ export default function DetalheReceitaScreen() {
             />
           </View>
 
+          {/* BLOCO DE FAVORITOS */}
           <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
             <Pressable
               onPress={() => {

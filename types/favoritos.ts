@@ -1,17 +1,16 @@
 import { LucideIcon } from "lucide-react-native";
-import { Recipe } from "../hooks/useReceitas";
+import type { Recipe } from "../types/receitas";
 
-/** Estrutura para os filtros (Chips) da UI */
+// Tipo para os chips de categorias
 export interface ChipItem {
     label: string;
     icon: LucideIcon;
 }
 
-/** Contrato do Contexto de Favoritos */
+/// Estrutura para o contexto de favoritos
 export interface FavoritosContextData {
-    favoritosIds: string[];         // IDs das receitas do banco (Supabase)
-    favoritosIA: Recipe[];          // Objetos completos das receitas geradas por IA
-    /** id efêmero (ex. ia-…) → id numérico persistido em `receitas` */
+    favoritosIds: string[];
+    favoritosIA: Recipe[];
     savedIAReceitaMap: Record<string, string>;
     isFavorito: (id: string | number) => boolean;
     toggleFavorito: (id: string | number, receitaData?: Recipe) => Promise<void>;

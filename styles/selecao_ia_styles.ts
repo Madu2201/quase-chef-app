@@ -1,12 +1,5 @@
 import { Platform, StyleSheet } from "react-native";
-import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Radius,
-  Shadows,
-  Spacing,
-} from "../constants/theme";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 import { GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS } from "./global_styles";
 
 export const styles = StyleSheet.create({

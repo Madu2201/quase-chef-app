@@ -1,25 +1,16 @@
 import * as Network from "expo-network";
 import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
+  createContext, useCallback, useContext,
+  useEffect, useMemo, useRef, useState
 } from "react";
 
-type NetworkStatusContextValue = {
-  isOffline: boolean;
-  offlineActionMessage: string | null;
-  notifyInternetRequired: (message?: string) => boolean;
-};
+import { MESSAGES } from "../constants/messages";
+import { TIMINGS } from "../constants/timings";
+import type { NetworkStatusContextValue, NetworkStatusProviderProps } from "../types/network";
 
 const NetworkStatusContext = createContext<NetworkStatusContextValue | null>(null);
-const DEFAULT_OFFLINE_ACTION_MESSAGE =
-  "Reconecte-se a internet para usar esta função.";
 
+// Verifica se o dispositivo está offline com base no estado da rede
 function resolveIsOffline(networkState: Network.NetworkState): boolean {
   return (
     networkState.isConnected === false ||
@@ -27,10 +18,7 @@ function resolveIsOffline(networkState: Network.NetworkState): boolean {
   );
 }
 
-type NetworkStatusProviderProps = {
-  children: ReactNode;
-};
-
+// Provedor de status de rede, responsável por monitorar o estado da conexão e fornecer uma função para notificar quando uma ação requer internet
 export function NetworkStatusProvider({
   children,
 }: NetworkStatusProviderProps) {
@@ -81,7 +69,7 @@ export function NetworkStatusProvider({
       return true;
     }
 
-    setOfflineActionMessage(message || DEFAULT_OFFLINE_ACTION_MESSAGE);
+    setOfflineActionMessage(message || MESSAGES.DEFAULT_OFFLINE_ACTION);
 
     if (offlineMessageTimeoutRef.current) {
       clearTimeout(offlineMessageTimeoutRef.current);
@@ -89,7 +77,7 @@ export function NetworkStatusProvider({
 
     offlineMessageTimeoutRef.current = setTimeout(() => {
       setOfflineActionMessage(null);
-    }, 3500);
+    }, TIMINGS.network_check_debounce);
 
     return false;
   }, [isOffline]);
@@ -110,6 +98,7 @@ export function NetworkStatusProvider({
   );
 }
 
+// Hook para usar o contexto de status de rede, fornecendo acesso ao estado de conexão e à função de notificação de necessidade de internet
 export function useNetworkStatus() {
   const context = useContext(NetworkStatusContext);
 

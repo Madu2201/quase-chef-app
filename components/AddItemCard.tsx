@@ -6,35 +6,7 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { UNIDADES_ACEITAS } from "../constants/ingredients";
 import { Colors } from "../constants/theme";
 
-// Tipagem das Props do Componente
-interface AddItemCardProps {
-    label: string;
-    placeholder: string;
-    nameValue: string;
-    onNameChange: (text: string) => void;
-    qtyValue: string;
-    onQtyChange: (text: string) => void;
-    unitValue: string;
-    onUnitChange: (unit: string) => void;
-    onAddPress: () => void;
-    showUnitPicker: boolean;
-    onToggleUnitPicker: () => void;
-    activeInput: string | null;
-    onNameFocus: () => void;
-    onNameBlur: () => void;
-    onQtyFocus: () => void;
-    onQtyBlur: () => void;
-    styles: any;
-    iconSize?: number;
-    useAddPanelStyle?: boolean; // Nova prop para usar estilo do addPanel
-    metaValue?: string;
-    onMetaChange?: (text: string) => void;
-    onMetaFocus?: () => void;
-    onMetaBlur?: () => void;
-    qtyLabel?: string;
-    metaLabel?: string;
-    onMetaHelp?: () => void;
-}
+import type { AddItemCardProps } from "../types/components";
 
 // Componente Principal
 export function AddItemCard({
@@ -67,7 +39,6 @@ export function AddItemCard({
 }: AddItemCardProps) {
     const [isButtonPressed, setIsButtonPressed] = useState(false);
 
-    // Se o estilo do addPanel está disponível, usa; senão usa o padrão
     const hasAddPanelStyles = useAddPanelStyle && styles.addPanel;
 
     if (hasAddPanelStyles) {

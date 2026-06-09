@@ -1,0 +1,61 @@
+import type { TemporaryMode } from "./perfil";
+
+// Tipo de parâmetros para compartilhar receita
+export interface CompartilharReceitaParams {
+    id: number | string;
+    titulo: string;
+    imagemUrl?: string;
+}
+
+// Tipos relacionados a receitas
+export interface Recipe {
+    id: string;
+    title: string;
+    time: string;
+    difficulty: string;
+    descStart: string;
+    ingredients: string;
+    descEnd: string;
+    image: string;
+    calories: string;
+    rawIngredients: string;
+    rawSteps: string;
+    tags: string[];
+    preferences?: string[];
+    recipeAllergies?: string[];
+    tipo?: string;
+    dica_rapida?: string;
+    pre_visualizacao?: string[];
+}
+
+// Tipos relacionados aos parâmetros de receita IA
+export interface ReceitaIASalvarParams {
+    title: string;
+    time: string;
+    difficulty: string;
+    description: string;
+    image: string;
+    calories: string;
+    rawIngredients: string;
+    rawSteps: string;
+    tags?: string[];
+    dica_rapida?: string;
+    pre_visualizacao_passos?: string[];
+    preferencias?: string[];
+    alergias_presentes?: string[];
+}
+
+// Tipos relacionados ao contexto de receitas
+export type ReceitasContextValue = {
+    receitasBanco: Recipe[];
+    carregando: boolean;
+    refreshReceitas: () => void;
+    filtrarPorCategoria: (receitas: Recipe[], categoria: string) => Recipe[];
+    filtrarPorBusca: (receitas: Recipe[], busca: string) => Recipe[];
+    filtrarPorPerfil: (
+        receitas: Recipe[],
+        foodPreferences?: string[] | null,
+        allergies?: string[] | null,
+        temporaryMode?: TemporaryMode | null,
+    ) => Recipe[];
+};

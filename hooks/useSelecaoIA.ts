@@ -1,29 +1,22 @@
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
+
+// Meus imports
+import { IA_PATTERNS } from "../constants/ia";
+import { MESSAGES } from "../constants/messages";
 import { generateAndUploadRecipeImage } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
-import type { Ingredient } from "../types/despensa";
+import type { ContextoSegurancaPrompt } from "../types/ia";
 import {
-  ContextoSegurancaPrompt,
-  extrairReceitaIAParseada,
-  montarListaIngredientesPorIds,
-  montarPromptGeracaoReceitaIA,
+  extrairReceitaIAParseada, filtrarCategoriasPorBusca, montarListaIngredientesPorIds,
+  montarPromptGeracaoReceitaIA, obterCategoriasIngredientesPorAlfabeto,
 } from "../utils/iaUtils";
 import { useAuth } from "./useAuth";
 import { useDespensa } from "./useDespensa";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-/** Estrutura de categoria para a listagem alfabética */
-export type CategoriaIngredienteIA = {
-  titulo: string;
-  itens: Ingredient[];
-};
-
-/**
- * Hook para gerenciar a lógica da tela de Seleção IA.
- * Responsável pela filtragem, agrupamento alfabético e integração com serviços de IA.
- */
+/// Hook para gerar receitas com IA a partir dos ingredientes selecionados pelo usuário
 export function useSelecaoIA() {
   const [busca, setBusca] = useState("");
   const [selecionadosIds, setSelecionadosIds] = useState<string[]>([]);
@@ -35,8 +28,6 @@ export function useSelecaoIA() {
   const { ingredients } = useDespensa();
   const { user } = useAuth();
   const { notifyInternetRequired } = useNetworkStatus();
-
-  // --- AÇÕES DO USUÁRIO ---
 
   const toggleIngrediente = useCallback((id: string) => {
     setSelecionadosIds((prev) =>
@@ -54,74 +45,34 @@ export function useSelecaoIA() {
     );
   }, []);
 
-  // --- DADOS DERIVADOS (MEMOIZADOS) ---
-
+  // Ingredientes selecionados para a geração da receita
   const ingredientesSelecionados = useMemo(() => {
     if (!ingredients) return [];
     return ingredients.filter((ing) => selecionadosIds.includes(ing.id));
   }, [ingredients, selecionadosIds]);
 
-  const categoriasComItens = useMemo((): CategoriaIngredienteIA[] => {
-    if (!ingredients?.length) return [];
+  const categoriasComItens = useMemo(
+    () => obterCategoriasIngredientesPorAlfabeto(ingredients),
+    [ingredients],
+  );
 
-    const grupos: Record<string, Ingredient[]> = {};
+  // Busca na lista de categorias e ingredientes para filtrar conforme o termo digitado
+  const categoriasFiltradas = useMemo(
+    () => filtrarCategoriasPorBusca(categoriasComItens, busca),
+    [busca, categoriasComItens],
+  );
 
-    // Filtra ingredientes com quantidade > 0 (não mostrar itens acabados)
-    const ingredientesDisponiveis = ingredients.filter((ing) => (ing.qty || 0) > 0);
-
-    // Ordenação alfabética global dos ingredientes
-    const ingredientesOrdenados = [...ingredientesDisponiveis].sort((a, b) =>
-      a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
-    );
-
-    ingredientesOrdenados.forEach((ing) => {
-      const primeiraLetra = ing.name.charAt(0).toUpperCase();
-      const categoria = /^[A-ZÀ-Ú]$/.test(primeiraLetra) ? primeiraLetra : "#";
-
-      if (!grupos[categoria]) {
-        grupos[categoria] = [];
-      }
-      grupos[categoria].push(ing);
-    });
-
-    return Object.keys(grupos)
-      .sort((a, b) => {
-        if (a === "#") return 1;
-        if (b === "#") return -1;
-        return a.localeCompare(b, "pt-BR");
-      })
-      .map((letra) => ({
-        titulo: letra,
-        itens: grupos[letra],
-      }));
-  }, [ingredients]);
-
-  const categoriasFiltradas = useMemo(() => {
-    const termo = busca.toLowerCase().trim();
-    if (!termo) return categoriasComItens;
-
-    return categoriasComItens
-      .map((cat) => ({
-        ...cat,
-        itens: cat.itens.filter((ing) =>
-          ing.name.toLowerCase().includes(termo),
-        ),
-      }))
-      .filter((cat) => cat.itens.length > 0);
-  }, [busca, categoriasComItens]);
-
-  // --- GERAÇÃO DE RECEITA ---
-
+  // Funções de geração da receita com IA
   const gerarReceitaComIngredientes = useCallback(
     async (idsIngredientes: string[]): Promise<void> => {
       const lista = idsIngredientes.filter(Boolean);
       if (lista.length === 0) {
-        Alert.alert("Atenção", "Selecione pelo menos um ingrediente!");
+        Alert.alert("Atenção", MESSAGES.IA_NO_INGREDIENTS);
         return;
       }
 
       if (
-        !notifyInternetRequired("Reconecte-se para gerar uma receita com IA.")
+        !notifyInternetRequired(MESSAGES.OFFLINE_GENERATE_IA_RECIPE)
       ) {
         return;
       }
@@ -149,7 +100,7 @@ export function useSelecaoIA() {
           extrairReceitaIAParseada(respostaIA);
 
         // Gera ID único para a receita
-        const idReceitaGerada = "ia-" + Date.now();
+        const idReceitaGerada = IA_PATTERNS.id_prefix + Date.now();
 
         // Falha de mídia não pode derrubar a geração da receita.
         let imageUrl: string | null = null;
@@ -188,61 +139,61 @@ export function useSelecaoIA() {
             alergias: JSON.stringify(receitaGerada.alergias_presentes || []),
           },
         });
-        } catch (error: any) {
+      } catch (error: any) {
         console.error("Erro IA:", error);
-        
+
         // Transforma tudo em string e minúsculo para facilitar a busca
         const errorMessage = (error?.message || String(error)).toLowerCase();
 
-        // Botões padronizados (adicionado o "OK" no cancelar para fazer mais sentido)
+        // Botões padronizados
         const alertButtons = [
-          { 
-            text: "Ver Catálogo", 
+          {
+            text: MESSAGES.IA_ERROR_BUTTON_CATALOG,
             onPress: () => router.push("/(tabs)/receitas")
           },
-          { 
-            text: "OK", 
-            style: "cancel" as const 
+          {
+            text: MESSAGES.IA_ERROR_BUTTON_OK,
+            style: "cancel" as const
           }
         ];
 
         // 1. Limite de Requisições (Rate Limit)
         if (errorMessage.includes("429") || errorMessage.includes("too many requests")) {
           Alert.alert(
-            "Muita gente na cozinha! 👨‍🍳", 
-            "A nossa IA está preparando muitos pratos ao mesmo tempo. Que tal dar uma olhada no nosso catálogo de receitas enquanto ela termina?", 
+            MESSAGES.IA_ERROR_RATE_LIMIT_TITLE,
+            MESSAGES.IA_ERROR_RATE_LIMIT_MESSAGE,
             alertButtons
           );
-        } 
+        }
         // 2. Erro de Autenticação / Chave de API
         else if (errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("api_key")) {
           Alert.alert(
-            "Eita, faltou um ingrediente técnico! 🔧", 
-            "Tivemos um probleminha de conexão com o nosso assistente. Enquanto resolvemos isso, você pode conferir as opções do catálogo.", 
+            MESSAGES.IA_ERROR_AUTH_TITLE,
+            MESSAGES.IA_ERROR_AUTH_MESSAGE,
             alertButtons
           );
-        } 
+        }
         // 3. Erro no Servidor (Deles ou Seu)
         else if (errorMessage.includes("500") || errorMessage.includes("503") || errorMessage.includes("server")) {
           Alert.alert(
-            "Servidores lotados! 🥵", 
-            "Nosso assistente de cozinha recebeu mais pedidos do que consegue aguentar agora. Bora dar uma olhada nas receitas prontas do catálogo?", 
+            MESSAGES.IA_ERROR_SERVER_TITLE,
+            MESSAGES.IA_ERROR_SERVER_MESSAGE,
             alertButtons
           );
-        } 
+        }
         // 4. Erro de Internet / Conexão
         else if (errorMessage.includes("network") || errorMessage.includes("fetch") || errorMessage.includes("internet") || errorMessage.includes("baleia")) {
           Alert.alert(
-            "Sem sinal na cozinha? 🌐", 
-            "Sua internet parece ter dado uma oscilada. Verifique sua conexão ou aproveite para olhar nosso catálogo de receitas.", 
+            MESSAGES.IA_ERROR_NETWORK_TITLE,
+            MESSAGES.IA_ERROR_NETWORK_MESSAGE,
             alertButtons
           );
-        } 
+        }
         // 5. Erro Genérico
         else {
           Alert.alert(
-            "A receita desandou! 🍳", 
-            "Não conseguimos criar sua receita personalizada dessa vez. Enquanto limpamos a bancada, que tal escolher uma opção do nosso catálogo?", 
+            MESSAGES.IA_ERROR_GENERIC_TITLE,
+            MESSAGES.IA_ERROR_GENERIC_MESSAGE,
             alertButtons
           );
         }
@@ -253,7 +204,7 @@ export function useSelecaoIA() {
     [ingredients, notifyInternetRequired, user],
   );
 
-  // --- RETORNO DO HOOK ---
+  // Funções de geração da receita com IA, expostas para a tela de seleção
   const handleGerarReceita = useCallback(
     async (idsOpcionais?: any) => {
       const idsParaGerar = Array.isArray(idsOpcionais)

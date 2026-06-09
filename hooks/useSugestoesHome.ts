@@ -1,10 +1,13 @@
 import { useMemo } from "react";
+
+// Meus imports
+import type { Recipe } from "../types/receitas";
 import { normalizarTexto } from "../utils/normalization";
 import { useAuth } from "./useAuth";
 import { useFiltroEstoque } from "./useFiltroEstoque";
-import { Recipe, useReceitas } from "./useReceitas";
+import { useReceitas } from "./useReceitas";
 
-/** Evita vários cards iguais (ex.: mesma IA favoritada várias vezes no banco). */
+// Função para remover receitas duplicadas
 function dedupeSugestoesHome(receitas: Recipe[]): Recipe[] {
   const visto = new Set<string>();
   const saida: Recipe[] = [];
@@ -18,12 +21,11 @@ function dedupeSugestoesHome(receitas: Recipe[]): Recipe[] {
   return saida;
 }
 
+// Hook personalizado para obter sugestões de receitas para a tela inicial
 export function useSugestoesHome(limiteDeSugestoes: number = 3) {
   const { receitasBanco, carregando, filtrarPorPerfil } = useReceitas();
   const { filtrarPorEstoque } = useFiltroEstoque();
   const { user } = useAuth();
-
-
 
   const sugestoes = useMemo(() => {
     if (!receitasBanco || receitasBanco.length === 0) return [];

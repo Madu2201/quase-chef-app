@@ -1,18 +1,29 @@
+import type { EditForm } from "./lista";
+
+// Tipos de base de peso
+export interface BaseDePeso {
+  valor: number;
+  tipo: 'massa_volume' | 'unidade';
+}
+
+// Tipos de ingrediente
 export interface Ingredient {
   id: string;
   name: string;
-  qty: number; // Agora como número para facilitar cálculos
-  ideal_qty: number; // A nossa META mensal
+  qty: number;
+  ideal_qty: number;
   unit: string;
   selected: boolean;
 }
 
+// Tipos relacionados ao formulário de edição
 export interface DetalhesIgnorado {
   nome: string;
   motivo: 'incompativel' | 'nao_encontrado' | 'baixa_confianca' | 'livre';
   detalhes?: string;
 }
 
+// Tipos relacionados ao abatimento
 export interface AbatimentoResultado {
   sucesso: boolean;
   abatidos: number;
@@ -24,6 +35,7 @@ export interface AbatimentoResultado {
   mensagem?: string;
 }
 
+// Contexto da despensa
 export interface DespensaContextData {
   ingredients: Ingredient[];
   filteredIngredients: Ingredient[];
@@ -59,4 +71,47 @@ export interface DespensaContextData {
   selectedIngredientIds: string[];
   isLoading: boolean;
   buscarDespensa: () => Promise<void>;
+}
+
+// Tipos relacionados ao hook da tela
+export interface DespensaScreenHookData {
+  filteredIngredients: Ingredient[];
+  searchText: string;
+  setSearchText: (text: string) => void;
+  handleAdd: () => Promise<void>;
+  nomeNovo: string;
+  setNomeNovo: (value: string) => void;
+  qtdNova: string;
+  setQtdNova: (value: string) => void;
+  metaNova: string;
+  setMetaNova: (value: string) => void;
+  unidadeNova: string;
+  setUnidadeNova: (value: string) => void;
+  showUnitPickerNew: boolean;
+  setShowUnitPickerNew: (value: boolean) => void;
+  isAddingIngredient: boolean;
+  activeInput: string | null;
+  setActiveInput: (value: string | null) => void;
+  editingId: string | null;
+  setEditingId: (value: string | null) => void;
+  editForm: EditForm;
+  setEditForm: (form: EditForm) => void;
+  showUnitPickerEdit: boolean;
+  setShowUnitPickerEdit: (value: boolean) => void;
+  startEditing: (item: Ingredient) => void;
+  saveEdit: (form?: EditForm) => void;
+  showMetaHelp: () => void;
+  toggleIngredient: (id: string) => Promise<void>;
+  removeIngredient: (id: string) => Promise<void>;
+  selectedCount: number;
+  selectedIngredientIds: string[];
+  isLoading: boolean;
+}
+
+// Tipos relacionados ao formulário de edição
+export interface DespensaUpdatePayload {
+  id: string;
+  quantidade: number;
+  unidade: string;
+  selected: boolean;
 }

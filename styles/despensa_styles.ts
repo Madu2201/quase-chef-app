@@ -1,23 +1,9 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing, } from "../constants/theme";
 import {
-    Colors,
-    Fonts,
-    FontSizes,
-    Radius,
-    Shadows,
-    Spacing,
-} from "../constants/theme";
-import {
-    GLOBAL_ACTION_BUTTONS,
-    GLOBAL_EDIT_STYLES,
-    ITEM_LIST_ACTIONS,
-    ITEM_LIST_BUTTONS,
-    ITEM_LIST_CARDS,
-    ITEM_LIST_CHECKBOX,
-    ITEM_LIST_CONTAINERS,
-    ITEM_LIST_FLEX,
-    ITEM_LIST_INPUTS,
-    ITEM_LIST_PICKERS,
+  GLOBAL_ACTION_BUTTONS, GLOBAL_EDIT_STYLES, ITEM_LIST_ACTIONS, ITEM_LIST_BUTTONS,
+  ITEM_LIST_CARDS, ITEM_LIST_CHECKBOX, ITEM_LIST_CONTAINERS, ITEM_LIST_FLEX,
+  ITEM_LIST_INPUTS, ITEM_LIST_PICKERS
 } from "./global_styles";
 
 // ESTILOS ESPECÍFICOS PARA: DESPENSA
@@ -332,7 +318,7 @@ export const despensaStyles = StyleSheet.create({
     opacity: 0.5,
     borderColor: Colors.subtext,
   },
-  
+
   checkboxMargin: {
     marginRight: 12,
   },

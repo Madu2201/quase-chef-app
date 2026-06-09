@@ -1,28 +1,17 @@
 import { useSegments } from "expo-router";
 import { WifiOff } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import {
-    Animated,
-    Platform,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Animated, Platform, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-    Colors,
-    Fonts,
-    FontSizes,
-    Radius,
-    Shadows,
-    Spacing,
-} from "../constants/theme";
+// Meus imports
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing, } from "../constants/theme";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 
 const HIDDEN_OFFSET = 16;
 const TABS_BOTTOM_OFFSET = 72;
 
+// Função para exibir um banner de aviso quando o dispositivo estiver offline
 export function OfflineBanner() {
   const { isOffline, offlineActionMessage } = useNetworkStatus();
   const insets = useSafeAreaInsets();
@@ -108,6 +97,7 @@ export function OfflineBanner() {
   );
 }
 
+// Estilos para o banner offline
 const styles = StyleSheet.create({
   container: {
     position: "absolute",

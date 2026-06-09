@@ -1,15 +1,7 @@
+// Meu import
 import { CompraItem } from "../types/lista";
 
-/**
- * 🛠️ Lógica de Validação do Quase Chef
- */
-
-/**
- * Valida se a senha cumpre as regras estritas:
- * 1. Mínimo 8 caracteres, máximo 16
- * 2. Pelo menos uma letra (maiuscula ou minuscula)
- * 3. Pelo menos um símbolo especial
- */
+// Valida se a senha cumpre as regras estritas
 export const getPasswordRequirements = (password: string) => {
   return {
     // Verifica se o comprimento é entre 8 e 16 caracteres
@@ -21,32 +13,26 @@ export const getPasswordRequirements = (password: string) => {
   };
 };
 
-/**
- * Retorna true apenas se todos os requisitos forem atendidos
- */
+// Função de validação de senha que retorna true se a senha for forte
 export const isPasswordStrong = (password: string): boolean => {
   const req = getPasswordRequirements(password);
   return req.exactLength && req.hasLetter && req.hasSymbol;
 };
 
-/**
- * Validação de E-mail padrão
- */
+// Validação de Email usando Regex simples
 export const validateEmail = (email: string): boolean => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email.trim());
 };
 
-/**
- * Validação de Nome (mínimo 3 caracteres)
- */
+// Validação de Nome do Item (mínimo 3 caracteres)
 export const validateName = (name: string): boolean => {
   return name.trim().length >= 3;
 };
 
 /**
  * Transforma string com vírgula em número (ex: "1,5" -> 1.5)
- * Se for inválido, retorna o valor padrão (defaultValue).
+ * Se for inválido, retorna o valor padrão.
  * * @param valor - String ou número a ser convertido
  * @param defaultValue - Valor de fallback em caso de erro (padrão: 0)
  * @returns Número parseado ou valor padrão se inválido
@@ -75,6 +61,17 @@ export const normalizarNome = (nome: string): string => {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 };
 
+// Normaliza nome para comparação (tudo minúsculo)
+export const normalizeItemName = (name: string): string =>
+  normalizarNome(name).toLowerCase();
+
+export const filterByText = (list: CompraItem[], text: string): CompraItem[] => {
+  const query = text.trim().toLowerCase();
+  return query
+    ? list.filter((item) => item.nome.toLowerCase().includes(query))
+    : list;
+};
+
 /**
  * Valida quantidade com limites (não permite negativo ou muito grande)
  * @param valor - Valor a validar
@@ -94,13 +91,7 @@ export const validateQuantity = (
   return num;
 };
 
-// ============================================================================
-// --- NOVA FUNÇÃO (FASE 1: GUARDA ESTOQUE / UPSERT) ---
-// ============================================================================
-
-/**
- * Garante que o item comprado tem os dados mínimos e válidos antes de ser enviado para a despensa.
- */
+// Valida se um item é válido para upsert (nome, quantidade e unidade)
 export function validarParaUpsert(item: CompraItem): boolean {
   if (!item || !item.nome || item.nome.trim() === "") return false;
 

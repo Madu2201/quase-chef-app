@@ -1,28 +1,13 @@
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import {
-  AlertCircle,
-  Camera,
-  CheckCircle,
-  ChevronRight,
-  Leaf,
-  Lightbulb,
-  LogOut,
-  Pencil,
-  Settings,
-  User as UserIcon,
+  AlertCircle, Camera, CheckCircle, ChevronRight, Leaf,
+  Lightbulb, LogOut, Pencil, Settings, User as UserIcon,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+  ActivityIndicator, Image, KeyboardAvoidingView, Platform,
+  ScrollView, Text, TextInput, TouchableOpacity, View,
 } from "react-native";
 
 // Meus imports
@@ -31,10 +16,8 @@ import { useProfile } from "@/hooks/useProfile";
 import type { OptionItem } from "@/types/auth";
 import { TemporaryMode } from "@/types/perfil";
 import { Header } from "../components/header";
-import {
-  ALLERGY_OPTIONS,
-  FOOD_PREFERENCE_OPTIONS,
-} from "../constants/OpcaoAlimentar";
+import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlimentar";
+import { TEMPORARY_MODE_DESCRIPTIONS } from "../constants/profile";
 import { Colors } from "../constants/theme";
 import { perfilStyles as styles } from "../styles/perfil_styles";
 
@@ -55,15 +38,9 @@ export default function PerfilScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
-  // Descrições dinâmicas que você tinha originalmente
+  // Descrição dinâmica baseada no modo temporário selecionado
   const modeDescription = useMemo(() => {
-    if (preferences.temporaryMode === "paused") {
-      return "Modo “Pausado”: as preferências de estilo deixam de filtrar a lista (mais receitas). As alergias continuam sempre ativas.";
-    }
-    if (preferences.temporaryMode === "weekends_only") {
-      return "Modo “Final de Semana”: aos sábados e domingos vale pausa só nas preferências de estilo; nos outros dias aplicam-se normalmente. Alergias continuam sempre ativas.";
-    }
-    return "Modo “Ativo”: preferências de estilo (união) e alergias (exclusão) filtram a lista.";
+    return TEMPORARY_MODE_DESCRIPTIONS[preferences.temporaryMode] || TEMPORARY_MODE_DESCRIPTIONS.always_on;
   }, [preferences.temporaryMode]);
 
   const toggleOption = (list: "lifestyle" | "allergies", val: string) => {
@@ -175,14 +152,14 @@ export default function PerfilScreen() {
                   style={[
                     styles.segmentButton,
                     preferences.temporaryMode === m &&
-                      styles.segmentButtonActive,
+                    styles.segmentButtonActive,
                   ]}
                 >
                   <Text
                     style={[
                       styles.segmentButtonText,
                       preferences.temporaryMode === m &&
-                        styles.segmentButtonTextActive,
+                      styles.segmentButtonTextActive,
                     ]}
                   >
                     {m === "always_on"
@@ -253,7 +230,7 @@ export default function PerfilScreen() {
                     styles.inputContainer,
                     styles.textAreaContainer,
                     focusedInput === "outras_restricoes" &&
-                      styles.inputContainerFocused,
+                    styles.inputContainerFocused,
                   ]}
                 >
                   <TextInput

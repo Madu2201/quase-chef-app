@@ -1,9 +1,12 @@
 import { useCallback } from "react";
+
+// Meus imports
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
 import { useDespensa } from "../hooks/useDespensa";
-import { Recipe } from "../hooks/useReceitas";
+import type { Recipe } from "../types/receitas";
 import { normalizarBase, normalizarTexto } from "../utils/normalization";
 
+// Filtro de receitas por estoque - verifica se o usuário tem os ingredientes necessários na despensa para preparar a receita
 export function useFiltroEstoque() {
   const { ingredients: despensaIngredientes } = useDespensa();
 
@@ -28,9 +31,7 @@ export function useFiltroEstoque() {
             );
             if (ehLivre) return true;
 
-            // Regra B: Existe na despensa?
-            // O checkbox da despensa é usado apenas para selecionar ingredientes para IA,
-            // não deve afetar o filtro de receitas por estoque.
+            // Regra B: Existe na despensa? 
             const itemNoEstoque = despensaIngredientes.find((itemDespensa) => {
               const nomeDispNormalizado = normalizarTexto(itemDespensa.name);
               return (

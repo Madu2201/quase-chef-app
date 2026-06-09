@@ -1,3 +1,5 @@
+import type { Recipe } from "./receitas";
+
 // TIPOS PARA DETALHE DA RECEITA
 export interface Ingrediente {
   id: string;
@@ -21,10 +23,7 @@ export interface InfoCardProps {
   value: string;
 }
 
-/**
- * Representa os dados brutos recebidos do Supabase
- * Estrutura exata da tabela de receitas
- */
+// Tipo para os parâmetros de navegação da tela de detalhes da receita
 export interface ReceitaBancoDados {
   id: number;
   nome_receita: string;
@@ -43,7 +42,7 @@ export interface ReceitaBancoDados {
   alergias_presentes?: string[];
 }
 
-// TIPOS PARA RECEITA DETALHADA
+// TIPOS PARA DETALHE DA RECEITA
 export interface ReceitaDetalhada {
   titulo: string;
   descricao: string;
@@ -56,4 +55,18 @@ export interface ReceitaDetalhada {
   pre_visualizacao?: string[];
   ingredientes: Ingrediente[];
   preparo: PassoPreparo[];
+}
+
+export interface UseDetalheReceitaReturn {
+  receitaDetalhada: ReceitaDetalhada;
+  receitaFavoritoIA: Recipe | undefined;
+  rawIngredientsPreparo: string;
+  rawStepsPreparo: string;
+  isIA: boolean;
+  receitaId: string;
+  isLoading: boolean;
+  erro: string | null;
+  retryReceita: () => Promise<void>;
+  preferenciasReceita: string[];
+  alergiasReceita: string[];
 }

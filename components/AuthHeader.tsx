@@ -2,17 +2,11 @@ import React from "react";
 import { Image, Text } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 
-// Imports de estilo
+// Meu import
 import { authStyles as styles } from "../styles/auth_styles";
-
-interface AuthHeaderProps {
-    title: string;
-    subtitle: string;
-    email?: string;
-}
+import type { AuthHeaderProps } from "../types/components";
 
 export default function AuthHeader({ title, subtitle, email }: AuthHeaderProps) {
-    // Substitui {email} no subtitle se email for fornecido
     const processedSubtitle = email ? subtitle.replace("{email}", email) : subtitle;
 
     return (

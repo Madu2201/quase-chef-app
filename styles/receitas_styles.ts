@@ -1,11 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
-import {
-    FILTERS_LAYOUT,
-    GLOBAL_ACTION_BUTTONS,
-    GLOBAL_CHIPS_FILTERS,
-    ITEM_LIST_CONTAINERS
-} from "./global_styles";
+import { FILTERS_LAYOUT, GLOBAL_ACTION_BUTTONS, GLOBAL_CHIPS_FILTERS, ITEM_LIST_CONTAINERS } from "./global_styles";
 
 // Importando o Toggle do arquivo de Header
 import { HEADER_STOCK_TOGGLE } from "./header.styles";

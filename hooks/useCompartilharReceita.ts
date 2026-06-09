@@ -1,15 +1,14 @@
 import { useCallback, useState } from "react";
 import { Alert, Share } from "react-native";
 
+// Meus imports
+import { DEEPLINKS } from "../constants/deeplinks";
+import { MESSAGES } from "../constants/messages";
 import { tornarReceitaPublica } from "../services/receitaService";
+import type { CompartilharReceitaParams } from "../types/receitas";
 import { useNetworkStatus } from "./useNetworkStatus";
 
-interface CompartilharReceitaParams {
-  id: number | string;
-  titulo: string;
-  imagemUrl?: string;
-}
-
+// Funcionalidade de compartilhar receita
 export function useCompartilharReceita() {
   const [isSharing, setIsSharing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,12 +17,12 @@ export function useCompartilharReceita() {
   const compartilhar = useCallback(
     async ({ id, titulo }: CompartilharReceitaParams) => {
       if (!id) {
-        Alert.alert("Erro", "Receita inválida para compartilhamento.");
+        Alert.alert("Erro", MESSAGES.ERROR_INVALID_RECIPE);
         return;
       }
 
       if (
-        !notifyInternetRequired("Reconecte-se para compartilhar esta receita.")
+        !notifyInternetRequired(MESSAGES.OFFLINE_SHARE_RECIPE)
       ) {
         return;
       }
@@ -36,28 +35,27 @@ export function useCompartilharReceita() {
 
         if (!receitaPublica) {
           const mensagemErro =
-            "Não foi possível gerar o link de compartilhamento.";
+            MESSAGES.ERROR_SHARE_LINK_GENERATION;
           setError(mensagemErro);
           Alert.alert("Erro", mensagemErro);
           return;
         }
 
-        const deepLink = `quasechef://detalhe_receita?id=${id}`;
+        const deepLink = `${DEEPLINKS.recipe_detail}${id}`;
 
         const message =
-          `Olha essa receita de ${titulo} que fiz no Quase Chef! 🍳\n\n` +
-          `Veja os ingredientes e o passo a passo completo clicando no link abaixo:\n` +
+          `${MESSAGES.SHARE_RECIPE_PREFIX} ${titulo} ${MESSAGES.SHARE_RECIPE_SUFFIX}\n` +
           `${deepLink}`;
 
         await Share.share({
-          title: `Receita: ${titulo}`,
+          title: `${MESSAGES.SHARE_RECIPE_TITLE}: ${titulo}`,
           message,
         });
       } catch (exception) {
         console.error("❌ Erro ao compartilhar receita:", exception);
 
         const mensagemErro =
-          "Ocorreu um erro ao tentar compartilhar a receita.";
+          MESSAGES.ERROR_SHARE_RECIPE;
         setError(mensagemErro);
         Alert.alert("Erro", mensagemErro);
       } finally {

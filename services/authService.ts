@@ -1,6 +1,9 @@
 import { supabase } from "@/services/supabase";
 import * as FileSystem from "expo-file-system/legacy";
 
+import { DATABASE_TABLES, STORAGE_BUCKETS } from "../constants/database";
+import type { UserData } from "../types/auth";
+
 // 1. Cadastro Seguro e Real
 export const registerUser = async (
   fullName: string,
@@ -17,13 +20,13 @@ export const registerUser = async (
     password,
     options: {
       data: {
-        full_name: fullName, // Salva no metadata para emergências
+        full_name: fullName,
       }
     }
   });
 
 if (authError) {
-    // Só exibe erro no console se não for o erro de e-mail duplicado (que já tratamos)
+    // Só exibe erro no console se não for o erro de e-mail duplicado
     if (!authError.message.includes("already registered")) {
       console.error("Erro no Auth do Supabase:", authError.message);
     }
@@ -36,13 +39,13 @@ if (authError) {
 
   // B) Vincula os dados extras na sua tabela pública 'users' usando o ID oficial
   const { error: dbError } = await supabase
-    .from("users")
+    .from(DATABASE_TABLES.users)
     .insert([
       {
-        id: authData.user.id, // O PULP DO GATO: Usa o ID gerado pelo sistema de autenticação real
+        id: authData.user.id,
         full_name: fullName,
         email: normalizedEmail,
-        password_hash: "PROTEGIDO_PELO_SUPABASE_AUTH", // Apenas para não quebrar colunas antigas NotNull se houver
+        password_hash: "PROTEGIDO_PELO_SUPABASE_AUTH",
         food_preferences: foodPreferences,
         allergies: allergies,
         other_restrictions: otherRestrictions,
@@ -58,7 +61,7 @@ if (authError) {
 };
 
 // 2. Login Seguro e Real
-export const loginUser = async (email: string, senha: string) => {
+export const loginUser = async (email: string, senha: string): Promise<UserData> => {
   // A) Normaliza email e faz a verificação criptografada no Supabase Auth
   const normalizedEmail = email.trim().toLowerCase();
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -82,9 +85,9 @@ export const loginUser = async (email: string, senha: string) => {
     // Fallback de segurança caso a tabela pública falhe: retorna o básico do Auth
     return {
       id: authData.user.id,
-      email: authData.user.email,
+      email: authData.user.email ?? null,
       full_name: authData.user.user_metadata?.full_name || "",
-      avatar_url: authData.user.user_metadata?.avatar_url || "",
+      avatar_url: authData.user.user_metadata?.avatar_url ?? null,
       food_preferences: [],
       allergies: [],
       other_restrictions: ""
@@ -94,7 +97,7 @@ export const loginUser = async (email: string, senha: string) => {
   return profileData;
 };
 
-// 3. Upload de fotos (Mantido intacto, agora funcionando perfeitamente com IDs reais)
+// 3. Upload de fotos
 export const uploadAvatar = async (
   userId: string,
   nome: string,
@@ -113,7 +116,7 @@ export const uploadAvatar = async (
     const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
     const { error: uploadError } = await supabase.storage
-      .from("avatars")
+      .from(STORAGE_BUCKETS.avatars)
       .upload(filePath, arrayBuffer, {
         contentType: `image/${fileExt}`,
         upsert: true,
@@ -121,11 +124,11 @@ export const uploadAvatar = async (
 
     if (uploadError) throw uploadError;
 
-    const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+    const { data } = supabase.storage.from(STORAGE_BUCKETS.avatars).getPublicUrl(filePath);
     const publicUrl = `${data.publicUrl}?t=${new Date().getTime()}`;
 
     await supabase
-      .from("users")
+      .from(DATABASE_TABLES.users)
       .update({ avatar_url: publicUrl })
       .eq("id", userId);
 
@@ -136,7 +139,7 @@ export const uploadAvatar = async (
   }
 };
 
-// 4. Editar Perfil (Mantido intacto)
+// 4. Editar Perfil
 export const updateUserProfile = async (
   userId: string,
   novoNome: string,
@@ -157,7 +160,7 @@ export const updateUserProfile = async (
       updateData.other_restrictions = otherRestrictions;
 
     const { data, error } = await supabase
-      .from("users")
+      .from(DATABASE_TABLES.users)
       .update(updateData)
       .eq("id", userId)
       .select()

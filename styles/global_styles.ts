@@ -1,12 +1,5 @@
 import { Platform, StyleSheet, TextStyle } from "react-native";
-import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Radius,
-  Shadows,
-  Spacing,
-} from "../constants/theme";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 
 // CONTAINERS E LAYOUTS BÁSICOS
 export const ITEM_LIST_CONTAINERS = StyleSheet.create({

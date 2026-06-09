@@ -2,36 +2,19 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Sparkles } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  StyleProp,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
+  StyleSheet, Text, TouchableOpacity, View
 } from "react-native";
 import Animated, {
-  cancelAnimation,
-  Easing,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
+  cancelAnimation, Easing, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming,
 } from "react-native-reanimated";
 
 // Meus imports
-import {
-  Colors,
-  Fonts,
-  FontSizes,
-  Radius,
-  Shadows,
-  Spacing,
-} from "../constants/theme";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing, } from "../constants/theme";
+import type { GenerateButtonProps } from "../types/components";
 
-/** Largura da faixa luminosa (onda). Subir = onda mais “grossa”. */
 const SHIMMER_BAND_WIDTH = 124;
 
+// Mensagens de carregamento para o botão de gerar receitas
 const LOADING_MESSAGES = [
   "Cozinhando ideias... 🍳",
   "Picando os ingredientes... 🔪",
@@ -41,21 +24,6 @@ const LOADING_MESSAGES = [
 ];
 
 // Componente de botão de gerar receitas
-interface GenerateButtonProps {
-  onPress: () => void;
-  selectedCount: number;
-  label?: string;
-  style?: StyleProp<ViewStyle>;
-  badgeContainerStyle?: StyleProp<ViewStyle>;
-  showBadge?: boolean;
-  alwaysVisible?: boolean;
-  iconColor?: string;
-  disabled?: boolean;
-  forceEnabled?: boolean;
-  /** Onda clara contínua — “em progresso” */
-  loading?: boolean;
-}
-
 export const GenerateButton = ({
   onPress,
   selectedCount,
@@ -84,13 +52,10 @@ export const GenerateButton = ({
 
       // Efeito de carrossel de texto
       const interval = setInterval(() => {
-        // Fade out
         textOpacity.value = withTiming(0, { duration: 400 }, () => {
-          // Muda o texto e faz fade in
           textOpacity.value = withTiming(1, { duration: 400 });
         });
-        
-        // Pequeno delay para sincronizar com o fade out antes de mudar o index no state
+
         setTimeout(() => {
           setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
         }, 400);
@@ -143,7 +108,6 @@ export const GenerateButton = ({
 
   const effectiveIconColor = loading ? Colors.light : iconColor;
 
-  // Renderiza o botão
   return (
     <TouchableOpacity
       style={[
@@ -236,7 +200,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontSize: FontSizes.medium - 1,
   },
-  // Bolinha limpa mostrando só o número!
   badgeContainer: {
     backgroundColor: Colors.light,
     width: 28,

@@ -1,8 +1,4 @@
-/**
- * 🎨 Tema principal do Quase Chef
- * Paleta única de cores, fontes e estilos reutilizáveis.
- */
-
+// Cores
 export const Colors = {
   background: "#FFF3E8", // fundo
   primary: "#f88b3d", // cor principal
@@ -49,7 +45,7 @@ export const Radius = {
   md: 8,
   lg: 12,
   xl: 16,
-  full: 9999, // para círculos ou cápsulas
+  full: 9999,
 };
 
 // Sombras

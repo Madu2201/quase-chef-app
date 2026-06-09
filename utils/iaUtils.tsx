@@ -1,31 +1,21 @@
-import {
-  Flame,
-  Leaf,
-  RotateCcw,
-  Sparkles,
-  Utensils,
-  Zap,
-} from "lucide-react-native";
+import { Flame, Leaf, RotateCcw, Sparkles, Utensils, Zap } from "lucide-react-native";
 import React from "react";
-import { INGREDIENTES_LIVRES } from "../constants/ingredients";
-import {
-  ALLERGY_OPTIONS,
-  FOOD_PREFERENCE_OPTIONS,
-} from "../constants/OpcaoAlimentar";
+
+// Meus imports
+import { IA_ICON_SIZE, IA_RECEITA_DEFAULTS } from "../constants/ia";
+import { PROMPT_GERAR_RECEITA_IA, PROMPT_TEMPLATES } from "../constants/ia-prompts";
+import { INGREDIENTE_SINONIMOS, INGREDIENTES_LIVRES } from "../constants/ingredients";
+import { ALLERGY_OPTIONS, FOOD_PREFERENCE_OPTIONS } from "../constants/OpcaoAlimentar";
 import { Colors } from "../constants/theme";
 import type { Ingredient } from "../types/despensa";
 import type {
-  IngredienteIA,
-  PassoIA,
-  ReceitaIAJsonResponse,
-  ReceitaIAResponse,
+  CategoriaIngredienteIA, ContextoSegurancaPrompt, IngredienteIA,
+  IngredienteSelecionadoParaPrompt, PassoIA, ReceitaIAJsonResponse,
+  ReceitaIAParseResult, ReceitaIAResponse,
 } from "../types/ia";
 
-/**
- * Mapeia uma string para o componente de ícone correspondente
- * Útil para converter os dados das constantes em elementos visuais
- */
-export const getCategoriaIcon = (iconName: string, size = 14) => {
+// Cria o icone da categoria
+export const getCategoriaIcon = (iconName: string, size = IA_ICON_SIZE) => {
   const props = { size, color: Colors.dark };
 
   switch (iconName) {
@@ -44,10 +34,7 @@ export const getCategoriaIcon = (iconName: string, size = 14) => {
   }
 };
 
-/**
- * Lógica de correspondência inteligente (Sinônimos e Variações)
- * Verifica se o nome de um ingrediente da despensa pertence a uma categoria
- */
+// Verificação de correspondência entre ingrediente da despensa e item da categoria (com dicionário de variações)
 export const verificarCorrespondencia = (
   ingName: string,
   catItem: string,
@@ -55,7 +42,7 @@ export const verificarCorrespondencia = (
   const ingLower = ingName.toLowerCase().trim();
   const itemLower = catItem.toLowerCase().trim();
 
-  // 1. Verificação direta (ex: "Tomate" === "Tomate")
+  // 1. Caso o ingrediente da despensa seja exatamente igual ao item da categoria
   if (
     ingLower === itemLower ||
     ingLower.includes(itemLower) ||
@@ -64,32 +51,8 @@ export const verificarCorrespondencia = (
     return true;
   }
 
-  // 2. Dicionário de variações para cobrir casos onde o nome é muito diferente
-  const variacoes: Record<string, string[]> = {
-    ovo: ["ovos", "egg"],
-    frango: ["chicken", "galinha", "peito"],
-    carne: ["moída", "vermelha", "beef", "ground meat", "bife"],
-    peixe: ["fish", "salmão", "sardinha", "tilápia"],
-    tofu: ["soja", "queijo de soja"],
-    feijão: ["preto", "carioca", "beans", "fradinho"],
-    lentilha: ["lentilhas", "lentil"],
-    grão: ["grão de bico", "chickpea"],
-    tomate: ["tomato", "cereja"],
-    cebola: ["onion", "roxa"],
-    pimentão: ["pepper", "pimento"],
-    batata: ["potato", "doce", "inglesa"],
-    arroz: ["rice", "branco", "integral"],
-    macarrão: ["pasta", "espaguete", "penne", "massa"],
-    pão: ["bread", "baguete", "integral"],
-    pimenta: ["pimenta do reino", "pepper", "dedo de moça"],
-    azeite: ["olive oil", "extra virgem"],
-    óleo: ["oil", "girassol", "soja"],
-    manjericão: ["basil"],
-    páprica: ["paprika", "defumada", "doce"],
-  };
-
-  // Verifica se o ingrediente e o item da categoria compartilham a mesma "raiz" do dicionário
-  for (const [chave, sinonimos] of Object.entries(variacoes)) {
+  // Verifica se o ingrediente e o item da categoria compartilham a mesma "raiz" do dicionário de sinônimos
+  for (const [chave, sinonimos] of Object.entries(INGREDIENTE_SINONIMOS)) {
     const ingPertenceAChave =
       ingLower.includes(chave) || sinonimos.some((s) => ingLower.includes(s));
     const itemPertenceAChave =
@@ -103,9 +66,7 @@ export const verificarCorrespondencia = (
   return false;
 };
 
-/**
- * Limpa a string retornada pela IA removendo blocos de código Markdown
- */
+// Normalização de texto para comparação (remove acentos, caracteres especiais, etc.)
 export const limparJSONIA = (rawString: string): string => {
   return rawString
     .replace(/```json/gi, "")
@@ -113,11 +74,7 @@ export const limparJSONIA = (rawString: string): string => {
     .trim();
 };
 
-export type ReceitaIAParseResult = {
-  receita: ReceitaIAResponse;
-  imagePrompt: string | null;
-};
-
+// Funções de normalização para garantir que a resposta da IA esteja no formato esperado.
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -181,14 +138,14 @@ function normalizarReceitaIA(payload: unknown): ReceitaIAResponse {
   }
 
   return {
-    nome_receita: normalizarString(payload.nome_receita, "Receita Surpresa"),
-    tempo_preparo: normalizarString(payload.tempo_preparo, "30min"),
-    dificuldade: normalizarString(payload.dificuldade, "Média"),
-    calorias: normalizarString(payload.calorias, "N/A"),
+    nome_receita: normalizarString(payload.nome_receita, IA_RECEITA_DEFAULTS.NOME),
+    tempo_preparo: normalizarString(payload.tempo_preparo, IA_RECEITA_DEFAULTS.TEMPO_PREPARO),
+    dificuldade: normalizarString(payload.dificuldade, IA_RECEITA_DEFAULTS.DIFICULDADE),
+    calorias: normalizarString(payload.calorias, IA_RECEITA_DEFAULTS.CALORIAS),
     dica_rapida: normalizarString(payload.dica_rapida),
     descricao_simples_preparo: normalizarString(
       payload.descricao_simples_preparo,
-      "Sem descrição",
+      IA_RECEITA_DEFAULTS.DESCRICAO,
     ),
     pre_visualizacao_passos: normalizarListaStrings(
       payload.pre_visualizacao_passos,
@@ -202,6 +159,7 @@ function normalizarReceitaIA(payload: unknown): ReceitaIAResponse {
   };
 }
 
+// Função principal para extrair e normalizar a receita da resposta bruta da IA
 export function extrairReceitaIAParseada(
   rawString: string,
 ): ReceitaIAParseResult {
@@ -228,16 +186,7 @@ export function extrairReceitaIAParseada(
   return { receita, imagePrompt };
 }
 
-/** Ingredientes selecionados com quantidade/unidade reais da despensa (para regras de limite no prompt). */
-export type IngredienteSelecionadoParaPrompt = {
-  nome: string;
-  quantidadeDisponivel: number;
-  unidade: string;
-};
-
-/**
- * Monta o estoque para o prompt a partir dos IDs da despensa (evita ambiguidade com nomes duplicados).
- */
+// Monta a lista de ingredientes selecionados para o prompt
 export function montarListaIngredientesPorIds(
   idsSelecionados: string[],
   estoqueDespensa: Ingredient[],
@@ -254,7 +203,7 @@ export function montarListaIngredientesPorIds(
     }));
 }
 
-/** Texto único da lista INGREDIENTES_LIVRES para o prompt (referência explícita). */
+// Monta a lista de ingredientes livres para o prompt
 export function obterListaIngredientesLivresParaPrompt(): string {
   const unicos = [
     ...new Set(INGREDIENTES_LIVRES.map((s) => s.trim().toLowerCase())),
@@ -262,12 +211,60 @@ export function obterListaIngredientesLivresParaPrompt(): string {
   return unicos.join(", ");
 }
 
-/** Perfil do usuário para reforço de segurança no prompt (alergias / preferências). */
-export type ContextoSegurancaPrompt = {
-  chavesAlergiaUsuario: string[];
-  chavesPreferenciaUsuario: string[];
-};
+// Monta as categorias de ingredientes para o prompt
+export function obterCategoriasIngredientesPorAlfabeto(
+  ingredients: Ingredient[],
+): CategoriaIngredienteIA[] {
+  if (!ingredients?.length) return [];
 
+  const grupos: Record<string, Ingredient[]> = {};
+
+  const ingredientesDisponiveis = ingredients.filter((ing) => (ing.qty || 0) > 0);
+  const ingredientesOrdenados = [...ingredientesDisponiveis].sort((a, b) =>
+    a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+  );
+
+  ingredientesOrdenados.forEach((ing) => {
+    const primeiraLetra = ing.name.charAt(0).toUpperCase();
+    const categoria = /^[A-ZÀ-Ú]$/.test(primeiraLetra) ? primeiraLetra : "#";
+
+    if (!grupos[categoria]) {
+      grupos[categoria] = [];
+    }
+    grupos[categoria].push(ing);
+  });
+
+  return Object.keys(grupos)
+    .sort((a, b) => {
+      if (a === "#") return 1;
+      if (b === "#") return -1;
+      return a.localeCompare(b, "pt-BR");
+    })
+    .map((titulo) => ({
+      titulo,
+      itens: grupos[titulo],
+    }));
+}
+
+// Filtra as categorias de ingredientes por busca
+export function filtrarCategoriasPorBusca(
+  categorias: CategoriaIngredienteIA[],
+  busca: string,
+): CategoriaIngredienteIA[] {
+  const termo = busca.toLowerCase().trim();
+  if (!termo) return categorias;
+
+  return categorias
+    .map((cat) => ({
+      ...cat,
+      itens: cat.itens.filter((ing) =>
+        ing.name.toLowerCase().includes(termo),
+      ),
+    }))
+    .filter((cat) => cat.itens.length > 0);
+}
+
+// Monta o contexto de segurança para o prompt, incluindo alergias e preferências do usuário
 function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
   const linhas: string[] = [];
 
@@ -278,11 +275,7 @@ function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
           ALLERGY_OPTIONS.find((o) => o.key === k)?.label?.toLowerCase() || k,
       )
       .join(", ");
-    linhas.push(
-      `SEGURANÇA — ALERGIAS DO USUÁRIO (BLACKLIST ABSOLUTA): ${texto}. ` +
-      `É PROIBIDO usar qualquer ingrediente ou derivado associado a estes alérgenos (incluindo óleo de amendoim, leite em pó, tofu/soja se alérgico a soja, etc.). ` +
-      `O campo "alergias_presentes" no JSON deve listar apenas alérgenos que AINDA estejam presentes no prato final; se a receita for segura para o usuário, use [].`,
-    );
+    linhas.push(PROMPT_TEMPLATES.BLOCO_ALERGIAS(texto));
   }
 
   if (ctx.chavesPreferenciaUsuario.length > 0) {
@@ -294,20 +287,14 @@ function montarBlocoSegurancaPerfil(ctx: ContextoSegurancaPrompt): string {
           )?.label?.toLowerCase() || k,
       )
       .join(", ");
-    linhas.push(
-      `PREFERÊNCIAS DO USUÁRIO (pelo menos UMA deve ser refletida no campo "preferencias" quando fizer sentido): ${texto}. ` +
-      `Ex.: vegano OU sem_gluten — não é necessário atender todas simultaneamente; escolha o melhor encaixe para os ingredientes disponíveis.`,
-    );
+    linhas.push(PROMPT_TEMPLATES.BLOCO_PREFERENCIAS(texto));
   }
 
   if (linhas.length === 0) return "";
   return `\n${linhas.join("\n\n")}\n`;
 }
 
-/**
- * Monta o prompt completo para geração de receita por IA.
- * Regras: só ingredientes selecionados + INGREDIENTES_LIVRES; limites de quantidade; fidelidade de unidade.
- */
+// Monta o prompt de criação de receita com IA, incluindo regras de estoque e segurança
 export function montarPromptGeracaoReceitaIA(
   ingredientesComEstoque: IngredienteSelecionadoParaPrompt[],
   contextoUsuario?: ContextoSegurancaPrompt | null,
@@ -318,71 +305,11 @@ export function montarPromptGeracaoReceitaIA(
     ? montarBlocoSegurancaPerfil(contextoUsuario)
     : "";
 
+  // Monta o bloco de estoque detalhado para o prompt, incluindo regras claras de quantidade e unidade
   const blocoEstoque = ingredientesComEstoque
-    .map((ing) => {
-      const limite = ing.quantidadeDisponivel;
-      const u = ing.unidade;
-      return (
-        `- "${ing.nome}": DISPONÍVEL no máximo ${limite} ${u}. ` +
-        `Na lista "ingredientes" do JSON, a "quantidade" deste item deve ser estritamente ≤ ${limite}. ` +
-        `O campo "unidade" para este ingrediente deve ser exatamente "${u}" (mesma unidade da despensa; se o estoque está em unidades, não use gramas/ml para este item).`
-      );
-    })
+    .map((ing) => PROMPT_TEMPLATES.BLOCO_ESTOQUE(ing.nome, ing.quantidadeDisponivel, ing.unidade))
     .join("\n");
 
-  return `Atue como um Chef de Cozinha profissional.
-
-FONTES DE INGREDIENTES — É PROIBIDO inventar ou citar qualquer ingrediente que não esteja em uma destas duas fontes:
-(1) Ingredientes selecionados pelo usuário (detalhados abaixo com estoque).
-(2) Apenas nomes que existam na lista INGREDIENTES_LIVRES do sistema: ${listaLivres}.
-
-Sobre INGREDIENTES_LIVRES:
-- Trate sal, água, óleo e azeite como bases normalmente disponíveis.
-- Os demais itens dessa lista (ex.: pimenta, açúcar) são OPCIONAIS: use só se combinar com a receita; não force o uso.
-${blocoPerfil}
-ESTOQUE DO USUÁRIO (teto máximo por item — a quantidade na receita NUNCA pode ultrapassar o disponível; pode ser menor):
-${blocoEstoque}
-
-REGRAS DE QUANTIDADE E UNIDADE:
-- Para cada ingrediente da despensa, a quantidade sugerida na receita deve ser no máximo igual ao disponível e tipicamente uma parte dele (ex.: 500g de 4kg), nunca o total obrigatório nem um valor acima do estoque.
-- Respeite fidelidade à unidade da despensa: se o item está em "un", use unidades na receita; não converta batatas em gramas se o estoque foi em unidades.
-- Garanta que nenhuma linha de ingrediente implique falta no estoque do usuário (nada de quantidades > disponível).
-
-REGRAS OBRIGATÓRIAS DE RESPOSTA (JSON WRAPPER COM DUAS CHAVES):
-
-ESTRUTURA ESPERADA:
-{
-  "texto_da_receita": { ... campos de receita abaixo ... },
-  "image_prompt": "... prompt em inglês para geração de imagem ..."
-}
-
-CAMPOS DA RECEITA (dentro de "texto_da_receita"):
-1. nome_receita: Título da receita (Máximo 4 palavras).
-2. tempo_preparo: Formato padrão colado (ex: "20min", "1h30min"). SEM ESPAÇOS.
-3. dificuldade: Escolha entre "Fácil", "Média" ou "Difícil".
-4. calorias: Estime o valor. RETORNE APENAS O NÚMERO E A SIGLA (ex: "500 kcal").
-5. dica_rapida: Dica técnica curta e útil (OBRIGATÓRIO).
-6. descricao_simples_preparo: Resumo TÉCNICO do preparo em 1 ou 2 frases. Evite tom de marketing.
-7. pre_visualizacao_passos: Lista de strings com 3 a 5 passos NUMERADOS resumidos (OBRIGATÓRIO). Deve ser compatível com o passo a passo detalhado (visão geral).
-8. ingredientes: Lista de objetos {
-      "unidade": string,
-      "nome_base": string (deve ser exatamente um dos ingredientes permitidos: selecionados ou da lista livre),
-      "quantidade": number,
-      "texto_original": string,
-      "quantidade_gramas_ml": number (OBRIGATÓRIO. Este campo NUNCA deve ser nulo, vazio ou omitido. Ele é o motor de conversão do sistema. Siga estritamente estas regras:
-        1. Se a receita indicar peso ou volume explícito (ex: "300g de arroz", "50ml de óleo"): preencha com o valor numérico puro em gramas ou ml (ex: 300.0, 50.0).
-        2. Se a receita usar medidas caseiras ou volumes culinários (ex: "xícara", "colher", "copo"): Converta OBRIGATORIAMENTE para o peso/volume equivalente aproximado em gramas ou ml (ex: "1 xícara de arroz" vira 200.0; "2 xícaras de água" vira 480.0; "1 colher de sopa de açúcar" vira 15.0). JAMAIS use 0.0 para medidas caseiras.
-        3. Se a receita pedir unidades físicas soltas ou itens a gosto (ex: "3 batatas", "1 dente de alho", "sal a gosto"): preencha ESTREITAMENTE com 0.0 para indicar que é um item contável. O valor 0.0 aqui NÃO exclui o ingrediente.
-        * Formatação: JAMAIS retorne números com ponto final solto como '0.' ou '1.'. Use sempre o formato decimal completo como '0.0', '1.0' ou '250.0').
-   }.
-9. passos_detalhados: Lista de objetos { "titulo": string, "descricao": string, "dica_do_chef": string, "tempo_timer_minutos": number }. No campo "descricao" evite textos muitos longos para evitar desinteresse no usuário.
-    REGRAS PARA TIMER: tempo_timer_minutos DEVE SER 0 para ações manuais (picar, mexer, montar). Use > 0 apenas para fogo, forno ou espera.
-10. tags: Lista de strings. Escolha APENAS entre: ["Salgadas", "Doces", "Rápidas", "Saudáveis", "Econômicas", "Lanches", "Jantar", "Almoço"].
-11. preferencias: Lista de strings. Escolha APENAS entre: ["vegano", "vegetariano", "sem_gluten", "sem_lactose", "baixo_carboidrato", "sem_acucar"]. Retorne [] se não aplicar.
-12. alergias_presentes: Lista de strings. Escolha APENAS entre: ["amendoim", "nozes", "leite", "ovo", "soja", "trigo", "gergelim", "frutos_do_mar"]. Retorne [] se for livre de alérgenos.
-
-CAMPO "image_prompt" (ESPECIALISTA EM FOOD PHOTOGRAPHY):
-You are an expert AI prompt engineer specializing in Midjourney and Stable Diffusion for professional food photography. Your task is to take a traditional Brazilian dish or dessert and transform it into a highly detailed, professional, English image generation prompt. Make sure to remain faithful to the authentic Brazilian ingredients (e.g., if it's brigadeiro, it must use chocolate sprinkles, not nuts or powdered sugar). Strictly follow this structure for the output prompt: "Ultra-realistic, professional food photography of [detailed description of the food], [description of ingredients/textures]. Macro photography, extreme close-up, highly detailed, showcasing the intricate texture of [specific elements]. Flawless food styling, elegant and gourmet presentation on a minimalist [type of plate/surface]. Soft, warm studio lighting, shallow depth of field, captivating bokeh background. Mouth-watering, appetizing, high resolution, award-winning food photography."
-
-Retorne APENAS o JSON com as duas chaves (texto_da_receita e image_prompt), sem markdown ou explicações.`;
+  // Retorna o prompt formatado com os parâmetros específicos
+  return PROMPT_GERAR_RECEITA_IA(listaLivres, blocoPerfil, blocoEstoque);
 }

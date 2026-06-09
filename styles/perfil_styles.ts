@@ -1,7 +1,5 @@
 import { StyleSheet } from "react-native";
-import {
-  Colors, Fonts, FontSizes, Radius, Shadows, Spacing,
-} from "../constants/theme";
+import { Colors, Fonts, FontSizes, Radius, Shadows, Spacing } from "../constants/theme";
 import { AUTH_INPUTS, AUTH_TEXTAREA, PERFIL_INPUTS } from "./global_styles";
 
 // ESTILOS ESPECÍFICOS PARA: PERFIL

@@ -1,7 +1,7 @@
-/**
- * Normaliza texto removendo acentos, convertendo para minúsculo
- * e removendo o 's' final para permitir match entre singular/plural
- */
+import { CATEGORIA_UNIDADE, UNIDADE_EQUIVALENCIAS, UNIDADES_CONTAVEIS } from "../constants/ingredients";
+import type { BaseDePeso } from "../types/despensa";
+
+// Funções de normalização de texto e unidades para facilitar comparações e cálculos
 export const normalizarTexto = (texto: string): string => {
   if (!texto) return '';
   let limpo = texto
@@ -17,80 +17,30 @@ export const normalizarTexto = (texto: string): string => {
   return limpo;
 };
 
-/**
- * Converte quantidade e unidade para uma base normalizada (grama/ml)
- * Retorna { valor: number, tipo: 'massa_volume' | 'unidade' }
- */
-export interface BaseDePeso {
-  valor: number;
-  tipo: 'massa_volume' | 'unidade';
-}
+// Normaliza nome para comparação case-insensitive, mantendo a primeira letra maiúscula
 
-const UNIDADES_CONTAVEIS = [
-  'un',
-  'und',
-  'unidade',
-  'unidades',
-  'unit',
-  'media',
-  'medio',
-  'média',
-  'médio',
-  'picado',
-  'picada',
-  'picados',
-  'picadas',
-  'dente',
-  'dentes',
-  'folha',
-  'folhas',
-];
-
+// Normaliza quantidade e unidade para comparação case-insensitive
 export const normalizarBase = (qtd: number, unidade: string): BaseDePeso => {
   const uni = unidade.toLowerCase().trim();
 
   // Conversões para massa/volume
-  if (['kg', 'quilo', 'quilos'].includes(uni)) {
-    return { valor: qtd * 1000, tipo: 'massa_volume' };
+  if (CATEGORIA_UNIDADE.PESO.includes(uni)) {
+    return { valor: qtd * (UNIDADE_EQUIVALENCIAS[uni] || 1), tipo: 'massa_volume' };
   }
-  if (['g', 'grama', 'gramas'].includes(uni)) {
-    return { valor: qtd, tipo: 'massa_volume' };
-  }
-  if (['l', 'litro', 'litros'].includes(uni)) {
-    return { valor: qtd * 1000, tipo: 'massa_volume' };
-  }
-  if (['ml', 'mililitro', 'mililitros'].includes(uni)) {
-    return { valor: qtd, tipo: 'massa_volume' };
+  if (CATEGORIA_UNIDADE.VOLUME.includes(uni)) {
+    return { valor: qtd * (UNIDADE_EQUIVALENCIAS[uni] || 1), tipo: 'massa_volume' };
   }
 
   // Fallback para unidades contáveis
-  return { valor: qtd, tipo: 'unidade' };
+  if (UNIDADES_CONTAVEIS.includes(uni)) {
+    return { valor: qtd, tipo: 'unidade' };
+  }
+
+  // Se for unidade genérica ou não reconhecida, mantém
+  return { valor: qtd * (UNIDADE_EQUIVALENCIAS[uni] || 1), tipo: 'unidade' };
 };
 
-// ============================================================================
-// --- NOVAS CONSTANTES E FUNÇÕES (FASE 1: GUARDA ESTOQUE / UPSERT) ---
-// ============================================================================
-
-export const CATEGORIA_UNIDADE = {
-    PESO: ['g', 'kg', 'quilo', 'quilos', 'grama', 'gramas'],
-    VOLUME: ['ml', 'l', 'litro', 'litros', 'mililitro', 'mililitros'],
-    UNIDADE: ['un', 'pct', 'dz']
-};
-
-export const UNIDADE_EQUIVALENCIAS: Record<string, number> = {
-    'kg': 1000, 'quilo': 1000, 'quilos': 1000,
-    'g': 1, 'grama': 1, 'gramas': 1,
-    'l': 1000, 'litro': 1000, 'litros': 1000,
-    'ml': 1, 'mililitro': 1, 'mililitros': 1,
-    'un': 1,
-    'pct': 1,
-    'dz': 12
-};
-
-/**
- * Converte um valor e sua unidade para a unidade base da sua categoria para permitir somas exatas.
- * Ex: (2, 'kg') -> { valor: 2000, unidadeBase: 'g' }
- */
+// Converte uma quantidade de uma unidade para a unidade base (ex: 1kg para 1000g)
 export function converterParaUnidadeBase(valor: number, unidade: string) {
     const unid = unidade.toLowerCase().trim();
     
@@ -109,10 +59,7 @@ export function converterParaUnidadeBase(valor: number, unidade: string) {
     return { valor: valor * (UNIDADE_EQUIVALENCIAS[unid] || 1), unidadeBase: unid };
 }
 
-/**
- * Converte um valor em unidade base de volta para a unidade desejada.
- * Ex: (460, 'kg') -> 0.46
- */
+// Converte uma quantidade de uma unidade base (ex: 1000g para 1kg)
 export function converterDaBaseParaUnidade(valorBase: number, unidadeDestino: string): number {
     const unid = unidadeDestino.toLowerCase().trim();
     const fator = UNIDADE_EQUIVALENCIAS[unid] || 1;
@@ -121,10 +68,7 @@ export function converterDaBaseParaUnidade(valorBase: number, unidadeDestino: st
 
 const STOPWORDS_INGREDIENTE = new Set(['de', 'da', 'do', 'das', 'dos', 'e']);
 
-/**
- * Reduz o texto para facilitar o match semântico entre ingredientes.
- * Ex: "Farinha de Trigo" -> "farinha trigo"
- */
+// Normaliza nome de ingrediente para comparação case-insensitive
 export const normalizarNomeIngredienteParaMatch = (texto: string): string => {
     const normalizado = normalizarTexto(texto)
         .replace(/[^\w\s]/g, ' ')
@@ -139,11 +83,7 @@ export const normalizarNomeIngredienteParaMatch = (texto: string): string => {
         .join(' ');
 };
 
-/**
- * Match tolerante entre nomes de ingredientes:
- * - igualdade exata normalizada
- * - substring bilateral após limpeza de texto
- */
+// Verifica se dois nomes de ingrediente são compativeis para comparação, considerando normalização e stopwords
 export const nomesIngredientesCompativeis = (nomeA: string, nomeB: string): boolean => {
     const a = normalizarNomeIngredienteParaMatch(nomeA);
     const b = normalizarNomeIngredienteParaMatch(nomeB);
@@ -154,17 +94,12 @@ export const nomesIngredientesCompativeis = (nomeA: string, nomeB: string): bool
     return a.includes(b) || b.includes(a);
 };
 
-/**
- * Formata uma quantidade numérica para no máximo 2 casas decimais.
- * Resolve problemas de precisão de ponto flutuante (ex: 0.30000000000000007 -> 0.30).
- */
+// Formata uma quantidade para exibição com duas casas decimais
 export const formatarQuantidade = (valor: number): number => {
   return Math.round(valor * 100) / 100;
 };
 
-/**
- * Formata um percentual para exibição inteira sem casas decimais.
- */
+// Formata um percentual para exibição com duas casas decimais
 export const formatarPercentual = (valor: number): number => {
   return Math.round(valor);
 };

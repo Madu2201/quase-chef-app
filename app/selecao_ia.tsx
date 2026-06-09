@@ -1,18 +1,7 @@
 import { ChevronDown, ChevronUp, RotateCcw, X, Zap } from "lucide-react-native";
 import React, { memo, useMemo } from "react";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import Animated, {
-  FadeInDown,
-  FadeInRight,
-  Layout,
-} from "react-native-reanimated";
+import { Image, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeInDown, FadeInRight, Layout } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Meus imports
@@ -23,8 +12,6 @@ import { useSelecaoIA } from "../hooks/useSelecaoIA";
 import { styles } from "../styles/selecao_ia_styles";
 import type { Ingredient } from "../types/despensa";
 import { formatarQuantidade } from "../utils/normalization";
-
-// --- SUB-COMPONENTES AUXILIARES (MEMOIZADOS) ---
 
 /** Bandeja horizontal de itens já selecionados */
 const SelectedTray = memo(
@@ -108,8 +95,6 @@ const IngredientChip = memo(
 );
 IngredientChip.displayName = "IngredientChip";
 
-// --- TELA PRINCIPAL ---
-
 export default function SelecaoIAScreen() {
   const insets = useSafeAreaInsets();
 
@@ -130,6 +115,7 @@ export default function SelecaoIAScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Cabeçalho com título e busca */}
       <Header
         title="O que temos hoje?"
         centerTitle
@@ -263,6 +249,7 @@ export default function SelecaoIAScreen() {
         )}
       </ScrollView>
 
+      {/* Botão de Gerar Receita Mágica */}
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 30) }]}>
         <GenerateButton
           label="Gerar Receita Mágica"

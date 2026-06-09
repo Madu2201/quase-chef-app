@@ -1,11 +1,4 @@
-/**
- * Tipos para o módulo de Lista de Compras
- * Define interfaces para estrutura de dados e contexto de operações
- */
-
-/**
- * Tipo principal representando um item da lista de compras
- */
+/// Tipos relacionados à lista de compras
 export interface CompraItem {
   id: string;
   user_id: string;
@@ -16,10 +9,24 @@ export interface CompraItem {
   created_at?: string;
 }
 
-/**
- * Interface pública do contexto de lista
- * Expõe operações CRUD e funções avançadas para consumidores do hook
- */
+/// Tipos relacionados ao formulário de edição
+export interface EditForm {
+  name: string;
+  qty: string;
+  ideal_qty: string;
+  unit: string;
+}
+
+// Tipos relacionados ao upsert inteligente
+export type UpsertAction = "INSERT" | "UPDATE" | "UPDATE_COM_AVISO";
+
+export interface UpsertDecision {
+  acao: UpsertAction;
+  novoValor: number;
+  unidadeFinal: string;
+}
+
+// Contexto da lista de compras
 export interface ListaContextData {
   // Estado
   pendentes: CompraItem[];

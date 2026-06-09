@@ -1,21 +1,20 @@
+// useCadastro.ts
 import { useState } from "react";
 
 // Meus imports
 import { CadastroErrors } from "../types/auth";
 import { isPasswordStrong, validateEmail, validateName } from "../utils/validation";
 import { useAuth } from "@/hooks/useAuth";
+import { MESSAGES } from "../constants/messages";
 
-// Hook de Cadastro
 export function useCadastroForm() {
     const { signUp, isLoading } = useAuth();
 
-    // Estados do Formulário
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
 
-    // Preferências e Restrições
     const [foodPreferences, setFoodPreferences] = useState<string[]>([]);
     const [allergies, setAllergies] = useState<string[]>([]);
     const [otherRestrictions, setOtherRestrictions] = useState("");
@@ -23,6 +22,7 @@ export function useCadastroForm() {
     const [errors, setErrors] = useState<CadastroErrors>({});
     const [isSuccess, setIsSuccess] = useState(false);
 
+    // Função de Toggle de Seleção para Preferências Alimentares, Alergias e Outras Restrições
     const toggleSelection = (
         key: string,
         currentList: string[],
@@ -35,17 +35,18 @@ export function useCadastroForm() {
         }
     };
 
-    // Função de Registro com Validação
+    // Função de Registo com Validação
     const handleRegister = async () => {
         let newErrors: CadastroErrors = {};
 
-        if (!validateName(nome)) newErrors.nome = "Nome deve ter 3-50 caracteres.";
-        if (!validateEmail(email)) newErrors.email = "E-mail inválido.";
-        if (!isPasswordStrong(senha)) newErrors.senha = "Senha fora do padrão exigido.";
-        if (senha !== confirmarSenha) newErrors.confirmarSenha = "As senhas não coincidem.";
+        if (!validateName(nome)) newErrors.nome = MESSAGES.VALIDATION_NAME;
+        if (!validateEmail(email)) newErrors.email = MESSAGES.VALIDATION_EMAIL;
+        if (!isPasswordStrong(senha)) newErrors.senha = MESSAGES.VALIDATION_PASSWORD;
+        if (senha !== confirmarSenha) newErrors.confirmarSenha = MESSAGES.VALIDATION_PASSWORD_MATCH;
 
         setErrors(newErrors);
 
+        // Se não houver erros de validação, procede para o signUp
         if (Object.keys(newErrors).length === 0) {
             try {
                 const result = await signUp(
@@ -61,11 +62,13 @@ export function useCadastroForm() {
                     setIsSuccess(true);
                     return { success: true };
                 } else {
-                    setErrors({ geral: result.error || "Erro ao criar conta." });
+                    // Erro retornado pela API ou mensagem padrão de falha no cadastro
+                    setErrors({ geral: result.error || MESSAGES.ERROR_CREATE_ACCOUNT });
                     return { success: false, error: result.error };
                 }
             } catch (err: any) {
-                setErrors({ geral: "Erro de conexão com o servidor." });
+                // Erro de rede ou crash inesperado
+                setErrors({ geral: MESSAGES.ERROR_CONNECTION });
                 return { success: false, error: err.message };
             }
         }
@@ -73,7 +76,6 @@ export function useCadastroForm() {
     };
 
     return {
-        // Estados
         nome, setNome,
         email, setEmail,
         senha, setSenha,
@@ -83,7 +85,7 @@ export function useCadastroForm() {
         otherRestrictions, setOtherRestrictions,
         errors, setErrors,
         isLoading, isSuccess,
-        // Funções
+
         toggleSelection,
         handleRegister
     };

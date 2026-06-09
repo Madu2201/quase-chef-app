@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+
+// Meus imports
+import { MESSAGES } from '../constants/messages';
 import { buscarReceitaPorId } from '../services/receitaService';
 import type { PassoPreparo, ReceitaBancoDados } from '../types/detalhe_receita';
 import type { UsePreparoReceitaReturn } from '../types/preparo_receita';
 import { useNetworkStatus } from './useNetworkStatus';
 
-// HOOK PRINCIPAL
 export function usePreparoReceita(
     passosParam: PassoPreparo[],
     receitaId?: string | number,
@@ -35,9 +37,9 @@ export function usePreparoReceita(
 
         if (isOffline) {
             setReceitaBancoDados(null);
-            setErro("Você está sem internet. Reconecte-se para carregar esta receita.");
+            setErro(MESSAGES.OFFLINE_LOAD_RECIPE);
             setIsLoading(false);
-            notifyInternetRequired("Reconecte-se para abrir esta receita.");
+            notifyInternetRequired(MESSAGES.OFFLINE_OPEN_RECIPE);
             return;
         }
 
@@ -51,12 +53,12 @@ export function usePreparoReceita(
                 setReceitaBancoDados(dados);
                 setErro(null);
             } else {
-                setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+                setErro(MESSAGES.ERROR_LOAD_RECIPE);
                 setReceitaBancoDados(null);
             }
         } catch (err) {
             console.error("Erro ao buscar receita para preparo:", err);
-            setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+            setErro(MESSAGES.ERROR_LOAD_RECIPE);
             setReceitaBancoDados(null);
         } finally {
             setIsLoading(false);

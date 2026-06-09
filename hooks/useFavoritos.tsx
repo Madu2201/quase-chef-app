@@ -3,6 +3,7 @@ import React, {
 } from "react";
 
 // Meus imports
+import { MESSAGES } from "../constants/messages";
 import { solicitarAtualizacaoCatalogoReceitas } from "../services/receitaEvents";
 import {
   adicionarFavorito, removerFavorito, salvarReceitaIAParaFavorito,
@@ -74,7 +75,7 @@ export function FavoritosProvider({ children }: { children: ReactNode }) {
   ) => {
     if (!user?.id) return;
 
-    if (!notifyInternetRequired("Reconecte-se para favoritar esta receita.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_FAVORITE_RECIPE)) {
       return;
     }
 

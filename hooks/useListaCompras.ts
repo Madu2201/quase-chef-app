@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Share } from "react-native";
 
 // Meus imports
+import { MESSAGES } from "../constants/messages";
 import { supabase } from "../services/supabase";
 import { Ingredient } from "../types/despensa";
 import { CompraItem, EditForm } from "../types/lista";
@@ -85,7 +86,7 @@ export function useListaCompras() {
   // Adiciona um item na lista
   const handleAddItem = async () => {
     if (!nomeItem.trim() || !quantidade.trim()) {
-      Alert.alert("Atenção", "Preencha nome e quantidade.");
+      Alert.alert(MESSAGES.ALERT_ATTENTION, MESSAGES.VALIDATION_LIST_ITEM_EMPTY);
       return;
     }
 
@@ -98,13 +99,13 @@ export function useListaCompras() {
 
   const addItem = async (nome: string, qtd: string, unidade: string) => {
     if (!user?.id) return;
-    if (!notifyInternetRequired("Reconecte-se para editar sua lista de compras.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_EDIT_LIST)) {
       return;
     }
 
     const qtdNumero = parseNumero(qtd);
     if (qtdNumero <= 0) {
-      Alert.alert("Atenção", "Quantidade inválida.");
+      Alert.alert(MESSAGES.ALERT_ATTENTION, MESSAGES.VALIDATION_LIST_QUANTITY_INVALID);
       return;
     }
 
@@ -124,8 +125,8 @@ export function useListaCompras() {
       const novaQuantidade = formatarQuantidade(itemExistente.quantidade_comprar + qtdNumero);
       await atualizarQuantidade(itemExistente.id, novaQuantidade);
       Alert.alert(
-        "Sucesso",
-        `Quantidade de ${nome} atualizada para ${novaQuantidade} ${unidade}`,
+        MESSAGES.LABEL_SUCCESS,
+        `Quantidade de ${nome} ${MESSAGES.INFO_ITEM_UPDATED} ${novaQuantidade} ${unidade}`,
       );
       return;
     }
@@ -147,7 +148,7 @@ export function useListaCompras() {
     if (!error && data) {
       setItems((prev) => [data[0], ...prev]);
     } else if (error) {
-      Alert.alert("Erro ao adicionar", error.message);
+      Alert.alert(MESSAGES.ERROR_ADD_LIST_ITEM, error.message);
     }
   };
 
@@ -198,8 +199,8 @@ export function useListaCompras() {
     const novaQtd = parseFloat(form.qty.replace(",", "."));
     if (isNaN(novaQtd) || novaQtd <= 0) {
       Alert.alert(
-        "Atenção",
-        "A quantidade deve ser maior que zero. Se deseja remover o item, utilize o ícone de lixeira.",
+        MESSAGES.ALERT_ATTENTION,
+        MESSAGES.VALIDATION_LIST_QUANTITY_ZERO,
       );
       return;
     }
@@ -211,12 +212,12 @@ export function useListaCompras() {
   // Guarda os itens comprados na despensa e remove da lista
   const handleGuardarEstoque = async () => {
     Alert.alert(
-      "Guardar no Estoque",
+      MESSAGES.DIALOG_SAVE_STOCK_TITLE,
       `Deseja salvar ${comprados.length} item(s) comprado(s) na despensa?`,
       [
-        { text: "Cancelar", style: "cancel" },
+        { text: MESSAGES.BUTTON_CANCEL, style: "cancel" },
         {
-          text: "Guardar",
+          text: MESSAGES.BUTTON_SAVE,
           style: "default",
           onPress: async () => {
             await guardarNoEstoque(upsertIngredientFromCompra);
@@ -240,7 +241,7 @@ export function useListaCompras() {
   const atualizarQuantidade = async (id: string, novaQuantidade: number) => {
     if (
       !notifyInternetRequired(
-        "Reconecte-se para atualizar sua lista de compras.",
+        MESSAGES.OFFLINE_UPDATE_LIST,
       )
     ) {
       return;
@@ -268,7 +269,7 @@ export function useListaCompras() {
     if (!user?.id) return;
     if (
       !notifyInternetRequired(
-        "Reconecte-se para gerar a lista a partir da despensa.",
+        MESSAGES.OFFLINE_GENERATE_LIST,
       )
     ) {
       return;
@@ -285,7 +286,10 @@ export function useListaCompras() {
 
     if (itensFaltantes.length === 0) {
       setIsGeneratingList(false);
-      return Alert.alert("Tudo em dia!", "Seu estoque está conforme as metas.");
+      return Alert.alert(
+        MESSAGES.DIALOG_GENERATE_LIST_TITLE,
+        MESSAGES.DIALOG_GENERATE_LIST_MESSAGE,
+      );
     }
 
     try {
@@ -325,11 +329,11 @@ export function useListaCompras() {
       // Recarrega a lista do banco
       await buscarLista();
       Alert.alert(
-        "Pronto!",
-        "Sua lista foi atualizada com os itens faltantes.",
+        MESSAGES.DIALOG_GENERATE_LIST_SUCCESS_TITLE,
+        MESSAGES.DIALOG_GENERATE_LIST_SUCCESS_MESSAGE,
       );
     } catch {
-      Alert.alert("Erro ao gerar", "Falha ao atualizar a lista.");
+      Alert.alert(MESSAGES.ERROR_GENERATE_LIST, MESSAGES.ERROR_GENERATE_LIST_FAILED);
     } finally {
       setIsGeneratingList(false);
     }
@@ -342,7 +346,7 @@ export function useListaCompras() {
 
     if (
       !notifyInternetRequired(
-        "Reconecte-se para atualizar sua lista de compras.",
+        MESSAGES.OFFLINE_UPDATE_LIST,
       )
     ) {
       return;
@@ -362,7 +366,7 @@ export function useListaCompras() {
 
   // Remove item
   const removerItem = async (id: string) => {
-    if (!notifyInternetRequired("Reconecte-se para editar sua lista de compras.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_EDIT_LIST)) {
       return;
     }
     setItems((prev) => prev.filter((i) => i.id !== id));
@@ -371,7 +375,7 @@ export function useListaCompras() {
 
   // Limpa itens comprados
   const limparComprados = async () => {
-    if (!notifyInternetRequired("Reconecte-se para limpar sua lista de compras.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_CLEAR_LIST)) {
       return;
     }
     setItems((prev) => prev.filter((i) => !i.comprado));
@@ -389,7 +393,7 @@ export function useListaCompras() {
     if (!user?.id) return;
     if (
       !notifyInternetRequired(
-        "Reconecte-se para guardar os itens comprados na despensa.",
+        MESSAGES.OFFLINE_SAVE_LIST_STOCK,
       )
     ) {
       return;
@@ -398,7 +402,7 @@ export function useListaCompras() {
     const itensParaGuardar = items.filter((i) => i.comprado);
 
     if (itensParaGuardar.length === 0) {
-      Alert.alert("Atenção", "Nenhum item marcado como comprado para guardar.");
+      Alert.alert(MESSAGES.ALERT_ATTENTION, MESSAGES.VALIDATION_LIST_NO_ITEMS);
       return;
     }
 
@@ -428,18 +432,18 @@ export function useListaCompras() {
 
     if (ok === total) {
       Alert.alert(
-        "Sucesso!",
-        `${ok} ${ok === 1 ? "item guardado" : "itens guardados"} na sua despensa.`,
+        MESSAGES.DIALOG_STOCK_ALL_OK_TITLE,
+        `${ok} ${ok === 1 ? MESSAGES.INFO_SAVE_STOCK_SINGULAR : MESSAGES.INFO_SAVE_STOCK_PLURAL} na sua despensa.`,
       );
     } else if (ok > 0) {
       Alert.alert(
-        "Parcialmente guardado",
-        `${ok} de ${total} ${total === 1 ? "item" : "itens"} na despensa. Os restantes permanecem na lista para tentar de novo.`,
+        MESSAGES.DIALOG_STOCK_PARTIAL_TITLE,
+        `${ok} de ${total} ${total === 1 ? MESSAGES.INFO_SAVE_STOCK_PARTIAL_ITEM : MESSAGES.INFO_SAVE_STOCK_PARTIAL_ITEMS} na despensa. Os restantes permanecem na lista para tentar de novo.`,
       );
     } else {
       Alert.alert(
-        "Ops",
-        "Não foi possível guardar os itens. Verifique se as unidades são compatíveis.",
+        MESSAGES.DIALOG_STOCK_ERROR_TITLE,
+        MESSAGES.DIALOG_STOCK_ERROR_MESSAGE,
       );
     }
   };
@@ -447,7 +451,7 @@ export function useListaCompras() {
   // Compartilha a lista via Share API
   const compartilharLista = async () => {
     if (items.length === 0) {
-      Alert.alert("Lista vazia", "Adicione itens antes de compartilhar.");
+      Alert.alert(MESSAGES.DIALOG_LIST_EMPTY_TITLE, MESSAGES.DIALOG_LIST_EMPTY_MESSAGE);
       return;
     }
 
@@ -468,7 +472,7 @@ export function useListaCompras() {
         url: undefined,
       });
     } catch (error) {
-      Alert.alert("Erro ao compartilhar", String(error));
+      Alert.alert(MESSAGES.ERROR_SHARE_LIST, String(error));
     }
   };
 

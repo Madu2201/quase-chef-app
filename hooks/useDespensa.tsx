@@ -5,6 +5,7 @@ import { Alert } from "react-native";
 
 // Meus imports
 import { INGREDIENTES_LIVRES } from "../constants/ingredients";
+import { MESSAGES } from "../constants/messages";
 import { supabase } from "../services/supabase";
 import {
   AbatimentoResultado, DespensaContextData, DespensaScreenHookData, DespensaUpdatePayload, Ingredient,
@@ -92,7 +93,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     unidade: string,
   ) => {
     if (!user?.id) return;
-    if (!notifyInternetRequired("Reconecte-se para adicionar itens à despensa.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_ADD_INGREDIENT)) {
       return;
     }
 
@@ -113,7 +114,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
     if (error) {
       console.error("Erro ao inserir:", error);
-      Alert.alert("Erro", "Não foi possível adicionar o ingrediente.");
+      Alert.alert("Erro", MESSAGES.ERROR_ADD_INGREDIENT);
     } else if (data) {
       setIngredients((prev) => [
         {
@@ -136,7 +137,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
     if (
       !notifyInternetRequired(
-        "Reconecte-se para atualizar itens da despensa.",
+        MESSAGES.OFFLINE_UPDATE_INGREDIENT,
       )
     ) {
       return;
@@ -145,8 +146,8 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     // Impede a seleção de itens com quantidade zero
     if (item.qty <= 0 && !item.selected) {
       Alert.alert(
-        "Ingrediente Esgotado",
-        "Você não pode selecionar itens com quantidade zero para gerar receitas."
+        MESSAGES.ALERT_INGREDIENT_EXHAUSTED_TITLE,
+        MESSAGES.VALIDATION_INGREDIENT_ZERO_QTY
       );
       return;
     }
@@ -169,7 +170,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
   // Remover ingrediente
   const removeIngredient = async (id: string) => {
-    if (!notifyInternetRequired("Reconecte-se para remover itens da despensa.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_REMOVE_INGREDIENT)) {
       return;
     }
     const backup = [...ingredients];
@@ -177,7 +178,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.from("dispensa").delete().eq("id", id);
     if (error) {
       setIngredients(backup);
-      Alert.alert("Erro", "Não foi possível remover o ingrediente.");
+      Alert.alert("Erro", MESSAGES.ERROR_REMOVE_INGREDIENT);
     }
   };
 
@@ -189,7 +190,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     ideal_qty: number,
     unit: string,
   ) => {
-    if (!notifyInternetRequired("Reconecte-se para editar a despensa.")) {
+    if (!notifyInternetRequired(MESSAGES.OFFLINE_EDIT_INGREDIENT)) {
       return;
     }
 
@@ -224,7 +225,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
     if (error) {
       setIngredients(backup);
-      Alert.alert("Erro", "Falha ao salvar as edições do ingrediente.");
+      Alert.alert("Erro", MESSAGES.ERROR_SAVE_INGREDIENT);
     }
   };
 
@@ -237,7 +238,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
     if (!user?.id) return false;
     if (
       !notifyInternetRequired(
-        "Reconecte-se para guardar itens na despensa.",
+        MESSAGES.OFFLINE_SAVE_INGREDIENT_STOCK,
       )
     ) {
       return false;
@@ -360,7 +361,7 @@ export function DespensaProvider({ children }: { children: React.ReactNode }) {
 
     if (
       !notifyInternetRequired(
-        "Reconecte-se para atualizar a despensa após o preparo.",
+        MESSAGES.OFFLINE_UPDATE_INGREDIENT,
       )
     ) {
       return {
@@ -659,7 +660,7 @@ export function useDespensaScreen(): DespensaScreenHookData {
     if (isAddingIngredient) return;
 
     if (!nomeNovo.trim() || qtdNova.trim() === "" || metaNova.trim() === "") {
-      Alert.alert("Atenção", "Preencha o nome, a quantidade atual e a meta.");
+      Alert.alert(MESSAGES.ALERT_ATTENTION, MESSAGES.VALIDATION_INGREDIENT_EMPTY);
       return;
     }
 
@@ -667,7 +668,7 @@ export function useDespensaScreen(): DespensaScreenHookData {
     const ideal = validateQuantity(metaNova);
 
     if (qty === null || ideal === null) {
-      Alert.alert("Erro", "Quantidade deve ser um número entre 0 e 99999.");
+      Alert.alert("Erro", MESSAGES.VALIDATION_INGREDIENT_QUANTITY);
       return;
     }
 
@@ -706,7 +707,7 @@ export function useDespensaScreen(): DespensaScreenHookData {
       finalForm.qty.trim() === "" ||
       finalForm.ideal_qty.trim() === ""
     ) {
-      Alert.alert("Atenção", "Nenhum campo pode ficar vazio.");
+      Alert.alert(MESSAGES.ALERT_ATTENTION, MESSAGES.VALIDATION_INGREDIENT_FIELDS);
       return;
     }
 
@@ -714,7 +715,7 @@ export function useDespensaScreen(): DespensaScreenHookData {
     const ideal = validateQuantity(finalForm.ideal_qty);
 
     if (qty === null || ideal === null || !editingId) {
-      Alert.alert("Erro", "Quantidade deve ser um número entre 0 e 99999.");
+      Alert.alert("Erro", MESSAGES.VALIDATION_INGREDIENT_QUANTITY);
       return;
     }
 
@@ -726,8 +727,8 @@ export function useDespensaScreen(): DespensaScreenHookData {
   // Função para exibir ajuda sobre a meta
   const showMetaHelp = () => {
     Alert.alert(
-      "O que é a Meta?",
-      "É a quantidade que você sempre quer ter na despensa (ex: 5kg de Arroz). Nossa IA usará isso para gerar sua Lista de Compras automaticamente quando o estoque baixar!",
+      MESSAGES.DIALOG_META_TITLE,
+      MESSAGES.DIALOG_META_MESSAGE,
     );
   };
 

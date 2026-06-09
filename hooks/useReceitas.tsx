@@ -4,6 +4,7 @@ import React, {
 import { DeviceEventEmitter } from "react-native";
 
 // Meus imports
+import { MESSAGES } from "../constants/messages";
 import { RECEITAS_CATALOGO_ATUALIZAR } from "../services/receitaEvents";
 import { supabase } from "../services/supabase";
 import { TemporaryMode } from "../types/perfil";
@@ -110,7 +111,7 @@ export function ReceitasProvider({ children }: { children: React.ReactNode }) {
   const buscarReceitas = useCallback(async (notifyOnOffline = false) => {
     if (isOffline) {
       if (notifyOnOffline) {
-        notifyInternetRequired("Reconecte-se para atualizar o catálogo de receitas.");
+        notifyInternetRequired(MESSAGES.OFFLINE_UPDATE_CATALOG);
       }
       setCarregando(false);
       return;

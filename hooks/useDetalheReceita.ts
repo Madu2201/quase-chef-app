@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 //Meus imports
 import { IA_PATTERNS } from "../constants/ia";
 import { RECEITA_STRINGS } from "../constants/ingredients";
+import { MESSAGES } from "../constants/messages";
 import { buscarReceitaPorId } from "../services/receitaService";
 import type { ReceitaBancoDados, ReceitaDetalhada, UseDetalheReceitaReturn } from "../types/detalhe_receita";
 import type { Recipe } from "../types/receitas";
@@ -54,7 +55,7 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
 
     if (isOffline) {
       setReceitaBancoDados(null);
-      setErro("Você está sem internet. Reconecte-se para carregar esta receita.");
+      setErro(MESSAGES.OFFLINE_LOAD_RECIPE);
       setIsLoading(false);
       return;
     }
@@ -69,12 +70,12 @@ export const useDetalheReceita = (): UseDetalheReceitaReturn => {
         setReceitaBancoDados(dados);
         setErro(null);
       } else {
-        setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+        setErro(MESSAGES.ERROR_LOAD_RECIPE);
         setReceitaBancoDados(null);
       }
     } catch (err) {
       console.error("Erro ao buscar receita:", err);
-      setErro("Não foi possível carregar esta receita agora. Tente novamente.");
+      setErro(MESSAGES.ERROR_LOAD_RECIPE);
       setReceitaBancoDados(null);
     } finally {
       setIsLoading(false);

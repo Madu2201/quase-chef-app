@@ -229,6 +229,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // 4. Funções de atualização de usuário, expostas para as telas de perfil
   const updateUser = (nextUser: UserData | null) => {
     setUser(nextUser);
     if (nextUser) {

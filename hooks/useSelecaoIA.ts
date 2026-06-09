@@ -72,7 +72,7 @@ export function useSelecaoIA() {
       }
 
       if (
-        !notifyInternetRequired("Reconecte-se para gerar uma receita com IA.")
+        !notifyInternetRequired(MESSAGES.OFFLINE_GENERATE_IA_RECIPE)
       ) {
         return;
       }

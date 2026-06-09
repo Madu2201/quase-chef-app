@@ -1,5 +1,6 @@
 import {
-  Check, Edit2, FileDown, PackagePlus, Share2, Trash2, Wand2, } from "lucide-react-native";
+  Check, Edit2, FileDown, PackagePlus, Share2, Trash2, Wand2,
+} from "lucide-react-native";
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -14,6 +15,8 @@ import { exportarListaPendentes } from "../../utils/exportPdf";
 
 export default function ListaScreen() {
   
+  const [isSavingStock, setIsSavingStock] = React.useState(false);
+
   const {
     nomeItem,
     setNomeItem,
@@ -134,11 +137,17 @@ export default function ListaScreen() {
         {/* Botão para gerar lista da despensa */}
         <TouchableOpacity
           onPress={gerarListaDaDespensa}
-          style={[styles.magicButton, isGeneratingList && { opacity: 0.5 }]}
+          style={[styles.magicButton, isGeneratingList && { opacity: 0.7 }]}
           disabled={isGeneratingList}
         >
-          <Wand2 size={20} color={Colors.light} />
-          <Text style={styles.magicButtonText}>Completar via Despensa</Text>
+          {isGeneratingList ? (
+            <ActivityIndicator size="small" color={Colors.light} />
+          ) : (
+            <Wand2 size={20} color={Colors.light} />
+          )}
+          <Text style={styles.magicButtonText}>
+            {isGeneratingList ? "Calculando mágica..." : "Completar via Despensa"}
+          </Text>
         </TouchableOpacity>
 
         {/* Cards de itens pendentes */}
@@ -222,11 +231,16 @@ export default function ListaScreen() {
                 </View>
                 <TouchableOpacity
                   onPress={handleGuardarEstoque}
-                  style={styles.btnGuardarEstoque}
+                  style={[styles.btnGuardarEstoque, isSavingStock && { opacity: 0.7 }]}
+                  disabled={isSavingStock}
                 >
-                  <PackagePlus size={20} color={Colors.light} />
+                  {isSavingStock ? (
+                    <ActivityIndicator size="small" color={Colors.light} />
+                  ) : (
+                    <PackagePlus size={20} color={Colors.light} />
+                  )}
                   <Text style={styles.btnGuardarEstoqueText}>
-                    Guardar no Estoque
+                    {isSavingStock ? "Guardando..." : "Guardar no Estoque"}
                   </Text>
                 </TouchableOpacity>
                 {filteredComprados.map((item) => (

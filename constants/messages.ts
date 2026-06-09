@@ -23,4 +23,24 @@ export const MESSAGES = {
     ERROR_INVALID_RECIPE: "Receita inválida para compartilhamento.",
     ERROR_SHARE_LINK_GENERATION: "Não foi possível gerar o link de compartilhamento.",
     ERROR_SHARE_RECIPE: "Ocorreu um erro ao tentar compartilhar a receita.",
+
+    // Mensagens de erro de IA
+    IA_ERROR_RATE_LIMIT_TITLE: "Muita gente na cozinha! 👨‍🍳",
+    IA_ERROR_RATE_LIMIT_MESSAGE: "A nossa IA está preparando muitos pratos ao mesmo tempo. Que tal dar uma olhada no nosso catálogo de receitas enquanto ela termina?",
+    
+    IA_ERROR_AUTH_TITLE: "Eita, faltou um ingrediente técnico! 🔧",
+    IA_ERROR_AUTH_MESSAGE: "Tivemos um probleminha de conexão com o nosso assistente. Enquanto resolvemos isso, você pode conferir as opções do catálogo.",
+    
+    IA_ERROR_SERVER_TITLE: "Servidores lotados! 🥵",
+    IA_ERROR_SERVER_MESSAGE: "Nosso assistente de cozinha recebeu mais pedidos do que consegue aguentar agora. Bora dar uma olhada nas receitas prontas do catálogo?",
+    
+    IA_ERROR_NETWORK_TITLE: "Sem sinal na cozinha? 🌐",
+    IA_ERROR_NETWORK_MESSAGE: "Sua internet parece ter dado uma oscilada. Verifique sua conexão ou aproveite para olhar nosso catálogo de receitas.",
+    
+    IA_ERROR_GENERIC_TITLE: "A receita desandou! 🍳",
+    IA_ERROR_GENERIC_MESSAGE: "Não conseguimos criar sua receita personalizada dessa vez. Enquanto limpamos a bancada, que tal escolher uma opção do nosso catálogo?",
+
+    IA_ERROR_BUTTON_CATALOG: "Ver Catálogo",
+    IA_ERROR_BUTTON_OK: "OK",
+    IA_NO_INGREDIENTS: "Selecione pelo menos um ingrediente!",
 };

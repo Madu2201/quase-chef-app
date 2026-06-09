@@ -4,6 +4,7 @@ import { Alert } from "react-native";
 
 // Meus imports
 import { IA_PATTERNS } from "../constants/ia";
+import { MESSAGES } from "../constants/messages";
 import { generateAndUploadRecipeImage } from "../services/aiImageService";
 import { perguntarAoGemini } from "../services/geminiService";
 import type { ContextoSegurancaPrompt } from "../types/ia";
@@ -66,7 +67,7 @@ export function useSelecaoIA() {
     async (idsIngredientes: string[]): Promise<void> => {
       const lista = idsIngredientes.filter(Boolean);
       if (lista.length === 0) {
-        Alert.alert("Atenção", "Selecione pelo menos um ingrediente!");
+        Alert.alert("Atenção", MESSAGES.IA_NO_INGREDIENTS);
         return;
       }
 
@@ -138,12 +139,64 @@ export function useSelecaoIA() {
             alergias: JSON.stringify(receitaGerada.alergias_presentes || []),
           },
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erro IA:", error);
-        Alert.alert(
-          "Erro",
-          "Não foi possível gerar a receita. Tente novamente.",
-        );
+
+        // Transforma tudo em string e minúsculo para facilitar a busca
+        const errorMessage = (error?.message || String(error)).toLowerCase();
+
+        // Botões padronizados
+        const alertButtons = [
+          {
+            text: MESSAGES.IA_ERROR_BUTTON_CATALOG,
+            onPress: () => router.push("/(tabs)/receitas")
+          },
+          {
+            text: MESSAGES.IA_ERROR_BUTTON_OK,
+            style: "cancel" as const
+          }
+        ];
+
+        // 1. Limite de Requisições (Rate Limit)
+        if (errorMessage.includes("429") || errorMessage.includes("too many requests")) {
+          Alert.alert(
+            MESSAGES.IA_ERROR_RATE_LIMIT_TITLE,
+            MESSAGES.IA_ERROR_RATE_LIMIT_MESSAGE,
+            alertButtons
+          );
+        }
+        // 2. Erro de Autenticação / Chave de API
+        else if (errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("api_key")) {
+          Alert.alert(
+            MESSAGES.IA_ERROR_AUTH_TITLE,
+            MESSAGES.IA_ERROR_AUTH_MESSAGE,
+            alertButtons
+          );
+        }
+        // 3. Erro no Servidor (Deles ou Seu)
+        else if (errorMessage.includes("500") || errorMessage.includes("503") || errorMessage.includes("server")) {
+          Alert.alert(
+            MESSAGES.IA_ERROR_SERVER_TITLE,
+            MESSAGES.IA_ERROR_SERVER_MESSAGE,
+            alertButtons
+          );
+        }
+        // 4. Erro de Internet / Conexão
+        else if (errorMessage.includes("network") || errorMessage.includes("fetch") || errorMessage.includes("internet") || errorMessage.includes("baleia")) {
+          Alert.alert(
+            MESSAGES.IA_ERROR_NETWORK_TITLE,
+            MESSAGES.IA_ERROR_NETWORK_MESSAGE,
+            alertButtons
+          );
+        }
+        // 5. Erro Genérico
+        else {
+          Alert.alert(
+            MESSAGES.IA_ERROR_GENERIC_TITLE,
+            MESSAGES.IA_ERROR_GENERIC_MESSAGE,
+            alertButtons
+          );
+        }
       } finally {
         setIsGenerating(false);
       }

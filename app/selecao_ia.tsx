@@ -263,8 +263,7 @@ export default function SelecaoIAScreen() {
         )}
       </ScrollView>
 
-      {/* Rodapé Fixo */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 30) }]}>
         <GenerateButton
           label="Gerar Receita Mágica"
           selectedCount={selecionadosCount}

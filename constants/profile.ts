@@ -31,3 +31,10 @@ export const PROFILE_DEFAULTS = {
     MEMBRO_RECENTE: "Recente",
     MEMBRO_DESDE_PREFIX: "Membro desde",
 };
+
+// Descrições dos modos temporários de filtro
+export const TEMPORARY_MODE_DESCRIPTIONS = {
+    always_on: `Modo "Ativo": preferências de estilo (união) e alergias (exclusão) filtram a lista.`,
+    paused: `Modo "Pausado": as preferências de estilo deixam de filtrar a lista (mais receitas). As alergias continuam sempre ativas.`,
+    weekends_only: `Modo "Final de Semana": aos sábados e domingos vale pausa só nas preferências de estilo; nos outros dias aplicam-se normalmente. Alergias continuam sempre ativas.`,
+} as const;

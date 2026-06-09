@@ -82,3 +82,28 @@ export const UNIDADE_EQUIVALENCIAS: Record<string, number> = {
   'pct': 1,
   'dz': 12,
 };
+
+// Dicionário de sinônimos para correspondência de ingredientes entre despensa e categorias
+// Usado para cobrir casos onde o nome do ingrediente é muito diferente ou em idiomas diferentes
+export const INGREDIENTE_SINONIMOS: Record<string, string[]> = {
+  ovo: ['ovos', 'egg'],
+  frango: ['chicken', 'galinha', 'peito'],
+  carne: ['moída', 'vermelha', 'beef', 'ground meat', 'bife'],
+  peixe: ['fish', 'salmão', 'sardinha', 'tilápia'],
+  tofu: ['soja', 'queijo de soja'],
+  feijão: ['preto', 'carioca', 'beans', 'fradinho'],
+  lentilha: ['lentilhas', 'lentil'],
+  grão: ['grão de bico', 'chickpea'],
+  tomate: ['tomato', 'cereja'],
+  cebola: ['onion', 'roxa'],
+  pimentão: ['pepper', 'pimento'],
+  batata: ['potato', 'doce', 'inglesa'],
+  arroz: ['rice', 'branco', 'integral'],
+  macarrão: ['pasta', 'espaguete', 'penne', 'massa'],
+  pão: ['bread', 'baguete', 'integral'],
+  pimenta: ['pimenta do reino', 'pepper', 'dedo de moça'],
+  azeite: ['olive oil', 'extra virgem'],
+  óleo: ['oil', 'girassol', 'soja'],
+  manjericão: ['basil'],
+  páprica: ['paprika', 'defumada', 'doce'],
+};

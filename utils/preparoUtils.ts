@@ -1,4 +1,5 @@
 // Meus imports
+import { MESSAGES } from "../constants/messages";
 import type { AbatimentoResultado } from "../types/despensa";
 import type { PreparoReceitaParams } from "../types/preparo_receita";
 import type { Recipe } from "../types/receitas";
@@ -27,7 +28,7 @@ export const criarReceitaIAParaPreparo = (
 export const formatarMensagemAbatimento = (
   resultado: AbatimentoResultado,
 ): string => {
-  const mensagemBase = `${resultado.abatidos} ingrediente(s) abatido(s)`;
+  const mensagemBase = `${resultado.abatidos} ${MESSAGES.ABATIMENTO_BASE}`;
 
   if (!resultado.ignoradosDetalhes.length) {
     return mensagemBase;
@@ -46,7 +47,7 @@ export const formatarMensagemAbatimento = (
 
   if (agrupados.incompativel?.length) {
     descricoes.push(
-      `${agrupados.incompativel.length} com unidades incompatíveis:\n` +
+      `${agrupados.incompativel.length} ${MESSAGES.ABATIMENTO_INCOMPATIVEL}:\n` +
         agrupados.incompativel
           .map((i) => `• ${i.nome}${i.detalhes ? ` (${i.detalhes})` : ''}`)
           .join('\n'),
@@ -55,20 +56,20 @@ export const formatarMensagemAbatimento = (
 
   if (agrupados.nao_encontrado?.length) {
     descricoes.push(
-      `${agrupados.nao_encontrado.length} não encontrados na despensa:\n` +
+      `${agrupados.nao_encontrado.length} ${MESSAGES.ABATIMENTO_NAO_ENCONTRADO}:\n` +
         agrupados.nao_encontrado.map((i) => `• ${i.nome}`).join('\n'),
     );
   }
 
   if (agrupados.baixa_confianca?.length) {
-    descricoes.push(`${agrupados.baixa_confianca.length} com baixa confiança`);
+    descricoes.push(`${agrupados.baixa_confianca.length} ${MESSAGES.ABATIMENTO_BAIXA_CONFIANCA}`);
   }
 
   if (agrupados.livre?.length) {
-    descricoes.push(`${agrupados.livre.length} da lista de ingredientes livres`);
+    descricoes.push(`${agrupados.livre.length} ${MESSAGES.ABATIMENTO_LIVRE}`);
   }
 
-  return `${mensagemBase}\n\n⚠️ Ignorados:\n${descricoes.join('\n\n')}`;
+  return `${mensagemBase}\n\n${MESSAGES.ABATIMENTO_IGNORADOS_TITLE}:\n${descricoes.join('\n\n')}`;
 };
 
 // Processa parâmetros da rota para o formato estruturado

@@ -140,4 +140,12 @@ export const MESSAGES = {
 
     // --- Mensagens de Catálogo/Receitas ---
     OFFLINE_UPDATE_CATALOG: "Reconecte-se para atualizar o catálogo de receitas.",
+
+    // --- Mensagens de Abatimento de Ingredientes ---
+    ABATIMENTO_BASE: "ingrediente(s) abatido(s)",
+    ABATIMENTO_INCOMPATIVEL: "com unidades incompatíveis",
+    ABATIMENTO_NAO_ENCONTRADO: "não encontrados na despensa",
+    ABATIMENTO_BAIXA_CONFIANCA: "com baixa confiança",
+    ABATIMENTO_LIVRE: "da lista de ingredientes livres",
+    ABATIMENTO_IGNORADOS_TITLE: "⚠️ Ignorados",
 };

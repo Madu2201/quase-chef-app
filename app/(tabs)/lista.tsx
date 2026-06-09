@@ -15,7 +15,7 @@ import { exportarListaPendentes } from "../../utils/exportPdf";
 
 export default function ListaScreen() {
   
-  const [isSavingStock, setIsSavingStock] = React.useState(false);
+  const [isSavingStock] = React.useState(false);
 
   const {
     nomeItem,
@@ -46,7 +46,6 @@ export default function ListaScreen() {
     handleSalvarQuantidade,
     handleGuardarEstoque,
     pendentes,
-    comprados,
     isLoading,
     isGeneratingList,
     gerarListaDaDespensa,

@@ -28,7 +28,7 @@ export function useListaCompras() {
   const [searchText, setSearchText] = useState("");
   const [activeInput, setActiveInput] = useState<string | null>(null);
   const [undoVisible, setUndoVisible] = useState(false);
-  const [lastRemovedItem, setLastRemovedItem] = useState<string | null>(null);
+  const [undoStack, setUndoStack] = useState<string[]>([]); // Fila de itens para desfazer
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({
     name: "",
@@ -157,28 +157,44 @@ export function useListaCompras() {
     const item = pendentes.find((i) => i.id === itemId);
 
     if (item) {
-      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-
-      setLastRemovedItem(itemId);
+      // Adiciona à fila de undo
+      setUndoStack((prev) => [itemId, ...prev]);
       setUndoVisible(true);
 
+      // Limpa o timeout anterior
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+
+      // Define novo timeout de 6 segundos
       undoTimeoutRef.current = setTimeout(() => {
+        setUndoStack([]);
         setUndoVisible(false);
-        setLastRemovedItem(null);
-      }, 3000);
+      }, 6000);
     }
 
     await toggleItem(itemId);
   };
 
-  // Desfaz a alteração de um item comprado
+  // Desfaz a alteração do último item clicado
   const handleUndoClick = async () => {
-    if (!lastRemovedItem) return;
+    if (undoStack.length === 0) return;
+
+    const lastItemId = undoStack[0];
+    setUndoStack((prev) => prev.slice(1)); // Remove o primeiro da fila
 
     if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    await toggleItem(lastRemovedItem);
-    setUndoVisible(false);
-    setLastRemovedItem(null);
+
+    if (undoStack.length === 1) {
+      // Se era o último, esconde o toast
+      setUndoVisible(false);
+    } else {
+      // Se há mais, reinicia o timeout
+      undoTimeoutRef.current = setTimeout(() => {
+        setUndoStack([]);
+        setUndoVisible(false);
+      }, 6000);
+    }
+
+    await toggleItem(lastItemId);
   };
 
   // Edita a quantidade de um item

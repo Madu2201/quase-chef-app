@@ -4,7 +4,7 @@ Aplicativo mobile inteligente de receitas desenvolvido com **React Native**.
 
 O Quase Chef moderniza a gestão da cozinha doméstica através de um **Ciclo de Estoque Inteligente**: gerencia inventário com base em metas, gera listas de compras automáticas, atualiza estoque em tempo real e sugere receitas personalizadas com IA (Google Gemini) baseada nos ingredientes disponíveis.
 
-## 🚀 Tecnologias Principais:
+## 🚀 Tecnologias Principais
 
 | Tecnologia                  | Descrição                        |
 | --------------------------- | -------------------------------- |
@@ -17,7 +17,7 @@ O Quase Chef moderniza a gestão da cozinha doméstica através de um **Ciclo de
 | **Expo Sharing & Print**    | Compartilhar e imprimir conteúdo |
 | **Plus Jakarta Sans**       | Fonte personalizada              |
 
-## 📂 Estrutura do Projeto:
+## 📂 Estrutura do Projeto
 
 ```
 app/
@@ -36,7 +36,7 @@ types/                        # Tipos TypeScript centralizados
 utils/                        # Funções auxiliares
 ```
 
-## 👥 Equipe:
+## 👥 Equipe
 
 | Integrante                  | Papel                   | Contribuições                                                                                                        |
 | --------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -45,7 +45,7 @@ utils/                        # Funções auxiliares
 | **Kauã de Almeida**         | Backend + Prototipagem  | Protótipo Figma, scraper de receitas, lógica de metas e compras inteligentes                                         |
 | **Maria Eduarda Rodrigues** | Front-End               | Cadastro com validação, tela de perfil e preferências alimentares, receitas, telas de IA, ajustes de rotas do perfil |
 
-## 📝 Algumas funcionalidades:
+## 📝 Algumas funcionalidades
 
 ### 👤 Autenticação e Perfil
 
